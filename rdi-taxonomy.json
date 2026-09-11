@@ -1,0 +1,143 @@
+{
+  "version": "2026-09",
+  "source": "RDI Scheme — Sectors, Sub-sectors and Types of Projects (revised). Dept of Science & Technology / ANRF.",
+  "note": "5 sunrise sectors, 44 sub-sectors, plus 2 catch-all 'other' categories. Project lists are the scheme's own indicative wording, lightly normalised.",
+  "sectors": [
+    {
+      "id": "1",
+      "name": "Energy security and transition, and climate action",
+      "short": "Energy & Climate",
+      "type": "sunrise",
+      "subsectors": [
+        { "id": "1.1", "name": "Advanced Wind Energy Systems",
+          "projects": ["Offshore and vertical-axis turbine innovation"] },
+        { "id": "1.2", "name": "Hybrid Renewable Integrations",
+          "projects": ["Combined solar-wind, solar-biomass and other hybrid systems"] },
+        { "id": "1.3", "name": "Next-Generation Solar Cells",
+          "projects": ["Cells with higher power conversion", "Field efficiency enhancements", "Innovations in solar supply chain resilience", "Reducing levelized cost of utility-scale PV"] },
+        { "id": "1.4", "name": "Energy Storage",
+          "projects": ["Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)", "Flow batteries (vanadium / next generation)", "Secured supply chains for battery components (cathode, anode, electrolyte)", "High energy density, long cycle life", "Battery safety and thermal management"] },
+        { "id": "1.5", "name": "Hydrogen Economy",
+          "projects": ["Green hydrogen via electrolysis, blue hydrogen with carbon capture", "Seawater electrolysis", "Storage and use, including fuel cells and ammonia as carrier/fuel", "Hydrogen conversion into energy (fuel cells, ICE)", "Hydrogen compressors"] },
+        { "id": "1.6", "name": "Carbon Capture, Utilization & Storage (CCUS)",
+          "projects": ["Low-cost CO2 capture, mineralization, bioconversion, enhanced oil recovery", "Utilization for building materials, chemicals, fuels"] },
+        { "id": "1.7", "name": "Modular Nuclear Reactors",
+          "projects": ["Small Modular Reactors (SMRs), thorium-based reactors, fast breeder technologies"] },
+        { "id": "1.8", "name": "Advanced Clean Energy Systems",
+          "projects": ["Fusion R&D plasma containment, superconducting magnets"] },
+        { "id": "1.9", "name": "Decentralized and Off-Grid Solutions",
+          "projects": ["Solar home systems, micro-hydro, biomass gasification for rural areas", "Innovations for last-mile energy access"] },
+        { "id": "1.10", "name": "Energy-Efficient Cooling",
+          "projects": ["High efficiency air conditioners", "Affordable localized supply chains to cut import dependency of components"] },
+        { "id": "1.11", "name": "Seaweed-Based Energy & Biochemical Alternatives", "projects": [] },
+        { "id": "1.12", "name": "Methane Capture & Bioconversion", "projects": [] },
+        { "id": "1.13", "name": "Critical Minerals, Metals and Rare Earth Processing & Recycling",
+          "projects": ["Critical minerals and metals processing solutions", "Processing of critical minerals", "Recycling systems for critical minerals and metals", "Rare earth-free magnets", "Advanced surface coating and additive manufacturing for aerospace, defence, chemical, oil & gas and biomedical"] },
+        { "id": "1.14", "name": "Ocean Farming & Marine Biotechnology", "projects": [] },
+        { "id": "1.15", "name": "Nuclear Fusion R&D", "projects": [] },
+        { "id": "1.16", "name": "Comprehensive Climate Action Initiatives",
+          "projects": ["High-resolution climate modelling / simulation tools", "Low-carbon tech for hard-to-abate sectors (steel, cement, chemicals)", "Electrification and green alternatives for industrial heating", "Carbon footprint monitoring and life-cycle assessment", "Nature-based solutions: blue carbon, green infrastructure, agroforestry", "Climate-resilient infrastructure (smart cities, sustainable drainage, heat-resilient materials)", "Net-zero / low-carbon materials (cement with >=90% lower emissions, fibre-based composites, passive thermal management)", "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination"] }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Deep Technology including quantum computing, robotics and space",
+      "short": "Deep Tech",
+      "type": "sunrise",
+      "subsectors": [
+        { "id": "2.1", "name": "Quantum Technologies",
+          "projects": ["Quantum computing: scalable qubit architectures, quantum algorithms for Indian applications, cryptographic security and post-quantum cryptography, error correction and noise mitigation, quantum sensing and metrology", "Quantum communication: QKD over fibre and free space, quantum repeaters, satellite-based quantum communication", "Quantum software & imaging: compilers, quantum imaging, non-invasive diagnostics", "Quantum materials"] },
+        { "id": "2.2", "name": "Semiconductors & Electronics",
+          "projects": ["Chip design and advanced node fabrication", "Electronic control systems", "High-precision components"] },
+        { "id": "2.3", "name": "Advanced Manufacturing & Robotics",
+          "projects": ["High-precision tools and dies", "Advanced automation / control systems for manufacturing assembly lines", "Metal / multi-material 3D printing for next-gen hybrid components"] },
+        { "id": "2.4", "name": "Photonics & Optoelectronics",
+          "projects": ["Photonics for data centres, ultra-high-speed communications, optical transceivers", "Next-gen materials (direct bandgap silicon, 2D materials, >100 GHz modulators, silicon photonics)", "High-efficiency integrated single photon sources", "Nanophotonic devices (on-chip integration)", "Beyond-CMOS integration, neuromorphic photonics, deep tissue imaging, fully optical internet", "Optical imaging of the nervous system, photonic-enabled synthetic fuels and energy storage", "Chemistry controlled by light, nanoscale light manipulation, regenerative medicine through optical cell manipulation"] },
+        { "id": "2.5", "name": "Space Technologies",
+          "projects": ["Satellite systems (miniaturized CubeSats, NanoSats, MicroSats)", "Advanced and reusable launch vehicles, propulsion innovation (cryogenic / green propellants)", "Rocket launcher systems and debris management", "Satellite communications and high-throughput satellites", "Geospatial and remote sensing applications (including hyperspectral imaging)", "Space intelligence satellites, space station development, deep-space missions", "Next-gen payloads for earth observation, climate, agriculture, urban connectivity", "AI-based space traffic monitoring, active debris removal, on-orbit servicing / refuelling / life-extension", "Moon / Mars technology demonstrations and planetary science instruments"] },
+        { "id": "2.6", "name": "Advanced Materials",
+          "projects": ["Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)", "Health and pharmaceutical materials: wound healing, non-invasive continuous monitoring, ceramic implants, titanium/alloys, silicon, biomaterials for prosthetics, spinal screws, sensors", "Infrastructure building materials: smart, self-healing and self-luminous concrete, 3D graphene, aerographite, hydroceramics, composite foams, pre-fabrication / modular construction, transparent oxide-based electronics", "2D materials", "Advanced catalysts for energy generation and storage", "Composites: carbon, glass, silicon, lithium, nickel for wind blades, PV cells, batteries, smart grids", "Food and agriculture materials: EcoWool box liners, cyclic olefin polymer, biodegradable materials for cold chains", "Metal / multi-material 3D printing for hybrid properties", "Data-driven approaches in materials research: materials informatics, computational techniques, machine learning", "Biodegradable implants", "Quantum dots for solar energy", "Carbon fibre >T1000 grade", "Smart & self-healing materials", "Advanced manufacturing including marine and jet engines"] },
+        { "id": "2.7", "name": "Intelligent Systems & Robotics",
+          "projects": ["Modular robotic platforms", "Edge intelligence and swarm robotics", "Human-robot interaction (HRI)", "Autonomous navigation and perception"] },
+        { "id": "2.8", "name": "Neuromorphic Computing & AI Hardware",
+          "projects": ["Edge AI accelerators", "Neuromorphic processors"] }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Artificial Intelligence and its applications to Indian problems including agriculture, health and education",
+      "short": "Applied AI",
+      "type": "sunrise",
+      "subsectors": [
+        { "id": "3.1", "name": "AI in Agriculture",
+          "projects": ["Precision farming techniques using AI", "AI-driven soil, irrigation and fertilization management", "Disease and pest prediction through computer vision and sensors", "Yield estimation with satellite / drone imagery and data analytics", "AI-driven market linkage and agri-supply chain optimization", "Livestock monitoring and health management with AI", "Farmer-centric AI solutions in regional languages"] },
+        { "id": "3.2", "name": "AI in Healthcare",
+          "projects": ["AI-based diagnostics in radiology, pathology and genomics", "Early disease detection for cancer, TB, diabetes using predictive models", "AI-powered telemedicine and remote patient monitoring", "Predictive epidemic response and outbreak modeling", "Natural language processing for electronic health records", "AI for mental health, speech therapy and rehabilitation support", "AI assistive technologies for people with disabilities"] },
+        { "id": "3.3", "name": "AI in Education",
+          "projects": ["Adaptive learning platforms for personalized education", "Speech-to-text and text-to-speech in Indian languages", "Automated grading and assessment", "AI for learning disabilities and student engagement tracking", "Content recommendation engines for personalized learning paths", "Teacher-assist AI tools for curriculum and classroom support", "Virtual labs and STEM simulations"] },
+        { "id": "3.4", "name": "Cross-Domain & Enabling AI Technologies",
+          "projects": ["Predictive analytics for agriculture, health and disaster management", "AI for disaster and emergency response systems", "AI testing, validation, safety and bias mitigation frameworks", "Development of indigenous AI chips and accelerators", "Edge-AI hardware for deployment in low-resource and rural settings", "Immersive digital health and education platforms (XR/AR/VR-enabled)", "AI tools for MSME automation"] }
+      ]
+    },
+    {
+      "id": "4",
+      "name": "Biotechnology, biomanufacturing, synthetic biology, pharma, medical devices",
+      "short": "Bio & Health",
+      "type": "sunrise",
+      "subsectors": [
+        { "id": "4.1", "name": "Biotechnology & Life Sciences",
+          "projects": ["Genomics, genome editing and next-generation sequencing", "Multi-omics platforms: transcriptomics, proteomics, metabolomics", "Functional and systems biology", "Bioinformatics and computational / AI-driven life sciences", "Cellular reprogramming and stem cell technologies", "Environmental biotechnology (bioremediation, wastewater treatment)"] },
+        { "id": "4.2", "name": "Biomanufacturing & Bioengineering",
+          "projects": ["Microbial, plant and mammalian cell factories for biosynthesis", "Metabolic pathway engineering for optimized production", "Sustainable bioprocesses using agro-waste and CO2 conversion", "Advanced fermentation technologies and downstream processing", "Scale-up and production of bio-enzymes, biosurfactants and biopolymers", "Biomanufacturing of diagnostics, vaccines and therapeutic proteins"] },
+        { "id": "4.3", "name": "Synthetic Biology & Industrial Biotech",
+          "projects": ["Design and synthesis of genetic circuits and minimal cells", "Biofoundry development for high-throughput strain engineering", "Chassis organism engineering (bacteria, yeast, microalgae)", "Biosensors for environmental and medical applications", "Biodesign automation and use of AI in strain design / pathway optimization", "Synthetic biology solutions for sustainable fuels, chemicals and materials"] },
+        { "id": "4.4", "name": "Pharmaceuticals & Drug Development",
+          "projects": ["Pre-clinical and clinical pharmaceutical R&D", "AI/ML-driven drug discovery and target identification", "Development of active pharmaceutical ingredients (APIs) and biosimilars", "Structure-based drug design and high-throughput screening", "Next-gen vaccine development (mRNA, recombinant, vector-based)", "Pharmacogenomics, personalized medicine platforms and drug repurposing", "Orphan drug development and advanced therapeutics"] },
+        { "id": "4.5", "name": "Medical Devices & Diagnostics",
+          "projects": ["Indigenous diagnostic kits (point-of-care, rapid, multiplexed)", "Wearable health monitors and implantable biosensors", "Image-guided and robotic surgical systems", "Smart prosthetics and rehabilitation technologies", "AI/ML-powered diagnostic and imaging devices", "Advanced drug delivery systems and biocompatible materials", "Devices for cancer care / radiotherapy, radiology, nuclear imaging, anesthesia, cardio-respiratory and renal care", "Implants (bone, cochlear, pacemaker), neural chip implants and wound healing materials", "Platform technologies for infectious disease detection and management"] },
+        { "id": "4.6", "name": "Advanced Biomaterials & Regenerative Medicine",
+          "projects": ["Multi-functional, very low-toxicity biomaterials", "Advanced 3D bioprinting and biofabrication technologies", "Biomaterialomics platforms using AI for discovery and prediction", "Automated preclinical validation and regulatory compliance (in vitro / in vivo, high-throughput)", "Smart and personalized implant design (patient-specific CAD/CAM, embedded sensors, functionalized implants)"] },
+        { "id": "4.7", "name": "Advanced Therapeutics and Biologics",
+          "projects": ["Broad-spectrum antibiotics targeting antimicrobial resistance (AMR)", "Microbiome-based therapeutics", "Sustainable biologics for agriculture, aquaculture and animal health"] }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Digital economy including digital agriculture",
+      "short": "Digital Economy",
+      "type": "sunrise",
+      "subsectors": [
+        { "id": "5.1", "name": "Core Infrastructure for Digital Economy",
+          "projects": ["Development of indigenous processors, chipsets, sensors", "Secure / sovereign cloud and edge computing platforms", "Decentralized data storage solutions", "Privacy-preserving digital architectures", "5G and 6G technologies for industry, health and rural connectivity", "Quantum-safe encryption methods and advanced cybersecurity frameworks", "Green and energy-efficient computing infrastructure"] },
+        { "id": "5.2", "name": "Digital Agriculture (AgriTech)",
+          "projects": ["Smart farming systems leveraging IoT, AI and remote sensing", "Digital soil health monitoring and advisory systems", "Precision irrigation and climate-smart input optimization technologies", "Agri-data and yield analytics platforms for crop forecasting", "Digital farm-to-market value chains (logistics, traceability, e-mandis)", "Drone-based solutions for crop monitoring, spraying and land mapping", "Blockchain-based produce traceability and contract farming platforms"] },
+        { "id": "5.3", "name": "Precision Agriculture & Soil Health",
+          "projects": ["Advanced soil carbon sensing (in-situ sensors, IoT probes, remote sensing)", "AI/ML-enabled analytics for soil health, land degradation neutrality, targeted interventions", "Equipment for residue management and sustainable soil incorporation", "Soil erosion prevention: conservation agriculture machinery, cover cropping, runoff control", "On-farm biomass conversion, biochar, microbial consortia and composting for soil organic carbon"] },
+        { "id": "5.4", "name": "Digital Financial Systems & Fintech",
+          "projects": ["Blockchain-based digital payment solutions and smart contracts", "Digital lending and micro-insurance platforms", "Credit scoring tools for MSMEs and financial inclusion for rural / informal sectors", "Central Bank Digital Currency (CBDC) pilots and applications", "Cybersecurity and fraud detection tools for secure digital transactions", "AI-based KYC automation and regulatory compliance systems", "Alternative-data-based credit scoring models", "Mobile-first ERP platforms"] },
+        { "id": "5.5", "name": "e-Governance and Citizen Services",
+          "projects": ["AI/ML-powered platforms for public service delivery and grievance redressal", "Scalable, interoperable systems for real-time governance", "Digital twins for urban / resource planning and optimization", "Multilingual voice / text-based citizen service platforms", "Aadhaar-enabled and mobile-first innovations for last-mile service inclusion", "Smart contracts for governance", "Decentralized Identity (DID) systems", "Blockchain for public asset traceability", "Energy-efficient blockchain protocols"] },
+        { "id": "5.6", "name": "Digital Health and Education Platforms",
+          "projects": ["Integrated digital health records and interoperable health stacks", "AI-driven telemedicine and mobile diagnostics", "Adaptive AI learning systems for personalized education", "Vernacular content platforms for digital skilling and literacy", "Immersive AR/VR/XR-based platforms for STEM and vocational education"] },
+        { "id": "5.7", "name": "Data Economy and Platforms",
+          "projects": ["Development of open and federated data platforms", "Advanced tools for data anonymization, consent management and sharing", "AI governance and responsible data use frameworks", "Creation of indigenous large language models (LLMs) and datasets in Indian languages", "Socio-economic data-driven platforms for policy modeling"] },
+        { "id": "5.8", "name": "Emerging Digital Economy",
+          "projects": ["Metaverse applications for industry, culture and education", "Digital avatars, virtual marketplaces and creator economy platforms", "AI in legal, regulatory (RegTech) and digital judiciary systems", "Robotics and automation solutions for MSMEs and e-commerce logistics", "Digital intellectual property creation, protection and monetization tools", "Vernacular voice interfaces"] },
+        { "id": "5.9", "name": "Digital Public Infrastructure",
+          "projects": ["Composable open-source DPI modules", "API interoperability protocols and AI-powered DPI orchestration tools", "Multi-lingual DPI interfaces", "Homomorphic encryption models", "Federated AI algorithms", "Lightweight privacy-enhancing technologies (PETs) for mobile"] }
+      ]
+    },
+    {
+      "id": "6",
+      "name": "Other sectors",
+      "short": "Other",
+      "type": "other",
+      "subsectors": [
+        { "id": "6.1", "name": "Strategic indigenization and Atmanirbharta",
+          "projects": ["Technologies whose indigenization is important for strategic reasons or for economic security"] },
+        { "id": "6.2", "name": "Public interest technologies",
+          "projects": ["Any other sector or technology deemed necessary in public interest"] }
+      ]
+    }
+  ]
+}
