@@ -1,12 +1,15 @@
 /**
- * Five invented companies, used only by /upstream?demo=1 so the row design can be
- * checked before any real data lands (CHECKPOINT 7).
+ * Seven invented companies, used only by /upstream?demo=1 so the row design can be
+ * checked before any real data lands (CHECKPOINT 7). Seven rather than five because
+ * a date now has three states worth looking at: found by us, taken from a cohort
+ * year, and unknown.
  *
  * These are NOT real companies and must never appear on the page unasked: the page
  * renders them only for that explicit query parameter, and always behind a banner
  * saying so. Delete this file once the ingest in Part 10 is producing real rows.
  */
-import type { Company } from './db';
+import type { Buckets, Company } from './db';
+import { minOriginYear } from './rank';
 
 /** Dates are written relative to render time so the "first seen N days ago" line stays sane. */
 function daysAgo(n: number): string {
@@ -24,11 +27,14 @@ export function demoCompanies(): Company[] {
 			state: 'Karnataka',
 			cin: 'U35100KA2026PTC000000',
 			founded_year: 2026,
+			origin_year: 2026,
 			sector_id: '2',
 			subsector_id: '2.5',
 			project_type: 'Launch vehicle and satellite subsystem development',
 			classify_note: 'Sub-orbital launch vehicles — space technologies.',
 			first_seen: daysAgo(12),
+			first_seen_basis: 'discovered',
+			discovered: daysAgo(12),
 			trace_count: 1,
 			tier: 'A',
 			updated_at: daysAgo(0),
@@ -46,11 +52,14 @@ export function demoCompanies(): Company[] {
 			state: 'Tamil Nadu',
 			cin: 'U40100TN2026PTC000000',
 			founded_year: 2026,
+			origin_year: 2026,
 			sector_id: '1',
 			subsector_id: '1.5',
 			project_type: 'Green hydrogen production and storage',
 			classify_note: 'Electrolyser hardware — hydrogen economy.',
 			first_seen: daysAgo(31),
+			first_seen_basis: 'discovered',
+			discovered: daysAgo(31),
 			trace_count: 2,
 			tier: 'A',
 			updated_at: daysAgo(0),
@@ -68,11 +77,14 @@ export function demoCompanies(): Company[] {
 			state: 'Telangana',
 			cin: 'U73100TG2026PTC000000',
 			founded_year: 2025,
+			origin_year: 2025,
 			sector_id: '4',
 			subsector_id: '4.2',
 			project_type: 'Affordable diagnostics and medical devices',
 			classify_note: 'Reagents for diagnostics — bio and health.',
 			first_seen: daysAgo(74),
+			first_seen_basis: 'discovered',
+			discovered: daysAgo(74),
 			trace_count: 3,
 			tier: 'B',
 			updated_at: daysAgo(0),
@@ -91,11 +103,14 @@ export function demoCompanies(): Company[] {
 			state: 'Maharashtra',
 			cin: 'U31900MH2026PTC000000',
 			founded_year: 2026,
+			origin_year: 2026,
 			sector_id: '1',
 			subsector_id: '1.4',
 			project_type: 'Grid-scale and distributed storage systems',
 			classify_note: 'Sodium-ion storage hardware — energy storage.',
 			first_seen: daysAgo(5),
+			first_seen_basis: 'discovered',
+			discovered: daysAgo(5),
 			trace_count: 0,
 			tier: 'A',
 			updated_at: daysAgo(0),
@@ -110,11 +125,14 @@ export function demoCompanies(): Company[] {
 			state: 'Karnataka',
 			cin: 'U72900KA2025PTC000000',
 			founded_year: 2025,
+			origin_year: 2026,
 			sector_id: '2',
 			subsector_id: '2.1',
 			project_type: 'Semiconductor design and fabrication',
 			classify_note: 'Processor IP design — semiconductors.',
-			first_seen: daysAgo(212),
+			first_seen: '2026-01-01',
+			first_seen_basis: 'cohort',
+			discovered: daysAgo(212),
 			trace_count: 6,
 			tier: 'C',
 			updated_at: daysAgo(0),
@@ -124,5 +142,68 @@ export function demoCompanies(): Company[] {
 				{ type: 'website', label: 'website live', url: 'https://example.invalid/anvaya', date: daysAgo(190) },
 			],
 		},
+		{
+			id: 'saral-hydro',
+			name: 'Saral Hydro Systems Private Limited',
+			description: 'Micro-hydro turbines for canal drops, installed across three states.',
+			website: 'https://example.invalid/saral',
+			city: 'Dehradun',
+			state: 'Uttarakhand',
+			cin: 'U40100UR2013PTC000000',
+			founded_year: 2013,
+			origin_year: 2013,
+			sector_id: '1',
+			subsector_id: '1.2',
+			project_type: 'Renewable generation and integration',
+			classify_note: 'Micro-hydro generation — renewables.',
+			first_seen: '2013-01-01',
+			first_seen_basis: 'cohort',
+			discovered: daysAgo(212),
+			trace_count: 4,
+			tier: 'C',
+			updated_at: daysAgo(0),
+			signals: [
+				{ type: 'incubator', label: 'IITM RTBI portfolio', url: 'https://rtbi.in/', date: null },
+				{ type: 'website', label: 'website live', url: 'https://example.invalid/saral', date: daysAgo(300) },
+			],
+		},
+		{
+			id: 'pravaha-filtration',
+			name: 'Pravaha Filtration Private Limited',
+			description: 'Ceramic membrane filtration for small municipal water utilities.',
+			website: 'https://example.invalid/pravaha',
+			city: null,
+			state: null,
+			cin: null,
+			founded_year: null,
+			origin_year: null,
+			sector_id: '3',
+			subsector_id: '3.3',
+			project_type: 'Water treatment and reuse',
+			classify_note: 'Membrane filtration — water security.',
+			first_seen: null,
+			first_seen_basis: null,
+			discovered: daysAgo(212),
+			trace_count: 2,
+			tier: 'C',
+			updated_at: daysAgo(0),
+			signals: [{ type: 'incubator', label: 'IITM RTBI portfolio', url: 'https://rtbi.in/', date: null }],
+		},
 	];
+}
+
+/**
+ * The same three-way split the SQL does, applied in TypeScript so the demo shows the
+ * real page rather than a tidier one: ranked, older than the age gate, and undated.
+ */
+export function splitDemo(companies: Company[], now: Date): { ranked: Company[]; undated: Company[]; buckets: Buckets } {
+	const cutoff = minOriginYear(now);
+	const origin = (c: Company) => c.origin_year ?? c.founded_year;
+
+	const undated = companies.filter((c) => c.first_seen === null);
+	const dated = companies.filter((c) => c.first_seen !== null);
+	const older = dated.filter((c) => (origin(c) ?? cutoff) < cutoff);
+	const ranked = dated.filter((c) => (origin(c) ?? cutoff) >= cutoff);
+
+	return { ranked, undated, buckets: { ranked: ranked.length, older: older.length, undated: undated.length } };
 }

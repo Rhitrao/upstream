@@ -6,14 +6,14 @@
  * (rohitrao.in/upstream* — see Part 8).
  *
  *   GET  /upstream                  the HTML page
- *   GET  /upstream/api/companies    JSON list; filters: sector, subsector, tier, limit
+ *   GET  /upstream/api/companies    JSON list; filters: sector, subsector, tier, age, undated, limit
  *   GET  /upstream/api/coverage     company count per sub-sector, for the coverage map
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
-import { TRACE_TYPES, TIERS, tierFor, type Tier } from './rank';
-import { queryAddedSince, queryCompanies, queryCoverage } from './db';
-import { renderPage, type TierChoice } from './page';
-import { demoCompanies } from './demo';
+import { TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
+import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, type Filters } from './db';
+import { renderPage, type AgeChoice, type TierChoice } from './page';
+import { demoCompanies, splitDemo } from './demo';
 
 const BASE = '/upstream';
 
@@ -76,6 +76,11 @@ function parseTierChoice(raw: string | null): TierChoice {
 	return 'ab';
 }
 
+/** The age gate is on unless asked otherwise, on the page and in the API alike. */
+function parseAgeChoice(raw: string | null): AgeChoice {
+	return raw === 'all' ? 'all' : 'recent';
+}
+
 function parseLimit(raw: string | null): number | null {
 	if (raw === null || raw === '') return DEFAULT_LIMIT;
 	const parsed = Number(raw);
@@ -100,14 +105,22 @@ async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 	const limit = parseLimit(url.searchParams.get('limit'));
 	if (limit === null) return json({ error: 'limit must be a positive integer' }, 400);
 
+	// Same three-way split as the page: the ranked list by default, ?undated=1 for the
+	// companies no source will date, ?age=all to lift the five-year gate.
+	const undated = url.searchParams.get('undated') === '1';
+	const age = parseAgeChoice(url.searchParams.get('age'));
+	const now = new Date();
+
 	const companies = await queryCompanies(env, {
 		sector: url.searchParams.get('sector') || null,
 		subsector: url.searchParams.get('subsector') || null,
 		tiers,
+		dated: undated ? 'undated' : 'dated',
+		minOriginYear: undated || age === 'all' ? null : minOriginYear(now),
 		limit,
 	});
 
-	return json({ count: companies.length, limit, companies }, 200, PUBLIC_CACHE);
+	return json({ count: companies.length, limit, undated, age, companies }, 200, PUBLIC_CACHE);
 }
 
 // --- GET /upstream/api/coverage --------------------------------------------
@@ -128,11 +141,11 @@ interface CompanyInput {
 	state?: string | null;
 	cin?: string | null;
 	founded_year?: number | null;
+	origin_year?: number | null;
 	sector_id?: string | null;
 	subsector_id?: string | null;
 	project_type?: string | null;
 	classify_note?: string | null;
-	first_seen?: string | null;
 }
 
 interface SignalInput {
@@ -146,17 +159,21 @@ interface SignalInput {
 }
 
 /**
- * first_seen is the memory of when we were early, and the only thing that eventually
- * proves the whole idea worked. It is written on insert and never again — note its
- * absence from the DO UPDATE list. Every other text column uses COALESCE so a later,
- * thinner record cannot blank out something we already knew.
+ * first_seen and discovered are written on insert and never again — note their absence
+ * from the DO UPDATE list, with one deliberate exception below. Every other text
+ * column uses COALESCE so a later, thinner record cannot blank out something we knew.
+ *
+ * The exception: a row whose first_seen is NULL can be dated later, but only by ?18,
+ * the cohort year a source published. Never by excluded.first_seen — on a live run
+ * that is today, and stamping today onto a row we have held for months would invent
+ * a discovery out of a company we already had.
  */
 const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
-  id, name, description, website, city, state, cin, founded_year,
+  id, name, description, website, city, state, cin, founded_year, origin_year,
   sector_id, subsector_id, project_type, classify_note,
-  first_seen, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, 0, 'C', ?14)
+  first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
+) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
@@ -165,10 +182,13 @@ ON CONFLICT(id) DO UPDATE SET
   state         = COALESCE(excluded.state,         companies.state),
   cin           = COALESCE(excluded.cin,           companies.cin),
   founded_year  = COALESCE(excluded.founded_year,  companies.founded_year),
+  origin_year   = COALESCE(MIN(companies.origin_year, excluded.origin_year), companies.origin_year, excluded.origin_year),
   sector_id     = COALESCE(excluded.sector_id,     companies.sector_id),
   subsector_id  = COALESCE(excluded.subsector_id,  companies.subsector_id),
   project_type  = COALESCE(excluded.project_type,  companies.project_type),
   classify_note = COALESCE(excluded.classify_note, companies.classify_note),
+  first_seen       = CASE WHEN companies.first_seen IS NULL THEN ?18 ELSE companies.first_seen END,
+  first_seen_basis = CASE WHEN companies.first_seen IS NULL AND ?18 IS NOT NULL THEN 'cohort' ELSE companies.first_seen_basis END,
   updated_at    = excluded.updated_at`;
 
 const INSERT_SIGNAL_SQL = `
@@ -191,8 +211,14 @@ function int(value: unknown): number | null {
 	return null;
 }
 
+/** 1900 to next year. Anything else is a parsing accident, not a founding date. */
+function isPlausibleYear(year: number | null, now: Date): boolean {
+	return year !== null && year >= 1900 && year <= now.getUTCFullYear() + 1;
+}
+
 async function ingest(request: Request, env: Env): Promise<Response> {
-	const startedAt = new Date().toISOString();
+	const now = new Date();
+	const startedAt = now.toISOString();
 
 	if (!env.INGEST_KEY) {
 		// Fail closed. Without the secret there is nothing to authenticate against.
@@ -218,6 +244,13 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 	const source = str(payload.source);
 	if (!source) return json({ error: 'source is required' }, 400);
 
+	// Normally inferred from the runs table; the override is for re-seeding a source
+	// whose history was wiped, where "has it run before" would answer wrongly.
+	const mode = str(payload.mode);
+	if (mode !== null && mode !== 'backfill' && mode !== 'live') {
+		return json({ error: 'mode must be backfill or live' }, 400);
+	}
+
 	if (payload.companies !== undefined && !Array.isArray(payload.companies)) {
 		return json({ error: 'companies must be an array' }, 400);
 	}
@@ -237,6 +270,10 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const name = str(c.name);
 		if (!id) return json({ error: `companies[${i}].id is required` }, 400);
 		if (!name) return json({ error: `companies[${i}].name is required` }, 400);
+		// A junk year would quietly decide whether a company is old enough to hide.
+		if (c.origin_year !== undefined && c.origin_year !== null && !isPlausibleYear(int(c.origin_year), now)) {
+			return json({ error: `companies[${i}].origin_year must be a four-digit year no later than next year` }, 400);
+		}
 		companies.push({ ...(c as object), id, name } as CompanyInput);
 	}
 
@@ -256,7 +293,7 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 	}
 
 	try {
-		const result = await applyIngest(env, source, companies, signals, new Date());
+		const result = await applyIngest(env, source, companies, signals, now, mode);
 		await env.DB.prepare(INSERT_RUN_SQL).bind(startedAt, source, 'ok', companies.length, null).run();
 		return json(result);
 	} catch (error) {
@@ -276,11 +313,55 @@ interface IngestResult {
 	updated: number;
 	signals_added: number;
 	signals_skipped: number;
+	/** Said out loud in the response, because it decides what every date in it means. */
+	backfill: boolean;
 }
 
-async function applyIngest(env: Env, source: string, companies: CompanyInput[], signals: SignalInput[], now: Date): Promise<IngestResult> {
+/**
+ * A source's first day is a backfill: a list of companies other people have known about
+ * for years. Nothing in it is a discovery, so nothing in it gets today's date. Asked
+ * per source, not globally — a source added in month three brings its own history and
+ * must not inherit anyone else's.
+ *
+ * The test is "has this source completed a run on an EARLIER day", not "has it ever
+ * run", because one sweep is many requests: 539 companies do not fit in a single
+ * payload, and a rule that flipped after the first chunk would stamp today's date on
+ * every company in chunks two onward. That is the exact dishonesty this is here to
+ * prevent, so the rule is written to survive it.
+ *
+ * The runs row is written after this, so a run that fails leaves only a 'failed' row
+ * and the retry is still treated as the backfill. Wrong in the safe direction.
+ */
+async function isBackfill(env: Env, source: string, today: string): Promise<boolean> {
+	const row = await env.DB.prepare(
+		"SELECT 1 AS found FROM runs WHERE source = ?1 AND status = 'ok' AND substr(started_at, 1, 10) < ?2 LIMIT 1",
+	)
+		.bind(source, today)
+		.first<{ found: number }>();
+	return row === null;
+}
+
+/**
+ * A cohort year is a year, so it lands on 1 January. Flooring errs the safe way: it
+ * makes a company look older than it is, never newer, so it can never manufacture a
+ * Tier A and it drops a company out of the age gate slightly early rather than late.
+ */
+function cohortDate(year: number | null): string | null {
+	return year === null ? null : `${year}-01-01`;
+}
+
+async function applyIngest(
+	env: Env,
+	source: string,
+	companies: CompanyInput[],
+	signals: SignalInput[],
+	now: Date,
+	mode: string | null,
+): Promise<IngestResult> {
 	const nowIso = now.toISOString();
 	const today = isoDate(now);
+
+	const backfill = mode === null ? await isBackfill(env, source, today) : mode === 'backfill';
 
 	const payloadIds = [...new Set(companies.map((c) => c.id))];
 
@@ -290,8 +371,16 @@ async function applyIngest(env: Env, source: string, companies: CompanyInput[], 
 	const inserted = payloadIds.filter((id) => !existingBefore.has(id)).length;
 	const updated = payloadIds.length - inserted;
 
-	const writes = companies.map((c) =>
-		env.DB.prepare(UPSERT_COMPANY_SQL).bind(
+	const writes = companies.map((c) => {
+		// What the source says about when the company began, and what that means for a
+		// row we are inserting today. On a backfill the cohort year is the best we can
+		// honestly claim; on a live run the company was not on this list last time, and
+		// today is the truthful date of that.
+		const cohort = cohortDate(int(c.origin_year));
+		const firstSeen = backfill ? cohort : today;
+		const basis = firstSeen === null ? null : backfill ? 'cohort' : 'discovered';
+
+		return env.DB.prepare(UPSERT_COMPANY_SQL).bind(
 			c.id,
 			c.name,
 			str(c.description),
@@ -300,14 +389,18 @@ async function applyIngest(env: Env, source: string, companies: CompanyInput[], 
 			str(c.state),
 			str(c.cin),
 			int(c.founded_year),
+			int(c.origin_year),
 			str(c.sector_id),
 			str(c.subsector_id),
 			str(c.project_type),
 			str(c.classify_note),
-			str(c.first_seen) ?? today,
+			firstSeen,
+			basis,
+			today,
 			nowIso,
-		),
-	);
+			cohort,
+		);
+	});
 
 	// A signal needs its company to exist, or the foreign key rejects the whole batch.
 	const known = new Set([...existingBefore, ...payloadIds]);
@@ -344,7 +437,7 @@ async function applyIngest(env: Env, source: string, companies: CompanyInput[], 
 	const touched = [...new Set([...payloadIds, ...accepted.map((s) => s.company_id)])];
 	await recomputeRanking(env, touched, nowIso, now);
 
-	return { inserted, updated, signals_added: signalsAdded, signals_skipped: signalsSkipped };
+	return { inserted, updated, signals_added: signalsAdded, signals_skipped: signalsSkipped, backfill };
 }
 
 async function selectExistingIds(env: Env, ids: string[]): Promise<Set<string>> {
@@ -364,20 +457,20 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 
 	for (const group of chunk(ids, BIND_CHUNK)) {
 		const { results } = await env.DB.prepare(
-			`SELECT c.id, c.first_seen,
+			`SELECT c.id, c.first_seen, c.first_seen_basis,
 			   (SELECT COUNT(*) FROM signals s
 			     WHERE s.company_id = c.id
 			       AND s.type IN (${placeholders(TRACE_TYPES.length)})) AS trace_count
 			 FROM companies c WHERE c.id IN (${placeholders(group.length)})`,
 		)
 			.bind(...TRACE_TYPES, ...group)
-			.all<{ id: string; first_seen: string; trace_count: number }>();
+			.all<{ id: string; first_seen: string | null; first_seen_basis: string | null; trace_count: number }>();
 
 		for (const row of results) {
 			updates.push(
 				env.DB.prepare('UPDATE companies SET trace_count = ?1, tier = ?2, updated_at = ?3 WHERE id = ?4').bind(
 					row.trace_count,
-					tierFor(row.first_seen, row.trace_count, now),
+					tierFor(row.first_seen, row.first_seen_basis, row.trace_count, now),
 					nowIso,
 					row.id,
 				),
@@ -393,28 +486,48 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 async function page(url: URL, env: Env): Promise<Response> {
 	const now = new Date();
 	const tier = parseTierChoice(url.searchParams.get('tier'));
+	const age = parseAgeChoice(url.searchParams.get('age'));
 	const sector = url.searchParams.get('sector') || null;
 	const subsector = url.searchParams.get('subsector') || null;
 
-	// Five invented companies, so the row design can be checked before real data lands
+	// Seven invented companies, so the row design can be checked before real data lands
 	// (CHECKPOINT 7). Never shown unless explicitly asked for, and always behind a banner.
 	const demo = url.searchParams.get('demo') === '1';
 
+	const cutoff = minOriginYear(now);
+	const ranked: Filters = {
+		sector,
+		subsector,
+		tiers: TIER_SETS[tier],
+		dated: 'dated',
+		minOriginYear: age === 'all' ? null : cutoff,
+		limit: DEFAULT_LIMIT,
+	};
+	// The undated section sits outside the ranking, so the tier toggle and the age gate
+	// have nothing to say about it. Sector and sub-sector still apply: clicking a
+	// coverage cell has to filter the whole page, not half of it.
+	const unplaceable: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
+
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, addedThisWeek] = await Promise.all([
+	const [coverage, companies, undated, buckets, discoveredThisWeek] = await Promise.all([
 		queryCoverage(env),
-		demo ? Promise.resolve(demoCompanies()) : queryCompanies(env, { sector, subsector, tiers: TIER_SETS[tier], limit: DEFAULT_LIMIT }),
-		queryAddedSince(env, weekAgo),
+		demo ? Promise.resolve(splitDemo(demoCompanies(), now).ranked) : queryCompanies(env, ranked),
+		demo ? Promise.resolve(splitDemo(demoCompanies(), now).undated) : queryCompanies(env, unplaceable),
+		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked, cutoff),
+		queryDiscoveredSince(env, weekAgo),
 	]);
 
 	const html = renderPage({
 		coverage,
 		companies,
+		undated,
+		buckets,
 		tracked: coverage.total_companies,
-		addedThisWeek,
+		discoveredThisWeek,
 		sector,
 		subsector,
 		tier,
+		age,
 		demo,
 		now,
 	});

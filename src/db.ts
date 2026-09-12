@@ -3,7 +3,7 @@
  * server-rendered page and the JSON endpoints can never drift apart.
  */
 import { SUNRISE_SECTORS, SUNRISE_SUBSECTOR_IDS } from './taxonomy';
-import type { Tier } from './rank';
+import type { Basis, Tier } from './rank';
 
 export interface Signal {
 	type: string;
@@ -21,23 +21,43 @@ export interface Company {
 	state: string | null;
 	cin: string | null;
 	founded_year: number | null;
+	origin_year: number | null;
 	sector_id: string | null;
 	subsector_id: string | null;
 	project_type: string | null;
 	classify_note: string | null;
-	first_seen: string;
+	first_seen: string | null;
+	first_seen_basis: Basis | null;
+	discovered: string;
 	trace_count: number;
 	tier: Tier;
 	updated_at: string;
 	signals: Signal[];
 }
 
+/** Whether a company can be placed in time at all. The page shows the two separately. */
+export type DateState = 'dated' | 'undated';
+
 export interface Filters {
 	sector: string | null;
 	subsector: string | null;
 	/** null or empty means every tier. */
 	tiers: Tier[] | null;
+	/** 'dated' is the ranked list, 'undated' the section under it, null both at once. */
+	dated: DateState | null;
+	/** Drop anything that started earlier than this year. null lifts the age gate. */
+	minOriginYear: number | null;
 	limit: number;
+}
+
+/** How the current filters split three ways. The page states all three out loud. */
+export interface Buckets {
+	/** Dated and recent enough for the ranked list. */
+	ranked: number;
+	/** Dated, but older than the age gate allows. */
+	older: number;
+	/** No date at all, from any source. */
+	undated: number;
 }
 
 export interface CoverageCell {
@@ -63,35 +83,108 @@ export interface Coverage {
 }
 
 /**
- * One row per company with its signals attached as JSON, tier first and newest first
- * inside a tier. The `?n IS NULL OR ...` filters let one statement serve every
- * combination of filters. The tier clause is a set rather than a single value because
- * the page's default toggle is A+B; the API passes a set of one.
+ * When a company started, as well as anyone will tell us: incubated or founded,
+ * whichever is earlier. MIN() goes NULL the moment either side is, which is what the
+ * COALESCE chain behind it is for.
  */
-function listSql(tierCount: number): string {
-	const tierClause = tierCount > 0 ? `AND c.tier IN (${new Array(tierCount).fill('?').join(', ')})` : '';
-	return `
+const ORIGIN_YEAR = 'COALESCE(MIN(c.origin_year, c.founded_year), c.origin_year, c.founded_year)';
+
+/**
+ * Every filter as a clause and its binds, in the order they have to be bound. Built as
+ * a list rather than numbered placeholders: there are five optional conditions now,
+ * and hand-counting `?7` against a variable-length tier set is how a filter silently
+ * starts matching the wrong column.
+ */
+function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
+	const clauses: string[] = [];
+	const binds: unknown[] = [];
+
+	if (filters.sector) {
+		clauses.push('c.sector_id = ?');
+		binds.push(filters.sector);
+	}
+	if (filters.subsector) {
+		clauses.push('c.subsector_id = ?');
+		binds.push(filters.subsector);
+	}
+
+	// A set rather than a single value: the page's default toggle is A+B, and the API
+	// passes a set of one.
+	const tiers = filters.tiers ?? [];
+	if (tiers.length > 0) {
+		clauses.push(`c.tier IN (${new Array(tiers.length).fill('?').join(', ')})`);
+		binds.push(...tiers);
+	}
+
+	if (filters.dated === 'dated') clauses.push('c.first_seen IS NOT NULL');
+	if (filters.dated === 'undated') clauses.push('c.first_seen IS NULL');
+
+	if (filters.minOriginYear !== null) {
+		// An unknown origin year is not an old one, so those rows stay put.
+		clauses.push(`(${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?)`);
+		binds.push(filters.minOriginYear);
+	}
+
+	return { clauses, binds };
+}
+
+function whereSql(clauses: string[]): string {
+	return clauses.length > 0 ? `WHERE ${clauses.join('\n  AND ')}` : '';
+}
+
+/**
+ * One row per company with its signals attached as JSON, tier first and newest first
+ * inside a tier. Undated rows sort last within their tier, which is where SQLite puts
+ * a NULL under DESC anyway and where they belong.
+ */
+export async function queryCompanies(env: Env, filters: Filters): Promise<Company[]> {
+	const { clauses, binds } = conditions(filters);
+	const sql = `
 SELECT c.*,
   (SELECT json_group_array(json_object(
       'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date))
    FROM signals s WHERE s.company_id = c.id) AS signals
 FROM companies c
-WHERE (?1 IS NULL OR c.sector_id = ?1)
-  AND (?2 IS NULL OR c.subsector_id = ?2)
-  ${tierClause}
+${whereSql(clauses)}
 ORDER BY
   CASE c.tier WHEN 'A' THEN 0 WHEN 'B' THEN 1 ELSE 2 END,
   c.first_seen DESC
-LIMIT ?${3 + tierCount}`;
-}
+LIMIT ?`;
 
-export async function queryCompanies(env: Env, filters: Filters): Promise<Company[]> {
-	const tiers = filters.tiers ?? [];
-	const { results } = await env.DB.prepare(listSql(tiers.length))
-		.bind(filters.sector, filters.subsector, ...tiers, filters.limit)
+	const { results } = await env.DB.prepare(sql)
+		.bind(...binds, filters.limit)
 		.all<Record<string, unknown>>();
 
 	return results.map((row) => ({ ...row, signals: parseSignals(row.signals) }) as unknown as Company);
+}
+
+/**
+ * The three buckets the current sector, sub-sector and tier filters split into. One
+ * query rather than three counts, so the numbers on the page cannot disagree with
+ * each other — "showing 12, 30 older, 42 undated" has to add up.
+ */
+export async function queryBuckets(env: Env, filters: Filters, minOriginYear: number): Promise<Buckets> {
+	// The date state and the age gate are what we are counting, so they must not also
+	// filter the count. Neither may the tier toggle: it belongs to the ranking, so it
+	// narrows the first two buckets from inside the CASE and leaves the undated one
+	// alone — which is exactly how the two sections of the page behave.
+	const { clauses, binds } = conditions({ ...filters, tiers: null, dated: null, minOriginYear: null });
+	const tiers = filters.tiers ?? [];
+	const ranked = tiers.length > 0 ? `AND c.tier IN (${new Array(tiers.length).fill('?').join(', ')})` : '';
+	const sql = `
+SELECT
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND (${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?) ${ranked} THEN 1 ELSE 0 END) AS ranked,
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND ${ORIGIN_YEAR} < ? ${ranked} THEN 1 ELSE 0 END) AS older,
+  SUM(CASE WHEN c.first_seen IS NULL THEN 1 ELSE 0 END) AS undated
+FROM companies c
+${whereSql(clauses)}`;
+
+	const row = await env.DB.prepare(sql)
+		.bind(minOriginYear, ...tiers, minOriginYear, ...tiers, ...binds)
+		.first<{ ranked: number | null; older: number | null; undated: number | null }>();
+
+	// SUM over no rows is NULL, not 0.
+	return { ranked: row?.ranked ?? 0, older: row?.older ?? 0, undated: row?.undated ?? 0 };
 }
 
 function parseSignals(raw: unknown): Signal[] {
@@ -155,8 +248,15 @@ export async function queryCoverage(env: Env): Promise<Coverage> {
 	};
 }
 
-/** Companies whose first_seen falls on or after `since` — the header's "added this week". */
-export async function queryAddedSince(env: Env, since: string): Promise<number> {
-	const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM companies WHERE first_seen >= ?1').bind(since).first<{ n: number }>();
+/**
+ * Real discoveries since `since` — the header's "discovered this week".
+ *
+ * Deliberately not a count of rows added: a backfill adds hundreds in an afternoon
+ * and none of them are this week's news. Only a first_seen we earned counts.
+ */
+export async function queryDiscoveredSince(env: Env, since: string): Promise<number> {
+	const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM companies WHERE first_seen_basis = 'discovered' AND first_seen >= ?1")
+		.bind(since)
+		.first<{ n: number }>();
 	return row?.n ?? 0;
 }

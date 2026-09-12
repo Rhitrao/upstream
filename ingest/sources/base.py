@@ -46,9 +46,16 @@ class Company:
     job, and a scraper that guessed would put a guess into the audit trail that
     classify_note is supposed to be.
 
-    `first_seen` stays None too. It records the day *we* first saw the company, so the
-    Worker stamps it on insert and never again — backdating it from a source's own
-    dates would throw away the one fact that eventually proves we were early.
+    There is no first_seen field, and that is deliberate. When a company became
+    visible, and when it became visible to us, are the Worker's to decide: it knows
+    whether this is a source's first sweep (a backfill, where the honest date is the
+    cohort year below) or a later run (where a company that was not there last time
+    really was found today). A scraper that sent its own date would hand every
+    backfilled company a discovery it never had.
+
+    `origin_year` is the one date fact a scraper does carry: the year the source says
+    the company was incubated or founded. Year precision only, because that is all any
+    of these pages publish.
     """
 
     id: str
@@ -59,11 +66,11 @@ class Company:
     state: str | None = None
     cin: str | None = None
     founded_year: int | None = None
+    origin_year: int | None = None
     sector_id: str | None = None
     subsector_id: str | None = None
     project_type: str | None = None
     classify_note: str | None = None
-    first_seen: str | None = None
 
     @classmethod
     def named(cls, name: str, **fields) -> Company:
@@ -170,6 +177,8 @@ def preview(companies: list[Company], signals: list[Signal], limit: int = 5) -> 
     lines = [f"{len(companies)} companies, {len(signals)} signals"]
     missing = sum(1 for c in companies if not c.website)
     lines.append(f"{missing} without a website, {sum(1 for c in companies if not c.description)} without a description")
+    undated = sum(1 for c in companies if c.origin_year is None)
+    lines.append(f"{undated} with no year, which the page lists as undated rather than ranking")
     for company in companies[:limit]:
         lines.append(f"\n  {company.id}\n    {company.name}")
         if company.website:

@@ -11,6 +11,9 @@ overlap. Companies are deduped by slug and every membership becomes its own sign
 company on all three lists is a company three sets of people already know, which is
 exactly what trace_count is for.
 
+Only the incubation records carry a year, so a company known here solely as a grantee
+or a seed investment arrives undated, and the page says so rather than guessing.
+
 Run it: python3 -m ingest.sources.sine
 """
 
@@ -104,7 +107,26 @@ def _company(name: str, records: list[dict]) -> Company:
         name,
         description=_first(records, "description", clean),
         website=_first(records, "website", website),
+        origin_year=_origin_year(records),
     )
+
+
+def _origin_year(records: list[dict]) -> int | None:
+    """The earliest incubation year any record gives, as a year.
+
+    Only year_of_incubation is read. The other date field, year_bifurcation, is a
+    five-year bucket — "Y-2021-2025" — and reading a bucket as a year would put a 2025
+    company four years in the past. Every record that has a bucket has the real year
+    too, so nothing is lost by ignoring it.
+    """
+    years = [_start_year(r.get("year_of_incubation")) for r in records]
+    found = [y for y in years if y is not None]
+    return min(found) if found else None
+
+
+def _start_year(value: str | None) -> int | None:
+    match = re.search(r"\b(19|20)\d{2}\b", clean(value) or "")
+    return int(match.group(0)) if match else None
 
 
 def _first(records: list[dict], key: str, convert):
@@ -116,11 +138,15 @@ def _first(records: list[dict], key: str, convert):
 
 
 def _merge(kept: Company, repeat: Company) -> Company:
+    years = [y for y in (kept.origin_year, repeat.origin_year) if y is not None]
     return Company(
         id=kept.id,
         name=kept.name,
         description=kept.description or repeat.description,
         website=kept.website or repeat.website,
+        # The earliest claim wins: a company is no younger than the first list it
+        # appeared on.
+        origin_year=min(years) if years else None,
     )
 
 

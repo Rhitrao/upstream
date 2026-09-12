@@ -4,6 +4,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 const KEY = 'test-ingest-key';
 const ORIGIN = 'https://rohitrao.in';
 
+const TODAY = new Date().toISOString().slice(0, 10);
+const THIS_YEAR = new Date().getUTCFullYear();
+
 async function clearDb() {
 	await env.DB.batch([env.DB.prepare('DELETE FROM signals'), env.DB.prepare('DELETE FROM companies'), env.DB.prepare('DELETE FROM runs')]);
 }
@@ -99,7 +102,7 @@ describe('POST /upstream/api/ingest', () => {
 		expect((await post({ source: 'test', companies: [{ name: 'No id' }] })).status).toBe(400);
 	});
 
-	it('inserts, then updates without touching first_seen', async () => {
+	it('inserts with the cohort date, then updates without touching either date', async () => {
 		const first = await post({
 			source: 'sine_iitb',
 			companies: [
@@ -110,33 +113,39 @@ describe('POST /upstream/api/ingest', () => {
 					city: 'Bengaluru',
 					sector_id: '2',
 					subsector_id: '2.5',
-					first_seen: '2026-01-10',
+					origin_year: 2022,
 				},
 			],
-			signals: [{ company_id: 'verve-aerospace', type: 'incubator', label: 'SINE IIT-B cohort 2026' }],
+			signals: [{ company_id: 'verve-aerospace', type: 'incubator', label: 'SINE IIT-B cohort 2022' }],
 		});
 		expect(await first.json()).toMatchObject({
 			inserted: 1,
 			updated: 0,
 			signals_added: 1,
 			signals_skipped: 0,
+			backfill: true,
 		});
 
 		const second = await post({
 			source: 'sine_iitb',
+			mode: 'live',
 			companies: [
-				// A thinner record, and a later first_seen that must be ignored.
-				{ id: 'verve-aerospace', name: 'Verve Aerospace Private Limited', first_seen: '2026-09-01' },
+				// A thinner record, on a live run. Neither date may move.
+				{ id: 'verve-aerospace', name: 'Verve Aerospace Private Limited', origin_year: 2024 },
 			],
 			signals: [
 				// The same signal again — the UNIQUE constraint must swallow it.
-				{ company_id: 'verve-aerospace', type: 'incubator', label: 'SINE IIT-B cohort 2026' },
+				{ company_id: 'verve-aerospace', type: 'incubator', label: 'SINE IIT-B cohort 2022' },
 			],
 		});
-		expect(await second.json()).toMatchObject({ inserted: 0, updated: 1, signals_added: 0 });
+		expect(await second.json()).toMatchObject({ inserted: 0, updated: 1, signals_added: 0, backfill: false });
 
 		const row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('verve-aerospace').first<any>();
-		expect(row.first_seen).toBe('2026-01-10');
+		expect(row.first_seen).toBe('2022-01-01');
+		expect(row.first_seen_basis).toBe('cohort');
+		expect(row.discovered).toBe(TODAY);
+		// The earliest claim wins, so a later cohort year cannot age a company forward.
+		expect(row.origin_year).toBe(2022);
 		expect(row.name).toBe('Verve Aerospace Private Limited');
 		// COALESCE keeps what we already knew.
 		expect(row.description).toBe('Small reusable launch vehicles.');
@@ -168,13 +177,12 @@ describe('POST /upstream/api/ingest', () => {
 	});
 
 	it('recomputes trace_count and tier for touched companies', async () => {
-		const today = new Date().toISOString().slice(0, 10);
 		await post({
 			source: 'test',
+			mode: 'live',
 			companies: [
-				{ id: 'quiet', name: 'Quiet Co', first_seen: today },
-				{ id: 'loud', name: 'Loud Co', first_seen: today },
-				{ id: 'old', name: 'Old Co', first_seen: '2020-01-01' },
+				{ id: 'quiet', name: 'Quiet Co' },
+				{ id: 'loud', name: 'Loud Co' },
 			],
 			signals: [
 				// incorporation is not a trace: it is how we found them.
@@ -185,6 +193,7 @@ describe('POST /upstream/api/ingest', () => {
 				{ company_id: 'loud', type: 'incubator', label: 'Accelerator badge' },
 			],
 		});
+		await post({ source: 'archive', companies: [{ id: 'old', name: 'Old Co', origin_year: 2020 }] });
 
 		const rows = await env.DB.prepare('SELECT id, trace_count, tier FROM companies ORDER BY id').all<any>();
 		expect(rows.results).toEqual([
@@ -193,29 +202,128 @@ describe('POST /upstream/api/ingest', () => {
 			{ id: 'quiet', trace_count: 0, tier: 'A' },
 		]);
 	});
+
+	it('treats a whole first day as a backfill, however many requests it takes', async () => {
+		// One sweep, three chunks, because 500 companies do not fit in one payload.
+		for (const chunk of [
+			[{ id: 'one', name: 'One', origin_year: THIS_YEAR }],
+			[{ id: 'two', name: 'Two', origin_year: THIS_YEAR }],
+			[{ id: 'three', name: 'Three' }],
+		]) {
+			expect(await (await post({ source: 'sine', companies: chunk })).json()).toMatchObject({ backfill: true });
+		}
+
+		const rows = await env.DB.prepare('SELECT first_seen_basis, COUNT(*) AS n FROM companies GROUP BY 1 ORDER BY 1').all<any>();
+		expect(rows.results).toEqual([{ first_seen_basis: null, n: 1 }, { first_seen_basis: 'cohort', n: 2 }]);
+	});
+
+	it('treats a run on a later day as live, per source', async () => {
+		await post({ source: 'sine', companies: [{ id: 'backfilled', name: 'Backfilled', origin_year: THIS_YEAR }] });
+		// Yesterday's sweep, so today's run is this source's second day.
+		await env.DB.prepare("UPDATE runs SET started_at = '2020-01-01T00:00:00.000Z' WHERE source = 'sine'").run();
+
+		const second = await post({
+			source: 'sine',
+			companies: [
+				{ id: 'backfilled', name: 'Backfilled' },
+				{ id: 'found', name: 'Found Today' },
+			],
+		});
+		expect(await second.json()).toMatchObject({ backfill: false, inserted: 1, updated: 1 });
+
+		// A different source starts its own history, however long we have been running.
+		const other = await post({ source: 'rtbi', companies: [{ id: 'other', name: 'Other' }] });
+		expect(await other.json()).toMatchObject({ backfill: true });
+
+		const rows = await env.DB.prepare('SELECT id, first_seen, first_seen_basis, tier FROM companies ORDER BY id').all<any>();
+		expect(rows.results).toEqual([
+			{ id: 'backfilled', first_seen: `${THIS_YEAR}-01-01`, first_seen_basis: 'cohort', tier: expect.stringMatching(/B|C/) },
+			{ id: 'found', first_seen: TODAY, first_seen_basis: 'discovered', tier: 'A' },
+			{ id: 'other', first_seen: null, first_seen_basis: null, tier: 'C' },
+		]);
+	});
+
+	it('never stamps a live run onto a company it already had', async () => {
+		await post({ source: 'rtbi', companies: [{ id: 'undated', name: 'Undated Co' }] });
+		await post({ source: 'rtbi', mode: 'live', companies: [{ id: 'undated', name: 'Undated Co' }] });
+
+		const row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('undated').first<any>();
+		// Seeing it again is not finding it. It stays undated, and it stays out of A.
+		expect(row.first_seen).toBe(null);
+		expect(row.first_seen_basis).toBe(null);
+		expect(row.tier).toBe('C');
+		expect(row.discovered).toBe(TODAY);
+	});
+
+	it('lets a later source date an undated company, but never redate a dated one', async () => {
+		await post({ source: 'rtbi', companies: [{ id: 'shared', name: 'Shared Co' }] });
+		await post({ source: 'sine', companies: [{ id: 'shared', name: 'Shared Co', origin_year: 2023 }] });
+
+		let row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('shared').first<any>();
+		expect(row.first_seen).toBe('2023-01-01');
+		expect(row.first_seen_basis).toBe('cohort');
+
+		await post({ source: 'grants', companies: [{ id: 'shared', name: 'Shared Co', origin_year: 2025 }] });
+		row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('shared').first<any>();
+		expect(row.first_seen).toBe('2023-01-01');
+	});
+
+	it('keeps a cohort date out of Tier A however recent it is', async () => {
+		await post({ source: 'test', mode: 'live', companies: [{ id: 'found', name: 'Found' }] });
+		expect((await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('found').first<any>()).tier).toBe('A');
+
+		// Same date, different provenance: only the provenance changes.
+		await env.DB.prepare("UPDATE companies SET first_seen_basis = 'cohort' WHERE id = ?").bind('found').run();
+		await post({ source: 'test', mode: 'live', companies: [{ id: 'found', name: 'Found' }] });
+
+		expect((await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('found').first<any>()).tier).toBe('B');
+	});
+
+	it('rejects a nonsense mode or origin_year', async () => {
+		expect((await post({ source: 'test', mode: 'sideways', companies: [] })).status).toBe(400);
+		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: 12 }] })).status).toBe(400);
+		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: THIS_YEAR + 5 }] })).status).toBe(400);
+		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: 'soon' }] })).status).toBe(400);
+	});
 });
 
 describe('GET /upstream/api/companies', () => {
+	// Three companies, one of each date state the page has to tell apart: found by us,
+	// backfilled from a cohort year old enough to hold back, and never dated at all.
 	beforeEach(async () => {
-		const today = new Date().toISOString().slice(0, 10);
 		await post({
-			source: 'test',
+			source: 'archive',
 			companies: [
-				{ id: 'a-new', name: 'A New', sector_id: '2', subsector_id: '2.5', first_seen: today },
-				{ id: 'c-old', name: 'C Old', sector_id: '1', subsector_id: '1.1', first_seen: '2019-05-05' },
+				{ id: 'c-old', name: 'C Old', sector_id: '1', subsector_id: '1.1', origin_year: 2019 },
+				{ id: 'b-undated', name: 'B Undated', sector_id: '3', subsector_id: '3.3' },
 			],
+		});
+		await post({
+			source: 'live-source',
+			mode: 'live',
+			companies: [{ id: 'a-new', name: 'A New', sector_id: '2', subsector_id: '2.5', origin_year: THIS_YEAR }],
 		});
 	});
 
-	it('returns companies with parsed signals, tier first', async () => {
+	it('returns the ranked list by default: dated, and recent enough', async () => {
 		const body = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies`)).json<any>();
-		expect(body.count).toBe(2);
-		expect(body.companies.map((c: any) => c.id)).toEqual(['a-new', 'c-old']);
+		expect(body.count).toBe(1);
+		expect(body.companies.map((c: any) => c.id)).toEqual(['a-new']);
 		expect(body.companies[0].signals).toEqual([]);
+		expect(body.companies[0].first_seen_basis).toBe('discovered');
+	});
+
+	it('lifts the age gate for age=all and lists the undated separately', async () => {
+		const all = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all`)).json<any>();
+		expect(all.companies.map((c: any) => c.id)).toEqual(['a-new', 'c-old']);
+
+		const undated = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?undated=1`)).json<any>();
+		expect(undated.companies.map((c: any) => c.id)).toEqual(['b-undated']);
+		expect(undated.companies[0].first_seen).toBe(null);
 	});
 
 	it('filters by sector, subsector and tier', async () => {
-		const one = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?sector=1`)).json<any>();
+		const one = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?sector=1&age=all&tier=all`)).json<any>();
 		expect(one.companies.map((c: any) => c.id)).toEqual(['c-old']);
 
 		const two = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?subsector=2.5`)).json<any>();
@@ -223,17 +331,20 @@ describe('GET /upstream/api/companies', () => {
 
 		const three = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=a`)).json<any>();
 		expect(three.companies.map((c: any) => c.id)).toEqual(['a-new']);
-
-		const all = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=all`)).json<any>();
-		expect(all.count).toBe(2);
 	});
 
 	it('honours limit and rejects nonsense', async () => {
-		const limited = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?limit=1`)).json<any>();
+		const limited = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all&limit=1`)).json<any>();
 		expect(limited.count).toBe(1);
 
 		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?limit=0`)).status).toBe(400);
 		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=Z`)).status).toBe(400);
+	});
+
+	it('counts every company in the coverage map, gated or undated', async () => {
+		const body = await (await SELF.fetch(`${ORIGIN}/upstream/api/coverage`)).json<any>();
+		expect(body.total_companies).toBe(3);
+		expect(body.covered).toBe(3);
 	});
 });
 
@@ -264,18 +375,56 @@ describe('GET /upstream (the page)', () => {
 		expect(cells.filter((c) => c.includes('filled'))).toHaveLength(1);
 	});
 
-	it('shows five sample companies behind a banner for ?demo=1 only', async () => {
+	it('shows the sample companies behind a banner for ?demo=1 only', async () => {
 		const plain = await page();
 		expect(plain).not.toContain('Sample data');
 		expect(plain).toContain('Nothing matches yet');
 
 		const demo = await page('?demo=1');
 		expect(demo).toContain('Sample data');
-		expect(demo.match(/<li class="company">/g)).toHaveLength(5);
+		// Five ranked and one undated; the seventh is held back by the age gate.
+		expect(demo.match(/<li class="company">/g)).toHaveLength(6);
 		expect(demo).toContain('Verve Aerospace Private Limited');
+		expect(demo).toContain('Pravaha Filtration Private Limited');
+		expect(demo).not.toContain('Saral Hydro Systems Private Limited');
+		expect(demo).toContain('held back');
 		// The four-word lesson in how the ranking works.
 		expect(demo).toContain('no website yet');
 		expect(demo).toContain('RDI 2.5 &mdash; Space Technologies');
+	});
+
+	it('puts undated companies in their own section, out of the ranking', async () => {
+		await post({ source: 'rtbi', companies: [{ id: 'undated', name: 'Undated Co' }] });
+		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'found', name: 'Found Co' }] });
+
+		const html = await page();
+		expect(html).toContain('id="undated"');
+		expect(html).toContain('place in time yet');
+		expect(html).toContain('Undated Co');
+
+		// The ranked list is above it and holds only the company we actually found.
+		const ranked = html.slice(html.indexOf('id="list"'), html.indexOf('id="undated"'));
+		expect(ranked).toContain('Found Co');
+		expect(ranked).not.toContain('Undated Co');
+	});
+
+	it('holds back companies that started more than five years ago, and says so', async () => {
+		await post({
+			source: 'archive',
+			companies: [
+				{ id: 'recent', name: 'Recent Co', origin_year: THIS_YEAR },
+				{ id: 'ancient', name: 'Ancient Co', origin_year: THIS_YEAR - 9 },
+			],
+		});
+
+		const html = await page('?tier=all');
+		expect(html).toContain('Recent Co');
+		expect(html).not.toContain('Ancient Co');
+		expect(html).toContain('started more than 5 years ago');
+
+		const everything = await page('?tier=all&age=all');
+		expect(everything).toContain('Ancient Co');
+		expect(everything).not.toContain('held back');
 	});
 
 	it('defaults the tier toggle to A+B and honours the other choices', async () => {
@@ -285,17 +434,12 @@ describe('GET /upstream (the page)', () => {
 	});
 
 	it('applies the tier toggle to the list', async () => {
-		const today = new Date().toISOString().slice(0, 10);
-		await post({
-			source: 'test',
-			companies: [
-				{ id: 'new-quiet', name: 'New Quiet', first_seen: today },
-				{ id: 'old-known', name: 'Old Known', first_seen: '2019-01-01' },
-			],
-		});
+		await post({ source: 'archive', companies: [{ id: 'old-known', name: 'Old Known', origin_year: 2019 }] });
+		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'new-quiet', name: 'New Quiet' }] });
 
-		expect(await page('?tier=a')).not.toContain('Old Known');
-		expect(await page('?tier=all')).toContain('Old Known');
+		expect(await page('?tier=a&age=all')).not.toContain('Old Known');
+		expect(await page('?tier=all&age=all')).toContain('Old Known');
+		expect(await page('?tier=a&age=all')).toContain('New Quiet');
 	});
 
 	it('escapes scraped text and refuses a javascript: url', async () => {

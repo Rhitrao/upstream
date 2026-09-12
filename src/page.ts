@@ -7,20 +7,28 @@
  * without it: the filters are a GET form and every coverage cell is a link.
  */
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
-import { daysSince, type Tier } from './rank';
-import type { Company, Coverage, Signal } from './db';
+import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
+import type { Buckets, Company, Coverage, Signal } from './db';
 
 /** The tier toggle has its own vocabulary: A, A+B (the default), everything. */
 export type TierChoice = 'a' | 'ab' | 'all';
 
+/** The age gate: the last five years by default, or every year we hold. */
+export type AgeChoice = 'recent' | 'all';
+
 export interface PageView {
 	coverage: Coverage;
+	/** The ranked list: dated, and recent enough to clear the age gate. */
 	companies: Company[];
+	/** Companies no source will place in time. Listed below the ranking, never inside it. */
+	undated: Company[];
+	buckets: Buckets;
 	tracked: number;
-	addedThisWeek: number;
+	discoveredThisWeek: number;
 	sector: string | null;
 	subsector: string | null;
 	tier: TierChoice;
+	age: AgeChoice;
 	demo: boolean;
 	now: Date;
 }
@@ -68,6 +76,22 @@ function ago(firstSeen: string, now: Date): string {
 	return `first seen about ${months} months ago`;
 }
 
+/**
+ * What a row is allowed to say about its own date.
+ *
+ * "First seen" is a claim that we found it, so only a real discovery gets to make it.
+ * A backfilled row says whose year it is reading, and a row with no date says nothing
+ * at all — the section it sits in has already said it.
+ */
+function dateLine(company: Company, now: Date): string | null {
+	if (company.first_seen === null) return null;
+	if (company.first_seen_basis === 'cohort') {
+		const year = company.origin_year ?? company.first_seen.slice(0, 4);
+		return `listed by its incubator for ${year}`;
+	}
+	return ago(company.first_seen, now);
+}
+
 function tierLabel(tier: Tier): string {
 	return `Tier ${tier}`;
 }
@@ -75,7 +99,7 @@ function tierLabel(tier: Tier): string {
 // --- pieces -----------------------------------------------------------------
 
 function header(view: PageView): string {
-	const { coverage, tracked, addedThisWeek } = view;
+	const { coverage, tracked, discoveredThisWeek } = view;
 	return `
 <header class="masthead">
   <h1>Upstream</h1>
@@ -83,14 +107,14 @@ function header(view: PageView): string {
     ordered by how few people know about them, never by how impressive they look.</p>
   <dl class="stats">
     <div><dt>Companies tracked</dt><dd>${tracked}</dd></div>
-    <div><dt>Added this week</dt><dd>${addedThisWeek}</dd></div>
+    <div><dt>Discovered this week</dt><dd>${discoveredThisWeek}</dd></div>
     <div><dt>Sub-sectors covered</dt><dd>${coverage.covered}<span class="of">/${coverage.subsector_count}</span></dd></div>
   </dl>
 </header>`;
 }
 
 function coverageMap(view: PageView): string {
-	const { coverage, subsector, sector, tier } = view;
+	const { coverage, subsector, sector, tier, age } = view;
 
 	const sectors = coverage.sectors
 		.map((group) => {
@@ -102,6 +126,7 @@ function coverageMap(view: PageView): string {
 						sector,
 						subsector: active ? null : cell.subsector_id,
 						tier: tier === 'ab' ? null : tier,
+						age: age === 'recent' ? null : age,
 					})}#list`;
 					const classes = ['cell', cell.n > 0 ? 'filled' : 'empty', active ? 'active' : ''].filter(Boolean).join(' ');
 					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${cell.n}"${
@@ -127,7 +152,8 @@ ${cells}
 <section class="coverage" aria-labelledby="coverage-h">
   <h2 id="coverage-h">Coverage</h2>
   <p class="note">All ${coverage.subsector_count} sunrise sub-sectors of the RDI scheme. An outlined cell is one we have
-    found nothing in yet &mdash; a gap in what we can see, not proof the sector is empty. Pick a cell to filter the list.</p>
+    found nothing in yet &mdash; a gap in what we can see, not proof the sector is empty. Pick a cell to filter the list.
+    Counts here are every company we hold, including the ones the list below sets aside as old or undated.</p>
   <div class="sectors">
 ${sectors}
   </div>
@@ -135,7 +161,7 @@ ${sectors}
 }
 
 function filters(view: PageView): string {
-	const { sector, subsector, tier } = view;
+	const { sector, subsector, tier, age } = view;
 
 	const options = [`<option value=""${sector ? '' : ' selected'}>All sectors</option>`]
 		.concat(
@@ -161,8 +187,22 @@ function filters(view: PageView): string {
 		)
 		.join('\n      ');
 
+	const ages: Array<[AgeChoice, string, string]> = [
+		['recent', `Last ${MAX_AGE_YEARS} years`, 'The default view'],
+		['all', 'Every year', 'Including companies that are history by now'],
+	];
+	const ageToggle = ages
+		.map(
+			([value, label, hint]) => `<label class="seg${age === value ? ' on' : ''}" title="${esc(hint)}">
+        <input type="radio" name="age" value="${value}"${age === value ? ' checked' : ''}> ${esc(label)}
+      </label>`,
+		)
+		.join('\n      ');
+
 	const clear = subsector
-		? `<a class="clear" href="${esc(query({ sector, tier: tier === 'ab' ? null : tier }))}#list">Clear ${esc(subsector)}</a>`
+		? `<a class="clear" href="${esc(
+				query({ sector, tier: tier === 'ab' ? null : tier, age: age === 'recent' ? null : age }),
+			)}#list">Clear ${esc(subsector)}</a>`
 		: '';
 
 	return `
@@ -177,6 +217,12 @@ function filters(view: PageView): string {
     <span class="legend">Tier</span>
     <div class="segmented">
       ${toggle}
+    </div>
+  </div>
+  <div class="field">
+    <span class="legend">Started</span>
+    <div class="segmented">
+      ${ageToggle}
     </div>
   </div>
   ${subsector ? `<input type="hidden" name="subsector" value="${esc(subsector)}">` : ''}
@@ -220,8 +266,36 @@ function companyRow(company: Company, now: Date): string {
     ${company.description ? `<p class="desc">${esc(company.description)}</p>` : ''}
     ${rdi}
     ${chips(company)}
-    <p class="seen">${esc(ago(company.first_seen, now))}</p>
+    ${dateLine(company, now) ? `<p class="seen">${esc(dateLine(company, now))}</p>` : ''}
   </li>`;
+}
+
+/**
+ * The held-back line. A coverage cell can say 3 while the list shows 1, and the page
+ * has to account for the other two rather than let the map look like it lied.
+ */
+function heldBack(view: PageView): string {
+	const { buckets, sector, subsector, tier, age } = view;
+	if (age === 'all' || buckets.older === 0) return '';
+
+	const n = buckets.older;
+	const href = `${query({ sector, subsector, tier: tier === 'ab' ? null : tier, age: 'all' })}#list`;
+	return `<p class="note">${n} ${n === 1 ? 'company' : 'companies'} here started more than ${MAX_AGE_YEARS} years ago
+    and ${n === 1 ? 'is' : 'are'} held back. <a href="${esc(href)}">Show ${n === 1 ? 'it' : 'them'}</a>.</p>`;
+}
+
+/**
+ * How many companies the ranked list is actually offering. The buckets always split at
+ * the age gate, because the held-back line needs that number even when the gate is off
+ * — so with the gate lifted, the older ones are part of what is listed.
+ */
+function listed(view: PageView): number {
+	return view.age === 'all' ? view.buckets.ranked + view.buckets.older : view.buckets.ranked;
+}
+
+/** Said only when the limit actually bit, so the count above stays trustworthy. */
+function truncated(shown: number, total: number): string {
+	return shown < total ? `<p class="note">Showing the first ${shown}.</p>` : '';
 }
 
 function list(view: PageView): string {
@@ -232,20 +306,47 @@ function list(view: PageView): string {
 <section class="list" id="list">
   <h2>Companies</h2>
   <p class="empty">Nothing matches yet. Either the filters are narrow, or the ingest has not put anything here.</p>
+  ${heldBack(view)}
 </section>`;
 	}
 
 	const banner = demo
-		? `<p class="demo-banner"><strong>Sample data.</strong> These five companies are invented, so the layout can be
+		? `<p class="demo-banner"><strong>Sample data.</strong> These companies are invented, so the layout can be
       checked before real data lands. The numbers above and the coverage map are the real, and currently empty, database.</p>`
 		: '';
 
 	return `
 <section class="list" id="list">
-  <h2>Companies <span class="count">${companies.length}</span></h2>
+  <h2>Companies <span class="count">${listed(view)}</span></h2>
   ${banner}
+  ${heldBack(view)}
+  ${truncated(companies.length, listed(view))}
   <ol class="companies">
 ${companies.map((company) => companyRow(company, now)).join('\n')}
+  </ol>
+</section>`;
+}
+
+/**
+ * Companies with no date from any source. They sit below the ranking rather than
+ * inside it: a tier is a claim about time, and we have nothing to make one with.
+ * Visible, counted, and not pretending to be recent.
+ */
+function undatedList(view: PageView): string {
+	const { undated, buckets, now } = view;
+	if (undated.length === 0) return '';
+
+	const n = buckets.undated;
+	return `
+<section class="list undated-list" id="undated" aria-labelledby="undated-h">
+  <h2 id="undated-h">Undated <span class="count">${n}</span></h2>
+  <p class="note">${n} ${n === 1 ? 'company we can&rsquo;t' : 'companies we can&rsquo;t'} place in time yet. IIT Madras
+    RTBI publishes no incubation years, so there is no honest date to rank these by. Dating them from incorporation
+    filings is on the roadmap; until then they are listed here, counted in the coverage map above, and left out of the
+    tiers rather than shown as if they were new.</p>
+  ${truncated(undated.length, n)}
+  <ol class="companies">
+${undated.map((company) => companyRow(company, now)).join('\n')}
   </ol>
 </section>`;
 }
@@ -270,11 +371,21 @@ function methodology(): string {
     how recently we first saw the company, and how many public traces it already has &mdash; a working website, a press
     mention, a grant, an accelerator badge.</p>
   <ul class="rules">
-    <li><span class="tier ta">Tier A</span> First seen under 90 days ago, at most 2 traces. New and quiet. Read these first.</li>
+    <li><span class="tier ta">Tier A</span> Found by us under 90 days ago, at most 2 traces. New and quiet. Read these first.</li>
     <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Early, some visibility.</li>
     <li><span class="tier tc">Tier C</span> Everything else. Known territory &mdash; listed, not promoted.</li>
   </ul>
   <p>This will sometimes put a company nobody has heard of above a famous one. That is the point, not a bug.</p>
+
+  <h3>What the dates mean</h3>
+  <p>Two different facts, kept apart on purpose. A company we found ourselves &mdash; it appeared in a run of a source
+    we were already watching &mdash; carries the date we found it, and only those rows can reach Tier A. A company that
+    arrived in the first sweep of a new source carries the incubation year its incubator published, because that sweep
+    is a backfill and nothing in it was ours to discover. The rest carry no date at all and are listed separately at the
+    foot of the page.</p>
+  <p>The list shows companies that started within the last ${MAX_AGE_YEARS} years. Older ones are still here, still
+    counted in the coverage map, and one link away &mdash; they are history rather than a find, and putting them in the
+    same list would be flattering the wrong thing.</p>
 
   <h3>What this misses</h3>
   <p>A fair amount, and it is worth being blunt about it. There is no LinkedIn here, and no stealth companies: if a company
@@ -492,6 +603,9 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .chip.positive { background: var(--mark); border-color: var(--mark); color: #141310; }
 .seen { font-size: 0.78rem; color: var(--muted); margin: 0; }
 .empty { color: var(--muted); }
+/* Below the ranking and visibly outside it — same rows, no claim about time. */
+.undated-list { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); }
+.undated-list h2 { color: var(--muted); }
 .demo-banner {
   font-size: 0.85rem;
   color: var(--muted);
@@ -549,6 +663,7 @@ ${header(view)}
 ${coverageMap(view)}
 ${filters(view)}
 ${list(view)}
+${undatedList(view)}
 ${methodology()}
 </div>
 <script>

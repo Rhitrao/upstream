@@ -17,6 +17,25 @@ export const TRACE_TYPES = ['website', 'press', 'grant', 'incubator'] as const;
 
 export type Tier = 'A' | 'B' | 'C';
 
+/**
+ * Where a first_seen date came from. 'discovered' means the company turned up in a run
+ * after its source was already established — the date is ours and it is real.
+ * 'cohort' means we read it off a published incubation year during a backfill.
+ */
+export type Basis = 'discovered' | 'cohort';
+
+/**
+ * The default list view stops here. Older than this and a company is history, not a
+ * find — it stays in the database and in the coverage map, just not on the front page.
+ * See docs/decisions/002-age-gate.md.
+ */
+export const MAX_AGE_YEARS = 5;
+
+/** The earliest origin year the default view will show. */
+export function minOriginYear(now: Date = new Date()): number {
+	return now.getUTCFullYear() - MAX_AGE_YEARS;
+}
+
 export const TIERS: readonly Tier[] = ['A', 'B', 'C'];
 
 /** Whole and fractional days between an ISO date (or datetime) and `now`. */
@@ -27,9 +46,15 @@ export function daysSince(iso: string, now: Date): number {
 	return (now.getTime() - ms) / 86_400_000;
 }
 
-export function tierFor(firstSeen: string, traceCount: number, now: Date = new Date()): Tier {
+export function tierFor(firstSeen: string | null, basis: string | null, traceCount: number, now: Date = new Date()): Tier {
+	// No date, no claim. A company we cannot place in time is not a company we found
+	// early, however new it looks.
+	if (firstSeen === null) return 'C';
+
 	const age = daysSince(firstSeen, now);
-	if (age < 90 && traceCount <= 2) return 'A';
+	// Tier A says WE were early. Only a real discovery can say that: a cohort year
+	// read off a portfolio page during a backfill is the incubator's news, not ours.
+	if (basis === 'discovered' && age < 90 && traceCount <= 2) return 'A';
 	if (age < 180 && traceCount <= 5) return 'B';
 	return 'C';
 }
