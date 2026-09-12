@@ -11,7 +11,7 @@
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
 import { TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
-import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, type Filters } from './db';
+import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, queryHasRanked, type Filters } from './db';
 import { renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, splitDemo } from './demo';
 
@@ -71,9 +71,9 @@ const TIER_SETS: Record<TierChoice, Tier[] | null> = {
 	all: null,
 };
 
-function parseTierChoice(raw: string | null): TierChoice {
-	if (raw === 'a' || raw === 'all') return raw;
-	return 'ab';
+function parseTierChoice(raw: string | null, fallback: TierChoice = 'ab'): TierChoice {
+	if (raw === 'a' || raw === 'ab' || raw === 'all') return raw;
+	return fallback;
 }
 
 /** The age gate is on unless asked otherwise, on the page and in the API alike. */
@@ -485,7 +485,6 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 
 async function page(url: URL, env: Env): Promise<Response> {
 	const now = new Date();
-	const tier = parseTierChoice(url.searchParams.get('tier'));
 	const age = parseAgeChoice(url.searchParams.get('age'));
 	const sector = url.searchParams.get('sector') || null;
 	const subsector = url.searchParams.get('subsector') || null;
@@ -493,6 +492,14 @@ async function page(url: URL, env: Env): Promise<Response> {
 	// Seven invented companies, so the row design can be checked before real data lands
 	// (CHECKPOINT 7). Never shown unless explicitly asked for, and always behind a banner.
 	const demo = url.searchParams.get('demo') === '1';
+
+	// Until the first live run, every row is a backfill and A+B is empty by
+	// construction. Opening on an empty list would read as a broken page, so the
+	// default widens to everything and the list says why. It narrows again on its own
+	// the moment a real discovery lands. The sample data has both tiers already.
+	const hasRanked = demo || (await queryHasRanked(env));
+	const defaultTier: TierChoice = hasRanked ? 'ab' : 'all';
+	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
 
 	const cutoff = minOriginYear(now);
 	const ranked: Filters = {
@@ -527,6 +534,8 @@ async function page(url: URL, env: Env): Promise<Response> {
 		sector,
 		subsector,
 		tier,
+		defaultTier,
+		backfillOnly: !hasRanked,
 		age,
 		demo,
 		now,

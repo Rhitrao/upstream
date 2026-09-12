@@ -28,6 +28,10 @@ export interface PageView {
 	sector: string | null;
 	subsector: string | null;
 	tier: TierChoice;
+	/** What the toggle means by "default" right now — it widens while the ranking is empty. */
+	defaultTier: TierChoice;
+	/** Nothing has been discovered live yet, so A and B are empty by construction. */
+	backfillOnly: boolean;
 	age: AgeChoice;
 	demo: boolean;
 	now: Date;
@@ -114,7 +118,7 @@ function header(view: PageView): string {
 }
 
 function coverageMap(view: PageView): string {
-	const { coverage, subsector, sector, tier, age } = view;
+	const { coverage, subsector, sector, tier, defaultTier, age } = view;
 
 	const sectors = coverage.sectors
 		.map((group) => {
@@ -125,7 +129,7 @@ function coverageMap(view: PageView): string {
 					const href = `${query({
 						sector,
 						subsector: active ? null : cell.subsector_id,
-						tier: tier === 'ab' ? null : tier,
+						tier: tier === defaultTier ? null : tier,
 						age: age === 'recent' ? null : age,
 					})}#list`;
 					const classes = ['cell', cell.n > 0 ? 'filled' : 'empty', active ? 'active' : ''].filter(Boolean).join(' ');
@@ -161,7 +165,7 @@ ${sectors}
 }
 
 function filters(view: PageView): string {
-	const { sector, subsector, tier, age } = view;
+	const { sector, subsector, tier, defaultTier, age } = view;
 
 	const options = [`<option value=""${sector ? '' : ' selected'}>All sectors</option>`]
 		.concat(
@@ -174,10 +178,12 @@ function filters(view: PageView): string {
 		)
 		.join('\n      ');
 
+	// The hint follows the default rather than naming a fixed one: while the ranking is
+	// empty the default is Everything, and a toggle that claimed otherwise would lie.
 	const choices: Array<[TierChoice, string, string]> = [
 		['a', 'A', 'New and quiet'],
-		['ab', 'A + B', 'The default view'],
-		['all', 'Everything', 'Including known territory'],
+		['ab', 'A + B', defaultTier === 'ab' ? 'The default view' : 'Once the ranking fills'],
+		['all', 'Everything', defaultTier === 'all' ? 'The default view' : 'Including known territory'],
 	];
 	const toggle = choices
 		.map(
@@ -201,7 +207,7 @@ function filters(view: PageView): string {
 
 	const clear = subsector
 		? `<a class="clear" href="${esc(
-				query({ sector, tier: tier === 'ab' ? null : tier, age: age === 'recent' ? null : age }),
+				query({ sector, tier: tier === defaultTier ? null : tier, age: age === 'recent' ? null : age }),
 			)}#list">Clear ${esc(subsector)}</a>`
 		: '';
 
@@ -275,11 +281,11 @@ function companyRow(company: Company, now: Date): string {
  * has to account for the other two rather than let the map look like it lied.
  */
 function heldBack(view: PageView): string {
-	const { buckets, sector, subsector, tier, age } = view;
+	const { buckets, sector, subsector, tier, defaultTier, age } = view;
 	if (age === 'all' || buckets.older === 0) return '';
 
 	const n = buckets.older;
-	const href = `${query({ sector, subsector, tier: tier === 'ab' ? null : tier, age: 'all' })}#list`;
+	const href = `${query({ sector, subsector, tier: tier === defaultTier ? null : tier, age: 'all' })}#list`;
 	return `<p class="note">${n} ${n === 1 ? 'company' : 'companies'} here started more than ${MAX_AGE_YEARS} years ago
     and ${n === 1 ? 'is' : 'are'} held back. <a href="${esc(href)}">Show ${n === 1 ? 'it' : 'them'}</a>.</p>`;
 }
@@ -291,6 +297,17 @@ function heldBack(view: PageView): string {
  */
 function listed(view: PageView): number {
 	return view.age === 'all' ? view.buckets.ranked + view.buckets.older : view.buckets.ranked;
+}
+
+/**
+ * Why the tiers are empty, said once, above the list. A page that opened on an empty
+ * A+B would look broken; a page that widened the view without explaining it would be
+ * quietly changing its own promise.
+ */
+function backfillNote(view: PageView): string {
+	if (!view.backfillOnly) return '';
+	return `<p class="note">Every company here arrived in a backfill. Tier A and B are for companies we see appear
+    &mdash; those fill in from the first live run onward.</p>`;
 }
 
 /** Said only when the limit actually bit, so the count above stays trustworthy. */
@@ -305,6 +322,7 @@ function list(view: PageView): string {
 		return `
 <section class="list" id="list">
   <h2>Companies</h2>
+  ${backfillNote(view)}
   <p class="empty">Nothing matches yet. Either the filters are narrow, or the ingest has not put anything here.</p>
   ${heldBack(view)}
 </section>`;
@@ -319,6 +337,7 @@ function list(view: PageView): string {
 <section class="list" id="list">
   <h2>Companies <span class="count">${listed(view)}</span></h2>
   ${banner}
+  ${backfillNote(view)}
   ${heldBack(view)}
   ${truncated(companies.length, listed(view))}
   <ol class="companies">

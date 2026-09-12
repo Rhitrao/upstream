@@ -249,6 +249,19 @@ export async function queryCoverage(env: Env): Promise<Coverage> {
 }
 
 /**
+ * Is there anything in the ranking yet?
+ *
+ * While every row came from a backfill, A and B are empty by construction, and a page
+ * whose default view is empty is a broken page. The default toggle reads this and
+ * opens on everything until the first real discovery lands, then goes back to A+B on
+ * its own.
+ */
+export async function queryHasRanked(env: Env): Promise<boolean> {
+	const row = await env.DB.prepare("SELECT 1 AS found FROM companies WHERE tier IN ('A', 'B') LIMIT 1").first<{ found: number }>();
+	return row !== null;
+}
+
+/**
  * Real discoveries since `since` — the header's "discovered this week".
  *
  * Deliberately not a count of rows added: a backfill adds hundreds in an afternoon

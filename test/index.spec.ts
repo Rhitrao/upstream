@@ -428,9 +428,42 @@ describe('GET /upstream (the page)', () => {
 	});
 
 	it('defaults the tier toggle to A+B and honours the other choices', async () => {
-		expect(await page()).toContain('<label class="seg on" title="The default view">');
+		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'found', name: 'Found Co' }] });
+
+		expect(await page()).toContain('<label class="seg on" title="The default view"');
+		expect(await page()).toContain('value="ab" checked');
 		expect(await page('?tier=a')).toContain('<label class="seg on" title="New and quiet">');
 		expect(await page('?tier=all')).toContain('<label class="seg on" title="Including known territory">');
+	});
+
+	it('opens on everything while every row is a backfill, and says why', async () => {
+		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
+
+		const html = await page();
+		// A+B would be empty by construction here, so the default widens.
+		expect(html).toContain('value="all" checked');
+		expect(html).toContain('Every company here arrived in a backfill');
+		expect(html).toContain('Backfilled Co');
+
+		// The explanation belongs to the state, not the toggle: it stands on A too.
+		expect(await page('?tier=a')).toContain('Every company here arrived in a backfill');
+
+		// One live discovery and the default narrows again, with nothing left to explain.
+		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'found', name: 'Found Co' }] });
+		const after = await page();
+		expect(after).toContain('value="ab" checked');
+		expect(after).not.toContain('Every company here arrived in a backfill');
+		expect(after).toContain('Found Co');
+		expect(after).not.toContain('Backfilled Co');
+	});
+
+	it('keeps an explicit tier choice when the default is something else', async () => {
+		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
+
+		// Default is 'all' here, so a chosen 'ab' has to survive a coverage-cell click.
+		const html = await page('?tier=ab');
+		expect(html).toContain('value="ab" checked');
+		expect(html).toMatch(/href="[^"]*tier=ab[^"]*"[^>]*>\s*<span class="cell-id">/);
 	});
 
 	it('applies the tier toggle to the list', async () => {
@@ -440,6 +473,8 @@ describe('GET /upstream (the page)', () => {
 		expect(await page('?tier=a&age=all')).not.toContain('Old Known');
 		expect(await page('?tier=all&age=all')).toContain('Old Known');
 		expect(await page('?tier=a&age=all')).toContain('New Quiet');
+		// A live discovery exists, so the default is back to A+B and hides the old row.
+		expect(await page('?age=all')).not.toContain('Old Known');
 	});
 
 	it('escapes scraped text and refuses a javascript: url', async () => {
