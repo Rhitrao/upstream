@@ -94,6 +94,11 @@ def main() -> int:
     parser.add_argument("--base-url", default=PRODUCTION)
     parser.add_argument("--dry-run", action="store_true", help="scrape and classify, upload nothing")
     parser.add_argument("--mode", choices=["backfill", "live"], help="override what the Worker would infer")
+    parser.add_argument(
+        "--max-cost",
+        type=float,
+        help=f"stop classifying after this much, in dollars (default {classifier.DEFAULT_MAX_COST})",
+    )
     args = parser.parse_args()
 
     print("Scraping")
@@ -114,7 +119,7 @@ def main() -> int:
                 unique.append(company)
 
     print(f"\nClassifying {len(unique)} companies")
-    results, usage = classifier.classify(unique)
+    results, usage = classifier.classify(unique, cost_limit=args.max_cost)
     print(f"  {usage}")
 
     placed = {cid for cid, result in results.items() if result.on_map}

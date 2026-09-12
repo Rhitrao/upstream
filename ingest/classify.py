@@ -73,6 +73,38 @@ SECTOR_BY_ID = {s["id"]: s for s in SECTORS}
 MAX_TOKENS = 400
 WORKERS = 8
 
+# What one run is allowed to spend before it stops and says so.
+#
+# The whole budget for this project is $5, and the thing that could take it in an
+# afternoon is not a price rise — it is a scraper that starts returning 5,000 rows
+# because someone redesigned a page. A ceiling turns that from an empty balance
+# into a log line. Overridable per run, and by the scheduled job, which has
+# nobody watching it.
+DEFAULT_MAX_COST = 0.25
+MAX_COST_ENV = "UPSTREAM_MAX_COST"
+
+# What one company has cost, measured over 1,542 of them. Used to reserve against
+# the ceiling for calls already in flight: without it, eight workers all pass the
+# check at zero and the first batch is unconditional, which on a small ceiling
+# means spending double it.
+COST_PER_COMPANY = 0.003
+
+
+def max_cost(explicit: float | None = None) -> float:
+    if explicit is not None:
+        return explicit
+    from_env = os.environ.get(MAX_COST_ENV)
+    if from_env:
+        try:
+            return float(from_env)
+        except ValueError:
+            raise SystemExit(f"{MAX_COST_ENV} is not a number: {from_env!r}") from None
+    return DEFAULT_MAX_COST
+
+
+class BudgetReached(Exception):
+    """Not an error: the run did what it was told and stopped."""
+
 # Both answers are short: an id, a project string, one sentence. Measured at 76
 # per company over the first 20; rounded up because it is the one part of the
 # bill that cannot be counted before the call is made.
@@ -110,6 +142,7 @@ class Usage:
     cached: int = 0
     overridden: int = 0
     failed: int = 0
+    over_budget: int = 0
 
     def add(self, response) -> None:
         self.calls += 1
@@ -125,7 +158,11 @@ class Usage:
             f"{self.calls} calls, {self.input_tokens:,} in / {self.output_tokens:,} out, "
             f"${self.cost:.4f} — {self.cached} from cache, {self.overridden} overridden"
         )
-        return said if self.failed == 0 else said + f", {self.failed} FAILED"
+        if self.failed:
+            said += f", {self.failed} FAILED"
+        if self.over_budget:
+            said += f", {self.over_budget} left unclassified at the cost ceiling"
+        return said
 
 
 # --- the two prompts --------------------------------------------------------
@@ -344,8 +381,18 @@ def _override(entry: dict) -> Classification:
 # --- the run ----------------------------------------------------------------
 
 
-def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str, Classification], Usage]:
-    """Classify what is not already known. Returns one entry per company given."""
+def classify(
+    companies: list[Company],
+    *,
+    force: bool = False,
+    cost_limit: float | None = None,
+) -> tuple[dict[str, Classification], Usage]:
+    """Classify what is not already known, up to the cost ceiling.
+
+    A company already in the cache is never re-classified and never charged for;
+    that is the only reason a daily job is affordable at all.
+    """
+    ceiling = max_cost(cost_limit)
     cache = _load(CACHE_PATH)
     overrides = _load(OVERRIDES_PATH)
     usage = Usage()
@@ -371,8 +418,23 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
     lock = threading.Lock()
     done = 0
 
+    in_flight = 0
+
     def work(company: Company) -> tuple[Company, Classification]:
-        return company, _classify_one(client, company, usage, lock)
+        nonlocal in_flight
+        # Checked before the calls, and counting what the other workers are already
+        # spending. Cost only lands when a response does, so a check against spend
+        # alone lets every worker through at zero and blows a small ceiling by the
+        # size of one batch.
+        with lock:
+            if usage.cost + (in_flight + 1) * COST_PER_COMPANY > ceiling:
+                raise BudgetReached()
+            in_flight += 1
+        try:
+            return company, _classify_one(client, company, usage, lock)
+        finally:
+            with lock:
+                in_flight -= 1
 
     # submit/as_completed rather than map: a company that fails must cost us that
     # company, not the rest of the run. An expired key or a dead API arriving at
@@ -385,6 +447,9 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
             for future in concurrent.futures.as_completed(futures):
                 try:
                     company, result = future.result()
+                except BudgetReached:
+                    usage.over_budget += 1
+                    continue
                 except Exception as error:  # noqa: BLE001 - reported, not swallowed
                     failures.append((futures[future].id, error))
                     usage.failed += 1
@@ -414,6 +479,13 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
     if failures:
         # Loud, and with one real message: "31 failed" without the reason is a shrug.
         print(f"  {len(failures)} could not be classified, e.g. {failures[0][0]}: {failures[0][1]}")
+
+    if usage.over_budget:
+        print(
+            f"  STOPPED at the ${ceiling:.2f} cost ceiling after ${usage.cost:.4f}: "
+            f"{usage.over_budget} companies left unclassified. They are not lost — "
+            f"the next run picks them up, and everything already answered is cached."
+        )
 
     return results, usage
 
@@ -520,6 +592,7 @@ if __name__ == "__main__":
     parser.add_argument("--estimate", action="store_true", help="price the run without making it")
     parser.add_argument("--force", action="store_true", help="ignore the cache and re-classify")
     parser.add_argument("--table", action="store_true", help="print the results as a table")
+    parser.add_argument("--max-cost", type=float, help=f"stop after this much, in dollars (default {DEFAULT_MAX_COST})")
     args = parser.parse_args()
 
     companies = _companies()
@@ -529,7 +602,7 @@ if __name__ == "__main__":
     if args.estimate:
         print(estimate(companies))
     else:
-        results, usage = classify(companies, force=args.force)
+        results, usage = classify(companies, force=args.force, cost_limit=args.max_cost)
         on_map = sum(1 for r in results.values() if r.on_map)
         no_sector = sum(1 for r in results.values() if r.sector_id is None)
         no_subsector = len(results) - on_map - no_sector

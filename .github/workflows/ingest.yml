@@ -1,0 +1,106 @@
+# The daily run. Scrape, classify what is new, upload, commit what was learned.
+#
+# This job is the only thing that can make Tier A exist. Every row on the page
+# arrived in a backfill, and a backfill contains no discoveries by definition —
+# a company is discovered when it appears in a run of a source that was already
+# running, which cannot happen until this has run on two different days.
+name: ingest
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # 03:00 UTC, 08:30 IST
+  workflow_dispatch:
+    inputs:
+      max_cost:
+        description: "Dollars this run may spend on classification"
+        required: false
+        default: "0.25"
+
+# Never two at once. Two runs classifying the same new companies in parallel pay
+# for them twice and then race to commit the answers.
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+permissions:
+  contents: write # to commit the classification cache back
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # Fail here rather than three minutes of scraping later.
+      - name: Check the secrets are present
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          INGEST_KEY: ${{ secrets.INGEST_KEY }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in ANTHROPIC_API_KEY INGEST_KEY; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::$name is not set. Add it under Settings -> Secrets and variables -> Actions."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ]
+
+      - name: Scrape, classify and upload
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          INGEST_KEY: ${{ secrets.INGEST_KEY }}
+          # The ceiling matters most here, where nobody is watching: a source that
+          # starts returning 5,000 rows one morning stops at a known number
+          # instead of emptying the balance.
+          UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.25' }}
+        run: |
+          set -euo pipefail
+          python -m ingest.run --base-url https://rohitrao.in/upstream | tee run.log
+
+      # Saved before the commit is attempted, so a push that fails for any reason
+      # — a protected branch, a token change, a conflict — still leaves the paid
+      # answers somewhere retrievable instead of dying with the runner.
+      - name: Keep the classifications whatever happens next
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: classify-cache-${{ github.run_number }}
+          path: |
+            ingest/cache/classify.json
+            run.log
+          retention-days: 30
+          if-no-files-found: error
+
+      # The cache lives in the repo because a fresh checkout has no memory. If
+      # this step does not run, tomorrow re-pays for everything today learned, so
+      # it fails the job rather than shrugging. BUILD's sketch ends both of these
+      # lines with `|| true`; that is the failure this is written to avoid.
+      - name: Commit the classification cache
+        run: |
+          set -euo pipefail
+          git config user.name "upstream-ingest"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet -- ingest/cache/classify.json; then
+            echo "No new classifications this run; nothing to commit."
+            exit 0
+          fi
+
+          git add ingest/cache/classify.json
+          git commit -m "cache: classifications from $(date -u +%Y-%m-%d)"
+
+          # One rebase attempt, because a human may have pushed while this ran.
+          # Anything past that is a real conflict and wants a person.
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "Committed $(git rev-parse --short HEAD)."

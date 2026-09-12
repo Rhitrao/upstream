@@ -99,14 +99,15 @@
   "subsector_id": "3.2"
  },
  "a3-remote-monitoring-technologies": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:10+00:00",
   "hash": "78f09f30ccc6cda3",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "A3 Remote Monitoring Technologies Pvt Ltd",
-  "note": "A3's remote patient monitoring system for cardiac cases is a wearable or connected technology that continuously tracks patient health data, aligning with the wearable health monitors category under Medical Devices & Diagnostics.",
+  "note": "A3's remote cardiac monitoring system is a wearable or implantable technology that continuously tracks patient health data and transmits it for clinical oversight, aligning with devices that bridge monitoring and diagnostic capabilities.",
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
+  "source": "sine-iitb",
   "subsector_id": "4.5"
  },
  "aakhash-advanced-materials": {
@@ -308,14 +309,15 @@
   "subsector_id": "4.6"
  },
  "acuradyne-medical-systems": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:10+00:00",
   "hash": "3ce64f27755af6a3",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Acuradyne Medical Systems Pvt Ltd",
-  "note": "Acuradyne's arterial pulse wave analyzer is a wearable diagnostic device that monitors cardiovascular health through non-invasive hemodynamic assessment, fitting the wearable health monitors category.",
+  "note": "Acuradyne's arterial pulse wave analyzer is a wearable/portable diagnostic device for cardiovascular monitoring that fits within the medical devices and diagnostics sub-sector.",
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
+  "source": "sine-iitb",
   "subsector_id": "4.5"
  },
  "addauto-technology": {
@@ -385,14 +387,15 @@
   "subsector_id": null
  },
  "advanced-renewable-tandem-photovoltaics-india": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:11+00:00",
   "hash": "9e113ae3b62453a9",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Advanced Renewable Tandem-Photovoltaics India Pvt Ltd",
-  "note": "Tandem photovoltaic cells achieve higher power conversion efficiency by stacking multiple semiconductor layers, directly advancing next-generation solar cell technology.",
+  "note": "Tandem photovoltaic cells achieve higher power conversion efficiency by stacking multiple semiconductor layers, directly advancing the next-generation solar cell technology described in sub-sector 1.3.",
   "project_type": "Cells with higher power conversion",
   "sector_id": "1",
+  "source": "sine-iitb",
   "subsector_id": "1.3"
  },
  "advant-ai-labs": {
@@ -858,7 +861,7 @@
   "subsector_id": "4.4"
  },
  "ajivam-water": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:07+00:00",
   "hash": "6d76ab3f6813da0f",
   "missing": null,
   "model": "claude-haiku-4-5",
@@ -866,6 +869,7 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "source": "sine-iitb",
   "subsector_id": null
  },
  "akashveer-aerospace": {
@@ -935,14 +939,15 @@
   "subsector_id": null
  },
  "albatross-energetics": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:11+00:00",
   "hash": "0c3af7c9872c4ee6",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Albatross Energetics Pvt Ltd",
-  "note": "Albatross Energetics develops a novel air conditioning mechanism to significantly reduce energy consumption and carbon footprint, which directly aligns with the high-efficiency air conditioner innovations sought under this sub-sector.",
+  "note": "Albatross Energetics develops a novel air conditioning mechanism designed to significantly reduce energy consumption and carbon footprint, which directly aligns with the high-efficiency air conditioners project type under the Energy-Efficient Cooling sub-sector.",
   "project_type": "High efficiency air conditioners",
   "sector_id": "1",
+  "source": "sine-iitb",
   "subsector_id": "1.10"
  },
  "albuminova-biosciences": {
@@ -979,14 +984,15 @@
   "subsector_id": "2.7"
  },
  "algosurg-inc": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:09+00:00",
   "hash": "661745c921000d64",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Algosurg Inc",
-  "note": "Algosurg's conversion of 2D X-ray images to 3D surgical models is an image-guided surgical technology that directly supports pre-operative planning and intraoperative navigation.",
+  "note": "Algosurg's conversion of 2D X-ray images to 3D surgical models directly supports image-guided surgery planning, a core capability within medical devices and diagnostics.",
   "project_type": "Image-guided and robotic surgical systems",
   "sector_id": "4",
+  "source": "sine-iitb",
   "subsector_id": "4.5"
  },
  "alinko-tech": {
@@ -1188,14 +1194,15 @@
   "subsector_id": "2.6"
  },
  "amyscan-healthcare": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:10+00:00",
   "hash": "50741643b4fbcce5",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Amyscan Healthcare Pvt Ltd",
-  "note": "AmyScan develops diagnostic tests for detecting amyloid seeds in circulation, which aligns with indigenous diagnostic kits designed for rapid, specific biomarker detection in patient samples.",
+  "note": "AmyScan's ultra-sensitive amyloid seed detection technology directly addresses development of an indigenous diagnostic kit for disease detection through biomarker amplification in clinical samples.",
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
+  "source": "sine-iitb",
   "subsector_id": "4.5"
  },
  "analyticsplus-india": {
@@ -1331,7 +1338,7 @@
   "subsector_id": "2.7"
  },
  "anyd-materials": {
-  "classified_at": "2026-09-12T11:59:06+00:00",
+  "classified_at": "2026-09-12T12:35:07+00:00",
   "hash": "8283e59b55c2eaef",
   "missing": null,
   "model": "claude-haiku-4-5",
@@ -1339,6 +1346,7 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "source": "sine-iitb",
   "subsector_id": null
  },
  "apeiron-mobility": {
@@ -1771,14 +1779,15 @@
   "subsector_id": "2.7"
  },
  "atomberg-technologies": {
-  "classified_at": "2026-09-12T11:59:07+00:00",
+  "classified_at": "2026-09-12T12:35:12+00:00",
   "hash": "20f5e8991a8baf38",
-  "missing": "energy efficiency in buildings and appliances",
+  "missing": "appliance efficiency and demand-side management",
   "model": "claude-haiku-4-5",
   "name": "Atomberg Technologies Pvt Ltd",
-  "note": "Atomberg Technologies develops energy-efficient fans for consumer and industrial applications, which is an end-use efficiency technology rather than energy generation, storage, or transition infrastructure that the taxonomy addresses.",
+  "note": "Atomberg Technologies develops energy-efficient fans for consumer and commercial use, which is an end-use efficiency technology rather than a technology for energy generation, storage, conversion, or carbon reduction in industrial processes or energy systems.",
   "project_type": null,
   "sector_id": "1",
+  "source": "sine-iitb",
   "subsector_id": null
  },
  "atpug-plus-consulting-opc": {
@@ -1815,14 +1824,15 @@
   "subsector_id": null
  },
  "aubotz-labs": {
-  "classified_at": "2026-09-12T11:59:07+00:00",
+  "classified_at": "2026-09-12T12:35:11+00:00",
   "hash": "10f51df41d09acdb",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Aubotz Labs Pvt Ltd",
-  "note": "Aubotz Labs develops autonomous industrial floor cleaning robots that require autonomous navigation systems to operate independently on factory floors, which directly aligns with autonomous navigation and perception capabilities in the Intelligent Systems & Robotics sub-sector.",
+  "note": "Aubotz Labs develops autonomous floor cleaning robots requiring autonomous navigation and perception capabilities to operate independently on industrial floors.",
   "project_type": "Autonomous navigation and perception",
   "sector_id": "2",
+  "source": "sine-iitb",
   "subsector_id": "2.7"
  },
  "audo-sens-diagnostics": {
@@ -1837,14 +1847,15 @@
   "subsector_id": "4.5"
  },
  "auflows-cardiotech": {
-  "classified_at": "2026-09-12T11:59:07+00:00",
+  "classified_at": "2026-09-12T12:35:11+00:00",
   "hash": "07af064096293d54",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Auflows CardioTech Pvt Ltd",
-  "note": "Auflows develops a specialized cardiovascular implant device for congenital heart surgery, which directly aligns with the implant category under medical devices that includes pacemakers and cardiac-related devices.",
+  "note": "Auflows develops an implantation device for congenital heart disease surgery, which falls under cardiovascular implants within the medical devices and implants category.",
   "project_type": "Implants (bone, cochlear, pacemaker), neural chip implants and wound healing materials",
   "sector_id": "4",
+  "source": "sine-iitb",
   "subsector_id": "4.5"
  },
  "augle-a-i": {
@@ -2057,14 +2068,15 @@
   "subsector_id": "4.5"
  },
  "ayu-devices": {
-  "classified_at": "2026-09-12T11:59:07+00:00",
+  "classified_at": "2026-09-12T12:35:13+00:00",
   "hash": "7ad5146e30af4d9f",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Ayu Devices Pvt Ltd",
-  "note": "Ayu's digital stethoscope module is a wearable health monitoring device that converts acoustic signals into digital data for diagnostic purposes, fitting the wearable health monitors category within Medical Devices & Diagnostics.",
+  "note": "Ayu Devices' digital stethoscope module is a wearable diagnostic device that converts analog acoustic signals into digital format for medical monitoring and diagnosis.",
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
+  "source": "sine-iitb",
   "subsector_id": "4.5"
  },
  "ayusca-innovations": {
@@ -2112,14 +2124,15 @@
   "subsector_id": "2.5"
  },
  "babblebots-ai-inc-mystinaai-labs": {
-  "classified_at": "2026-09-12T11:59:09+00:00",
+  "classified_at": "2026-09-12T12:35:14+00:00",
   "hash": "5ef9af0ee9324b5f",
-  "missing": "AI for enterprise HR and recruitment",
+  "missing": "AI for HR and recruitment automation",
   "model": "claude-haiku-4-5",
   "name": "Babblebots.AI Inc/ MystinaAI Labs Pvt Ltd",
-  "note": "Babblebots.AI is an HR recruitment automation tool using NLP for job applicant screening, which does not address problems in agriculture, health, education, or cross-domain challenges specified in Sector 3's scope.",
+  "note": "Babblebots.AI's voice bot for job applicant screening is an NLP and AI application to HR recruitment, which falls outside the taxonomy's focus on agriculture, health, education, and cross-domain technologies for Indian societal challenges.",
   "project_type": null,
   "sector_id": "3",
+  "source": "sine-iitb",
   "subsector_id": null
  },
  "bacalt-biosciences": {
@@ -2266,14 +2279,15 @@
   "subsector_id": "2.7"
  },
  "bhugol-gis": {
-  "classified_at": "2026-09-12T11:59:09+00:00",
+  "classified_at": "2026-09-12T12:35:13+00:00",
   "hash": "ca2d0e51f9ba8f2a",
-  "missing": "geospatial mapping infrastructure",
+  "missing": "geospatial information systems",
   "model": "claude-haiku-4-5",
   "name": "Bhugol GIS Pvt Ltd",
-  "note": "Bhugol GIS provides geospatial information systems and image processing as general-purpose tools, not solutions built around the specific application domains (agriculture, governance, health, finance) that define Sector 5's sub-sectors.",
+  "note": "Bhugol GIS provides geographical information systems and image processing as foundational geospatial tools, but the taxonomy focuses on applications of such technologies (smart farming, soil monitoring, urban planning) rather than the geospatial platforms themselves.",
   "project_type": null,
   "sector_id": "5",
+  "source": "sine-iitb",
   "subsector_id": null
  },
  "bidgely-technologies": {
@@ -2618,14 +2632,15 @@
   "subsector_id": null
  },
  "botsrule": {
-  "classified_at": "2026-09-12T11:59:09+00:00",
+  "classified_at": "2026-09-12T12:35:14+00:00",
   "hash": "22a5fada430a905f",
   "missing": "water infrastructure management",
   "model": "claude-haiku-4-5",
   "name": "Botsrule Pvt Ltd",
-  "note": "Botsrule's water distribution management solution is an operational/utility technology that does not fit within Sector 5's digital economy focus; it addresses critical infrastructure management but falls outside the scope of digital agriculture, fintech, governance, health, education, data platforms, or digital public infrastructure.",
+  "note": "Botsrule's water distribution management solution is a critical infrastructure technology, but it does not fit within Sector 5's digital economy focus\u2014it is a physical resource management system that belongs in water infrastructure or utilities, not digital economy, digital agriculture, fintech, governance, health, education, data platforms, or digital public infrastructure.",
   "project_type": null,
   "sector_id": "5",
+  "source": "sine-iitb",
   "subsector_id": null
  },
  "boviedge-research": {
