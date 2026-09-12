@@ -105,6 +105,53 @@ def max_cost(explicit: float | None = None) -> float:
 class BudgetReached(Exception):
     """Not an error: the run did what it was told and stopped."""
 
+
+class ConfigurationError(Exception):
+    """The key, the account or the balance is wrong, so every call will fail alike.
+
+    Kept apart from every other failure because the response is different. A
+    company whose answer will not parse is one company lost; an invalid key is
+    the whole run lost, and retrying it 1,500 times produces 1,500 identical
+    401s, a log nobody reads to the end, and a green tick on a job that did
+    nothing. This is a configuration failure, and a configuration failure has to
+    stop the run rather than be counted by it.
+    """
+
+
+class Aborted(Exception):
+    """This company was never attempted: the run was already over."""
+
+
+# A 401 means the key is wrong, a 403 means it is not allowed here, and a
+# credit-balance message means there is nothing left to spend. None of the three
+# gets better by being retried, and the SDK does not retry them either.
+#
+# The message check is deliberately narrow. Billing arrives as a plain 400, which
+# is the same status as a malformed request, so matching on the status alone
+# would turn every bad request into a run-ending error and hide real bugs.
+_FATAL_PHRASES = (
+    "credit balance",
+    "billing",
+    "insufficient_quota",
+    "insufficient funds",
+    "payment required",
+    "purchase credits",
+)
+
+
+def fatal_reason(error: BaseException) -> str | None:
+    """Why this error ends the run, or None if it is just one company's bad day."""
+    if isinstance(error, anthropic.AuthenticationError):
+        return "the API key was rejected (401)"
+    if isinstance(error, anthropic.PermissionDeniedError):
+        return "the API key is not permitted to use this model or account (403)"
+    if isinstance(error, anthropic.APIStatusError):
+        text = str(getattr(error, "message", "") or error).lower()
+        for phrase in _FATAL_PHRASES:
+            if phrase in text:
+                return f"the account cannot be billed for this run ({error.status_code}: {phrase})"
+    return None
+
 # Both answers are short: an id, a project string, one sentence. Measured at 76
 # per company over the first 20; rounded up because it is the one part of the
 # bill that cannot be counted before the call is made.
@@ -143,6 +190,7 @@ class Usage:
     overridden: int = 0
     failed: int = 0
     over_budget: int = 0
+    never_attempted: int = 0
 
     def add(self, response) -> None:
         self.calls += 1
@@ -162,6 +210,8 @@ class Usage:
             said += f", {self.failed} FAILED"
         if self.over_budget:
             said += f", {self.over_budget} left unclassified at the cost ceiling"
+        if self.never_attempted:
+            said += f", {self.never_attempted} never attempted"
         return said
 
 
@@ -341,7 +391,13 @@ def _client() -> anthropic.Anthropic:
             if name.strip() == "ANTHROPIC_API_KEY" and value.strip():
                 return anthropic.Anthropic(api_key=value.strip().strip("\"'"))
 
-    return anthropic.Anthropic()
+    try:
+        return anthropic.Anthropic()
+    except Exception as error:
+        raise ConfigurationError(
+            f"No API key: set ANTHROPIC_API_KEY in the environment, in .env, or as a "
+            f"repository secret for the scheduled run ({error})."
+        ) from None
 
 
 def _load(path: pathlib.Path) -> dict:
@@ -419,9 +475,15 @@ def classify(
     done = 0
 
     in_flight = 0
+    # Set by the first worker to meet a configuration error. Every other worker
+    # reads it before opening a connection, so the run stops making calls at the
+    # first 401 instead of collecting 1,500 of them.
+    stop = threading.Event()
 
     def work(company: Company) -> tuple[Company, Classification]:
         nonlocal in_flight
+        if stop.is_set():
+            raise Aborted()
         # Checked before the calls, and counting what the other workers are already
         # spending. Cost only lands when a response does, so a check against spend
         # alone lets every worker through at zero and blows a small ceiling by the
@@ -432,6 +494,12 @@ def classify(
             in_flight += 1
         try:
             return company, _classify_one(client, company, usage, lock)
+        except BaseException as error:
+            # Raised before the next worker picks up its company, so the latch is
+            # closed by the time anyone else looks at it.
+            if fatal_reason(error):
+                stop.set()
+            raise
         finally:
             with lock:
                 in_flight -= 1
@@ -441,6 +509,7 @@ def classify(
     # number 800 should not throw away 799 answers, nor block the upload of rows
     # that already have them.
     failures: list[tuple[str, Exception]] = []
+    fatal: str | None = None
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
             futures = {pool.submit(work, company): company for company in todo}
@@ -450,7 +519,24 @@ def classify(
                 except BudgetReached:
                     usage.over_budget += 1
                     continue
+                except Aborted:
+                    # Never attempted, never charged for, and not this company's
+                    # fault. Counting these as failures would report 1,500
+                    # problems when there is exactly one.
+                    usage.never_attempted += 1
+                    continue
                 except Exception as error:  # noqa: BLE001 - reported, not swallowed
+                    reason = fatal_reason(error)
+                    if reason:
+                        # Keep the first one. The later arrivals are the same
+                        # misconfiguration reported by whichever workers were
+                        # already mid-flight when the latch closed.
+                        if fatal is None:
+                            fatal = reason
+                            stop.set()
+                            for pending in futures:
+                                pending.cancel()
+                        continue
                     failures.append((futures[future].id, error))
                     usage.failed += 1
                     continue
@@ -476,6 +562,16 @@ def classify(
     finally:
         _save_cache(cache)
 
+    # After the save, never before it: the answers bought before the key went bad
+    # are paid for, and the next run must not pay for them twice.
+    if fatal:
+        raise ConfigurationError(
+            f"Classification stopped: {fatal}. "
+            f"{usage.never_attempted + usage.failed} of {len(todo)} companies were left unclassified "
+            f"and no further calls were made. Nothing here is retryable — fix the credential or the "
+            f"balance and run again; the {done} answers this run did buy are cached."
+        )
+
     if failures:
         # Loud, and with one real message: "31 failed" without the reason is a shrug.
         print(f"  {len(failures)} could not be classified, e.g. {failures[0][0]}: {failures[0][1]}")
@@ -488,6 +584,30 @@ def classify(
         )
 
     return results, usage
+
+
+def check_key() -> str:
+    """Is the credential usable at all? One free call, before anything is scraped.
+
+    count_tokens is not billed, so this costs nothing and answers in a second —
+    which is the whole point of running it before three minutes of scraping. It
+    proves the key is accepted; it cannot prove the account has credit, because a
+    free endpoint is never refused for want of it. A balance that runs out mid-run
+    is caught by fatal_reason on the first real call instead.
+    """
+    client = _client()
+    try:
+        client.messages.count_tokens(
+            model=MODEL,
+            system=SECTOR_SYSTEM,
+            messages=[{"role": "user", "content": "ping"}],
+        )
+    except Exception as error:
+        reason = fatal_reason(error)
+        if reason:
+            raise ConfigurationError(f"ANTHROPIC_API_KEY is not usable: {reason}.") from None
+        raise
+    return f"ANTHROPIC_API_KEY accepted by the API; {MODEL} addressable."
 
 
 def estimate(companies: list[Company]) -> str:
@@ -507,24 +627,30 @@ def estimate(companies: list[Company]) -> str:
     sample = todo[: min(12, len(todo))]
     sector_tokens = 0
     subsector_tokens = 0
-    for company in sample:
-        # The schema goes in the count too. Its enums carry every id and project
-        # string in the sector, which is 900-odd tokens of billed input — leaving
-        # it out under-counted the first estimate of this run by 40%.
-        sector_tokens += client.messages.count_tokens(
-            model=MODEL,
-            system=SECTOR_SYSTEM,
-            messages=[{"role": "user", "content": _sector_prompt(company)}],
-            output_config={"format": _sector_schema()},
-        ).input_tokens
-        # Sector 1 is the biggest of the five (16 sub-sectors), so pricing the
-        # second call against it overstates rather than surprises.
-        subsector_tokens += client.messages.count_tokens(
-            model=MODEL,
-            system=SUBSECTOR_SYSTEM,
-            messages=[{"role": "user", "content": _subsector_prompt(company, SECTOR_BY_ID["1"])}],
-            output_config={"format": _subsector_schema(SECTOR_BY_ID["1"])},
-        ).input_tokens
+    try:
+        for company in sample:
+            # The schema goes in the count too. Its enums carry every id and project
+            # string in the sector, which is 900-odd tokens of billed input — leaving
+            # it out under-counted the first estimate of this run by 40%.
+            sector_tokens += client.messages.count_tokens(
+                model=MODEL,
+                system=SECTOR_SYSTEM,
+                messages=[{"role": "user", "content": _sector_prompt(company)}],
+                output_config={"format": _sector_schema()},
+            ).input_tokens
+            # Sector 1 is the biggest of the five (16 sub-sectors), so pricing the
+            # second call against it overstates rather than surprises.
+            subsector_tokens += client.messages.count_tokens(
+                model=MODEL,
+                system=SUBSECTOR_SYSTEM,
+                messages=[{"role": "user", "content": _subsector_prompt(company, SECTOR_BY_ID["1"])}],
+                output_config={"format": _subsector_schema(SECTOR_BY_ID["1"])},
+            ).input_tokens
+    except Exception as error:
+        reason = fatal_reason(error)
+        if reason:
+            raise ConfigurationError(f"Cannot price the run: {reason}.") from None
+        raise
 
     per_company_in = (sector_tokens + subsector_tokens) / len(sample)
     total_in = per_company_in * len(todo)
@@ -593,7 +719,17 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="ignore the cache and re-classify")
     parser.add_argument("--table", action="store_true", help="print the results as a table")
     parser.add_argument("--max-cost", type=float, help=f"stop after this much, in dollars (default {DEFAULT_MAX_COST})")
+    parser.add_argument("--check-key", action="store_true", help="verify the credential and exit, scraping nothing")
     args = parser.parse_args()
+
+    # Before _companies(), which scrapes four sites: the point is to fail in a
+    # second rather than after the slow part.
+    if args.check_key:
+        try:
+            print(check_key())
+        except ConfigurationError as error:
+            raise SystemExit(f"::error::{error}") from None
+        raise SystemExit(0)
 
     companies = _companies()
     if args.limit:
@@ -602,7 +738,10 @@ if __name__ == "__main__":
     if args.estimate:
         print(estimate(companies))
     else:
-        results, usage = classify(companies, force=args.force, cost_limit=args.max_cost)
+        try:
+            results, usage = classify(companies, force=args.force, cost_limit=args.max_cost)
+        except ConfigurationError as error:
+            raise SystemExit(f"::error::{error}") from None
         on_map = sum(1 for r in results.values() if r.on_map)
         no_sector = sum(1 for r in results.values() if r.sector_id is None)
         no_subsector = len(results) - on_map - no_sector

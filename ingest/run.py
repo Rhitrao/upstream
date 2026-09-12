@@ -119,7 +119,19 @@ def main() -> int:
                 unique.append(company)
 
     print(f"\nClassifying {len(unique)} companies")
-    results, usage = classifier.classify(unique, cost_limit=args.max_cost)
+    try:
+        results, usage = classifier.classify(unique, cost_limit=args.max_cost)
+    except classifier.ConfigurationError as error:
+        # Nothing is uploaded and the job goes red. A run that cannot classify has
+        # no new placements to publish, and the scraped rows are unchanged from
+        # yesterday's — writing them again would turn a broken key into a
+        # successful-looking run, which is the failure being fixed here.
+        print("\nSummary")
+        print("  RUN FAILED — configuration error, not a data problem")
+        print(f"  {error}")
+        print("  uploaded: nothing")
+        print("\nFix the ANTHROPIC_API_KEY secret and re-run; the cache makes the retry cheap.")
+        return 2
     print(f"  {usage}")
 
     placed = {cid for cid, result in results.items() if result.on_map}
@@ -174,10 +186,21 @@ def main() -> int:
         recorded += len(gaps)
 
     print("\nSummary")
+    # Failures first, before anything that looks like an achievement. A count
+    # buried under four lines of progress is a count nobody reads, and the whole
+    # point of printing it is that somebody notices.
+    if usage.failed:
+        print(f"  {usage.failed} COMPANIES COULD NOT BE CLASSIFIED — see the errors above")
+    else:
+        print("  no classification failures")
+    if failed:
+        print(f"  {len(failed)} SOURCES FAILED — {', '.join(failed)}")
     print(f"  sources: {len(by_source)} ok, {len(failed)} failed{' — ' + ', '.join(failed) if failed else ''}")
     print(f"  companies: {len(unique)} seen, {len(placed)} placed, {dropped} dropped")
     print(f"  classification: {usage}")
     print(f"  uploaded: {uploaded} companies, {recorded} gaps" if not args.dry_run else "  uploaded: nothing (dry run)")
+    # Per-company failures are tolerated, reported and survivable: one company
+    # whose answer would not parse is one row missing, not a broken pipeline.
     return 0
 
 

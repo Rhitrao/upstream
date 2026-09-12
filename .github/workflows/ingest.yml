@@ -55,6 +55,17 @@ jobs:
           done
           [ "$missing" -eq 0 ]
 
+      # A present secret is not a working one — that distinction is what the run
+      # of 2026-09-12 got wrong. count_tokens is free, so this costs a second and
+      # nothing else, and it is spent before the three minutes of scraping.
+      - name: Check the key actually works
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m ingest.classify --check-key
+
+      # `set -euo pipefail` below matters more than it looks: without pipefail,
+      # `| tee` returns tee's exit code and a failed run reports success. That is
+      # half of how an invalid key produced a green tick.
       - name: Scrape, classify and upload
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -81,11 +92,37 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      # The headline on the Actions page, where it is read without opening a log.
+      - name: Put the outcome at the top of the run summary
+        if: always()
+        run: |
+          set -uo pipefail
+          {
+            if grep -q "RUN FAILED" run.log 2>/dev/null; then
+              echo "## Ingest failed — configuration error"
+              echo
+              echo '```'
+              sed -n '/^Summary$/,$p' run.log
+              echo '```'
+            else
+              echo "## Ingest"
+              echo
+              echo '```'
+              sed -n '/^Summary$/,$p' run.log 2>/dev/null || echo "No summary: the run did not reach it."
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # The cache lives in the repo because a fresh checkout has no memory. If
       # this step does not run, tomorrow re-pays for everything today learned, so
       # it fails the job rather than shrugging. BUILD's sketch ends both of these
       # lines with `|| true`; that is the failure this is written to avoid.
+      #
+      # if: always() because a run that died at company 800 still paid for 799
+      # answers. The job stays red — the failed step decides that — but the
+      # answers reach the repo instead of being re-bought tomorrow.
       - name: Commit the classification cache
+        if: always()
         run: |
           set -euo pipefail
           git config user.name "upstream-ingest"
