@@ -93,6 +93,7 @@ class Usage:
     output_tokens: int = 0
     cached: int = 0
     overridden: int = 0
+    failed: int = 0
 
     def add(self, response) -> None:
         self.calls += 1
@@ -104,10 +105,11 @@ class Usage:
         return (self.input_tokens * PRICE_IN + self.output_tokens * PRICE_OUT) / 1_000_000
 
     def __str__(self) -> str:
-        return (
+        said = (
             f"{self.calls} calls, {self.input_tokens:,} in / {self.output_tokens:,} out, "
             f"${self.cost:.4f} — {self.cached} from cache, {self.overridden} overridden"
         )
+        return said if self.failed == 0 else said + f", {self.failed} FAILED"
 
 
 # --- the two prompts --------------------------------------------------------
@@ -349,9 +351,21 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
     def work(company: Company) -> tuple[Company, Classification]:
         return company, _classify_one(client, company, usage, lock)
 
+    # submit/as_completed rather than map: a company that fails must cost us that
+    # company, not the rest of the run. An expired key or a dead API arriving at
+    # number 800 should not throw away 799 answers, nor block the upload of rows
+    # that already have them.
+    failures: list[tuple[str, Exception]] = []
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
-            for company, result in pool.map(work, todo):
+            futures = {pool.submit(work, company): company for company in todo}
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    company, result = future.result()
+                except Exception as error:  # noqa: BLE001 - reported, not swallowed
+                    failures.append((futures[future].id, error))
+                    usage.failed += 1
+                    continue
                 results[company.id] = result
                 cache[company.id] = {
                     "hash": _fingerprint(company),
@@ -372,6 +386,10 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
                     _save_cache(cache)
     finally:
         _save_cache(cache)
+
+    if failures:
+        # Loud, and with one real message: "31 failed" without the reason is a shrug.
+        print(f"  {len(failures)} could not be classified, e.g. {failures[0][0]}: {failures[0][1]}")
 
     return results, usage
 
