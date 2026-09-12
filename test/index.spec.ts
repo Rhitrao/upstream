@@ -1,6 +1,8 @@
 import { env, SELF } from 'cloudflare:test';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { SIGNAL_TYPES, TRACE_TYPES } from '../src/rank';
+import { NO_GAP_NAMED } from '../src/db';
+import gapLabels from '../ingest/gap-labels.json';
 import { SUBSECTORS } from '../src/taxonomy';
 import { demoCompanies } from '../src/demo';
 
@@ -416,6 +418,45 @@ describe('gaps — companies the taxonomy has no cell for', () => {
 		expect((await (await SELF.fetch(`${ORIGIN}/upstream/api/gaps`)).json<any>()).total).toBe(0);
 	});
 
+	it('stops being a row the moment the company arrives as a hole', async () => {
+		// The other half of the invariant, and the half that was missing: a company
+		// placed on Monday and found unplaceable on Tuesday kept its Monday row,
+		// counted in the headline total and sitting in a coverage cell, while also
+		// being listed as a hole. Three companies were in both tables in production.
+		await post({ source: 'test', companies: [{ id: 'botsrule', name: 'Botsrule Ltd', sector_id: '5', subsector_id: '5.1' }] });
+		expect((await (await SELF.fetch(`${ORIGIN}/upstream/api/coverage`)).json<any>()).total_companies).toBe(1);
+
+		await post({ source: 'test', gaps: [gap('botsrule', 'water infrastructure')] });
+
+		const coverage = await (await SELF.fetch(`${ORIGIN}/upstream/api/coverage`)).json<any>();
+		expect(coverage.total_companies).toBe(0);
+		expect((await (await SELF.fetch(`${ORIGIN}/upstream/api/gaps`)).json<any>()).total).toBe(1);
+	});
+
+	it('never leaves a company in both tables, whichever order the two arrive in', async () => {
+		const row = { id: 'botsrule', name: 'Botsrule Ltd', sector_id: '5', subsector_id: '5.1' };
+		const hole = gap('botsrule', 'water infrastructure');
+
+		// Placed then gapped, gapped then placed, and both in one payload. Every
+		// sequence has to end with the company in exactly one table.
+		const sequences: { label: string; payloads: any[] }[] = [
+			{ label: 'placed then gapped', payloads: [{ companies: [row] }, { gaps: [hole] }] },
+			{ label: 'gapped then placed', payloads: [{ gaps: [hole] }, { companies: [row] }] },
+			{ label: 'both at once', payloads: [{ companies: [row], gaps: [hole] }] },
+			{ label: 'gapped twice', payloads: [{ gaps: [hole] }, { gaps: [hole] }] },
+		];
+
+		for (const { label, payloads } of sequences) {
+			await clearDb();
+			for (const payload of payloads) await post({ source: 'test', ...payload });
+
+			const placed = (await (await SELF.fetch(`${ORIGIN}/upstream/api/coverage`)).json<any>()).total_companies;
+			const holes = (await (await SELF.fetch(`${ORIGIN}/upstream/api/gaps`)).json<any>()).total;
+			expect({ label, in_both: placed === 1 && holes === 1 }).toEqual({ label, in_both: false });
+			expect({ label, total: placed + holes }).toEqual({ label, total: 1 });
+		}
+	});
+
 	it('refuses a gap with no reason attached', async () => {
 		const bad = { company_id: 'x', name: 'X Ltd', missing: 'water infrastructure' };
 		expect((await post({ source: 'test', gaps: [bad] })).status).toBe(400);
@@ -619,11 +660,32 @@ describe('GET /upstream (the page)', () => {
 
 		const html = await page();
 		expect(html).toContain('id="off-map"');
-		expect(html).toContain('Off the map');
 		expect(html).toContain('water infrastructure');
 		expect(html).toContain('Botsrule Ltd');
 		// The count is the companies, not the groups.
-		expect(html).toContain('<h2 id="off-map-h">Off the map <span class="count">2</span></h2>');
+		expect(html).toContain('<h2 id="off-map-h">Companies the RDI taxonomy has no cell for <span class="count">2</span></h2>');
+		// Nothing here was a description failure, so that section is absent entirely.
+		expect(html).not.toContain('id="undescribed"');
+	});
+
+	it('states a thin description as our failure, not as a hole in the taxonomy', async () => {
+		await post({
+			source: 'test',
+			gaps: [
+				{ company_id: 'botsrule', name: 'Botsrule Ltd', missing: 'water infrastructure', note: 'No cell covers water distribution.' },
+				{ company_id: 'anon-one', name: 'Anon One Ltd', missing: 'no gap named', note: 'The register published a name and an industry.' },
+				{ company_id: 'anon-two', name: 'Anon Two Ltd', missing: 'no gap named', note: 'The register published a name and an industry.' },
+			],
+		});
+
+		const html = await page();
+		// Two findings, two headings, two counts — and the counts do not overlap.
+		expect(html).toContain('<h2 id="off-map-h">Companies the RDI taxonomy has no cell for <span class="count">1</span></h2>');
+		expect(html).toContain('<h2 id="undescribed-h">Companies we could not describe well enough to place <span class="count">2</span></h2>');
+		// The taxonomy section must not claim the two we simply could not read.
+		const taxonomySection = html.slice(html.indexOf('id="off-map"'), html.indexOf('id="undescribed"'));
+		expect(taxonomySection).not.toContain('Anon One Ltd');
+		expect(taxonomySection).toContain('Botsrule Ltd');
 	});
 
 	it('says nothing about the map having holes when it has none', async () => {
@@ -658,6 +720,34 @@ describe('GET /upstream (the page)', () => {
 		expect(after).not.toContain('Every company here arrived in a backfill');
 		expect(after).toContain('Found Co');
 		expect(after).not.toContain('Backfilled Co');
+	});
+
+	it('heads the masthead with the whole funnel, not just the placed subset', async () => {
+		// Two placed, three off the map. The headline number is what the pipeline
+		// holds — 5 — not the 2 that happened to fit a sub-sector. A number that
+		// silently meant "the placed subset" was the one place on this page where
+		// something disappeared without being named.
+		await post({
+			source: 'test',
+			companies: [
+				{ id: 'placed-one', name: 'Placed One', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'placed-two', name: 'Placed Two', sector_id: '5', subsector_id: '5.1' },
+			],
+			gaps: [
+				{ company_id: 'hole-a', name: 'Hole A', missing: 'water infrastructure', note: 'n', sector_id: '5' },
+				{ company_id: 'hole-b', name: 'Hole B', missing: 'water infrastructure', note: 'n', sector_id: '5' },
+				{ company_id: 'hole-c', name: 'Hole C', missing: 'geospatial services', note: 'n', sector_id: '5' },
+			],
+		});
+
+		const html = await page('');
+		expect(html).toContain('<dt>Companies found</dt><dd>5</dd>');
+		expect(html).toContain('<dt>Placed on the map</dt><dd>2<span class="of">/5</span>');
+		// The drop is stated, not left for the reader to compute.
+		// The line under the stats splits the drop by whose fault it is, and claims
+		// the taxonomy gap only for the companies that actually are one.
+		expect(html).toMatch(/Of the 3 not on the map, <a href="#off-map">3<\/a> fell outside every sub-sector/);
+		expect(html).not.toContain('#undescribed');
 	});
 
 	it('ships the coverage map open, so a reader without JavaScript loses nothing', async () => {
@@ -714,6 +804,15 @@ describe('lists that only one file is allowed to own', () => {
 		for (const type of TRACE_TYPES) {
 			expect(SIGNAL_TYPES as readonly string[]).toContain(type);
 		}
+	});
+
+	it('keeps the one gap-label name that Python writes and TypeScript reads', () => {
+		// ingest/gaps.py owns this vocabulary and src/db.ts splits the page on it.
+		// If a --regroup ever renames the group, gap-labels.json stops containing
+		// it and this fails — instead of the page silently presenting 147 thin
+		// descriptions as holes in the RDI taxonomy.
+		const groups = new Set(Object.values(gapLabels as Record<string, string>));
+		expect(groups).toContain(NO_GAP_NAMED);
 	});
 
 	it('only uses sub-sector ids the taxonomy actually has', () => {

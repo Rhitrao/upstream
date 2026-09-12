@@ -241,6 +241,24 @@ ON CONFLICT(company_id) DO UPDATE SET
  */
 const DELETE_GAP_SQL = 'DELETE FROM gaps WHERE company_id = ?1';
 
+/**
+ * The other direction, and the one that was missing: a company the classifier can
+ * no longer place is not a row any more.
+ *
+ * Without this the companies table only ever grew. A company placed on Monday and
+ * found unplaceable on Tuesday kept its Monday row, sat in a coverage cell it no
+ * longer belonged to, and was counted in the headline total — while also being
+ * listed, correctly, as a hole in the taxonomy. Three companies were in both
+ * tables when this was written.
+ *
+ * The signals go first because they carry a foreign key to the row being removed.
+ * Nothing is lost that the next run cannot restore: a company that becomes
+ * placeable again arrives with its traces attached, and INSERT OR IGNORE puts
+ * them back.
+ */
+const DELETE_COMPANY_SIGNALS_SQL = 'DELETE FROM signals WHERE company_id = ?1';
+const DELETE_COMPANY_SQL = 'DELETE FROM companies WHERE id = ?1';
+
 const INSERT_RUN_SQL = `
 INSERT INTO runs (started_at, source, status, records_found, error)
 VALUES (?1, ?2, ?3, ?4, ?5)`;
@@ -519,14 +537,26 @@ async function applyIngest(
 	}
 
 	// A company arriving as a real row is no longer a hole in the taxonomy, and a
-	// company arriving as a hole must not also be a row.
+	// company arriving as a hole must not also be a row. Both halves, in an order
+	// that makes a payload carrying the same company as both resolve the same way
+	// every time: placed wins.
+	const placedNow = new Set(payloadIds);
 	const gapWrites: D1PreparedStatement[] = gaps.map((g) =>
 		env.DB.prepare(UPSERT_GAP_SQL).bind(g.company_id, g.name, str(g.description), str(g.sector_id), g.missing, g.note, source, nowIso),
 	);
+
+	const unplaced = [...new Set(gaps.map((g) => g.company_id))].filter((id) => !placedNow.has(id));
+	for (const id of unplaced) {
+		gapWrites.push(env.DB.prepare(DELETE_COMPANY_SIGNALS_SQL).bind(id));
+		gapWrites.push(env.DB.prepare(DELETE_COMPANY_SQL).bind(id));
+	}
+
 	for (const id of payloadIds) gapWrites.push(env.DB.prepare(DELETE_GAP_SQL).bind(id));
 	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
 
-	const touched = [...new Set([...payloadIds, ...accepted.map((s) => s.company_id)])];
+	// A row that has just been deleted has no ranking to recompute.
+	const removed = new Set(unplaced);
+	const touched = [...new Set([...payloadIds, ...accepted.map((s) => s.company_id)])].filter((id) => !removed.has(id));
 	await recomputeRanking(env, touched, nowIso, now);
 
 	return {
@@ -636,6 +666,9 @@ async function page(url: URL, env: Env): Promise<Response> {
 		undated,
 		buckets,
 		gaps,
+		// The two tables are disjoint — a company is a row or a hole, never both —
+		// so the top of the funnel is simply their sum.
+		found: coverage.total_companies + gaps.total,
 		tracked: coverage.total_companies,
 		discoveredThisWeek,
 		sector,
