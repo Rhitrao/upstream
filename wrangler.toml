@@ -13,3 +13,10 @@ database_id = "3dff162c-3c60-4f80-8b9e-10f49e4956bd"
 [[routes]]
 pattern = "rohitrao.in/upstream*"
 zone_name = "rohitrao.in"
+
+# www is a separate hostname, not an alias: without this it falls through to the
+# Pages site, whose catch-all answers 200 with the homepage, so a stale-looking
+# page is what you get instead of a 404.
+[[routes]]
+pattern = "www.rohitrao.in/upstream*"
+zone_name = "rohitrao.in"
