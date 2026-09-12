@@ -8,7 +8,7 @@
  */
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
 import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
-import type { Buckets, Company, Coverage, Gaps, Signal } from './db';
+import type { Buckets, Company, Coverage, Gaps, RegisterOutcomes, Signal } from './db';
 
 /** The tier toggle has its own vocabulary: A, A+B (the default), everything. */
 export type TierChoice = 'a' | 'ab' | 'all';
@@ -29,6 +29,8 @@ export interface PageView {
 	found: number;
 	/** The ones that reached a cell on the coverage map. */
 	tracked: number;
+	/** What became of the register's companies, for the methodology's own arithmetic. */
+	register: RegisterOutcomes;
 	discoveredThisWeek: number;
 	sector: string | null;
 	subsector: string | null;
@@ -514,7 +516,56 @@ ${gapList(gaps.undescribed.groups)}
 }
 
 
-function methodology(): string {
+/**
+ * The register's companies, split by why each one did or did not place.
+ *
+ * This used to be one hand-written sentence — "sixty-one per cent of register
+ * companies were placed in no sub-sector at all" — and it was true. It was also
+ * two findings in one figure, pointing opposite ways: one says the RDI taxonomy
+ * has no cell for what these companies build, the other says DPIIT published a
+ * name and a dropdown label and we would not guess from that. Reported whole,
+ * the second hides inside the first and reads as our shortcoming. It is not; it
+ * is the more interesting half, and it is about the register.
+ *
+ * Counted rather than written down, so it cannot quietly stop being true — which
+ * is exactly what the hand-written version did.
+ */
+function registerSplit(view: PageView): string {
+	const { register } = view;
+	if (register.total === 0) return '';
+
+	const unplaced = register.taxonomyGap + register.undescribed;
+	// Rounded once, here, so the prose cannot disagree with the numbers beside it.
+	const share = Math.round((register.undescribed / register.total) * 100);
+
+	const taxonomy =
+		register.taxonomyGap === 0
+			? ''
+			: `
+  <p><strong>${register.taxonomyGap}</strong> are unplaced because the RDI taxonomy has
+    <a href="#off-map">no cell for what they build</a>. That is the scheme's boundary showing: a vocabulary written
+    for five sunrise sectors, meeting companies nobody drafted it around.</p>`;
+
+	const undescribed =
+		register.undescribed === 0
+			? ''
+			: `
+  <p><strong>${register.undescribed}</strong> are unplaced because
+    <a href="#undescribed">the register never said what they do</a>. DPIIT recognition publishes a company name and
+    an industry the founder picked from a dropdown, and for these ${register.undescribed} that is the entire public
+    record. Enough to know they exist; nothing like enough to say what they build. They are left unplaced rather than
+    guessed at.</p>
+  <p>This is the more interesting half. A national startup register &mdash; the government's own list of who is doing
+    this work &mdash; describes ${share}&nbsp;per&nbsp;cent of its companies too thinly for anyone to tell what they
+    are. Not too thinly for us in particular: too thinly for anyone reading it. That is a finding about the register,
+    and it deserves better than being averaged into a single number about sub-sectors.</p>`;
+
+	return `
+  <p>Of the ${register.total} companies read from the register, ${register.placed} reached a sub-sector and
+    ${unplaced} did not. Reported whole, that second number says two different things at once, so it is split here.</p>${taxonomy}${undescribed}`;
+}
+
+function methodology(view: PageView): string {
 	return `
 <section class="method" aria-labelledby="method-h">
   <h2 id="method-h">Methodology</h2>
@@ -563,8 +614,8 @@ function methodology(): string {
   <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
     company does, so those rows are marked <span class="from-label">sector from register label</span> and should be
     read as exactly that much. It also means the fuller cells of the coverage map above are partly a map of where the
-    two vocabularies agree. Sixty-one per cent of register companies were placed in no sub-sector at all, which is the
-    honest answer when an industry label is all there is.</p>
+    two vocabularies agree.</p>
+${registerSplit(view)}
 
   <h3>What this misses</h3>
   <p>A fair amount, and it is worth being blunt about it. There is no LinkedIn here, and no stealth companies: if a company
@@ -900,7 +951,7 @@ ${filters(view)}
 ${list(view)}
 ${undatedList(view)}
 ${offMap(view)}
-${methodology()}
+${methodology(view)}
 </div>
 <script>
   // Progressive enhancement only: without this the Apply button does the same job.

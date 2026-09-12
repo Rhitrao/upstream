@@ -747,7 +747,36 @@ describe('GET /upstream (the page)', () => {
 		// The line under the stats splits the drop by whose fault it is, and claims
 		// the taxonomy gap only for the companies that actually are one.
 		expect(html).toMatch(/Of the 3 not on the map, <a href="#off-map">3<\/a> fell outside every sub-sector/);
-		expect(html).not.toContain('#undescribed');
+		// Scoped to the funnel note: the methodology below links to the same anchors
+		// when there is something to link to, which there is not here.
+		const note = html.slice(html.indexOf('class="funnel-note"'), html.indexOf('</p>', html.indexOf('class="funnel-note"')));
+		expect(note).not.toContain('#undescribed');
+	});
+
+	it('splits the register\'s unplaced companies into the two things they actually are', async () => {
+		// Three from the register: one placed, one the taxonomy has no cell for, one
+		// the register described too thinly. The methodology must not average them.
+		// Gaps take the payload's source, not a per-row one, so this posts as the
+		// register does.
+		await post({
+			source: 'dpiit-startup-india',
+			companies: [{ id: 'placed', name: 'Placed Co', sector_id: '5', subsector_id: '5.1' }],
+			signals: [{ company_id: 'placed', type: 'dpiit', label: 'DPIIT recognised 2026' }],
+			gaps: [
+				{ company_id: 'hole', name: 'Hole Co', missing: 'water infrastructure', note: 'n', sector_id: '5' },
+				{ company_id: 'thin', name: 'Thin Co', missing: 'no gap named', note: 'n', sector_id: '5' },
+			],
+		});
+
+		const html = await page('');
+		// Whitespace-tolerant: the template wraps these sentences across lines.
+		expect(html).toMatch(/Of the 3 companies read from the register,\s+1 reached a sub-sector and\s+2 did not/);
+		expect(html).toMatch(/<strong>1<\/strong> are unplaced because the RDI taxonomy has/);
+		expect(html).toMatch(/<strong>1<\/strong> are unplaced because[\s\S]*?the register never said what they do/);
+		// The share is of every register company, not of the unplaced ones.
+		expect(html).toMatch(/describes 33&nbsp;per&nbsp;cent of its companies too thinly/);
+		// And the old undivided claim is gone for good.
+		expect(html).not.toContain('placed in no sub-sector at all');
 	});
 
 	it('ships the coverage map open, so a reader without JavaScript loses nothing', async () => {

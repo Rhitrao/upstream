@@ -73,6 +73,31 @@ export interface GapGroup {
  */
 export const NO_GAP_NAMED = 'no gap named';
 
+/**
+ * The DPIIT recognition register, as ingest/sources/dpiit.py stamps it.
+ *
+ * The only source whose companies arrive with an industry label instead of a
+ * description, which is why the methodology singles it out.
+ */
+export const REGISTER_SOURCE = 'dpiit-startup-india';
+
+/**
+ * What became of the register's companies, counted rather than written down.
+ *
+ * The methodology used to say "sixty-one per cent of register companies were
+ * placed in no sub-sector at all" as a hand-written number. It was true when
+ * written and spanned two findings that mean opposite things, so it now comes
+ * from the database and arrives already split.
+ */
+export interface RegisterOutcomes {
+	total: number;
+	placed: number;
+	/** The RDI taxonomy has no cell for what they build. */
+	taxonomyGap: number;
+	/** The register published a name and a dropdown label, and we would not guess from that. */
+	undescribed: number;
+}
+
 export interface Gaps {
 	total: number;
 	groups: GapGroup[];
@@ -335,6 +360,22 @@ export function splitGaps(groups: GapGroup[]): Gaps {
 		taxonomy: { total: sum(taxonomy), groups: taxonomy },
 		undescribed: { total: sum(undescribed), groups: undescribed },
 	};
+}
+
+export async function queryRegisterOutcomes(env: Env): Promise<RegisterOutcomes> {
+	const row = await env.DB.prepare(
+		`SELECT
+		   (SELECT COUNT(DISTINCT company_id) FROM signals WHERE source = ?1) AS placed,
+		   (SELECT COUNT(*) FROM gaps WHERE source = ?1 AND missing = ?2)     AS undescribed,
+		   (SELECT COUNT(*) FROM gaps WHERE source = ?1 AND missing != ?2)    AS taxonomy_gap`,
+	)
+		.bind(REGISTER_SOURCE, NO_GAP_NAMED)
+		.first<{ placed: number; undescribed: number; taxonomy_gap: number }>();
+
+	const placed = row?.placed ?? 0;
+	const undescribed = row?.undescribed ?? 0;
+	const taxonomyGap = row?.taxonomy_gap ?? 0;
+	return { total: placed + undescribed + taxonomyGap, placed, taxonomyGap, undescribed };
 }
 
 /**

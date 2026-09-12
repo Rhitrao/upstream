@@ -8,7 +8,7 @@
  * renders them only for that explicit query parameter, and always behind a banner
  * saying so. Delete this file once the ingest in Part 10 is producing real rows.
  */
-import { NO_GAP_NAMED, splitGaps, type Buckets, type Company, type Gaps } from './db';
+import { NO_GAP_NAMED, splitGaps, type Buckets, type Company, type Gaps, type RegisterOutcomes } from './db';
 import { minOriginYear } from './rank';
 
 /** Dates are written relative to render time so the "first seen N days ago" line stays sane. */
@@ -232,6 +232,11 @@ export function splitDemo(companies: Company[], now: Date): { ranked: Company[];
 }
 
 /** Three invented holes, so the off-map section can be seen before real data lands. */
+/** The register split, in the same proportions the real one shows. */
+export function demoRegisterOutcomes(): RegisterOutcomes {
+	return { total: 12, placed: 5, taxonomyGap: 5, undescribed: 2 };
+}
+
 export function demoGaps(): Gaps {
 	// Both kinds, because a sample that showed only taxonomy holes would not
 	// demonstrate the distinction the section is built around.

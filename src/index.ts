@@ -12,9 +12,18 @@
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
 import { SIGNAL_TYPES, TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
-import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, queryGaps, queryHasRanked, type Filters } from './db';
+import {
+	queryBuckets,
+	queryCompanies,
+	queryCoverage,
+	queryDiscoveredSince,
+	queryGaps,
+	queryHasRanked,
+	queryRegisterOutcomes,
+	type Filters,
+} from './db';
 import { renderPage, type AgeChoice, type TierChoice } from './page';
-import { demoCompanies, demoGaps, splitDemo } from './demo';
+import { demoCompanies, demoGaps, demoRegisterOutcomes, splitDemo } from './demo';
 
 const BASE = '/upstream';
 
@@ -651,13 +660,14 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const unplaceable: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register] = await Promise.all([
 		queryCoverage(env),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).ranked) : queryCompanies(env, ranked),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).undated) : queryCompanies(env, unplaceable),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked, cutoff),
 		demo ? Promise.resolve(demoGaps()) : queryGaps(env),
 		queryDiscoveredSince(env, weekAgo),
+		demo ? Promise.resolve(demoRegisterOutcomes()) : queryRegisterOutcomes(env),
 	]);
 
 	const html = renderPage({
@@ -669,6 +679,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// The two tables are disjoint — a company is a row or a hole, never both —
 		// so the top of the funnel is simply their sum.
 		found: coverage.total_companies + gaps.total,
+		register,
 		tracked: coverage.total_companies,
 		discoveredThisWeek,
 		sector,
