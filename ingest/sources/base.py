@@ -1,0 +1,234 @@
+"""Shared plumbing for every scraper.
+
+`fetch` is polite by construction: one honest user-agent with a contact address, a
+second between calls, three tries with backoff, and a 30-day disk cache in
+ingest/cache/. The cache is the part that matters — re-running while you debug a
+parser must not hammer someone else's server.
+
+A scraper returns `(list[Company], list[Signal])` and nothing else. No scoring, no
+classification, no uploading; those are separate files on purpose.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import datetime
+import hashlib
+import json
+import pathlib
+import re
+import time
+import unicodedata
+import urllib.parse
+from dataclasses import dataclass
+
+import requests
+
+CONTACT = "rhitrao@gmail.com"
+USER_AGENT = f"upstream-research/0.1 (+https://rohitrao.in/upstream; {CONTACT})"
+
+CACHE_DIR = pathlib.Path(__file__).resolve().parent.parent / "cache"
+CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
+DELAY_SECONDS = 1.0
+RETRIES = 3
+TIMEOUT_SECONDS = 30
+
+# Transient on their end, worth another try. Everything else 4xx is our mistake and
+# retrying it is just rudeness with extra steps.
+RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
+
+
+@dataclass(slots=True)
+class Company:
+    """One row of `companies`.
+
+    The classification fields stay None in a scraper. Filling them is classify.py's
+    job, and a scraper that guessed would put a guess into the audit trail that
+    classify_note is supposed to be.
+
+    `first_seen` stays None too. It records the day *we* first saw the company, so the
+    Worker stamps it on insert and never again — backdating it from a source's own
+    dates would throw away the one fact that eventually proves we were early.
+    """
+
+    id: str
+    name: str
+    description: str | None = None
+    website: str | None = None
+    city: str | None = None
+    state: str | None = None
+    cin: str | None = None
+    founded_year: int | None = None
+    sector_id: str | None = None
+    subsector_id: str | None = None
+    project_type: str | None = None
+    classify_note: str | None = None
+    first_seen: str | None = None
+
+    @classmethod
+    def named(cls, name: str, **fields) -> Company:
+        """Build one from a raw source name — the slug is the id and the dedupe key."""
+        return cls(id=slugify(name), name=clean(name) or name.strip(), **fields)
+
+    def payload(self) -> dict:
+        return payload(self)
+
+
+@dataclass(slots=True)
+class Signal:
+    """One row of `signals` — a public trace that somebody already knows about them."""
+
+    company_id: str
+    type: str
+    label: str
+    date: str | None = None
+    url: str | None = None
+    source: str | None = None
+    found_at: str | None = None
+
+    def payload(self) -> dict:
+        return payload(self)
+
+
+def payload(record: Company | Signal) -> dict:
+    """The record as the Worker's ingest endpoint wants it.
+
+    None fields are dropped rather than sent as null: the upsert reads a missing
+    column as "leave what is already there", so an empty scrape can never blank out a
+    field another source filled in.
+    """
+    return {k: v for k, v in dataclasses.asdict(record).items() if v is not None}
+
+
+# Stripped only from the end of a name: a leading "Limited" is part of the name, a
+# trailing one is boilerplate. "p" is here for the Indian "(P) Ltd", which reaches this
+# set as a bare token once the punctuation is gone.
+NAME_SUFFIXES = frozenset({"private", "limited", "ltd", "pvt", "llp", "p"})
+
+
+def slugify(name: str) -> str:
+    """Lowercase, no company-form boilerplate, no punctuation, hyphenated.
+
+    This is the company `id` and the only thing that stops the same company arriving
+    twice under two spellings, so it has to be stable: same name in, same slug out.
+    """
+    ascii_name = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+    words = re.sub(r"[^a-z0-9]+", " ", ascii_name.lower()).split()
+    trimmed = list(words)
+    while trimmed and trimmed[-1] in NAME_SUFFIXES:
+        trimmed.pop()
+    # A name made entirely of suffixes keeps them — a blank id would collide with
+    # every other blank id, which is worse than an ugly one.
+    return "-".join(trimmed or words)
+
+
+def clean(text: str | None) -> str | None:
+    """Collapse whitespace (including the non-breaking kind CMSes love). None if empty."""
+    if text is None:
+        return None
+    collapsed = re.sub(r"\s+", " ", text.replace("\xa0", " ")).strip()
+    return collapsed or None
+
+
+def website(url: str | None) -> str | None:
+    """A source's website field as an http(s) url, or None.
+
+    Sources write "acuradyne.com" as often as they write the scheme. The page only
+    linkifies http(s), so a bare domain would render as dead text otherwise.
+    """
+    cleaned = clean(url)
+    if cleaned is None:
+        return None
+    if cleaned.lower().startswith(("http://", "https://")):
+        return cleaned
+    if re.fullmatch(r"[\w.-]+\.[a-z]{2,}(?:/.*)?", cleaned, re.IGNORECASE):
+        return f"https://{cleaned}"
+    return None
+
+
+def fetch(url: str, *, force: bool = False) -> str:
+    """The page body, from the cache when it is younger than 30 days."""
+    path = _cache_path(url)
+    if not force:
+        cached = _read_cache(path)
+        if cached is not None:
+            return cached
+
+    body = _get(url)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    entry = {"url": url, "fetched_at": _now().isoformat(), "body": body}
+    path.write_text(json.dumps(entry), encoding="utf-8")
+    return body
+
+
+def preview(companies: list[Company], signals: list[Signal], limit: int = 5) -> str:
+    """What a scraper prints when you run it directly — enough to see it worked."""
+    by_company: dict[str, list[Signal]] = {}
+    for signal in signals:
+        by_company.setdefault(signal.company_id, []).append(signal)
+
+    lines = [f"{len(companies)} companies, {len(signals)} signals"]
+    missing = sum(1 for c in companies if not c.website)
+    lines.append(f"{missing} without a website, {sum(1 for c in companies if not c.description)} without a description")
+    for company in companies[:limit]:
+        lines.append(f"\n  {company.id}\n    {company.name}")
+        if company.website:
+            lines.append(f"    {company.website}")
+        if company.description:
+            lines.append(f"    {company.description[:100]}")
+        for signal in by_company.get(company.id, []):
+            lines.append(f"    [{signal.type}] {signal.label}")
+    return "\n".join(lines)
+
+
+def _now() -> datetime.datetime:
+    return datetime.datetime.now(datetime.UTC)
+
+
+_last_call = 0.0
+
+
+def _get(url: str) -> str:
+    global _last_call
+
+    for attempt in range(1, RETRIES + 1):
+        pause = DELAY_SECONDS - (time.monotonic() - _last_call)
+        if pause > 0:
+            time.sleep(pause)
+        try:
+            response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT_SECONDS)
+            _last_call = time.monotonic()
+            if response.status_code in RETRY_STATUSES:
+                raise requests.HTTPError(f"{response.status_code} from {url}", response=response)
+            response.raise_for_status()
+            # requests falls back to ISO-8859-1 when a server sends no charset, which
+            # turns every curly quote on a UTF-8 page into mojibake.
+            if "charset" not in response.headers.get("content-type", "").lower():
+                response.encoding = response.apparent_encoding or "utf-8"
+            return response.text
+        except requests.RequestException:
+            _last_call = time.monotonic()
+            if attempt == RETRIES:
+                raise
+            time.sleep(DELAY_SECONDS * 2 ** (attempt - 1))
+
+    raise AssertionError("unreachable")
+
+
+def _cache_path(url: str) -> pathlib.Path:
+    parts = urllib.parse.urlsplit(url)
+    stem = re.sub(r"[^a-z0-9]+", "-", f"{parts.netloc}{parts.path}".lower()).strip("-")[:60]
+    # The hash keeps two urls that flatten to the same stem apart; the stem is there so
+    # the cache directory is readable when a parser surprises you.
+    return CACHE_DIR / f"{stem}-{hashlib.sha256(url.encode()).hexdigest()[:8]}.json"
+
+
+def _read_cache(path: pathlib.Path) -> str | None:
+    try:
+        entry = json.loads(path.read_text(encoding="utf-8"))
+        fetched_at = datetime.datetime.fromisoformat(entry["fetched_at"])
+    except (OSError, ValueError, KeyError):
+        return None
+    if (_now() - fetched_at).total_seconds() > CACHE_TTL_SECONDS:
+        return None
+    return entry["body"]

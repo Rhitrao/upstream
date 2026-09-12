@@ -171,3 +171,8 @@ dist
 __pycache__/
 *.pyc
 .venv/
+
+# scraped pages, cached for 30 days so debugging a parser costs nobody a request
+
+ingest/cache/*
+!ingest/cache/.gitkeep
