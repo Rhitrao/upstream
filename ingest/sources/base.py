@@ -87,6 +87,9 @@ class Company:
     subsector_id: str | None = None
     project_type: str | None = None
     classify_note: str | None = None
+    # 'description' or 'register-label': what the sub-sector was chosen from. Set
+    # by the pipeline from description_is_label, and sent, unlike that flag.
+    classify_basis: str | None = None
 
     @classmethod
     def named(cls, name: str, **fields) -> Company:
