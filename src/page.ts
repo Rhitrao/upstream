@@ -271,8 +271,11 @@ function chips(company: Company): string {
 
 function companyRow(company: Company, now: Date): string {
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
+	// A sub-sector chosen from a register's industry label is a claim about two
+	// vocabularies agreeing, not about the company. The row says which it is.
+	const fromLabel = company.classify_basis === 'register-label' ? '<span class="from-label">sector from register label</span>' : '';
 	const rdi = sub
-		? `<p class="rdi">RDI ${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</p>`
+		? `<p class="rdi">RDI ${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}${fromLabel}</p>`
 		: '<p class="rdi unclassified">Not yet classified</p>';
 	const site = safeUrl(company.website);
 	const name = site ? `<a href="${esc(site)}" rel="noopener nofollow">${esc(company.name)}</a>` : esc(company.name);
@@ -477,6 +480,22 @@ function methodology(): string {
     counted in the coverage map, and one link away &mdash; they are history rather than a find, and putting them in the
     same list would be flattering the wrong thing.</p>
 
+  <h3>Two official classifications that do not meet</h3>
+  <p>DPIIT's recognition register files every startup under its own industry vocabulary &mdash; 56 industries, chosen
+    by the founder from a list when they applied. The RDI scheme has 44 sub-sectors, written by a different department
+    for a different purpose. Neither was drawn up with the other in mind, and putting the same companies through both
+    shows how little they overlap.</p>
+  <p>Where the two vocabularies happen to have a near-twin, a company places almost automatically: DPIIT's
+    &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent Systems &amp; Robotics&rdquo; placed 80 of 81. Where
+    they have none, almost nothing places: 3 of 87 for &ldquo;Computer Vision&rdquo;, 7 of 83 for &ldquo;AI&rdquo;.
+    Same companies, same government, two filing systems that do not map onto each other. That is a finding about the
+    taxonomies, not a fault in either.</p>
+  <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
+    company does, so those rows are marked <span class="from-label">sector from register label</span> and should be
+    read as exactly that much. It also means the fuller cells of the coverage map above are partly a map of where the
+    two vocabularies agree. Sixty-one per cent of register companies were placed in no sub-sector at all, which is the
+    honest answer when an industry label is all there is.</p>
+
   <h3>What this misses</h3>
   <p>A fair amount, and it is worth being blunt about it. There is no LinkedIn here, and no stealth companies: if a company
     has not appeared anywhere public, this page cannot see it and will not pretend otherwise. The list leans toward
@@ -677,6 +696,15 @@ select {
 .desc { margin: 0 0 0.35rem; max-width: 46rem; }
 .rdi { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.5rem; font-family: "DM Mono", ui-monospace, monospace; }
 .rdi.unclassified { font-style: italic; }
+.from-label {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: Inter, system-ui, sans-serif;
+  white-space: nowrap;
+}
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.5rem; padding: 0; }
 .chip {
   display: inline-block;

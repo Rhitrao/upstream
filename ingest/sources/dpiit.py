@@ -105,6 +105,10 @@ def _company(record: dict, industry: str) -> Company | None:
     return Company.named(
         name,
         description=_description(record, industry),
+        # Not a description of the company: an industry label the founder picked
+        # from a list of 56 at application time. Everything downstream that would
+        # otherwise present it as knowledge reads this flag.
+        description_is_label=True,
         # The register has no website field, so its silence is not evidence.
         website_checked=False,
         city=clean(record.get("city")),

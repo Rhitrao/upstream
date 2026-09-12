@@ -26,6 +26,21 @@ from ingest.upload import PRODUCTION, upload
 SOURCES = [sine, rtbi, grants_csv, dpiit]
 
 
+def scrape(module) -> tuple[list[Company], list[Signal]]:
+    """One source, with every company stamped with where it came from.
+
+    The only way anything in this pipeline gets companies out of a scraper. The
+    cache key is scoped by source, so a company with no source silently falls back
+    to the default prompt version — which is how scoping a key can look like it
+    works while doing nothing at all. One choke point, so there is nowhere to
+    forget it.
+    """
+    companies, signals = module.scrape()
+    for company in companies:
+        company.source = module.SOURCE
+    return companies, signals
+
+
 def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], list[str]]:
     """Every source that works, and the names of the ones that did not."""
     companies: dict[str, list[Company]] = {}
@@ -34,7 +49,7 @@ def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], lis
 
     for module in SOURCES:
         try:
-            found, traces = module.scrape()
+            found, traces = scrape(module)
             companies[module.SOURCE] = found
             signals[module.SOURCE] = traces
             print(f"  {module.SOURCE}: {len(found)} companies, {len(traces)} signals")
@@ -131,6 +146,10 @@ def main() -> int:
                         "subsector_id": result.subsector_id,
                         "project_type": result.project_type,
                         "classify_note": result.note,
+                        # Said in the row, not only in the note: a sub-sector
+                        # chosen from a register's industry label is a different
+                        # kind of claim from one chosen from a description.
+                        "classify_basis": "register-label" if company.description_is_label else "description",
                     }
                 )
             )

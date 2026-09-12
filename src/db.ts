@@ -28,6 +28,8 @@ export interface Company {
 	subsector_id: string | null;
 	project_type: string | null;
 	classify_note: string | null;
+	/** 'description', or 'register-label' where only an industry label was available. */
+	classify_basis: string;
 	first_seen: string | null;
 	first_seen_basis: Basis | null;
 	discovered: string;

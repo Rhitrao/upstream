@@ -156,6 +156,8 @@ interface CompanyInput {
 	subsector_id?: string | null;
 	project_type?: string | null;
 	classify_note?: string | null;
+	/** 'description' or 'register-label' — what the sub-sector was chosen from. */
+	classify_basis?: string | null;
 }
 
 /**
@@ -194,9 +196,9 @@ interface SignalInput {
 const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
   id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
-  sector_id, subsector_id, project_type, classify_note,
+  sector_id, subsector_id, project_type, classify_note, classify_basis,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
@@ -212,6 +214,7 @@ ON CONFLICT(id) DO UPDATE SET
   subsector_id  = COALESCE(excluded.subsector_id,  companies.subsector_id),
   project_type  = COALESCE(excluded.project_type,  companies.project_type),
   classify_note = COALESCE(excluded.classify_note, companies.classify_note),
+  classify_basis  = excluded.classify_basis,
   first_seen       = CASE WHEN companies.first_seen IS NULL THEN ?18 ELSE companies.first_seen END,
   first_seen_basis = CASE WHEN companies.first_seen IS NULL AND ?18 IS NOT NULL THEN 'cohort' ELSE companies.first_seen_basis END,
   updated_at    = excluded.updated_at`;
@@ -313,6 +316,10 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const name = str(c.name);
 		if (!id) return json({ error: `companies[${i}].id is required` }, 400);
 		if (!name) return json({ error: `companies[${i}].name is required` }, 400);
+		const basis = str(c.classify_basis);
+		if (basis !== null && basis !== 'description' && basis !== 'register-label') {
+			return json({ error: `companies[${i}].classify_basis must be description or register-label` }, 400);
+		}
 		// A junk year would quietly decide whether a company is old enough to hide.
 		for (const field of ['origin_year', 'record_year'] as const) {
 			const value = c[field];
@@ -475,6 +482,7 @@ async function applyIngest(
 			nowIso,
 			cohort,
 			c.website_checked === false ? 0 : 1,
+			str(c.classify_basis) ?? 'description',
 		);
 	});
 

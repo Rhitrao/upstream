@@ -66,6 +66,12 @@ class Company:
     id: str
     name: str
     description: str | None = None
+    # Which source described it, and whether that description is a description at
+    # all. A recognition register publishes an industry label chosen by the founder
+    # from a fixed list; calling that a description would let the page imply we know
+    # what the company does. Both fields stay inside the pipeline — see payload().
+    source: str | None = None
+    description_is_label: bool = False
     website: str | None = None
     # False when the source publishes no website field at all. An empty website is
     # then a fact about the source, not about the company, and the page must not
@@ -107,6 +113,11 @@ class Signal:
         return payload(self)
 
 
+# Fields the pipeline uses and the endpoint has never heard of. Listed rather than
+# inferred, so adding one is a decision instead of a surprise on the far side.
+INTERNAL_FIELDS = frozenset({"source", "description_is_label"})
+
+
 def payload(record: Company | Signal) -> dict:
     """The record as the Worker's ingest endpoint wants it.
 
@@ -114,7 +125,7 @@ def payload(record: Company | Signal) -> dict:
     column as "leave what is already there", so an empty scrape can never blank out a
     field another source filled in.
     """
-    return {k: v for k, v in dataclasses.asdict(record).items() if v is not None}
+    return {k: v for k, v in dataclasses.asdict(record).items() if v is not None and k not in INTERNAL_FIELDS}
 
 
 # Stripped only from the end of a name: a leading "Limited" is part of the name, a

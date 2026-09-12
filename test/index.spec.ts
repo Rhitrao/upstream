@@ -495,6 +495,34 @@ describe('GET /upstream (the page)', () => {
 		expect(ranked).not.toContain('Undated Co');
 	});
 
+	it('marks a sub-sector that came from a register label, and only that one', async () => {
+		await post({
+			source: 'test',
+			mode: 'live',
+			companies: [
+				{ id: 'from-label', name: 'Label Co', sector_id: '2', subsector_id: '2.7', classify_basis: 'register-label' },
+				{ id: 'from-desc', name: 'Description Co', sector_id: '2', subsector_id: '2.7' },
+			],
+		});
+
+		const html = await page('?tier=all');
+		// Sliced by row anchor: the methodology explains the marker using the same
+		// words, so anything looser than this passes for the wrong reason.
+		const row = (id: string) => {
+			const start = html.indexOf(`id="c-${id}"`);
+			return html.slice(start, html.indexOf('</li>', start));
+		};
+		expect(row('from-label')).toContain('sector from register label');
+		expect(row('from-desc')).not.toContain('sector from register label');
+		// And the finding is written up, not just marked.
+		expect(html).toContain('Two official classifications that do not meet');
+	});
+
+	it('refuses a classify_basis nobody defined', async () => {
+		const res = await post({ source: 'test', companies: [{ id: 'a', name: 'A', classify_basis: 'vibes' }] });
+		expect(res.status).toBe(400);
+	});
+
 	it('anchors every row by slug so one can be linked to', async () => {
 		await post({ source: 'test', mode: 'live', companies: [{ id: 'hexcarb-advanced-materials', name: 'Hexcarb' }] });
 		expect(await page('?tier=all')).toContain('<li class="company" id="c-hexcarb-advanced-materials">');

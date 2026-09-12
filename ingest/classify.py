@@ -44,9 +44,25 @@ MODEL = "claude-haiku-4-5"
 PRICE_IN = 1.00
 PRICE_OUT = 5.00
 
-# Bump when a prompt changes: it is part of the cache key, so a reworded prompt
-# re-classifies rather than silently mixing old answers with new ones.
-PROMPT_VERSION = 3
+# Part of the cache key, so a reworded prompt re-classifies rather than silently
+# mixing two generations of judgement. Scoped per source, because the prompt is
+# shared code but our confidence in the answers is not: SINE and the grant
+# compendium publish real descriptions and their classifications have never been
+# in doubt, while the register publishes an industry label and its placements are
+# the ones worth revisiting. Bumping one source re-pays for that source alone.
+#
+# Raising a number here spends money. 1,542 companies at once is about $3.70.
+DEFAULT_PROMPT_VERSION = 3
+PROMPT_VERSIONS = {
+    "sine-iitb": 3,
+    "rtbi-iitm": 3,
+    "grants-csv": 3,
+    "dpiit-startup-india": 3,
+}
+
+
+def prompt_version(source: str | None) -> int:
+    return PROMPT_VERSIONS.get(source or "", DEFAULT_PROMPT_VERSION)
 
 CACHE_PATH = pathlib.Path(__file__).parent / "cache" / "classify.json"
 OVERRIDES_PATH = pathlib.Path(__file__).parent / "overrides.json"
@@ -257,11 +273,18 @@ def _classify_one(client: anthropic.Anthropic, company: Company, usage: Usage, l
 def _fingerprint(company: Company) -> str:
     """What we are about to send, as one short hash.
 
-    The model and prompt version are in here on purpose: re-running after either
-    changes is a different question, and answering it from cache would quietly
-    mix two generations of judgement.
+    The model and the prompt version are in here on purpose: re-running after
+    either changes is a different question, and answering it from cache would
+    quietly mix two generations of judgement.
+
+    The version is this source's. The shape of the hashed material is deliberately
+    unchanged from when the version was global — every source starts at the number
+    it already had, so scoping the key cost nothing and invalidated nothing.
     """
-    material = json.dumps([company.name, clean(company.description), MODEL, PROMPT_VERSION], sort_keys=True)
+    material = json.dumps(
+        [company.name, clean(company.description), MODEL, prompt_version(company.source)],
+        sort_keys=True,
+    )
     return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
 
 
@@ -375,6 +398,7 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
                     "project_type": result.project_type,
                     "note": result.note,
                     "missing": result.missing,
+                    "source": company.source,
                     "model": MODEL,
                     "classified_at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
                 }
@@ -481,11 +505,11 @@ def _companies() -> list[Company]:
     no estimate at all. Imported inside the function because run.py imports this
     module at the top of itself.
     """
-    from ingest.run import SOURCES
+    from ingest.run import SOURCES, scrape
 
     merged: dict[str, Company] = {}
     for module in SOURCES:
-        for company in module.scrape()[0]:
+        for company in scrape(module)[0]:
             merged.setdefault(company.id, company)
     return list(merged.values())
 

@@ -1550,6 +1550,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "artistica-technologies": {
+  "classified_at": "2026-09-12T12:18:57+00:00",
+  "hash": "05fe9059fccdf295",
+  "missing": "embedded systems hardware specification",
+  "model": "claude-haiku-4-5",
+  "name": "ARTISTICA TECHNOLOGIES PRIVATE LIMITED",
+  "note": "ARTISTICA TECHNOLOGIES is described as an embedded technology hardware startup at validation stage, but lacks sufficient detail about what specific deep-tech capability it addresses\u2014the company name and category alone do not map to any of the listed project types across quantum, semiconductors, robotics, photonics, space, materials, or neuromorphic systems.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "arvolt-switchgears": {
   "classified_at": "2026-09-12T12:06:21+00:00",
   "hash": "896e6898b6cee830",
@@ -1999,6 +2010,17 @@
   "note": "Company name and sector designation provided but no specific technical details about what AWEGA GREEN TECHNOLOGIES actually develops or manufactures.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "axicom-bharath": {
+  "classified_at": "2026-09-12T12:18:50+00:00",
+  "hash": "a1d415b4d0812437",
+  "missing": "general manufacturing hardware",
+  "model": "claude-haiku-4-5",
+  "name": "AXICOM BHARATH PRIVATE LIMITED",
+  "note": "AXICOM BHARATH is described as a technology hardware manufacturing company at validation stage, but without specifics on what hardware they produce, it cannot be reliably mapped to any of the deep-tech sub-sectors listed, which all require specialized deep technologies (quantum, semiconductors, photonics, space, advanced materials, robotics, or neuromorphic systems).",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "axoniq-defence": {
@@ -2628,6 +2650,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "brahmastra-bmc-device": {
+  "classified_at": "2026-09-12T12:18:55+00:00",
+  "hash": "40941ffb80cfde79",
+  "missing": "embedded systems hardware",
+  "model": "claude-haiku-4-5",
+  "name": "BRAHMASTRA BMC DEVICE",
+  "note": "BRAHMASTRA BMC DEVICE is described as embedded technology hardware at validation stage, but without specific details about whether it is a quantum device, semiconductor chip, robotics platform, space component, advanced material, or neuromorphic processor, the company's actual technical focus cannot be mapped to the listed project types.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "brainbuds-healthcare": {
   "classified_at": "2026-09-12T11:31:28+00:00",
   "hash": "82c51c2235293dce",
@@ -2705,6 +2738,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "bumblebee-instruments": {
+  "classified_at": "2026-09-12T12:18:51+00:00",
+  "hash": "fdf67c4b016c6f48",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "BUMBLEBEE INSTRUMENTS PRIVATE LIMITED",
+  "note": "Bumblebee Instruments is a semiconductor technology hardware startup, placing it directly within the Semiconductors & Electronics sub-sector's focus on chip design and fabrication capabilities.",
+  "project_type": "Chip design and advanced node fabrication",
+  "sector_id": "2",
+  "subsector_id": "2.2"
+ },
  "buzzworthy-ventures": {
   "classified_at": "2026-09-12T11:31:04+00:00",
   "hash": "86645b04d24cd0e2",
@@ -2758,6 +2802,17 @@
   "note": "C12 Greentech's blockchain-based carbon credit trading platform is a digital infrastructure and market enablement solution, not a deep-tech innovation in energy production, storage, conversion, or climate mitigation technologies.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "c2r-design-technologies": {
+  "classified_at": "2026-09-12T12:18:57+00:00",
+  "hash": "b46a86f3eb61b109",
+  "missing": "general electronics and hardware design",
+  "model": "claude-haiku-4-5",
+  "name": "C2R DESIGN TECHNOLOGIES PRIVATE LIMITED",
+  "note": "C2R Design Technologies' core work in technology hardware and electronics design does not align with any listed deep-tech project types; the company appears to focus on general-purpose hardware/electronics design rather than the specialized quantum, semiconductor fabrication, robotics, photonics, space, materials, or neuromorphic domains enumerated.",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "cacheit-solutions": {
@@ -4168,6 +4223,17 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "dhruv-electro": {
+  "classified_at": "2026-09-12T12:19:00+00:00",
+  "hash": "2ad0154b041472a3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "DHRUV ELECTRO PRIVATE LIMITED",
+  "note": "DHRUV ELECTRO's focus on technology hardware in electronics aligns with electronic control systems as a core capability within semiconductors and electronics.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "subsector_id": "2.2"
+ },
  "dhvani-research-development-solution": {
   "classified_at": "2026-09-12T10:56:45+00:00",
   "hash": "54133c687037b1cb",
@@ -4189,6 +4255,17 @@
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "diana-metals": {
+  "classified_at": "2026-09-12T12:18:58+00:00",
+  "hash": "e5ebdc9cfa1254d0",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "DIANA METALS PRIVATE LIMITED",
+  "note": "Diana Metals is a technology hardware manufacturing startup; the company name and sector focus on metals production suggests specialization in high-performance metal alloys and components, which aligns most closely with the health and pharmaceutical materials category covering titanium/alloys and medical device components.",
+  "project_type": "Health and pharmaceutical materials: wound healing, non-invasive continuous monitoring, ceramic implants, titanium/alloys, silicon, biomaterials for prosthetics, spinal screws, sensors",
+  "sector_id": "2",
+  "subsector_id": "2.6"
  },
  "digitaaztrans-technologies": {
   "classified_at": "2026-09-12T12:04:52+00:00",
@@ -4265,6 +4342,17 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "divyaputri-tradex": {
+  "classified_at": "2026-09-12T12:18:57+00:00",
+  "hash": "b4ca273ddb9b3edb",
+  "missing": "hardware product specification",
+  "model": "claude-haiku-4-5",
+  "name": "DIVYAPUTRI TRADEX LLP",
+  "note": "DIVYAPUTRI TRADEX LLP is described only as a 'Technology Hardware' company in the Electronics sector at validation stage, with no specific technical details about their hardware offering provided.",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "dnsjv": {
@@ -4794,6 +4882,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "electrine-ingenum-solutions": {
+  "classified_at": "2026-09-12T12:18:53+00:00",
+  "hash": "f0624575d22bb8b3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ELECTRINE INGENUM SOLUTIONS PRIVATE LIMITED",
+  "note": "A technology hardware startup in electronics most naturally aligns with semiconductor and electronics subsector, specifically electronic control systems which is the broadest fit for general electronics technology development.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "subsector_id": "2.2"
  },
  "electronlab": {
   "classified_at": "2026-09-12T12:03:53+00:00",
@@ -6016,6 +6115,17 @@
   "sector_id": "1",
   "subsector_id": "1.16"
  },
+ "gdqlabs": {
+  "classified_at": "2026-09-12T12:19:01+00:00",
+  "hash": "13eed2b4a5a9a2b4",
+  "missing": "hardware product specification",
+  "model": "claude-haiku-4-5",
+  "name": "Gdqlabs Private Limited",
+  "note": "Gdqlabs Private Limited is classified as a technology hardware manufacturing company at prototype stage, but no specific technical details about their hardware innovation are provided in the description.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "gelcarbonix": {
   "classified_at": "2026-09-12T12:06:01+00:00",
   "hash": "c3bbd8b48fe65598",
@@ -6565,6 +6675,17 @@
   "project_type": "Multi-functional, very low-toxicity biomaterials",
   "sector_id": "4",
   "subsector_id": "4.6"
+ },
+ "harishya-infratech": {
+  "classified_at": "2026-09-12T12:18:51+00:00",
+  "hash": "bffb28a0689e90a6",
+  "missing": "general manufacturing infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "HARISHYA INFRATECH LLP",
+  "note": "HARISHYA INFRATECH's work in technology hardware and manufacturing does not map clearly to the deep-technology project types listed; the company description lacks sufficient detail about which specific deep-tech capability (quantum, semiconductors, robotics, photonics, space, materials, or neuromorphic systems) they are developing.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
  },
  "harmonix-research": {
   "classified_at": "2026-09-12T12:01:28+00:00",
@@ -7908,6 +8029,17 @@
   "sector_id": "3",
   "subsector_id": "3.2"
  },
+ "jeevandeep-circle-lifestyle-traders": {
+  "classified_at": "2026-09-12T12:19:00+00:00",
+  "hash": "060a8560a1a9f86c",
+  "missing": "consumer electronics manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "JEEVANDEEP CIRCLE LIFESTYLE TRADERS PRIVATE LIMITED",
+  "note": "JEEVANDEEP CIRCLE LIFESTYLE TRADERS PRIVATE LIMITED appears to be a lifestyle/consumer products company based on its name and classification, not a deep-technology hardware developer matching any of the defined project types in Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "jeevatva-biosciences": {
   "classified_at": "2026-09-12T12:00:05+00:00",
   "hash": "f3b26752df7d8fc3",
@@ -7995,6 +8127,17 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "jsp-electronics-india": {
+  "classified_at": "2026-09-12T12:19:00+00:00",
+  "hash": "e06ca439f8786edb",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "JSP ELECTRONICS INDIA PRIVATE LIMITED",
+  "note": "JSP Electronics' focus on technology hardware and electronics aligns with electronic control systems development, a core capability within the semiconductors and electronics subsector.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "subsector_id": "2.2"
  },
  "jsr-dynamics": {
   "classified_at": "2026-09-12T10:55:45+00:00",
@@ -8621,6 +8764,17 @@
   "note": "kWatt Solutions' core business is solar panel design, engineering, installation and maintenance\u2014operational deployment and services rather than deep-tech innovation in materials, processes, or efficiency breakthroughs.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "labonex-instruments": {
+  "classified_at": "2026-09-12T12:19:00+00:00",
+  "hash": "8a38ceb453aedb4b",
+  "missing": "laboratory instrumentation and analytical equipment",
+  "model": "claude-haiku-4-5",
+  "name": "LABONEX INSTRUMENTS LLP",
+  "note": "LABONEX INSTRUMENTS is a hardware technology company in the manufacturing sector, but without specific information about their products or technical focus, it cannot be reliably mapped to any deep-tech sub-sector within quantum, semiconductors, advanced manufacturing, photonics, space, materials, robotics, or neuromorphic computing.",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "lagom-sustainable-living-lsl": {
@@ -9437,6 +9591,17 @@
   "sector_id": "2",
   "subsector_id": "2.6"
  },
+ "meetushi-aircon": {
+  "classified_at": "2026-09-12T12:18:52+00:00",
+  "hash": "12f0093c6c4088d5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "MEETUSHI AIRCON PRIVATE LIMITED",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "memgonex-technologies": {
   "classified_at": "2026-09-12T12:05:48+00:00",
   "hash": "7afbac4a12f4b0b7",
@@ -9712,6 +9877,17 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "mscorpres-manufacturer-and-refurbisher": {
+  "classified_at": "2026-09-12T12:18:56+00:00",
+  "hash": "236729871a8e5856",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "MSCORPRES MANUFACTURER AND REFURBISHER PRIVATE LIMITED",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "msd-biotech-india": {
   "classified_at": "2026-09-12T12:02:25+00:00",
   "hash": "5c0d930f3e501ee9",
@@ -9733,6 +9909,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "mvrc-motion": {
+  "classified_at": "2026-09-12T12:18:51+00:00",
+  "hash": "d8fcb09a8da08b07",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "MVRC MOTION LLP",
+  "note": "MVRC Motion's focus on motion control and robotics aligns with the modular robotic platforms capability within Intelligent Systems & Robotics.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "subsector_id": "2.7"
  },
  "mwin-fintech": {
   "classified_at": "2026-09-12T12:00:09+00:00",
@@ -10427,6 +10614,17 @@
   "sector_id": "2",
   "subsector_id": "2.6"
  },
+ "nokhacore-technologies": {
+  "classified_at": "2026-09-12T12:18:55+00:00",
+  "hash": "bd0a23517ab2b5be",
+  "missing": "core materials engineering",
+  "model": "claude-haiku-4-5",
+  "name": "NOKHACORE TECHNOLOGIES PRIVATE LIMITED",
+  "note": "Nokhacore Technologies' core work in core design and materials appears to involve specialized engineering that does not clearly map to the defined deep-tech categories; the company's specific technology domain (inferred from the name relating to core technology) requires clarification against taxonomy categories.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "noos-technologies": {
   "classified_at": "2026-09-12T12:00:09+00:00",
   "hash": "c63f7062d9ab44af",
@@ -11107,6 +11305,17 @@
   "note": "PERSEUS VENTURES is described only as an AI/Machine Learning startup at prototype stage with no information about the specific problem domain or application area it addresses.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "petra-adhesive-products": {
+  "classified_at": "2026-09-12T12:18:57+00:00",
+  "hash": "d849552bce34e176",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "PETRA ADHESIVE PRODUCTS PRIVATE LIMITED",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
   "subsector_id": null
  },
  "pgradient-labs": {
@@ -12022,6 +12231,17 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "radio-core-solutions": {
+  "classified_at": "2026-09-12T12:19:00+00:00",
+  "hash": "79ebc022bd85f98c",
+  "missing": "RF and wireless communications hardware",
+  "model": "claude-haiku-4-5",
+  "name": "RADIO CORE SOLUTIONS PRIVATE LIMITED",
+  "note": "Radio Core Solutions' work in technology hardware and electronics does not align with the specific deep-tech categories listed; the company name and sector suggest RF/wireless communications hardware rather than quantum, semiconductors, photonics, space, advanced materials, robotics, or neuromorphic computing.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "rajman-developers": {
   "classified_at": "2026-09-12T10:56:06+00:00",
   "hash": "145a977171433923",
@@ -12462,6 +12682,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "ridlin-services": {
+  "classified_at": "2026-09-12T12:18:51+00:00",
+  "hash": "2878dd03d5396378",
+  "missing": "electrical equipment manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "RIDLIN SERVICES PRIVATE LIMITED",
+  "note": "RIDLIN SERVICES is classified as 'Manufacture of Electrical Equipment' with no publicly available information indicating they work on quantum technologies, semiconductors, advanced manufacturing, photonics, space tech, advanced materials, robotics, or neuromorphic computing.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "rinc-technologies": {
   "classified_at": "2026-09-12T10:56:10+00:00",
   "hash": "714ecfe811e11b38",
@@ -12703,6 +12934,17 @@
   "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
   "sector_id": "1",
   "subsector_id": "1.16"
+ },
+ "rydeon-mobility-products": {
+  "classified_at": "2026-09-12T12:18:55+00:00",
+  "hash": "b9e9034e0e9125ea",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "RYDEON MOBILITY PRODUCTS PRIVATE LIMITED",
+  "note": "Rydeon Mobility Products, as a hardware technology startup in manufacturing at prototype stage, aligns with developing modular robotic platforms for industrial mobility applications.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "subsector_id": "2.7"
  },
  "rygen-dynamics": {
   "classified_at": "2026-09-12T12:03:55+00:00",
@@ -13484,6 +13726,17 @@
   "project_type": null,
   "sector_id": "3",
   "subsector_id": null
+ },
+ "silicocean": {
+  "classified_at": "2026-09-12T12:18:59+00:00",
+  "hash": "7d784b283fea41f9",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SILICOCEAN LLP",
+  "note": "SILICOCEAN is a semiconductor technology hardware company, and chip design with advanced node fabrication is the core project type under the Semiconductors & Electronics sub-sector that directly matches semiconductor sector work.",
+  "project_type": "Chip design and advanced node fabrication",
+  "sector_id": "2",
+  "subsector_id": "2.2"
  },
  "siliconia-technologies": {
   "classified_at": "2026-09-12T10:56:20+00:00",
@@ -14387,6 +14640,17 @@
   "sector_id": "3",
   "subsector_id": "3.3"
  },
+ "taksa-industries": {
+  "classified_at": "2026-09-12T12:18:56+00:00",
+  "hash": "f5c2735cc6010417",
+  "missing": "general hardware manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "TAKSA INDUSTRIES PRIVATE LIMITED",
+  "note": "TAKSA Industries is described only as a technology hardware manufacturing startup in validation stage with no specific deep-tech focus area mentioned that aligns with the quantum, semiconductor, space, photonics, materials science, or robotics capabilities listed in Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "tansogreen": {
   "classified_at": "2026-09-12T12:06:01+00:00",
   "hash": "0b297901efef1786",
@@ -14683,6 +14947,17 @@
   "project_type": "Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "texabyte-opc": {
+  "classified_at": "2026-09-12T12:18:50+00:00",
+  "hash": "e72e590059801c16",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TEXABYTE (OPC) PRIVATE LIMITED",
+  "note": "TEXABYTE is a semiconductor technology hardware startup at the validation stage, which directly aligns with chip design and advanced node fabrication under the Semiconductors & Electronics sub-sector.",
+  "project_type": "Chip design and advanced node fabrication",
+  "sector_id": "2",
+  "subsector_id": "2.2"
  },
  "theranautilus": {
   "classified_at": "2026-09-12T11:30:52+00:00",
@@ -14981,6 +15256,17 @@
   "sector_id": "2",
   "subsector_id": "2.3"
  },
+ "trident-metal-industries": {
+  "classified_at": "2026-09-12T12:18:57+00:00",
+  "hash": "726e863f4ee1b7f0",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TRIDENT METAL INDUSTRIES LLP",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "trikshana-tech": {
   "classified_at": "2026-09-12T11:59:42+00:00",
   "hash": "3def26e1e1b6b3cb",
@@ -15056,6 +15342,17 @@
   "note": "TRUEVIEW LAB's core competency is computer vision as a general-purpose technology, but the taxonomy lists only domain-specific applications of computer vision (disease/pest prediction in agriculture, diagnostic imaging in healthcare, or educational content analysis), not computer vision platforms or tools themselves.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "tubocrat-technologies": {
+  "classified_at": "2026-09-12T12:18:55+00:00",
+  "hash": "0e7358ba1fbf9711",
+  "missing": "general manufacturing technology",
+  "model": "claude-haiku-4-5",
+  "name": "TUBOCRAT TECHNOLOGIES PRIVATE LIMITED",
+  "note": "Tubocrat Technologies is a hardware manufacturing company, but without specific information about their technical focus, it is impossible to determine if they work on deep-tech areas like quantum computing, semiconductors, photonics, space, advanced materials, robotics, or neuromorphic computing that would fit within Sector 2's sub-sectors.",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "tulsian-ai": {
@@ -16004,6 +16301,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "vvda-cleanroom-technologies": {
+  "classified_at": "2026-09-12T12:18:52+00:00",
+  "hash": "6a535721d6b73a5e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VVDA CLEANROOM TECHNOLOGIES PRIVATE LIMITED",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "vyomastra-technologies": {
   "classified_at": "2026-09-12T12:04:25+00:00",
   "hash": "fa433d5fe944cf6a",
@@ -16057,6 +16365,17 @@
   "note": "WATTKART GLOBAL's specific focus and technology solution are not provided in the available information, making it impossible to accurately match against the detailed project types listed. The company description only indicates it operates in renewable energy solutions at validation stage, which could encompass multiple sub-sectors (solar, wind, storage, etc.) or areas not covered in this taxonomy.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "wayal-industries": {
+  "classified_at": "2026-09-12T12:18:50+00:00",
+  "hash": "b33de8ced274ef2d",
+  "missing": "hardware manufacturing specifics",
+  "model": "claude-haiku-4-5",
+  "name": "WAYAL INDUSTRIES PRIVATE LIMITED",
+  "note": "WAYAL INDUSTRIES is a technology hardware manufacturing company at scaling stage, but without specific information about their core technology focus (quantum, semiconductors, robotics, space, materials, photonics, or neuromorphic systems), it cannot be placed into any of the deep-tech sub-sectors listed.",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "waymore": {
@@ -16120,6 +16439,17 @@
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Wegilant Net Solutions Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "western-papers": {
+  "classified_at": "2026-09-12T12:18:53+00:00",
+  "hash": "a5592b6ff2b4d2d8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "WESTERN PAPERS PRIVATE LIMITED",
   "note": null,
   "project_type": null,
   "sector_id": null,
@@ -16344,6 +16674,17 @@
   "project_type": "Modular robotic platforms",
   "sector_id": "2",
   "subsector_id": "2.7"
+ },
+ "xenocipher": {
+  "classified_at": "2026-09-12T12:18:51+00:00",
+  "hash": "107de6f40ee659d3",
+  "missing": "cryptographic hardware and security implementations",
+  "model": "claude-haiku-4-5",
+  "name": "XENOCIPHER PRIVATE LIMITED",
+  "note": "XENOCIPHER's work in cryptographic security and post-quantum cryptography appears related to quantum technologies, but the company description lacks sufficient detail to confirm whether they are developing cryptographic algorithms, hardware implementations, or security infrastructure.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
  },
  "xiliherb-naturals": {
   "classified_at": "2026-09-12T12:02:08+00:00",
