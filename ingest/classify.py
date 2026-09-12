@@ -456,11 +456,17 @@ def table(companies: list[Company], results: dict[str, Classification]) -> str:
 
 
 def _companies() -> list[Company]:
-    """Every company the scrapers can see, deduped the way the upload will."""
-    from ingest.sources import rtbi, sine
+    """Every company the scrapers can see, deduped the way the upload will.
+
+    The source list is run.py's, imported here rather than kept in step by hand —
+    a --estimate that quietly priced two of the four sources would be worse than
+    no estimate at all. Imported inside the function because run.py imports this
+    module at the top of itself.
+    """
+    from ingest.run import SOURCES
 
     merged: dict[str, Company] = {}
-    for module in (sine, rtbi):
+    for module in SOURCES:
         for company in module.scrape()[0]:
             merged.setdefault(company.id, company)
     return list(merged.values())
