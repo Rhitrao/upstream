@@ -148,9 +148,8 @@ function coverageMap(view: PageView): string {
 					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${cell.n}"${
 						active ? ' aria-current="true"' : ''
 					}>
-        <span class="cell-id">${esc(cell.subsector_id)}</span>
+        <span class="cell-head"><span class="cell-id">${esc(cell.subsector_id)}</span><span class="cell-n">${cell.n}</span></span>
         <span class="cell-name">${esc(cell.subsector)}</span>
-        <span class="cell-n">${cell.n}</span>
       </a>`;
 				})
 				.join('\n');
@@ -170,9 +169,15 @@ ${cells}
   <p class="note">All ${coverage.subsector_count} sunrise sub-sectors of the RDI scheme. An outlined cell is one we have
     found nothing in yet &mdash; a gap in what we can see, not proof the sector is empty. Pick a cell to filter the list.
     Counts here are every company we hold, including the ones the list below sets aside as old or undated.</p>
-  <div class="sectors">
+  <details class="map-fold" open>
+    <summary>
+      <span class="map-fold-label">Coverage map</span>
+      <span class="map-fold-meta">${coverage.covered} of ${coverage.subsector_count} sub-sectors have companies</span>
+    </summary>
+    <div class="sectors">
 ${sectors}
-  </div>
+    </div>
+  </details>
 </section>`;
 }
 
@@ -584,22 +589,26 @@ section > h2 {
   color: var(--muted);
 }
 .sector-id { font-family: "DM Mono", ui-monospace, monospace; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 0.35rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 0.3rem; }
 .cell {
   display: flex;
   flex-direction: column;
-  min-height: 74px;
-  padding: 0.4rem 0.45rem;
+  min-height: 46px;
+  padding: 0.3rem 0.35rem;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   text-decoration: none;
   position: relative;
 }
-.cell-id { font-family: "DM Mono", ui-monospace, monospace; font-size: 0.68rem; color: var(--muted); }
+/* id and count share a line. Two stacked lines was most of the cell's height,
+   and the count is the thing being compared across cells — putting it next to
+   the id reads better than parking it at the bottom. */
+.cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.3rem; line-height: 1.2; }
+.cell-id { font-family: "DM Mono", ui-monospace, monospace; font-size: 0.62rem; color: var(--muted); }
 .cell-name {
-  font-size: 0.72rem;
-  line-height: 1.25;
-  margin-top: 0.1rem;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  margin-top: 0.12rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -607,10 +616,8 @@ section > h2 {
   overflow: hidden;
 }
 .cell-n {
-  margin-top: auto;
   font-family: "DM Mono", ui-monospace, monospace;
-  font-size: 0.78rem;
-  align-self: flex-end;
+  font-size: 0.72rem;
 }
 .cell.empty { color: var(--muted); border-style: dashed; }
 .cell.empty .cell-n { opacity: 0.45; }
@@ -618,6 +625,30 @@ section > h2 {
 .cell.filled .cell-n { font-weight: 500; }
 .cell:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .cell.active { border-color: var(--ink); border-style: solid; box-shadow: inset 0 0 0 1px var(--ink); }
+
+/* The map folds on a narrow screen only. Above the breakpoint the summary is
+   not rendered at all and the section looks exactly as it always has. */
+.map-fold > summary { display: none; }
+@media (max-width: 699px) {
+  .map-fold > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.55rem 0.7rem;
+    margin-bottom: 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    list-style: none;
+  }
+  .map-fold > summary::-webkit-details-marker { display: none; }
+  .map-fold-label { font-weight: 500; }
+  .map-fold-meta { color: var(--muted); font-size: 0.82rem; }
+  /* The affordance, written by CSS so the two states cannot disagree. */
+  .map-fold > summary::after { content: "show"; margin-left: auto; color: var(--muted); font-size: 0.82rem; }
+  .map-fold[open] > summary::after { content: "hide"; }
+}
 
 /* filters */
 .filters {
@@ -812,6 +843,22 @@ ${methodology()}
     if (!form) return;
     form.querySelector('.apply').hidden = true;
     form.addEventListener('change', function () { form.submit(); });
+  })();
+
+  // The coverage map is six rows on a desktop and eleven on a phone, which puts
+  // the company list below the fold on the device most likely to be reading it.
+  // The markup ships open, so without this the map behaves as it always has.
+  (function () {
+    var fold = document.querySelector('.map-fold');
+    if (!fold || !window.matchMedia) return;
+    var narrow = window.matchMedia('(max-width: 699px)');
+    function sync() { fold.open = !narrow.matches; }
+    sync();
+    // Only on crossing the breakpoint, so a reader who opens the map by hand
+    // keeps it open, and one who arrives on a desktop never finds it shut with
+    // the summary hidden and no way back.
+    if (narrow.addEventListener) narrow.addEventListener('change', sync);
+    else if (narrow.addListener) narrow.addListener(sync);
   })();
 </script>
 </body>

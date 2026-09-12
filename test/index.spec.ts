@@ -660,13 +660,24 @@ describe('GET /upstream (the page)', () => {
 		expect(after).not.toContain('Backfilled Co');
 	});
 
+	it('ships the coverage map open, so a reader without JavaScript loses nothing', async () => {
+		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
+
+		// The fold is closed by a script, and only on a narrow screen. If the
+		// markup ever ships closed, every no-JS reader gets a hidden map instead
+		// of the one thing this page is actually about.
+		const html = await page('');
+		expect(html).toContain('<details class="map-fold" open>');
+		expect(html).toMatch(/<summary>[\s\S]*?Coverage map[\s\S]*?<\/summary>/);
+	});
+
 	it('keeps an explicit tier choice when the default is something else', async () => {
 		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
 
 		// Default is 'all' here, so a chosen 'ab' has to survive a coverage-cell click.
 		const html = await page('?tier=ab');
 		expect(html).toContain('value="ab" checked');
-		expect(html).toMatch(/href="[^"]*tier=ab[^"]*"[^>]*>\s*<span class="cell-id">/);
+		expect(html).toMatch(/href="[^"]*tier=ab[^"]*"[^>]*>\s*<span class="cell-head">/);
 	});
 
 	it('applies the tier toggle to the list', async () => {
