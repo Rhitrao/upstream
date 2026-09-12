@@ -1,8 +1,8 @@
 """Shared plumbing for every scraper.
 
-`fetch` is polite by construction: one honest user-agent with a contact address, a
-second between calls, three tries with backoff, and a 30-day disk cache in
-ingest/cache/. The cache is the part that matters — re-running while you debug a
+`fetch` and `fetch_json` are polite by construction: one honest user-agent with a
+contact address, a second between calls, three tries with backoff, and a 30-day
+disk cache in ingest/cache/. The cache is the part that matters — re-running while you debug a
 parser must not hammer someone else's server.
 
 A scraper returns `(list[Company], list[Signal])` and nothing else. No scoring, no
@@ -155,17 +155,30 @@ def website(url: str | None) -> str | None:
 
 def fetch(url: str, *, force: bool = False) -> str:
     """The page body, from the cache when it is younger than 30 days."""
-    path = _cache_path(url)
+    return _cached(url, None, force=force)
+
+
+def fetch_json(url: str, body: dict, *, force: bool = False) -> dict:
+    """The same, for a search API that wants a POST.
+
+    The request body is part of the cache key, because two different queries to
+    one url are two different pages as far as anything here is concerned.
+    """
+    return json.loads(_cached(url, body, force=force))
+
+
+def _cached(url: str, body: dict | None, *, force: bool) -> str:
+    path = _cache_path(url, body)
     if not force:
         cached = _read_cache(path)
         if cached is not None:
             return cached
 
-    body = _get(url)
+    text = _request(url, body)
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    entry = {"url": url, "fetched_at": _now().isoformat(), "body": body}
+    entry = {"url": url, "body": body, "fetched_at": _now().isoformat(), "response": text}
     path.write_text(json.dumps(entry), encoding="utf-8")
-    return body
+    return text
 
 
 def preview(companies: list[Company], signals: list[Signal], limit: int = 5) -> str:
@@ -197,15 +210,23 @@ def _now() -> datetime.datetime:
 _last_call = 0.0
 
 
-def _get(url: str) -> str:
+def _request(url: str, body: dict | None = None) -> str:
+    """One polite call: wait our turn, try three times, back off between."""
     global _last_call
+
+    headers = {"User-Agent": USER_AGENT}
+    if body is not None:
+        headers["content-type"] = "application/json"
 
     for attempt in range(1, RETRIES + 1):
         pause = DELAY_SECONDS - (time.monotonic() - _last_call)
         if pause > 0:
             time.sleep(pause)
         try:
-            response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT_SECONDS)
+            if body is None:
+                response = requests.get(url, headers=headers, timeout=TIMEOUT_SECONDS)
+            else:
+                response = requests.post(url, headers=headers, data=json.dumps(body), timeout=TIMEOUT_SECONDS)
             _last_call = time.monotonic()
             if response.status_code in RETRY_STATUSES:
                 raise requests.HTTPError(f"{response.status_code} from {url}", response=response)
@@ -224,12 +245,14 @@ def _get(url: str) -> str:
     raise AssertionError("unreachable")
 
 
-def _cache_path(url: str) -> pathlib.Path:
+def _cache_path(url: str, body: dict | None = None) -> pathlib.Path:
     parts = urllib.parse.urlsplit(url)
     stem = re.sub(r"[^a-z0-9]+", "-", f"{parts.netloc}{parts.path}".lower()).strip("-")[:60]
-    # The hash keeps two urls that flatten to the same stem apart; the stem is there so
-    # the cache directory is readable when a parser surprises you.
-    return CACHE_DIR / f"{stem}-{hashlib.sha256(url.encode()).hexdigest()[:8]}.json"
+    # The hash keeps two urls that flatten to the same stem apart, and keeps two
+    # queries to one url apart; the stem is there so the cache directory is
+    # readable when a parser surprises you.
+    key = url if body is None else url + json.dumps(body, sort_keys=True)
+    return CACHE_DIR / f"{stem}-{hashlib.sha256(key.encode()).hexdigest()[:8]}.json"
 
 
 def _read_cache(path: pathlib.Path) -> str | None:
@@ -240,4 +263,4 @@ def _read_cache(path: pathlib.Path) -> str | None:
         return None
     if (_now() - fetched_at).total_seconds() > CACHE_TTL_SECONDS:
         return None
-    return entry["body"]
+    return entry["response"]
