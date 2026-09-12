@@ -15,6 +15,7 @@ import argparse
 import traceback
 
 from ingest import classify as classifier
+from ingest import gaps as gap_labels
 from ingest.sources import rtbi, sine
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, upload
@@ -63,7 +64,9 @@ def gap(company: Company, result) -> dict:
         "name": company.name,
         "description": company.description,
         "sector_id": result.sector_id,
-        "missing": result.missing or NO_SECTOR_LABEL,
+        # Grouped by the canonical name a person has reviewed, not by the
+        # wording of the one call that happened to produce it.
+        "missing": gap_labels.canonical(result.missing) or NO_SECTOR_LABEL,
         "note": result.note or NO_SECTOR,
     }
 

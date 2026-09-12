@@ -1275,6 +1275,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "conzumex-industries": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "1cbf9d290ce63de2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ConzumeX Industries Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "coral-innovation": {
   "classified_at": "2026-09-12T10:55:26+00:00",
   "hash": "998f5ca4f1ab2420",
@@ -1418,6 +1429,17 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "debrique-creative-labs-private-limited-modulus-housing-solutions": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "b9617f33058ac337",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Debrique Creative Labs Private Limited (Modulus Housing Solutions)",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "deccan-cresr-engineering": {
   "classified_at": "2026-09-12T10:54:46+00:00",
   "hash": "7528796ef9a57b2f",
@@ -1506,6 +1528,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "dhvani-research-development-solution": {
+  "classified_at": "2026-09-12T10:56:45+00:00",
+  "hash": "54133c687037b1cb",
+  "missing": "non-destructive evaluation and structural diagnostics",
+  "model": "claude-haiku-4-5",
+  "name": "Dhvani Research & Development Solution Private Limited",
+  "note": "Dhvani's core work in non-destructive testing, structural health monitoring, and manufacturing diagnostics does not align with any project type listed under Sector 2's deep-technology sub-sectors, which focus on quantum, semiconductors, photonics, space, materials, robotics, and neuromorphic computing.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "dimensionless-technologies": {
   "classified_at": "2026-09-12T10:54:18+00:00",
   "hash": "f1efe1be8b98f003",
@@ -1538,6 +1571,17 @@
   "project_type": "AI-powered telemedicine and remote patient monitoring",
   "sector_id": "3",
   "subsector_id": "3.2"
+ },
+ "docswallet-tharakan-web-innovations": {
+  "classified_at": "2026-09-12T10:56:48+00:00",
+  "hash": "3f4fd4bed481dc31",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Docswallet (Tharakan Web Innovations Private Limited)",
+  "note": "Docswallet's blockchain-based digital locker provides decentralized storage and verification of documents with multi-stakeholder access, directly matching decentralized data storage infrastructure.",
+  "project_type": "Decentralized data storage solutions",
+  "sector_id": "5",
+  "subsector_id": "5.1"
  },
  "dony-john-kuttappassery": {
   "classified_at": "2026-09-12T10:55:31+00:00",
@@ -2254,6 +2298,17 @@
   "sector_id": "4",
   "subsector_id": "4.1"
  },
+ "grinntech-motors-services": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "3168f30d90fbdde8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Grinntech Motors & Services Private Limited",
+  "note": "Grinntech's battery management systems and electro-mechanical packaging of lithium battery packs directly address battery safety and thermal management for electric vehicles.",
+  "project_type": "Battery safety and thermal management",
+  "sector_id": "1",
+  "subsector_id": "1.4"
+ },
  "gururaya-solutions": {
   "classified_at": "2026-09-12T10:53:37+00:00",
   "hash": "9305029bb87b6312",
@@ -2286,6 +2341,28 @@
   "project_type": "AI-powered telemedicine and remote patient monitoring",
   "sector_id": "3",
   "subsector_id": "3.2"
+ },
+ "guvi-geek-network-technologies": {
+  "classified_at": "2026-09-12T10:56:51+00:00",
+  "hash": "a75e41803547df42",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "GUVI Geek Network Technologies Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "gyandata": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "4d652a68d34afa3d",
+  "missing": "domain-specific application context",
+  "model": "claude-haiku-4-5",
+  "name": "GyanData Private Limited",
+  "note": "GyanData is described as a general data science company delivering customized and niche solutions, but the description provided does not specify their application domain (agriculture, healthcare, education, or enabling technologies) or clarify which sectors they actually serve.",
+  "project_type": null,
+  "sector_id": "3",
+  "subsector_id": null
  },
  "h2e-power-systems": {
   "classified_at": "2026-09-12T10:54:24+00:00",
@@ -2617,6 +2694,17 @@
   "sector_id": "1",
   "subsector_id": "1.9"
  },
+ "innodi-water-technologies": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "9bc4d2acad580e51",
+  "missing": "water treatment and desalination",
+  "model": "claude-haiku-4-5",
+  "name": "innoDI Water Technologies Private Limited",
+  "note": "innoDI's water desalination technology using Capacitive De-ionization does not align with any sub-sector in this energy security and climate action taxonomy, which focuses on energy generation, storage, and industrial decarbonization rather than water treatment infrastructure.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
  "innonano-research": {
   "classified_at": "2026-09-12T10:56:35+00:00",
   "hash": "efd8ffc7815f2a6b",
@@ -2671,6 +2759,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "intellizon-energy": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "5c286f6db4bf6012",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Intellizon Energy Private Limited",
+  "note": "Intellizon's lithium-ion battery-based solar street lights and 48V DC lighting solutions directly address last-mile energy access and decentralized off-grid lighting for residential and commercial segments in underserved areas.",
+  "project_type": "Solar home systems, micro-hydro, biomass gasification for rural areas",
+  "sector_id": "1",
+  "subsector_id": "1.9"
  },
  "invention-labs-engineering-products": {
   "classified_at": "2026-09-12T10:56:42+00:00",
@@ -3396,6 +3495,17 @@
   "note": "Myoworks develops edible scaffolds for cultivated meat production, which is a food technology application rather than a core biotechnology, pharmaceutical, medical device, or biomaterial innovation within the taxonomy's scope.",
   "project_type": null,
   "sector_id": "4",
+  "subsector_id": null
+ },
+ "nadhi-information-technologies": {
+  "classified_at": "2026-09-12T10:56:45+00:00",
+  "hash": "4d94df4cacbae838",
+  "missing": "construction and infrastructure management software",
+  "model": "claude-haiku-4-5",
+  "name": "Nadhi Information Technologies Private Limited",
+  "note": "Nadhi's construction supply chain analytics and project monitoring solutions do not align with any sub-sector under Sector 5 (Digital Economy including Digital Agriculture), which focuses on agriculture, fintech, governance, health, education, data platforms, and digital public infrastructure.",
+  "project_type": null,
+  "sector_id": "5",
   "subsector_id": null
  },
  "nagesh-nayak": {
@@ -4861,6 +4971,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "skillveri-training-solutions": {
+  "classified_at": "2026-09-12T10:56:45+00:00",
+  "hash": "228eb5aace48e353",
+  "missing": "vocational training simulation software",
+  "model": "claude-haiku-4-5",
+  "name": "Skillveri Training Solutions Private Limited",
+  "note": "Skillveri develops XR-based training simulation software for welding and spray painting skills, which is a vocational education technology platform rather than deep technology R&D.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "skincurate-research": {
   "classified_at": "2026-09-12T10:54:35+00:00",
   "hash": "6f0858e2667f6f23",
@@ -4904,6 +5025,17 @@
   "project_type": "AI/ML-enabled analytics for soil health, land degradation neutrality, targeted interventions",
   "sector_id": "5",
   "subsector_id": "5.3"
+ },
+ "solinas-integrity": {
+  "classified_at": "2026-09-12T10:56:49+00:00",
+  "hash": "e5b077997f33121a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Solinas Integrity Private Limited",
+  "note": "Solinas develops robotic platforms for pipeline inspection using NDT techniques, with AI/ML-enabled digitalization for remote monitoring and prognostics, fitting the modular robotic platforms category within Intelligent Systems & Robotics.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "subsector_id": "2.7"
  },
  "soulsense-innovations": {
   "classified_at": "2026-09-12T10:54:55+00:00",
@@ -5267,6 +5399,17 @@
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "ubifly-technologies": {
+  "classified_at": "2026-09-12T10:56:51+00:00",
+  "hash": "0753254330872ad1",
+  "missing": "autonomous aerial vehicles and urban air mobility",
+  "model": "claude-haiku-4-5",
+  "name": "Ubifly Technologies Private Limited",
+  "note": "Ubifly builds autonomous hybrid aerial vehicles for urban air mobility (goods and passenger transport), which falls outside the defined deep-tech subsectors that focus on quantum, semiconductors, photonics, space, materials, and AI hardware.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
  },
  "udayan-ecotech": {
   "classified_at": "2026-09-12T10:56:27+00:00",
@@ -5751,6 +5894,17 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "zedbee-technologies": {
+  "classified_at": "2026-09-12T10:56:48+00:00",
+  "hash": "1b68818fe828d479",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ZedBee Technologies Private Limited",
+  "note": "ZedBee's IoT-enabled motor control unit with variable frequency drive and sensor integration for HVAC systems directly addresses energy-efficient cooling through advanced power electronics that reduce electricity consumption in air conditioning systems.",
+  "project_type": "High efficiency air conditioners",
+  "sector_id": "1",
+  "subsector_id": "1.10"
  },
  "zeus-numerix": {
   "classified_at": "2026-09-12T10:54:05+00:00",
