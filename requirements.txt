@@ -1,0 +1,4 @@
+# The ingest pipeline. The Worker has no Python and needs none of this.
+anthropic>=1.5
+beautifulsoup4>=4.13
+requests>=2.32

@@ -176,3 +176,6 @@ __pycache__/
 
 ingest/cache/*
 !ingest/cache/.gitkeep
+# ...except the classifications, which are committed so a re-run costs nothing
+# and anyone can see what was decided without an API key.
+!ingest/cache/classify.json
