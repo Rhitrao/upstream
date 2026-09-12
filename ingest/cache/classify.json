@@ -87,6 +87,28 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "accelerd-sciences": {
+  "classified_at": "2026-09-12T11:31:12+00:00",
+  "hash": "522f9dced3c61ad5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Accelerd Sciences Private Limited",
+  "note": "Accelerd Sciences is a BIRAC awardee in the Medical Devices and Diagnostics category, placing it directly within the diagnostic kits project type under subsector 4.5.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "acceleron-labs": {
+  "classified_at": "2026-09-12T11:31:25+00:00",
+  "hash": "8288d011b643bea5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Acceleron Labs Pvt. Ltd.",
+  "note": "Acceleron Labs develops hyper-converged infrastructure and miniature data centers specifically to enhance edge computing capability for SMEs, which directly aligns with building scalable edge computing platforms.",
+  "project_type": "Secure / sovereign cloud and edge computing platforms",
+  "sector_id": "5",
+  "subsector_id": "5.1"
+ },
  "accelo-innovation": {
   "classified_at": "2026-09-12T10:54:07+00:00",
   "hash": "72506aed057b1cbc",
@@ -153,6 +175,17 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "adiuvo-diagnostics": {
+  "classified_at": "2026-09-12T11:31:25+00:00",
+  "hash": "23d3b4982d34dd5e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Adiuvo Diagnostics Pvt. Ltd.",
+  "note": "Adiuvo has developed a portable, reagent-less point-of-care diagnostic device for rapid TB detection directly from sputum samples in resource-limited settings, matching the indigenous diagnostic kit category.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "advanced-renewable-tandem-photovoltaics-india": {
   "classified_at": "2026-09-12T10:53:23+00:00",
   "hash": "9e113ae3b62453a9",
@@ -196,6 +229,28 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "agam-agritech": {
+  "classified_at": "2026-09-12T11:31:12+00:00",
+  "hash": "e1bb08768828180b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Agam Agritech LLP",
+  "note": "Agam Agritech received a BIRAC Biotechnology Ignition Grant in the agriculture and allied areas category, indicating development of biological solutions for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
+ "agautomate": {
+  "classified_at": "2026-09-12T11:31:03+00:00",
+  "hash": "ad8c16e69a4fbd85",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AgAutomate Pvt Ltd",
+  "note": "AgAutomate, as a BIRAC-funded agricultural biotechnology company, develops automated farming systems that integrate IoT sensors, AI analytics, and remote sensing to optimize crop management and farm operations.",
+  "project_type": "Smart farming systems leveraging IoT, AI and remote sensing",
+  "sector_id": "5",
+  "subsector_id": "5.2"
  },
  "agnikul-cosmos": {
   "classified_at": "2026-09-12T10:56:45+00:00",
@@ -252,6 +307,17 @@
   "sector_id": "3",
   "subsector_id": "3.1"
  },
+ "aicheng-innovation-and-research": {
+  "classified_at": "2026-09-12T11:30:40+00:00",
+  "hash": "9b83fd43b93f5b37",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Aicheng Innovation and Research Private Limited",
+  "note": "The company received a BIRAC Biotechnology Ignition Grant in the Agriculture and allied areas category, which aligns with sustainable biologics development for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
  "air-ok-technologies": {
   "classified_at": "2026-09-12T10:56:36+00:00",
   "hash": "4544b5d946d37e09",
@@ -296,6 +362,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "ajithaprodrug-india": {
+  "classified_at": "2026-09-12T11:31:12+00:00",
+  "hash": "43bcbb9dff982761",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ajithaprodrug India Private Limited",
+  "note": "Ajithaprodrug's BIRAC Biotechnology Ignition Grant award in the Drugs category indicates focus on pharmaceutical research and development activities.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "ajivam-water": {
   "classified_at": "2026-09-12T10:53:23+00:00",
   "hash": "6d76ab3f6813da0f",
@@ -306,6 +383,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "akshaisarathi-health-care-solutions": {
+  "classified_at": "2026-09-12T11:31:13+00:00",
+  "hash": "4de2b386fa2f5e46",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Akshaisarathi Health Care Solutions Private Limited",
+  "note": "Akshaisarathi received BIRAC's Biotechnology Ignition Grant in the Drugs and related areas category, indicating active pharmaceutical research and development aligned with pre-clinical or clinical drug development.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
  },
  "albatross-energetics": {
   "classified_at": "2026-09-12T10:53:23+00:00",
@@ -362,6 +450,17 @@
   "sector_id": "4",
   "subsector_id": "4.4"
  },
+ "amdus-technologies": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "0e60f8a69441c3d6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Amdus Technologies Private Limited",
+  "note": "Amdus Technologies is a BIRAC-funded diagnostics company, and indigenous diagnostic kits for point-of-care testing are the primary diagnostic project type within the Medical Devices & Diagnostics sub-sector.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "ameliorate-biotech": {
   "classified_at": "2026-09-12T10:54:09+00:00",
   "hash": "0302000ea3c59df2",
@@ -384,6 +483,17 @@
   "sector_id": "2",
   "subsector_id": "2.8"
  },
+ "amplify-cleantech-solutions": {
+  "classified_at": "2026-09-12T11:31:27+00:00",
+  "hash": "dce04fe25d10c1b9",
+  "missing": "electric vehicle charging infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "Amplify Cleantech Solutions Pvt. Ltd.",
+  "note": "Amplify Cleantech's IntelliPole is primarily an EV charging and smart city infrastructure solution that integrates multiple services (street lighting, air quality monitoring, traffic analytics, emergency messaging) but does not align with any project type listed under Sector 1, which focuses on energy generation, storage, conversion, and industrial decarbonization rather than end-use infrastructure or EV charging ecosystem.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
  "amyscan-healthcare": {
   "classified_at": "2026-09-12T10:53:23+00:00",
   "hash": "50741643b4fbcce5",
@@ -394,6 +504,17 @@
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "analyticsplus-india": {
+  "classified_at": "2026-09-12T11:30:52+00:00",
+  "hash": "6345537f32bf77b6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AnalyticsPlus India Private Limited",
+  "note": "BIRAC award in Industrial Biotechnology, Clean Energy & Environment category positions AnalyticsPlus in environmental biotechnology applications, likely involving bioremediation or sustainable environmental solutions.",
+  "project_type": "Environmental biotechnology (bioremediation, wastewater treatment)",
+  "sector_id": "4",
+  "subsector_id": "4.1"
  },
  "aniket-kenge": {
   "classified_at": "2026-09-12T10:55:13+00:00",
@@ -459,6 +580,17 @@
   "note": "Araciv Technologies develops a gesture recognition wearable for human-computer interaction, which is primarily a consumer/commercial electronics and HCI application rather than deep technology innovation in the listed domains.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "aran-tecnovation": {
+  "classified_at": "2026-09-12T11:31:27+00:00",
+  "hash": "d7526c2ade22a25f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Aran Tecnovation Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
   "subsector_id": null
  },
  "ariano-instruments": {
@@ -538,6 +670,39 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "ashva-wearable-technologies": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "36cde62435341965",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ashva Wearable Technologies Pvt. Ltd.",
+  "note": "Ashva's data-driven knee assessment wearable device that monitors compliance and enables early-stage physiotherapy intervention fits directly within wearable health monitoring technology for musculoskeletal care.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "aspiel-syringes": {
+  "classified_at": "2026-09-12T11:30:54+00:00",
+  "hash": "3a03d73823f92b09",
+  "missing": "medical device manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "Aspiel Syringes Private Limited",
+  "note": "Aspiel Syringes manufactures syringes, which are medical delivery devices and manufacturing equipment rather than any of the biotechnology, drug development, bioengineering, or medical device innovation categories listed.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
+ "astrome-technologies": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "fde279cc0590ddb3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Astrome Technologies Pvt. Ltd.",
+  "note": "Astrome's high-throughput satellite communications technology for rural internet connectivity directly aligns with the satellite communications and high-throughput satellites project type under Space Technologies.",
+  "project_type": "Satellite communications and high-throughput satellites",
+  "sector_id": "2",
+  "subsector_id": "2.5"
+ },
  "ather-energy": {
   "classified_at": "2026-09-12T10:56:34+00:00",
   "hash": "a6ab48e207afaea5",
@@ -547,6 +712,17 @@
   "note": "Ather Energy manufactures electric scooters and operates EV charging infrastructure, neither of which fall within the energy security and transition taxonomy provided.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "atma-leather": {
+  "classified_at": "2026-09-12T11:31:14+00:00",
+  "hash": "a357e9bed47ac999",
+  "missing": "sustainable materials bioprocessing",
+  "model": "claude-haiku-4-5",
+  "name": "Atma Leather Private Limited",
+  "note": "Atma Leather is a biotechnology company focused on sustainable leather production using microbial fermentation and bio-based processes, which falls under industrial biotechnology for clean materials manufacturing\u2014a capability not represented in the current taxonomy.",
+  "project_type": null,
+  "sector_id": "4",
   "subsector_id": null
  },
  "atmospheric-flight-technologies": {
@@ -581,6 +757,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "atre-healthtech": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "06e828e21d2b5901",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Atre Healthtech Private Limited",
+  "note": "Atre Healthtech's BIRAC Biotechnology Ignition Grant award in the Diagnostics category aligns with developing indigenous diagnostic solutions, likely point-of-care or rapid testing kits for healthcare applications.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "atsc": {
   "classified_at": "2026-09-12T10:55:15+00:00",
@@ -657,6 +844,28 @@
   "note": "Helicoculture (snail farming) for mucine extraction is a natural product harvesting and processing operation, not biotechnology research, biomanufacturing via engineered systems, synthetic biology, pharmaceutical development, medical devices, biomaterials innovation, or advanced therapeutics.",
   "project_type": null,
   "sector_id": "4",
+  "subsector_id": null
+ },
+ "avinya-neurotech": {
+  "classified_at": "2026-09-12T11:30:54+00:00",
+  "hash": "d13ccbd5f6315d8c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Avinya NeuroTech Private Limited",
+  "note": "Avinya NeuroTech, as a neurotech company, most likely develops neural monitoring or brain-computer interface devices, which align with implantable biosensors and neural applications within medical devices.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "avrio-energy": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "83d19e1f8c3e9fd8",
+  "missing": "building energy management systems",
+  "model": "claude-haiku-4-5",
+  "name": "Avrio Energy Pvt. Ltd.",
+  "note": "Avrio Energy's focus is on building energy management software and data analytics for operational efficiency, not on energy generation, storage, conversion, or industrial decarbonization technologies.",
+  "project_type": null,
+  "sector_id": "1",
   "subsector_id": null
  },
  "ayata-intelligence": {
@@ -769,6 +978,39 @@
   "sector_id": "2",
   "subsector_id": "2.5"
  },
+ "bioinnovatiq-lifescience": {
+  "classified_at": "2026-09-12T11:31:04+00:00",
+  "hash": "8ca93d86599dff77",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bioinnovatiq Lifescience Private Limited",
+  "note": "BIRAC's Industrial Biotechnology and Clean Energy & Environment category directly aligns with biomanufacturing processes using sustainable feedstocks, and 4.2 covers bioprocess innovation for industrial applications.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
+ "biolockey-healthworks": {
+  "classified_at": "2026-09-12T11:31:14+00:00",
+  "hash": "01619d56169e920b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Biolockey Healthworks Pvt. Ltd",
+  "note": "Biolockey Healthworks is a BIRAC-funded Medical Devices and Diagnostics company, which directly aligns with sub-sector 4.5's focus on indigenous diagnostic solutions and point-of-care technologies.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "bionano-integra-healthcare-opc": {
+  "classified_at": "2026-09-12T11:31:14+00:00",
+  "hash": "f886706496accdda",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bionano Integra Healthcare OPC Private Limited",
+  "note": "Bionano Integra Healthcare received a BIRAC Biotechnology Ignition Grant in the 'Drugs and related areas' category, indicating work on pharmaceutical research and development rather than diagnostics, medical devices, or other biotechnology applications.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "bionic-hope": {
   "classified_at": "2026-09-12T10:54:13+00:00",
   "hash": "aae87b4e0e504166",
@@ -779,6 +1021,17 @@
   "project_type": "Human-robot interaction (HRI)",
   "sector_id": "2",
   "subsector_id": "2.7"
+ },
+ "bioprobe-lab": {
+  "classified_at": "2026-09-12T11:31:14+00:00",
+  "hash": "52a92e0284f3b153",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bioprobe Lab Private Limited",
+  "note": "Bioprobe Lab's BIRAC award in the agriculture and allied areas category aligns with developing sustainable biological solutions for agricultural applications, fitting the sustainable biologics focus of this project type.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "biotherm": {
   "classified_at": "2026-09-12T10:55:19+00:00",
@@ -934,6 +1187,28 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "brainbuds-healthcare": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "82c51c2235293dce",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Brainbuds Healthcare Pvt. Ltd.",
+  "note": "Brainbuds develops an innovative three-wheel wheelchair mechanism to improve mobility and accessibility for wheelchair users on challenging terrain, which aligns with assistive technology and rehabilitation device development.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "brainwaves-neurorehab-solutions": {
+  "classified_at": "2026-09-12T11:30:54+00:00",
+  "hash": "1d98f63475421274",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Brainwaves Neurorehab Solutions Pvt Ltd",
+  "note": "Brainwaves Neurorehab Solutions develops neurorehabilitation medical devices that enhance motor recovery and functional restoration, aligning with smart rehabilitation technologies under Medical Devices & Diagnostics.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "bramhansh-technologies": {
   "classified_at": "2026-09-12T10:54:14+00:00",
   "hash": "2a93a7e895217976",
@@ -966,6 +1241,28 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "buzzworthy-ventures": {
+  "classified_at": "2026-09-12T11:31:04+00:00",
+  "hash": "86645b04d24cd0e2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Buzzworthy Ventures Private Limited",
+  "note": "Buzzworthy Ventures received a BIRAC Biotechnology Ignition Grant specifically in the Agriculture and allied areas category, which aligns directly with sustainable biologics development for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
+ "bylin-medtech": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "e4f2f81c6c5a1b13",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bylin Medtech Pvt. Ltd.",
+  "note": "Bylin is developing a biomaterial-based hydration solution for xerostomia that prioritizes biocompatibility and sustainability over chemical/sugar-based alternatives, fitting advanced biomaterials innovation.",
+  "project_type": "Multi-functional, very low-toxicity biomaterials",
+  "sector_id": "4",
+  "subsector_id": "4.6"
  },
  "byline-medtch": {
   "classified_at": "2026-09-12T10:55:22+00:00",
@@ -1033,6 +1330,28 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "canary-biosensors": {
+  "classified_at": "2026-09-12T11:30:55+00:00",
+  "hash": "761082af1f73d312",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Canary Biosensors LLP",
+  "note": "Canary Biosensors develops biosensor technology for diagnostics applications, which directly aligns with the biosensors project type under Medical Devices & Diagnostics, though their work may span into diagnostic kits depending on their specific platform.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "cancrie": {
+  "classified_at": "2026-09-12T11:30:55+00:00",
+  "hash": "edb55682ef286471",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Cancrie Private Limited",
+  "note": "Cancrie's BIRAC award in Industrial Biotechnology and Clean Energy & Environment aligns with sustainable bioprocess development using agricultural feedstocks for environmentally friendly production.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
  "canectar-foods": {
   "classified_at": "2026-09-12T10:55:06+00:00",
   "hash": "40ddd15b9f71f6c1",
@@ -1099,6 +1418,17 @@
   "sector_id": "3",
   "subsector_id": "3.4"
  },
+ "cbai-technologies": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "5cf7b6839b2e6e6f",
+  "missing": "autonomous delivery vehicles",
+  "model": "claude-haiku-4-5",
+  "name": "CBAI Technologies Pvt. Ltd.",
+  "note": "CBAI Technologies develops VTOL hybrid drones for medical delivery, which is an autonomous vehicle system but falls outside the deep-tech categories listed\u2014it is neither advanced robotics platforms, neuromorphic computing, space systems, nor any other listed capability.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "chainwork-digital": {
   "classified_at": "2026-09-12T10:55:23+00:00",
   "hash": "84c83d04e83da3fb",
@@ -1132,6 +1462,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "chemgreen-innovations": {
+  "classified_at": "2026-09-12T11:31:14+00:00",
+  "hash": "3c35121d1a14a4e3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Chemgreen Innovations Private Limited",
+  "note": "Chemgreen Innovations received a BIRAC Biotechnology Ignition Grant in the Agriculture and allied areas category, indicating development of biological solutions for agricultural applications, which aligns with sustainable biologics for agriculture.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
  "chigru-innovations-opc": {
   "classified_at": "2026-09-12T10:55:26+00:00",
   "hash": "3c0f802af2e8674d",
@@ -1142,6 +1483,17 @@
   "project_type": null,
   "sector_id": "4",
   "subsector_id": null
+ },
+ "chimertech": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "09322f46058080fa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Chimertech Private Limited",
+  "note": "Chimertech received a BIRAC Biotechnology Ignition Grant in the agriculture and allied areas category, placing it squarely within sustainable biologics development for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "choira-musictech": {
   "classified_at": "2026-09-12T10:53:29+00:00",
@@ -1231,6 +1583,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "cology-biosciences": {
+  "classified_at": "2026-09-12T11:31:16+00:00",
+  "hash": "870612891131fd7f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Cology Biosciences Private Limited",
+  "note": "BIRAC Biotechnology Ignition Grant in the drugs category indicates the company is engaged in pharmaceutical R&D, making section 4.4 Pharmaceuticals & Drug Development the appropriate classification.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "combat-robotics-india": {
   "classified_at": "2026-09-12T10:54:15+00:00",
   "hash": "ee92716fdf2514ba",
@@ -1275,6 +1638,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "controsense": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "d2f1580736e9b628",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Controsense Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "conzumex-industries": {
   "classified_at": "2026-09-12T10:56:49+00:00",
   "hash": "1cbf9d290ce63de2",
@@ -1308,6 +1682,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "cradlewise-innovations": {
+  "classified_at": "2026-09-12T11:31:28+00:00",
+  "hash": "f2e885abf1e6d1e5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "CRADLEWISE INNOVATIONS Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "cre-aid-labs": {
   "classified_at": "2026-09-12T10:54:17+00:00",
   "hash": "fed28b23c9d02fab",
@@ -1318,6 +1703,39 @@
   "project_type": "Smart and personalized implant design (patient-specific CAD/CAM, embedded sensors, functionalized implants)",
   "sector_id": "4",
   "subsector_id": "4.6"
+ },
+ "crisprbits": {
+  "classified_at": "2026-09-12T11:31:16+00:00",
+  "hash": "0a23a7c0af32928a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "CrisprBits Private Limited",
+  "note": "CrisprBits' CRISPR-based biosensor technology for diagnostic applications aligns with synthetic biology approaches to create molecular diagnostic tools, fitting the biosensor category within synthetic biology rather than traditional medical devices.",
+  "project_type": "Biosensors for environmental and medical applications",
+  "sector_id": "4",
+  "subsector_id": "4.3"
+ },
+ "cureous-labs": {
+  "classified_at": "2026-09-12T11:31:31+00:00",
+  "hash": "e10f3b8671fc0af6",
+  "missing": "medical device hardware for patient care management",
+  "model": "claude-haiku-4-5",
+  "name": "Cureous Labs Pvt. Ltd.",
+  "note": "Cureous Labs develops an automatic repositioning system for pressure ulcer prevention, which is a medical device focused on patient care management rather than diagnostics, therapeutics, drug delivery, biomaterials, or any biotechnology/synthetic biology application.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
+ "curexel-technologies": {
+  "classified_at": "2026-09-12T11:31:16+00:00",
+  "hash": "b9463ef6906aa708",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Curexel Technologies Private Limited",
+  "note": "Curexel's BIRAC award in Medical Devices and Diagnostics aligns with 4.5's focus on diagnostic platforms, and their work most likely involves detection and management technologies for disease applications.",
+  "project_type": "Platform technologies for infectious disease detection and management",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "cyclops-medtech": {
   "classified_at": "2026-09-12T10:54:18+00:00",
@@ -1451,6 +1869,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "declutter-solutions": {
+  "classified_at": "2026-09-12T11:31:04+00:00",
+  "hash": "d3a715fbc3acbc06",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Declutter Solutions Private Limited",
+  "note": "Declutter Solutions received a BIRAC Biotechnology Ignition Grant in the Industrial Biotechnology, Clean Energy & Environment category, which aligns with environmental biotechnology applications focused on waste management and sustainability.",
+  "project_type": "Environmental biotechnology (bioremediation, wastewater treatment)",
+  "sector_id": "4",
+  "subsector_id": "4.1"
+ },
  "deepak-ghavari": {
   "classified_at": "2026-09-12T10:55:30+00:00",
   "hash": "e52b075418db081a",
@@ -1506,6 +1935,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "desintox-technologies": {
+  "classified_at": "2026-09-12T11:31:31+00:00",
+  "hash": "a6710862cc951c1c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Desintox Technologies Pvt. Ltd.",
+  "note": "Desintox's patient transfer assistance technology aligns with rehabilitation technologies that enhance mobility and reduce injury risk for patients with limited mobility.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "detect-technologies": {
   "classified_at": "2026-09-12T10:56:35+00:00",
   "hash": "156ee6c6749a3955",
@@ -1528,6 +1968,28 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "dhenoo-tech-solutions": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "c06a253c09dfb7e1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Dhenoo Tech Solutions Private Limited",
+  "note": "Dhenoo Tech Solutions received a BIRAC Biotechnology Ignition Grant in the agriculture and allied areas category, which aligns with the development of sustainable biologics for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
+ "dhi-sathi-robotics": {
+  "classified_at": "2026-09-12T11:31:17+00:00",
+  "hash": "2de899d9513c8588",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Dhi Sathi Robotics Private Limited",
+  "note": "Dhi Sathi Robotics, as a BIRAC awardee in agriculture, develops robotic systems for agricultural applications that align with modular robotic platform development for the farming sector.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "subsector_id": "2.7"
+ },
  "dhvani-research-development-solution": {
   "classified_at": "2026-09-12T10:56:45+00:00",
   "hash": "54133c687037b1cb",
@@ -1539,6 +2001,17 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "diagopreutic": {
+  "classified_at": "2026-09-12T11:31:17+00:00",
+  "hash": "2cda8318353b15ab",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Diagopreutic Private limited",
+  "note": "Diagopreutic's BIRAC award in Medical Devices and Diagnostics category directly aligns with 4.5's focus on developing indigenous diagnostic solutions.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "dimensionless-technologies": {
   "classified_at": "2026-09-12T10:54:18+00:00",
   "hash": "f1efe1be8b98f003",
@@ -1548,6 +2021,17 @@
   "note": "Dimensionless Technologies' contraband detection in baggage X-rays is a security/border control application of computer vision that does not fall within the three core domains (agriculture, health, education) that define Sector 3, nor is it an enabling technology for those domains.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "divish-mobility": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "bd9263f378ce276a",
+  "missing": "ev charging and swapping infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "Divish Mobility Pvt. Ltd.",
+  "note": "Divish Mobility operates a battery swapping infrastructure service for 2/3W EVs, which is a logistics and mobility solutions model rather than a battery technology innovation, energy storage chemistry advancement, or energy generation/conversion system.",
+  "project_type": null,
+  "sector_id": "1",
   "subsector_id": null
  },
  "divya-jindal": {
@@ -1649,6 +2133,39 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "droplets-innovative-incinerators": {
+  "classified_at": "2026-09-12T11:31:05+00:00",
+  "hash": "0c0f0a1f09ee8232",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Droplets Innovative Incinerators Private Limited",
+  "note": "Droplets' innovative incinerator technology for industrial biotechnology and clean energy aligns with waste-to-energy solutions under comprehensive climate action initiatives.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "subsector_id": "1.16"
+ },
+ "drpashu-ai-technologies": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "a2a458c3b476f9f6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "DrPashu AI Technologies Private Limited",
+  "note": "DrPashu AI Technologies focuses on animal health and livestock management, directly matching the livestock monitoring and health management project type within AI in Agriculture.",
+  "project_type": "Livestock monitoring and health management with AI",
+  "sector_id": "3",
+  "subsector_id": "3.1"
+ },
+ "dtown-robotics": {
+  "classified_at": "2026-09-12T11:31:31+00:00",
+  "hash": "b6d75ba2bed007fb",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "DTOWN Robotics Pvt. Ltd.",
+  "note": "DTOWN's Rhino UGV for agricultural automation requires autonomous navigation capabilities to operate independently in fields for soil preparation, sowing, fertilizer application, and harvesting tasks.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "subsector_id": "2.7"
+ },
  "durjeya-solutions": {
   "classified_at": "2026-09-12T10:53:33+00:00",
   "hash": "a620dac33bdfbc66",
@@ -1681,6 +2198,17 @@
   "project_type": "Innovations for last-mile energy access",
   "sector_id": "1",
   "subsector_id": "1.9"
+ },
+ "easescan-medtech": {
+  "classified_at": "2026-09-12T11:31:05+00:00",
+  "hash": "cd0cd7b0d9c166de",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Easescan Medtech Private Limited",
+  "note": "Easescan Medtech, as a BIRAC-funded medical device company, most likely develops diagnostic or imaging technologies, aligning with 4.5's focus on innovative medical devices and diagnostics.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "ecoratings-software-solutions": {
   "classified_at": "2026-09-12T10:54:21+00:00",
@@ -1770,6 +2298,28 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "elementik-technologies": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "ed3759eb7ee04ec3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Elementik Technologies Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "elmentoz-research": {
+  "classified_at": "2026-09-12T11:30:55+00:00",
+  "hash": "31ab8dd7b969d191",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Elmentoz Research Private Limited",
+  "note": "Elmentoz's BIRAC award in Industrial Biotechnology and Clean Energy & Environment aligns with sustainable bioprocess development using agricultural or waste feedstocks for environmental benefit.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
  "elvitron-technologies": {
   "classified_at": "2026-09-12T10:55:34+00:00",
   "hash": "d347c386f7843c9e",
@@ -1792,6 +2342,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "embright-infotech": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "72c5d25c12d0370c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Embright Infotech Pvt. Ltd.",
+  "note": "Embright's VR-based continuous therapy environment for children with ASD directly addresses cognitive and behavioral support through therapeutic intervention, aligning with AI-enabled mental health and rehabilitation support for neurodevelopmental conditions.",
+  "project_type": "AI for mental health, speech therapy and rehabilitation support",
+  "sector_id": "3",
+  "subsector_id": "3.2"
+ },
  "emergy-enviro": {
   "classified_at": "2026-09-12T10:53:34+00:00",
   "hash": "2efff03b84475641",
@@ -1813,6 +2374,17 @@
   "project_type": "Blockchain-based produce traceability and contract farming platforms",
   "sector_id": "5",
   "subsector_id": "5.2"
+ },
+ "emflux-motors": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "b258f819b7fb1e3e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Emflux Motors Pvt. Ltd.",
+  "note": "Emflux Halcyon is designed as an energy-efficient ceiling fan that reduces electricity consumption compared to ordinary fans, directly addressing the high-efficiency cooling and energy conservation focus of subsector 1.10.",
+  "project_type": "High efficiency air conditioners",
+  "sector_id": "1",
+  "subsector_id": "1.10"
  },
  "empyreal-galaxy": {
   "classified_at": "2026-09-12T10:54:55+00:00",
@@ -1957,6 +2529,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "evlogia-eco-care": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "b19931688deed348",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Evlogia Eco Care Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
  "exinovous-healthcare-technologies": {
   "classified_at": "2026-09-12T10:54:56+00:00",
   "hash": "d8023f96d83e792a",
@@ -1990,6 +2573,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "exquinz-life-sciences": {
+  "classified_at": "2026-09-12T11:31:05+00:00",
+  "hash": "1f921f54ce493baa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Exquinz Life Sciences Private Limited",
+  "note": "Exquinz received a BIRAC Biotechnology Ignition Grant in the Drugs and related areas category, indicating work in pharmaceutical research and development that aligns with early-stage drug development activities.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "ezercon-medtech-india": {
   "classified_at": "2026-09-12T10:55:35+00:00",
   "hash": "78d480f2c4f3006e",
@@ -2012,6 +2606,17 @@
   "sector_id": "2",
   "subsector_id": "2.3"
  },
+ "famnutra-millet-foods": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "c15612e579b701d8",
+  "missing": "agricultural biotechnology and food fortification",
+  "model": "claude-haiku-4-5",
+  "name": "Famnutra Millet Foods Private Limited",
+  "note": "Famnutra Millet Foods focuses on millet-based food products and nutrition, which falls under agricultural value-addition and food science rather than biotechnology R&D, biomanufacturing, synthetic biology, pharmaceuticals, medical devices, biomaterials, or advanced therapeutics.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
  "faucet-labs": {
   "classified_at": "2026-09-12T10:55:36+00:00",
   "hash": "b33b042b15178541",
@@ -2033,6 +2638,28 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "feetwings": {
+  "classified_at": "2026-09-12T11:30:42+00:00",
+  "hash": "b0a9411997cdcb5e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "FeetWings Private Limited",
+  "note": "FeetWings, as a BIRAC Medical Devices awardee, most likely develops prosthetic or rehabilitation solutions, aligning with the smart prosthetics category under Medical Devices & Diagnostics.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "felis-leo-widgets": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "cb7cc3ee4ca5dede",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Felis leo widgets Pvt. Ltd.",
+  "note": "The company develops alternative battery chemistries to address lithium-ion limitations like charging time, range, and recyclability, directly targeting next-generation energy storage solutions for EVs.",
+  "project_type": "Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)",
+  "sector_id": "1",
+  "subsector_id": "1.4"
  },
  "femacare": {
   "classified_at": "2026-09-12T10:54:22+00:00",
@@ -2067,6 +2694,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "fins-and-tails-agritech": {
+  "classified_at": "2026-09-12T11:30:56+00:00",
+  "hash": "1388f007aa675872",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Fins and Tails Agritech Private Limited",
+  "note": "Fins and Tails Agritech, awarded a BIRAC Biotechnology Ignition Grant in the Agriculture and allied areas category, develops biological solutions for the agricultural and aquaculture sectors, which directly aligns with sustainable biologics applied to farming, aquaculture and animal health.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
  "flash-cryogenics": {
   "classified_at": "2026-09-12T10:53:37+00:00",
   "hash": "79d88c5334cf5cc7",
@@ -2077,6 +2715,17 @@
   "project_type": "High efficiency air conditioners",
   "sector_id": "1",
   "subsector_id": "1.10"
+ },
+ "flavinlabs": {
+  "classified_at": "2026-09-12T11:30:43+00:00",
+  "hash": "0efc6328098caa94",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "FlavinLabs Private Limited",
+  "note": "FlavinLabs received a BIRAC Biotechnology Ignition Grant in the Agriculture and allied areas category, indicating their work develops biological solutions for agricultural applications, which aligns with the sustainable biologics focus of subsector 4.7.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "flexmotion-technologies": {
   "classified_at": "2026-09-12T10:55:36+00:00",
@@ -2133,6 +2782,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "footryx-healthcare": {
+  "classified_at": "2026-09-12T11:31:06+00:00",
+  "hash": "800b8ba476de509f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "FOOTRYX Healthcare Private Limited",
+  "note": "FOOTRYX is a medical device company, and 4.5 covers the full range of medical devices including wearables and biosensors which are typical for a healthcare device startup.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "forensic-cybertech": {
   "classified_at": "2026-09-12T10:54:24+00:00",
   "hash": "1983f42ec587ab9b",
@@ -2155,6 +2815,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "forschmedx": {
+  "classified_at": "2026-09-12T11:31:18+00:00",
+  "hash": "5fcf0331d8c76a4c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ForschmedX Private Limited",
+  "note": "ForschmedX's BIRAC Biotechnology Ignition Grant award in the Medical Devices and Diagnostics category aligns with subsector 4.5, which encompasses indigenous diagnostic development and point-of-care solutions.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "fraggingmonk-technologies": {
   "classified_at": "2026-09-12T10:54:24+00:00",
   "hash": "82c94ae03c8a3d3c",
@@ -2165,6 +2836,39 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "fuma-labs": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "f60a5fc642d55765",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Fuma Labs Pvt. Ltd.",
+  "note": "Fuma Labs converts crop residue into value-added furniture and packaging products, exemplifying waste valorization and industrial symbiosis that reduces agricultural burning and creates circular economy benefits.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "subsector_id": "1.16"
+ },
+ "fuselage-innovations": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "cc9c35ca2344a8b5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Fuselage Innovations Pvt. Ltd.",
+  "note": "Fuselage's aerial plant survey technology directly addresses crop stress detection and monitoring through drone-based remote sensing, which falls squarely within drone-based agricultural solutions.",
+  "project_type": "Drone-based solutions for crop monitoring, spraying and land mapping",
+  "sector_id": "5",
+  "subsector_id": "5.2"
+ },
+ "galanto-innovations": {
+  "classified_at": "2026-09-12T11:31:18+00:00",
+  "hash": "7b46c46729f00e5b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Galanto Innovations Pvt Ltd",
+  "note": "Galanto Innovations is a BIRAC-funded Medical Devices and Diagnostics awardee, which directly aligns with subsector 4.5's focus on indigenous diagnostic solutions and point-of-care technologies.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "gamasusco": {
   "classified_at": "2026-09-12T10:54:53+00:00",
@@ -2185,6 +2889,39 @@
   "name": "GAZE",
   "note": "GAZE is an AI/ML-powered optical imaging device for automated eye screening and refraction measurement in children, combining photorefraction technology with quantitative analysis of Bruckner's reflex.",
   "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "gbact-solutions": {
+  "classified_at": "2026-09-12T11:30:56+00:00",
+  "hash": "7dc4c79f332d2838",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Gbact Solutions Private Limited",
+  "note": "Gbact Solutions received a BIRAC Biotechnology Ignition Grant in the Agriculture and allied areas category, which aligns with the development of sustainable biologics specifically for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
+ "gd-environmental": {
+  "classified_at": "2026-09-12T11:31:34+00:00",
+  "hash": "fd948cb531836da8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "GD Environmental Pvt. Ltd.",
+  "note": "GD Environmental's municipal solid waste processing and inorganic dry waste management aligns with the waste-to-energy and industrial symbiosis project type under Comprehensive Climate Action Initiatives, supporting India's Waste to Wealth Mission.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "subsector_id": "1.16"
+ },
+ "genoscope": {
+  "classified_at": "2026-09-12T11:31:18+00:00",
+  "hash": "61a987be6d5ffe20",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Genoscope Private Limited",
+  "note": "Genoscope's BIRAC award in Medical Devices and Diagnostics category directly aligns with sub-sector 4.5, and indigenous diagnostic kits represent the core project type for a diagnostics-focused company.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
  },
@@ -2275,6 +3012,39 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "gohemp-agroventures": {
+  "classified_at": "2026-09-12T11:30:43+00:00",
+  "hash": "5b2143fb3885ce54",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Gohemp Agroventures Private Limited",
+  "note": "Gohemp Agroventures received a BIRAC Biotechnology Ignition Grant in the agriculture and allied areas category, matching the sustainable biologics focus for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
+ "green-trek-research-and-development": {
+  "classified_at": "2026-09-12T11:31:36+00:00",
+  "hash": "0fee84a908263865",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Green Trek Research and Development Pvt. Ltd.",
+  "note": "Green Trek's extractive metallurgy process that converts steel waste into pure molten metal directly matches the waste-to-energy and industrial symbiosis focus within comprehensive climate action for hard-to-abate sectors like steel.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "subsector_id": "1.16"
+ },
+ "greenathon-technologies": {
+  "classified_at": "2026-09-12T11:31:18+00:00",
+  "hash": "eee33fa13dd8304a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Greenathon Technologies Private Limited",
+  "note": "BIRAC's Industrial Biotechnology and Clean Energy & Environment category directly aligns with biomanufacturing using sustainable processes and waste conversion, which is the core focus of sub-sector 4.2.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
  },
  "greenshift-energy": {
   "classified_at": "2026-09-12T10:55:38+00:00",
@@ -2375,6 +3145,17 @@
   "sector_id": "1",
   "subsector_id": "1.5"
  },
+ "hab-biomass": {
+  "classified_at": "2026-09-12T11:30:46+00:00",
+  "hash": "5db0d7428fe64043",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Hab Biomass Private Limited",
+  "note": "Hab Biomass's BIRAC Ignition Grant in Industrial Biotechnology and Clean Energy aligns with sustainable bioprocess development from agricultural biomass, which is the core focus of this project type.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
  "hariharan-sekar": {
   "classified_at": "2026-09-12T10:55:39+00:00",
   "hash": "5d186f7ecebb5fa4",
@@ -2408,6 +3189,17 @@
   "sector_id": "4",
   "subsector_id": "4.1"
  },
+ "high-performance-engineering-and-research": {
+  "classified_at": "2026-09-12T11:31:36+00:00",
+  "hash": "92fda680b552f68a",
+  "missing": "transport electrification and efficiency",
+  "model": "claude-haiku-4-5",
+  "name": "High Performance Engineering and Research Pvt. Ltd.",
+  "note": "HiPER's technology optimizes diesel consumption in existing heavy commercial vehicles through IoT-based monitoring and driver behavior analytics, which is a transport efficiency solution rather than an energy generation, storage, or industrial decarbonization technology covered by this sector.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
  "hightide-software-technologies": {
   "classified_at": "2026-09-12T10:55:39+00:00",
   "hash": "47f8580a98ab1db9",
@@ -2440,6 +3232,17 @@
   "project_type": "Virtual labs and STEM simulations",
   "sector_id": "3",
   "subsector_id": "3.3"
+ },
+ "house-of-babas-internet": {
+  "classified_at": "2026-09-12T11:31:36+00:00",
+  "hash": "15e0a5862d87392c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "House Of Babas Internet Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
  },
  "hyperspawn": {
   "classified_at": "2026-09-12T10:55:41+00:00",
@@ -2584,6 +3387,28 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "immunitasbio": {
+  "classified_at": "2026-09-12T11:31:08+00:00",
+  "hash": "f588804e58742c7b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ImmunitasBio Private Limited",
+  "note": "ImmunitasBio is a BIRAC Biotechnology Ignition Grant awardee in the diagnostics category, which aligns directly with the indigenous diagnostic kits project type focused on developing point-of-care and rapid diagnostic solutions.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "immunitoai": {
+  "classified_at": "2026-09-12T11:31:20+00:00",
+  "hash": "91c9c3d88952b264",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ImmunitoAI Private Limited",
+  "note": "ImmunitoAI's BIRAC award in the drugs category and focus on AI/ML for immunology aligns with computational approaches to drug discovery and target identification.",
+  "project_type": "AI/ML-driven drug discovery and target identification",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "immunoadoptive-cell-therapy": {
   "classified_at": "2026-09-12T10:53:41+00:00",
   "hash": "bb0ca74271286a74",
@@ -2606,6 +3431,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "imrobonix": {
+  "classified_at": "2026-09-12T11:30:46+00:00",
+  "hash": "ba5a5c419d3c98fa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Imrobonix Private Limited",
+  "note": "Imrobonix, as indicated by its name and BIRAC Medical Devices category, develops robotic surgical systems that align with the image-guided and robotic surgical systems project type under Medical Devices & Diagnostics.",
+  "project_type": "Image-guided and robotic surgical systems",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "imumbai-semiconductor": {
   "classified_at": "2026-09-12T10:53:41+00:00",
   "hash": "f6b39e49fc81086d",
@@ -2616,6 +3452,17 @@
   "project_type": "Electronic control systems",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "inav-agrp-mech": {
+  "classified_at": "2026-09-12T11:31:20+00:00",
+  "hash": "c17c21423e84c098",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Inav Agrp Mech Private Limited",
+  "note": "Inav Agrp Mech, as a BIRAC awardee in agriculture, likely develops mechanical equipment for sustainable agricultural practices, which aligns with residue management and soil incorporation technologies under precision agriculture and soil health.",
+  "project_type": "Equipment for residue management and sustainable soil incorporation",
+  "sector_id": "5",
+  "subsector_id": "5.3"
  },
  "incartis-therapeutics": {
   "classified_at": "2026-09-12T10:54:59+00:00",
@@ -2694,6 +3541,50 @@
   "sector_id": "1",
   "subsector_id": "1.9"
  },
+ "infyu-labs": {
+  "classified_at": "2026-09-12T11:31:36+00:00",
+  "hash": "a84229288c5e7ace",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "InfyU Labs Pvt. Ltd.",
+  "note": "InfyU Labs addresses post-harvest loss in produce supply chains through quality testing and logistics optimization, which directly aligns with digital farm-to-market value chain solutions that reduce wastage and improve traceability.",
+  "project_type": "Digital farm-to-market value chains (logistics, traceability, e-mandis)",
+  "sector_id": "5",
+  "subsector_id": "5.2"
+ },
+ "inger-therapeutics": {
+  "classified_at": "2026-09-12T11:30:46+00:00",
+  "hash": "85efb583d0a4fbf3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Inger Therapeutics Private Limited",
+  "note": "Inger Therapeutics' BIRAC Biotechnology Ignition Grant award in the 'Drugs and related areas' category indicates development of pharmaceutical compounds requiring pre-clinical and clinical research.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
+ "ingo-electric": {
+  "classified_at": "2026-09-12T11:31:51+00:00",
+  "hash": "361785d4deec0040",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "inGO Electric Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "innaumation-medical-devices": {
+  "classified_at": "2026-09-12T11:31:37+00:00",
+  "hash": "c46f3669256bbebe",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Innaumation Medical Devices Pvt. Ltd.",
+  "note": "Aum Voice Prosthesis is a prosthetic device designed to restore vocal function for laryngectomy patients, directly addressing voice rehabilitation through an affordable medical prosthetic solution.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "innodi-water-technologies": {
   "classified_at": "2026-09-12T10:56:49+00:00",
   "hash": "9bc4d2acad580e51",
@@ -2727,6 +3618,17 @@
   "sector_id": "3",
   "subsector_id": "3.3"
  },
+ "inovaugmet-research": {
+  "classified_at": "2026-09-12T11:30:46+00:00",
+  "hash": "6fedad00b78e19ce",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Inovaugmet Research Private Limited",
+  "note": "BIRAC's Biotechnology Ignition Grant in the 'Drugs and related areas' category indicates early-stage pharmaceutical research and development work typical of companies pursuing novel drug candidates.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "inphlox-water-systems": {
   "classified_at": "2026-09-12T10:54:26+00:00",
   "hash": "5f927b69dd43dc7d",
@@ -2748,6 +3650,17 @@
   "project_type": "AI-based space traffic monitoring, active debris removal, on-orbit servicing / refuelling / life-extension",
   "sector_id": "2",
   "subsector_id": "2.5"
+ },
+ "inte-elabs": {
+  "classified_at": "2026-09-12T11:31:08+00:00",
+  "hash": "61472d35c09dbef9",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Inte-Elabs Private Limited",
+  "note": "As a BIRAC awardee in the 'Drugs and related areas' category, Inte-Elabs is conducting pharmaceutical research and development work that aligns with pre-clinical and clinical drug development activities.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
  },
  "intelli-ads": {
   "classified_at": "2026-09-12T10:55:43+00:00",
@@ -2771,6 +3684,17 @@
   "sector_id": "1",
   "subsector_id": "1.9"
  },
+ "intisen-technology": {
+  "classified_at": "2026-09-12T11:30:58+00:00",
+  "hash": "709ea4021513f560",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Intisen Technology Private Limited",
+  "note": "Intisen Technology is a BIRAC-funded medical devices company, placing it squarely in the Medical Devices & Diagnostics sub-sector, but without more specific information about their device type, we cannot confidently assign a single project type from the listed categories.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "invention-labs-engineering-products": {
   "classified_at": "2026-09-12T10:56:42+00:00",
   "hash": "30e79952d8dbc8cb",
@@ -2792,6 +3716,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "invoviron-industries-trading": {
+  "classified_at": "2026-09-12T11:31:38+00:00",
+  "hash": "7dd8265eb1a44950",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Invoviron Industries Trading Pvt. Ltd.",
+  "note": "InvoViron converts poultry industry waste (chicken feathers) into compostable plastic resin through keratin extraction, exemplifying sustainable bioprocessing that upcycles agricultural byproducts into bulk-manufacturable bio-based materials.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
  },
  "ionbridge-tech": {
   "classified_at": "2026-09-12T10:54:56+00:00",
@@ -2825,6 +3760,17 @@
   "project_type": "AI/ML-powered diagnostic and imaging devices",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "irov-eyerov-technologies": {
+  "classified_at": "2026-09-12T11:31:38+00:00",
+  "hash": "ec99f14fff3de12f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Irov (EyeRov)Technologies Pvt. Ltd.",
+  "note": "EyeRov develops an underwater robotic platform for autonomous visual inspection of infrastructure like dams and bridges, replacing manual diver operations\u2014a core application of modular robotics for hazardous environments.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "subsector_id": "2.7"
  },
  "iscientific-techsolutions-labs": {
   "classified_at": "2026-09-12T10:55:43+00:00",
@@ -2925,6 +3871,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "jnps-oxyjoy": {
+  "classified_at": "2026-09-12T11:31:20+00:00",
+  "hash": "ee44d7c6d3bd4fb0",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Jnps Oxyjoy Private Limited",
+  "note": "BIRAC award in agriculture and allied areas indicates development of biological solutions for agricultural applications, matching the sustainable biologics category within Advanced Therapeutics.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
  "joyponic-farms": {
   "classified_at": "2026-09-12T10:55:03+00:00",
   "hash": "733c6be5e0cc5fca",
@@ -3024,6 +3981,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "kamireddy-agro-foods": {
+  "classified_at": "2026-09-12T11:31:21+00:00",
+  "hash": "ca2f43ed86f928d1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Kamireddy Agro Foods Private Limited",
+  "note": "As a BIRAC awardee in agriculture and allied areas, Kamireddy Agro Foods likely develops biological solutions to enhance agricultural productivity or animal health through biotech-enabled products.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
  "kapindra-precision-engineering": {
   "classified_at": "2026-09-12T10:55:47+00:00",
   "hash": "a7c5474ba43b35d4",
@@ -3067,6 +4035,17 @@
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "kissanconnect": {
+  "classified_at": "2026-09-12T11:30:46+00:00",
+  "hash": "96c3b873f692cbc6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Kissanconnect LLP",
+  "note": "Kissanconnect is an agritech company connecting farmers to markets, which aligns with digital farm-to-market value chain solutions that improve logistics, traceability, and market access.",
+  "project_type": "Digital farm-to-market value chains (logistics, traceability, e-mandis)",
+  "sector_id": "5",
+  "subsector_id": "5.2"
  },
  "klonec-automation-systems": {
   "classified_at": "2026-09-12T10:54:28+00:00",
@@ -3112,6 +4091,17 @@
   "sector_id": "3",
   "subsector_id": "3.1"
  },
+ "kritsnam-technologies": {
+  "classified_at": "2026-09-12T11:31:38+00:00",
+  "hash": "249153009ebba3b6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Kritsnam Technologies Pvt. Ltd.",
+  "note": "Kritsnam's LPWAN technology operating in the Indian delicensed 865-867 MHz band represents indigenous development of low-power wireless communication infrastructure for sensor networks, fitting the core infrastructure category.",
+  "project_type": "Development of indigenous processors, chipsets, sensors",
+  "sector_id": "5",
+  "subsector_id": "5.1"
+ },
  "kwatt-solutions": {
   "classified_at": "2026-09-12T10:53:46+00:00",
   "hash": "889b30acd9355b34",
@@ -3134,6 +4124,28 @@
   "sector_id": "3",
   "subsector_id": "3.3"
  },
+ "lazy-design": {
+  "classified_at": "2026-09-12T11:31:38+00:00",
+  "hash": "169d09d83530b2b8",
+  "missing": "consumer electronics and wearables",
+  "model": "claude-haiku-4-5",
+  "name": "Lazy Design Pvt. Ltd.",
+  "note": "Lazy Design's AI-powered smart ring is a consumer productivity and workplace automation device that does not address agriculture, healthcare, education, or cross-domain AI challenges as defined in Sector 3.",
+  "project_type": null,
+  "sector_id": "3",
+  "subsector_id": null
+ },
+ "leofelis-instruments": {
+  "classified_at": "2026-09-12T11:30:47+00:00",
+  "hash": "980e179b94db7e8c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Leofelis Instruments Private Limited",
+  "note": "Leofelis Instruments, as an instrumentation company with a BIRAC award in agriculture, most likely develops diagnostic or sensing instruments for agricultural applications, aligning with indigenous diagnostic and biosensor development for field use.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "leotek-coatings": {
   "classified_at": "2026-09-12T10:54:28+00:00",
   "hash": "265883c4a14bb33a",
@@ -3144,6 +4156,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "life-and-limb": {
+  "classified_at": "2026-09-12T11:31:40+00:00",
+  "hash": "ecb8baddf3c0e1f3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Life and Limb Pvt. Ltd.",
+  "note": "Life and Limb develops an AI-enabled prosthetic hand with adaptive grasp patterns for trans-radial amputees, directly matching the smart prosthetics category under Medical Devices & Diagnostics.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "lifeseed-reproductive-healthcare": {
   "classified_at": "2026-09-12T10:53:46+00:00",
@@ -3211,6 +4234,28 @@
   "sector_id": "4",
   "subsector_id": "4.6"
  },
+ "logistics": {
+  "classified_at": "2026-09-12T11:31:40+00:00",
+  "hash": "cd17244053449d91",
+  "missing": "electric mobility and vehicles",
+  "model": "claude-haiku-4-5",
+  "name": "Logistics Limited",
+  "note": "Logistics Limited develops electric utility vehicles for last-mile connectivity, which is primarily an electric mobility/transportation application rather than an energy generation, storage, or conversion technology.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "mabgenex": {
+  "classified_at": "2026-09-12T11:30:58+00:00",
+  "hash": "5b64a2c21c2a7cb3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Mabgenex Private Limited",
+  "note": "Mabgenex's BIRAC award in the Drugs and related areas category indicates pharmaceutical development work, most appropriately classified under pre-clinical and clinical pharmaceutical R&D.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "macr-mayr-india": {
   "classified_at": "2026-09-12T10:54:47+00:00",
   "hash": "6e70b6b5a66d25b6",
@@ -3242,6 +4287,17 @@
   "note": "Magnes Motors designs electric go-karts for improved efficiency, which is vehicle-level electrification and drivetrain optimization rather than energy generation, storage, or climate technology.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "magnic-technologies": {
+  "classified_at": "2026-09-12T11:31:40+00:00",
+  "hash": "11968da1a28ec0fe",
+  "missing": "industrial quality control sensors",
+  "model": "claude-haiku-4-5",
+  "name": "Magnic Technologies Pvt. Ltd.",
+  "note": "Magnic Technologies develops electromagnetic field sensing for ferrous impurity detection in gold processing\u2014a specialized industrial quality control application that does not align with any deep-technology sub-sector in this taxonomy.",
+  "project_type": null,
+  "sector_id": "2",
   "subsector_id": null
  },
  "magnimous-info-tech": {
@@ -3288,6 +4344,28 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "marche-healthcare": {
+  "classified_at": "2026-09-12T11:31:08+00:00",
+  "hash": "cff5e98fbd62dc21",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Marche Healthcare Private Limited",
+  "note": "Marche Healthcare's BIRAC Medical Devices award indicates development of health monitoring or biosensing technologies that align with wearable and implantable device categories under Medical Devices & Diagnostics.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "marut-dronetech": {
+  "classified_at": "2026-09-12T11:31:41+00:00",
+  "hash": "2f33ecda26ccd8b9",
+  "missing": "autonomous systems for public health",
+  "model": "claude-haiku-4-5",
+  "name": "Marut Dronetech Pvt. Ltd.",
+  "note": "Marut Dronetech's mosquito control program is a public health application using drones, which does not align with any of the deep-technology project types listed in Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "matterwave-technologies": {
   "classified_at": "2026-09-12T10:53:48+00:00",
   "hash": "488bf6ccb4eea739",
@@ -3330,6 +4408,17 @@
   "note": "Company name suggests work in nanotechnology-scale mechatronic systems and engineering, but no published description makes it impossible to determine if they focus on quantum systems, robotics, space applications, materials, or another deep-tech area.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "mechcreatio-industrial-solutions": {
+  "classified_at": "2026-09-12T11:31:42+00:00",
+  "hash": "35d3e4f2bd0d993d",
+  "missing": "agricultural machinery and mechanization",
+  "model": "claude-haiku-4-5",
+  "name": "Mechcreatio Industrial Solutions Pvt. Ltd.",
+  "note": "Mechcreatio develops mechanical harvesting equipment for root crops, which is a hardware-focused agricultural machinery solution rather than a digital technology platform.",
+  "project_type": null,
+  "sector_id": "5",
   "subsector_id": null
  },
  "mechximize-digitech": {
@@ -3407,6 +4496,28 @@
   "note": "Micob's 3D concrete printing for construction falls outside the deep-technology focus of Sector 2; it is an application of additive manufacturing to civil construction rather than next-gen materials development or advanced manufacturing systems.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "mini-mines-cleantech-solutions": {
+  "classified_at": "2026-09-12T11:30:58+00:00",
+  "hash": "4a22e16c86bdd174",
+  "missing": "industrial biotechnology applications",
+  "model": "claude-haiku-4-5",
+  "name": "Mini Mines Cleantech Solutions Private Limited",
+  "note": "Mini Mines Cleantech Solutions is an industrial biotechnology company focused on clean energy and environment, but without specific details of their biotechnology applications, they cannot be reliably mapped to any sub-sector in this energy and climate taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "minionlabs-india": {
+  "classified_at": "2026-09-12T11:31:42+00:00",
+  "hash": "914f0827baf2e7b9",
+  "missing": "building energy management systems",
+  "model": "claude-haiku-4-5",
+  "name": "Minionlabs India Pvt. Ltd.",
+  "note": "Minionlabs provides AI/ML-based energy monitoring and optimization software for building facilities, which is an energy management and efficiency service rather than a cleantech innovation in generation, storage, conversion, or material science.",
+  "project_type": null,
+  "sector_id": "1",
   "subsector_id": null
  },
  "mirsae": {
@@ -3574,6 +4685,17 @@
   "sector_id": "5",
   "subsector_id": "5.2"
  },
+ "nava-design-innovation": {
+  "classified_at": "2026-09-12T11:31:42+00:00",
+  "hash": "b9c9fbe6dbfe8d7b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Nava Design & Innovation Pvt. Ltd.",
+  "note": "Nava's robotic neera tapping device is a specialized robotic platform designed for autonomous operation in agriculture, addressing the specific task of coconut flower tapping through robotic automation.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "subsector_id": "2.7"
+ },
  "navnirmiti-composites": {
   "classified_at": "2026-09-12T10:55:55+00:00",
   "hash": "57ec4669a932a5aa",
@@ -3606,6 +4728,17 @@
   "project_type": "Cells with higher power conversion",
   "sector_id": "1",
   "subsector_id": "1.3"
+ },
+ "neo-avishkars": {
+  "classified_at": "2026-09-12T11:31:21+00:00",
+  "hash": "a7f3f3fc11a66289",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Neo Avishkars Private Limited",
+  "note": "Neo Avishkars received a BIRAC Biotechnology Ignition Grant specifically in the Medical Devices and Diagnostics category, which directly aligns with sub-sector 4.5 and most likely involves development of indigenous diagnostic solutions for the Indian market.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "neogeoinfo-technologies": {
   "classified_at": "2026-09-12T10:55:55+00:00",
@@ -3717,6 +4850,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "nilico-green-technologies": {
+  "classified_at": "2026-09-12T11:31:21+00:00",
+  "hash": "576ca4d4a56d18a2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Nilico Green Technologies Private Limited",
+  "note": "Nilico Green Technologies' BIRAC award in Industrial Biotechnology and Clean Energy & Environment aligns with sustainable bioprocesses leveraging agro-waste and CO2 conversion for environmental and energy applications.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
  "nirixense-technologies": {
   "classified_at": "2026-09-12T10:53:51+00:00",
   "hash": "63982997b9a4cb38",
@@ -3749,6 +4893,28 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "njyme-solutions": {
+  "classified_at": "2026-09-12T11:30:48+00:00",
+  "hash": "b1f61e838493492f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Njyme Solutions Private Limited",
+  "note": "Njyme's BIRAC award in Industrial Biotechnology and Clean Energy aligns with biomanufacturing processes that convert agricultural residues or carbon sources into value-added products through engineered bioprocesses.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
+ "nkure-therapeutics": {
+  "classified_at": "2026-09-12T11:30:47+00:00",
+  "hash": "4eaba6cc4af93dfe",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "NKure Therapeutics Private Limited",
+  "note": "NKure Therapeutics received a BIRAC Biotechnology Ignition Grant in the drugs and related areas category, indicating active pharmaceutical R&D within the pre-clinical or clinical development pipeline.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
  },
  "noos-technologies": {
   "classified_at": "2026-09-12T10:54:29+00:00",
@@ -3783,6 +4949,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "nubiogenx": {
+  "classified_at": "2026-09-12T11:30:59+00:00",
+  "hash": "32edd3f287eee111",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Nubiogenx Private Limited",
+  "note": "Nubiogenx's BIRAC Biotechnology Ignition Grant award in the 'Drugs and related areas' category indicates pharmaceutical R&D work that fits squarely within 4.4's pre-clinical and clinical development focus.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "numelo-technologies": {
   "classified_at": "2026-09-12T10:53:52+00:00",
   "hash": "de547588b9c4e1f0",
@@ -3793,6 +4970,28 @@
   "project_type": "Neuromorphic processors",
   "sector_id": "2",
   "subsector_id": "2.8"
+ },
+ "nutricape": {
+  "classified_at": "2026-09-12T11:30:59+00:00",
+  "hash": "24fa3c9b5944310a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Nutricape Private Limited",
+  "note": "Nutricape's BIRAC award in the Agriculture and allied areas category aligns with developing sustainable biologics solutions for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
+ },
+ "nutrigenetics-life-science": {
+  "classified_at": "2026-09-12T11:30:49+00:00",
+  "hash": "8e16bac1a19d076f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Nutrigenetics Life Science Private Limited",
+  "note": "Nutrigenetics applies genomic and nutritional data analysis to personalized dietary recommendations, fitting the computational life sciences focus of understanding how genetic variations affect nutrient metabolism and dietary responses.",
+  "project_type": "Bioinformatics and computational / AI-driven life sciences",
+  "sector_id": "4",
+  "subsector_id": "4.1"
  },
  "nuvelle-approche": {
   "classified_at": "2026-09-12T10:53:52+00:00",
@@ -3838,6 +5037,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "offgrid-energy-labs": {
+  "classified_at": "2026-09-12T11:31:43+00:00",
+  "hash": "22a1d42c941a6680",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Offgrid Energy Labs Pvt. Ltd.",
+  "note": "Offgrid Energy Labs is developing a zinc-based battery chemistry with novel membrane-less redox technology and higher voltage performance for energy storage applications in renewables and EVs, directly matching the sub-sector's focus on innovative battery chemistries beyond conventional lithium-ion.",
+  "project_type": "Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)",
+  "sector_id": "1",
+  "subsector_id": "1.4"
+ },
  "ojas-jain": {
   "classified_at": "2026-09-12T10:55:59+00:00",
   "hash": "45f933dc4ad24856",
@@ -3870,6 +5080,17 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "oneomics": {
+  "classified_at": "2026-09-12T11:30:49+00:00",
+  "hash": "7ec4814f2cafacca",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Oneomics Private Limited",
+  "note": "Oneomics' BIRAC award in Industrial Biotechnology and Clean Energy & Environment aligns with developing sustainable bioprocesses that leverage agro-waste or CO2 conversion for environmental and energy applications.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
  },
  "onesolar-technologies": {
   "classified_at": "2026-09-12T10:55:59+00:00",
@@ -3981,6 +5202,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "papyrus-diagnostics": {
+  "classified_at": "2026-09-12T11:31:21+00:00",
+  "hash": "8717fc0f3ca81005",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Papyrus Diagnostics Private Limited",
+  "note": "Papyrus Diagnostics received a BIRAC Biotechnology Ignition Grant in the Medical Devices and Diagnostics category, directly aligning with 4.5's focus on indigenous diagnostic solutions.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "paragise": {
   "classified_at": "2026-09-12T10:54:56+00:00",
   "hash": "4521321577f27a46",
@@ -4014,6 +5246,28 @@
   "sector_id": "5",
   "subsector_id": "5.2"
  },
+ "peeschute": {
+  "classified_at": "2026-09-12T11:31:43+00:00",
+  "hash": "d2bd55de855eebae",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Peeschute Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "pequrel-microelectronics": {
+  "classified_at": "2026-09-12T11:30:59+00:00",
+  "hash": "f0ea0849206735f7",
+  "missing": "agritech microelectronics",
+  "model": "claude-haiku-4-5",
+  "name": "Pequrel Microelectronics Private Limited",
+  "note": "Pequrel Microelectronics is a microelectronics company, not a biotechnology company; the BIRAC award category and company name suggest semiconductor or electronics applications in agriculture, which falls outside the biotech-focused Sector 4.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
  "phonologies-india": {
   "classified_at": "2026-09-12T10:53:54+00:00",
   "hash": "fd5d3ed8c364e01d",
@@ -4024,6 +5278,17 @@
   "project_type": "Multilingual voice / text-based citizen service platforms",
   "sector_id": "5",
   "subsector_id": "5.5"
+ },
+ "photom-technologies": {
+  "classified_at": "2026-09-12T11:31:44+00:00",
+  "hash": "45db48183ee6d531",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Photom Technologies Pvt. Ltd.",
+  "note": "Photom's automated dry-cleaning system directly improves the operational efficiency of existing solar panels by removing dust and debris, which aligns with field efficiency enhancements for utility-scale PV systems.",
+  "project_type": "Field efficiency enhancements",
+  "sector_id": "1",
+  "subsector_id": "1.3"
  },
  "photon-sun-solutions": {
   "classified_at": "2026-09-12T10:56:03+00:00",
@@ -4080,6 +5345,17 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "plabs-solutions": {
+  "classified_at": "2026-09-12T11:31:00+00:00",
+  "hash": "2ab9e708d0c01bff",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Plabs Solutions Private Limited",
+  "note": "Plabs Solutions is a BIRAC-funded diagnostics company, and indigenous diagnostic kits are the primary project type under Medical Devices & Diagnostics that encompasses diagnostic development.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "plantish-foods": {
   "classified_at": "2026-09-12T10:54:30+00:00",
   "hash": "3c854013c790239b",
@@ -4109,6 +5385,17 @@
   "model": "claude-haiku-4-5",
   "name": "Plasmo-Sense",
   "note": "Plasmo-Sense develops a plasmonic nanomaterial-based diagnostic platform for early detection of neurodegenerative diseases, which aligns with indigenous point-of-care diagnostic technology development.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "plotnew-bio-innovations": {
+  "classified_at": "2026-09-12T11:31:01+00:00",
+  "hash": "350403c46a9c5b40",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Plotnew Bio Innovations Private Limited",
+  "note": "Plotnew Bio Innovations is a BIRAC Biotechnology Ignition Grant awardee in the diagnostics category, which aligns with developing indigenous diagnostic solutions for point-of-care and rapid testing applications.",
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
@@ -4146,6 +5433,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "praesus-technologies": {
+  "classified_at": "2026-09-12T11:31:44+00:00",
+  "hash": "df2dce7eedb6fba4",
+  "missing": "safety-critical wearables and emergency response systems",
+  "model": "claude-haiku-4-5",
+  "name": "Praesus Technologies Pvt. Ltd.",
+  "note": "Praesus Technologies develops a wearable safety device for accident detection and emergency response coordination, which is an electronics/IoT application rather than a medical device for diagnosis, treatment, drug delivery, or therapeutic intervention.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
  "prameela-life-sciences": {
   "classified_at": "2026-09-12T10:54:31+00:00",
   "hash": "44a95490b04bfec3",
@@ -4155,6 +5453,17 @@
   "note": "Prameela Life Sciences develops topical skincare products using iminosugars and probiotics, which is consumer cosmetics formulation rather than any of the R&D, manufacturing, or therapeutic development activities covered by Sector 4.",
   "project_type": null,
   "sector_id": "4",
+  "subsector_id": null
+ },
+ "prayogik-technologies": {
+  "classified_at": "2026-09-12T11:31:44+00:00",
+  "hash": "1e84a3dc161c19ca",
+  "missing": "thermoelectric power generation",
+  "model": "claude-haiku-4-5",
+  "name": "Prayogik Technologies Pvt. Ltd.",
+  "note": "Prayogik Technologies develops thermoelectric power conversion (heat-to-electricity without moving parts) for oil & gas and defense applications, which does not align with any project type in the Energy Security and Transition taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
   "subsector_id": null
  },
  "precisurg": {
@@ -4188,6 +5497,17 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "prodent-institute-of-dentistry": {
+  "classified_at": "2026-09-12T11:31:08+00:00",
+  "hash": "16b3f435c5b0c204",
+  "missing": "dental research and oral health technologies",
+  "model": "claude-haiku-4-5",
+  "name": "Prodent Institute Of Dentistry LLP",
+  "note": "Prodent Institute is a dental institute focused on dental research and education, which does not align with any of the biotechnology, biomanufacturing, pharma, or medical device sub-sectors listed.",
+  "project_type": null,
+  "sector_id": "4",
   "subsector_id": null
  },
  "profprenuer-innovations": {
@@ -4244,6 +5564,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "proxi-farma": {
+  "classified_at": "2026-09-12T11:31:23+00:00",
+  "hash": "98604d30b7961530",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Proxi Farma Private Limited",
+  "note": "Proxi Farma received a BIRAC Biotechnology Ignition Grant specifically in the Agriculture and allied areas category, indicating their work develops biological solutions for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "proximal-soilsens-technologies": {
   "classified_at": "2026-09-12T10:54:32+00:00",
@@ -4311,6 +5642,28 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "qualivon-technologies": {
+  "classified_at": "2026-09-12T11:31:01+00:00",
+  "hash": "afd6de37ec6b61b4",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Qualivon Technologies Private Limited",
+  "note": "Qualivon's BIRAC Ignition Grant in Industrial Biotechnology and Clean Energy & Environment aligns with sub-sector 4.2's focus on sustainable bioprocesses, likely involving conversion of agro-waste or CO2 into value-added products through bioengineering.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
+ },
+ "quan2d-technologies": {
+  "classified_at": "2026-09-12T11:31:02+00:00",
+  "hash": "6f4fa9caa8661242",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Quan2D Technologies Private Limited",
+  "note": "BIRAC's Industrial Biotechnology, Clean Energy & Environment category aligns with synthetic biology's focus on sustainable production, and Quan2D's work in industrial biotech directly matches the subsector's emphasis on engineered biological solutions for sustainable materials and energy.",
+  "project_type": "Synthetic biology solutions for sustainable fuels, chemicals and materials",
+  "sector_id": "4",
+  "subsector_id": "4.3"
+ },
  "quantum-phinance": {
   "classified_at": "2026-09-12T10:53:58+00:00",
   "hash": "1289063155528249",
@@ -4366,12 +5719,45 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "rana-semiconductors": {
+  "classified_at": "2026-09-12T11:31:44+00:00",
+  "hash": "1c080275ae8c1c37",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Rana Semiconductors Pvt. Ltd.",
+  "note": "Rana Semiconductors developed a process automation system with adaptive control and intelligent parameter adjustment for crystal growth furnaces, which directly addresses automated control systems for manufacturing processes.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "subsector_id": "2.3"
+ },
+ "rangeaero": {
+  "classified_at": "2026-09-12T11:31:46+00:00",
+  "hash": "86468ec3910cf86d",
+  "missing": "autonomous cargo delivery systems",
+  "model": "claude-haiku-4-5",
+  "name": "Rangeaero Pvt. Ltd.",
+  "note": "Rangeaero's focus on economical transportation for difficult terrain and weather conditions is a logistics and delivery infrastructure problem, not deep technology development.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "rapture-innovation-labs": {
   "classified_at": "2026-09-12T10:56:06+00:00",
   "hash": "47c592c9dfc0f1f7",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Rapture Innovation Labs Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "rar-engineering": {
+  "classified_at": "2026-09-12T11:31:44+00:00",
+  "hash": "c3620aff5eb13221",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "RAR Engineering Pvt. Ltd.",
   "note": null,
   "project_type": null,
   "sector_id": null,
@@ -4674,6 +6060,17 @@
   "sector_id": "4",
   "subsector_id": "4.4"
  },
+ "samaritan-ai": {
+  "classified_at": "2026-09-12T11:31:23+00:00",
+  "hash": "0101a41fb2dceb86",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Samaritan AI Private Limited",
+  "note": "Samaritan AI's BIRAC award in Medical Devices and Diagnostics aligns with AI/ML-powered diagnostic solutions, the core capability of this sub-sector.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "samarth-patidar": {
   "classified_at": "2026-09-12T10:56:15+00:00",
   "hash": "d2dde7d0daf94b47",
@@ -4718,6 +6115,17 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "satavic-innovations": {
+  "classified_at": "2026-09-12T11:31:08+00:00",
+  "hash": "b0d73eddf57814c1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Satavic Innovations Pvt. Ltd.",
+  "note": "Satavic Innovations received a BIRAC Biotechnology Ignition Grant in the Drugs and related areas category, indicating their work in pharmaceutical research and development aligns with pre-clinical or clinical drug development activities.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "sbh-electrocloud": {
   "classified_at": "2026-09-12T10:56:15+00:00",
   "hash": "aa86eb01e49e3b47",
@@ -4739,6 +6147,17 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "scitechesy-research-and-technology": {
+  "classified_at": "2026-09-12T11:30:50+00:00",
+  "hash": "8b7db9bef429e4d4",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Scitechesy Research and Technology Private Limited",
+  "note": "Scitechesy's BIRAC Ignition Grant in Industrial Biotechnology and Clean Energy aligns with synthetic biology approaches for sustainable production of chemicals and materials.",
+  "project_type": "Synthetic biology solutions for sustainable fuels, chemicals and materials",
+  "sector_id": "4",
+  "subsector_id": "4.3"
  },
  "scope-t-m": {
   "classified_at": "2026-09-12T10:56:16+00:00",
@@ -4772,6 +6191,28 @@
   "project_type": "Electronic control systems",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "seismic-hazard-risk-investigations": {
+  "classified_at": "2026-09-12T11:31:46+00:00",
+  "hash": "ac353d9dd5a14366",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Seismic Hazard & Risk Investigations Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "sense-it-out-intelligent-solutions": {
+  "classified_at": "2026-09-12T11:31:46+00:00",
+  "hash": "895a7a5a6afcf694",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sense It Out Intelligent Solutions Pvt. Ltd.",
+  "note": "SICCA's IoT-based sensors for optimizing irrigation water usage and maximizing crop yield directly addresses precision irrigation and smart input optimization in digital agriculture.",
+  "project_type": "Precision irrigation and climate-smart input optimization technologies",
+  "sector_id": "5",
+  "subsector_id": "5.2"
  },
  "senseqube-technologies": {
   "classified_at": "2026-09-12T10:53:59+00:00",
@@ -4817,6 +6258,17 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "serocode-biolabs": {
+  "classified_at": "2026-09-12T11:31:02+00:00",
+  "hash": "a009981465cf0c58",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Serocode Biolabs Private Limited",
+  "note": "Serocode Biolabs is a BIRAC-funded diagnostics company, and 4.5's focus on indigenous diagnostic kits (point-of-care, rapid, multiplexed) directly matches this category of work.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "setu-net": {
   "classified_at": "2026-09-12T10:54:35+00:00",
   "hash": "f2903ebc848da2ba",
@@ -4827,6 +6279,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "shasunmed-lifesciences": {
+  "classified_at": "2026-09-12T11:31:24+00:00",
+  "hash": "12ebb547be200d77",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Shasunmed Lifesciences Private Limited",
+  "note": "Shasunmed's BIRAC award in Industrial Biotechnology and Clean Energy & Environment aligns with sustainable bioprocessing approaches that leverage agro-waste, consistent with the company's focus on environmentally sustainable biomanufacturing solutions.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "subsector_id": "4.2"
  },
  "shivram-badhe": {
   "classified_at": "2026-09-12T10:56:17+00:00",
@@ -4860,6 +6323,17 @@
   "project_type": null,
   "sector_id": "5",
   "subsector_id": null
+ },
+ "shree-veerabhadreshwara-solutions": {
+  "classified_at": "2026-09-12T11:31:24+00:00",
+  "hash": "597a0ce0766fb148",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Shree Veerabhadreshwara Solutions LLP",
+  "note": "As a BIRAC Biotechnology Ignition Grant awardee in Agriculture and allied areas, the company most likely develops biological solutions for agricultural applications, which aligns with sustainable biologics for agriculture.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "shreelakshmi-c-r": {
   "classified_at": "2026-09-12T10:56:19+00:00",
@@ -4915,6 +6389,17 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "silifarm-technologies": {
+  "classified_at": "2026-09-12T11:31:02+00:00",
+  "hash": "7b5d6b1d457ab967",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Silifarm Technologies Private Limited",
+  "note": "Silifarm is a BIRAC-funded medical devices company, and while their specific focus is not detailed, they fit best within Medical Devices & Diagnostics (4.5), with advanced drug delivery and biocompatible materials being the most broadly applicable project type for a medical device developer.",
+  "project_type": "Advanced drug delivery systems and biocompatible materials",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "simutomy-medtech": {
   "classified_at": "2026-09-12T10:54:00+00:00",
@@ -4993,6 +6478,17 @@
   "sector_id": "3",
   "subsector_id": "3.2"
  },
+ "skylark-drones": {
+  "classified_at": "2026-09-12T11:31:46+00:00",
+  "hash": "e9f08aae9a5e2bf2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Skylark Drones Pvt. Ltd.",
+  "note": "Skylark's drone-based image analysis using visual and NDVI sensors to measure field area and plant health directly matches yield estimation through drone imagery and data analytics for agriculture.",
+  "project_type": "Yield estimation with satellite / drone imagery and data analytics",
+  "sector_id": "3",
+  "subsector_id": "3.1"
+ },
  "slashmatrix-innovations": {
   "classified_at": "2026-09-12T10:54:00+00:00",
   "hash": "a0792fe0c66ef947",
@@ -5037,6 +6533,17 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "solutions": {
+  "classified_at": "2026-09-12T11:31:47+00:00",
+  "hash": "ce60ea27a60e0f7c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Solutions Pvt. Ltd.",
+  "note": "IXanner\u00ae is an OCT-based imaging device for early detection of retinal diseases like glaucoma and diabetic retinopathy, combining diagnostic hardware with computational analysis for disease screening.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "soulsense-innovations": {
   "classified_at": "2026-09-12T10:54:55+00:00",
   "hash": "8e7bcb8027d28c7f",
@@ -5047,6 +6554,17 @@
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "south-asia": {
+  "classified_at": "2026-09-12T11:31:47+00:00",
+  "hash": "4971a96eaa877dbf",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "South Asia Pvt. Ltd.",
+  "note": "The company develops carbon-negative building materials from crop residues, directly addressing the decarbonization of construction materials and reducing embodied carbon in buildings.",
+  "project_type": "Net-zero / low-carbon materials (cement with >=90% lower emissions, fibre-based composites, passive thermal management)",
+  "sector_id": "1",
+  "subsector_id": "1.16"
  },
  "spacefields": {
   "classified_at": "2026-09-12T10:56:22+00:00",
@@ -5081,6 +6599,28 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "spotdot-bioinnovations": {
+  "classified_at": "2026-09-12T11:30:50+00:00",
+  "hash": "40e2d291b22d5cab",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Spotdot Bioinnovations Private Limited",
+  "note": "As a BIRAC Biotechnology Ignition Grant awardee in the diagnostics category, Spotdot Bioinnovations is developing indigenous diagnostic solutions that align with point-of-care and rapid testing technologies.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "square-comp-solutions": {
+  "classified_at": "2026-09-12T11:31:47+00:00",
+  "hash": "7cb99e166fd70b2b",
+  "missing": "immersive simulation and training software",
+  "model": "claude-haiku-4-5",
+  "name": "Square Comp Solutions Pvt. Ltd.",
+  "note": "Square Comp Solutions provides Virtual Reality training and simulation software for manufacturing and industrial applications, which is a software/training solution rather than deep technology development.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
  "sristan-technologies": {
   "classified_at": "2026-09-12T10:54:01+00:00",
   "hash": "d2bb9f5c472bf663",
@@ -5103,6 +6643,17 @@
   "sector_id": "5",
   "subsector_id": "5.2"
  },
+ "steradian-technologies": {
+  "classified_at": "2026-09-12T11:31:48+00:00",
+  "hash": "05ab36b634cfcbc2",
+  "missing": "digital health infrastructure, telemedicine platforms",
+  "model": "claude-haiku-4-5",
+  "name": "Steradian Technologies Pvt. Ltd.",
+  "note": "Steradian Technologies provides telemedicine and remote vital sign monitoring infrastructure for rural healthcare delivery, which is a digital health platform and healthcare delivery service rather than biotechnology, biomanufacturing, pharmaceuticals, medical devices, or advanced therapeutics.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
  "stithi-innovations": {
   "classified_at": "2026-09-12T10:56:22+00:00",
   "hash": "74cc6a5e98780eae",
@@ -5124,6 +6675,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "sunqulp-tech": {
+  "classified_at": "2026-09-12T11:30:52+00:00",
+  "hash": "83a7b157422c87cc",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SunQulp Tech Private Limited",
+  "note": "SunQulp Tech is a BIRAC-funded medical devices company, and subsector 4.5 encompasses the full range of medical device innovation from diagnostics to wearables to implants; without access to their specific device type, wearable health monitors and implantable biosensors represents the most common category of deep-tech medical device development in India.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "supernit-shinde": {
   "classified_at": "2026-09-12T10:56:22+00:00",
@@ -5169,6 +6731,17 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "synersense": {
+  "classified_at": "2026-09-12T11:31:48+00:00",
+  "hash": "c44b77a38cf74138",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Synersense Pvt. Ltd.",
+  "note": "Synersense develops a portable smart wearable device for lower limb balance and walking analysis using data analytics, directly matching the wearable health monitoring category.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "tactopus-learning-solutions": {
   "classified_at": "2026-09-12T10:56:23+00:00",
   "hash": "e733e9e17c147376",
@@ -5179,6 +6752,39 @@
   "project_type": null,
   "sector_id": "3",
   "subsector_id": "3.3"
+ },
+ "taurmed-technologies": {
+  "classified_at": "2026-09-12T11:31:08+00:00",
+  "hash": "5939f2e8618c3940",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Taurmed Technologies Private Limited",
+  "note": "Taurmed's BIRAC Biotechnology Ignition Grant award in the diagnostics category aligns with developing indigenous diagnostic solutions, likely point-of-care or rapid testing kits for clinical applications.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "taypro": {
+  "classified_at": "2026-09-12T11:31:48+00:00",
+  "hash": "f2e174634c57dff3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TAYPRO Pvt. Ltd.",
+  "note": "TAYPRO's automated dust-cleaning technology for solar modules directly increases field efficiency by recovering the 5-10% output loss from soiling, which is a core field efficiency enhancement.",
+  "project_type": "Field efficiency enhancements",
+  "sector_id": "1",
+  "subsector_id": "1.3"
+ },
+ "tealaa-innovations": {
+  "classified_at": "2026-09-12T11:31:24+00:00",
+  "hash": "fce874865edc3a6d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Tealaa Innovations Private Limited",
+  "note": "Tealaa Innovations received a BIRAC Biotechnology Ignition Grant in the Agriculture and allied areas category, which aligns with developing sustainable biologics solutions for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "techinvention-lifecare": {
   "classified_at": "2026-09-12T10:56:24+00:00",
@@ -5245,6 +6851,17 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "theranautilus": {
+  "classified_at": "2026-09-12T11:30:52+00:00",
+  "hash": "5a38aab1b145a572",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Theranautilus Private Limited",
+  "note": "Theranautilus, a BIRAC-funded medical devices company, most likely develops wearable or implantable biosensor technologies for health monitoring, which directly aligns with the wearable health monitors and implantable biosensors project type under Medical Devices & Diagnostics.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "theta-controls": {
   "classified_at": "2026-09-12T10:56:24+00:00",
@@ -5356,6 +6973,17 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "trestle-labs": {
+  "classified_at": "2026-09-12T11:31:50+00:00",
+  "hash": "31b483b2c0ed4838",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Trestle Labs Pvt. Ltd.",
+  "note": "Trestle Labs' Kibo XS uses AI-powered scanning, digitization and text-to-speech technology to convert printed and handwritten content into audio across multiple languages, directly addressing accessibility for visually impaired students in education.",
+  "project_type": "Speech-to-text and text-to-speech in Indian languages",
+  "sector_id": "3",
+  "subsector_id": "3.3"
+ },
  "tri-technosolutions": {
   "classified_at": "2026-09-12T10:55:03+00:00",
   "hash": "52f73c9cd9482564",
@@ -5388,6 +7016,28 @@
   "project_type": "Field efficiency enhancements",
   "sector_id": "1",
   "subsector_id": "1.3"
+ },
+ "tvaster-genkalp": {
+  "classified_at": "2026-09-12T11:31:10+00:00",
+  "hash": "c318420f75762f80",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Tvaster Genkalp Private Limited",
+  "note": "As a BIRAC Biotechnology Ignition Grant awardee in the diagnostics category, Tvaster Genkalp aligns with the development of indigenous diagnostic solutions, most likely point-of-care or rapid testing platforms.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "tycheejuno-speciality-tyres": {
+  "classified_at": "2026-09-12T11:31:50+00:00",
+  "hash": "aebd2db9e369fd6e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Tycheejuno Speciality Tyres Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
  },
  "uber-diagnostics": {
   "classified_at": "2026-09-12T10:54:39+00:00",
@@ -5432,6 +7082,17 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "unicas-biotech": {
+  "classified_at": "2026-09-12T11:31:10+00:00",
+  "hash": "f5a76b4c23c55739",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Unicas Biotech Pvt Ltd",
+  "note": "BIRAC Ignition Grant awardee in the drugs category indicates early-stage pharmaceutical R&D work aligned with drug development",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
  },
  "unino-healthcare": {
   "classified_at": "2026-09-12T10:54:02+00:00",
@@ -5488,6 +7149,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "ur-advanced-therapeutics": {
+  "classified_at": "2026-09-12T11:30:52+00:00",
+  "hash": "da827f59c845d2e8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "UR Advanced Therapeutics Private Limited",
+  "note": "BIRAC's Biotechnology Ignition Grant in the Drugs category indicates UR Advanced Therapeutics is engaged in pharmaceutical R&D development, which aligns with pre-clinical and clinical drug development work.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "urbanblue-technologies": {
   "classified_at": "2026-09-12T10:56:27+00:00",
   "hash": "3bd538dc335b4e4f",
@@ -5509,6 +7181,17 @@
   "project_type": "Low-cost CO2 capture, mineralization, bioconversion, enhanced oil recovery",
   "sector_id": "1",
   "subsector_id": "1.6"
+ },
+ "utopic-tech": {
+  "classified_at": "2026-09-12T11:31:51+00:00",
+  "hash": "8bee9ea00a2aaf4a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Utopic Tech Pvt. Ltd.",
+  "note": "Utopic Tech's Creasens is a point-of-care creatinine measurement device for rapid kidney function assessment, directly matching the indigenous diagnostic kits project type.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "vacus-tech": {
   "classified_at": "2026-09-12T10:54:42+00:00",
@@ -5542,6 +7225,17 @@
   "project_type": "Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)",
   "sector_id": "1",
   "subsector_id": "1.4"
+ },
+ "vaxigen-international-research-centre": {
+  "classified_at": "2026-09-12T11:31:12+00:00",
+  "hash": "bc179a28cc8a6cf7",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Vaxigen International Research Centre Private Limited",
+  "note": "Vaxigen is a vaccine research centre, and their BIRAC award in the 'Drugs and related areas' category aligns with next-generation vaccine development, which is a core project type under the Pharmaceuticals & Drug Development sub-sector.",
+  "project_type": "Next-gen vaccine development (mRNA, recombinant, vector-based)",
+  "sector_id": "4",
+  "subsector_id": "4.4"
  },
  "vaxineer": {
   "classified_at": "2026-09-12T10:56:29+00:00",
@@ -5598,6 +7292,17 @@
   "sector_id": "5",
   "subsector_id": null
  },
+ "vegen-labs": {
+  "classified_at": "2026-09-12T11:30:52+00:00",
+  "hash": "2d1e8ba435788c5a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VeGen Labs LLP",
+  "note": "VeGen Labs received a BIRAC Biotechnology Ignition Grant in the Drugs and related areas category, indicating they are conducting pharmaceutical research and development work focused on drug discovery or development.",
+  "project_type": "Pre-clinical and clinical pharmaceutical R&D",
+  "sector_id": "4",
+  "subsector_id": "4.4"
+ },
  "verge-motors": {
   "classified_at": "2026-09-12T10:56:29+00:00",
   "hash": "59beda7efc398e67",
@@ -5608,6 +7313,17 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "vertical-farming-technologies": {
+  "classified_at": "2026-09-12T11:31:51+00:00",
+  "hash": "bb006a7581c0a804",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Vertical Farming Technologies Pvt. Ltd.",
+  "note": "The company's IoT-based suite automating climate, nutrient, and irrigation management in protected farms directly aligns with smart farming systems that leverage IoT technology for farm automation and productivity enhancement.",
+  "project_type": "Smart farming systems leveraging IoT, AI and remote sensing",
+  "sector_id": "5",
+  "subsector_id": "5.2"
  },
  "via-energicals": {
   "classified_at": "2026-09-12T10:56:29+00:00",
@@ -5630,6 +7346,17 @@
   "project_type": "Environmental biotechnology (bioremediation, wastewater treatment)",
   "sector_id": "4",
   "subsector_id": "4.1"
+ },
+ "vitacrop-technologies": {
+  "classified_at": "2026-09-12T11:31:24+00:00",
+  "hash": "b13e9fc1613f96f8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Vitacrop Technologies Private Limited",
+  "note": "Vitacrop, as a BIRAC awardee in Agriculture and allied areas, develops sustainable biological solutions for agricultural applications, which aligns with the sustainable biologics category.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "vital-carbon": {
   "classified_at": "2026-09-12T10:56:29+00:00",
@@ -5862,6 +7589,28 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "xact-diagnotek": {
+  "classified_at": "2026-09-12T11:30:52+00:00",
+  "hash": "cfb402a0002a6a14",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Xact Diagnotek Private Limited",
+  "note": "Xact Diagnotek is a BIRAC-supported diagnostics company, and the indigenous diagnostic kits project type under Medical Devices & Diagnostics directly covers point-of-care and rapid diagnostic development.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "xpredict-automation-solutions": {
+  "classified_at": "2026-09-12T11:31:02+00:00",
+  "hash": "9605253311d8abee",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Xpredict Automation Solutions Private Limited",
+  "note": "Xpredict Automation Solutions, as an automation-focused company within industrial biotechnology, aligns with biodesign automation and AI-driven optimization of biological systems for clean energy and environmental applications.",
+  "project_type": "Biodesign automation and use of AI in strain design / pathway optimization",
+  "sector_id": "4",
+  "subsector_id": "4.3"
+ },
  "xyma-analytics": {
   "classified_at": "2026-09-12T10:56:41+00:00",
   "hash": "b7e775a8ee76e0ab",
@@ -5872,6 +7621,17 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "yrr-edutech": {
+  "classified_at": "2026-09-12T11:31:12+00:00",
+  "hash": "41ee6775bf16aba8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "YRR Edutech Private Limited",
+  "note": "YRR Edutech is a BIRAC-supported medical devices company, and while their specific focus is not detailed, the AI/ML-powered diagnostic category best aligns with typical deep-tech medical device innovation in India's biotechnology landscape.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "zasti-india": {
   "classified_at": "2026-09-12T10:56:38+00:00",
@@ -5905,6 +7665,17 @@
   "project_type": "High efficiency air conditioners",
   "sector_id": "1",
   "subsector_id": "1.10"
+ },
+ "zeroearth": {
+  "classified_at": "2026-09-12T11:31:12+00:00",
+  "hash": "d2a7048a5a8b6b06",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ZeroEarth Private Limited",
+  "note": "ZeroEarth's BIRAC award in the Agriculture and allied areas category aligns with developing sustainable biological solutions for agricultural applications.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "subsector_id": "4.7"
  },
  "zeus-numerix": {
   "classified_at": "2026-09-12T10:54:05+00:00",

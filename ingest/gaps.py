@@ -9,7 +9,11 @@ So one pass over the distinct labels, all of them at once, produces a canonical
 name for each, and the result is written to ingest/gap-labels.json and committed.
 The page then groups by exact match on something a person has read, rather than
 on the wording of 169 separate calls. Edit that file by hand whenever the
-grouping is wrong; nothing regenerates it unless you ask.
+grouping is wrong; nothing regenerates it unless you ask — and --regroup rewrites
+it wholesale, so a hand edit has to be made again afterwards. The standing one:
+the model keeps inventing a group for labels that describe the company rather
+than the missing field, and that group is called "no gap named", because that is
+what it is.
 
     python3 -m ingest.gaps --regroup    # one API call, rewrites the mapping
     python3 -m ingest.gaps              # show what the current mapping does

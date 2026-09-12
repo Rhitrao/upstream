@@ -86,14 +86,15 @@ function ago(firstSeen: string, now: Date): string {
  * What a row is allowed to say about its own date.
  *
  * "First seen" is a claim that we found it, so only a real discovery gets to make it.
- * A backfilled row says whose year it is reading, and a row with no date says nothing
- * at all — the section it sits in has already said it.
+ * A backfilled row says what year it was on record by — an incubator cohort, a grant
+ * award — without claiming we were there. A row with no date says nothing at all; the
+ * section it sits in has already said it.
  */
 function dateLine(company: Company, now: Date): string | null {
 	if (company.first_seen === null) return null;
 	if (company.first_seen_basis === 'cohort') {
 		const year = company.origin_year ?? company.first_seen.slice(0, 4);
-		return `listed by its incubator for ${year}`;
+		return `on public record from ${year}`;
 	}
 	return ago(company.first_seen, now);
 }
