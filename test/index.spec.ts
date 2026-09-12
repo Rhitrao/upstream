@@ -455,7 +455,7 @@ describe('GET /upstream (the page)', () => {
 		const demo = await page('?demo=1');
 		expect(demo).toContain('Sample data');
 		// Five ranked and one undated; the seventh is held back by the age gate.
-		expect(demo.match(/<li class="company">/g)).toHaveLength(6);
+		expect(demo.match(/<li class="company" id="c-[^"]+">/g)).toHaveLength(6);
 		expect(demo).toContain('Verve Aerospace Private Limited');
 		expect(demo).toContain('Pravaha Filtration Private Limited');
 		expect(demo).not.toContain('Saral Hydro Systems Private Limited');

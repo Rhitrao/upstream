@@ -1,4 +1,26 @@
 {
+ "3d-foundry-tech": {
+  "classified_at": "2026-09-12T11:59:46+00:00",
+  "hash": "e9fa9aabc90d2a8d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "3D Foundry Tech Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "42apeironanta-technologies": {
+  "classified_at": "2026-09-12T11:59:47+00:00",
+  "hash": "e2f5d850603bce78",
+  "missing": "enterprise AI and business automation",
+  "model": "claude-haiku-4-5",
+  "name": "42Apeironanta Technologies Pvt Ltd",
+  "note": "42Apeironanta's conversational AI and voicebot solutions for BFSI and ecommerce are enterprise automation and customer service tools that do not map to agriculture, healthcare, education, or cross-domain AI for Indian social problems.",
+  "project_type": null,
+  "sector_id": "3",
+  "subsector_id": null
+ },
  "a3-remote-monitoring-technologies": {
   "classified_at": "2026-09-12T11:59:06+00:00",
   "hash": "78f09f30ccc6cda3",
@@ -9,6 +31,28 @@
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "abee-research-labs": {
+  "classified_at": "2026-09-12T11:59:47+00:00",
+  "hash": "eafdd3c2bcd0a6c5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Abee Research Labs Pvt Ltd",
+  "note": "Digital twins for welding, stamping, and inspection directly support advanced automation and intelligent control of manufacturing processes on assembly lines.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "subsector_id": "2.3"
+ },
+ "accelo-innovation": {
+  "classified_at": "2026-09-12T11:59:47+00:00",
+  "hash": "72506aed057b1cbc",
+  "missing": "autonomous vehicle systems",
+  "model": "claude-haiku-4-5",
+  "name": "Accelo Innovation Pvt Ltd",
+  "note": "Accelo Innovation's fully autonomous electric vehicle platform is an automotive technology application that does not align with any of the listed deep-tech sub-sectors, which focus on foundational technologies (quantum, semiconductors, robotics, space, materials, photonics) rather than vehicle platform development.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
  },
  "acuradyne-medical-systems": {
   "classified_at": "2026-09-12T11:59:06+00:00",
@@ -31,6 +75,17 @@
   "project_type": "Cells with higher power conversion",
   "sector_id": "1",
   "subsector_id": "1.3"
+ },
+ "afresh-technology-solutions": {
+  "classified_at": "2026-09-12T11:59:47+00:00",
+  "hash": "6629a30007134653",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Afresh Technology Solutions Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
  },
  "ajivam-water": {
   "classified_at": "2026-09-12T11:59:06+00:00",
@@ -65,6 +120,17 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "ameliorate-biotech": {
+  "classified_at": "2026-09-12T11:59:49+00:00",
+  "hash": "0302000ea3c59df2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ameliorate Biotech Pvt Ltd",
+  "note": "Ameliorate Biotech develops a rapid, multiplexed point-of-care diagnostic device for simultaneous detection of three infectious diseases from a single blood drop, directly matching the indigenous diagnostic kits category.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "amyscan-healthcare": {
   "classified_at": "2026-09-12T11:59:06+00:00",
   "hash": "50741643b4fbcce5",
@@ -86,6 +152,39 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "apeiron-mobility": {
+  "classified_at": "2026-09-12T11:59:49+00:00",
+  "hash": "4db854acdcea9b74",
+  "missing": "electric vehicle manufacturing and supply chain",
+  "model": "claude-haiku-4-5",
+  "name": "Apeiron Mobility Pvt Ltd",
+  "note": "Apeiron Mobility manufactures electric bikes for delivery logistics, which is an end-use application of battery technology rather than deep-tech innovation in energy generation, storage, or climate mitigation systems.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "ariano-instruments": {
+  "classified_at": "2026-09-12T11:59:49+00:00",
+  "hash": "8231c5e40325c539",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ariano Instruments Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "arishti-cybertech": {
+  "classified_at": "2026-09-12T11:59:49+00:00",
+  "hash": "800b69ea064bf68b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Arishti CyberTech Pvt Ltd",
+  "note": "MessageMe uses quantum technology for secure enterprise messaging, which aligns with quantum communication's focus on cryptographic security and quantum key distribution for sensitive communications.",
+  "project_type": "Quantum communication: QKD over fibre and free space, quantum repeaters, satellite-based quantum communication",
+  "sector_id": "2",
+  "subsector_id": "2.1"
  },
  "atomberg-technologies": {
   "classified_at": "2026-09-12T11:59:07+00:00",
@@ -120,6 +219,28 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "ayata-intelligence": {
+  "classified_at": "2026-09-12T11:59:49+00:00",
+  "hash": "754aca6781444423",
+  "missing": "AI assistive technologies for accessibility",
+  "model": "claude-haiku-4-5",
+  "name": "Ayata Intelligence Pvt Ltd",
+  "note": "Ayata Intelligence's wearable device for visual-to-sensory translation for blind people is an assistive technology application, but it does not fit the health, agriculture, or education focus areas of Sector 3; it addresses disability support in a general context outside these domains.",
+  "project_type": null,
+  "sector_id": "3",
+  "subsector_id": null
+ },
+ "ayati-devices": {
+  "classified_at": "2026-09-12T11:59:49+00:00",
+  "hash": "f9de668b9b2bab84",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ayati Devices Pvt Ltd",
+  "note": "Ayati Devices' portable diabetic foot screening device is a diagnostic tool that uses imaging or sensor technology to detect diabetic foot complications, fitting squarely within AI/ML-powered diagnostic devices for disease management.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
  "ayu-devices": {
   "classified_at": "2026-09-12T11:59:07+00:00",
   "hash": "7ad5146e30af4d9f",
@@ -130,6 +251,17 @@
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "baas-technologies": {
+  "classified_at": "2026-09-12T11:59:50+00:00",
+  "hash": "7b6018873ec3fb66",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "BAAS Technologies Pvt Ltd",
+  "note": "BAAS Technologies develops launch vehicles for sub-orbital and orbital missions, which directly aligns with the rocket launcher systems and advanced launch vehicle capabilities under Space Technologies.",
+  "project_type": "Advanced and reusable launch vehicles, propulsion innovation (cryogenic / green propellants)",
+  "sector_id": "2",
+  "subsector_id": "2.5"
  },
  "babblebots-ai-inc-mystinaai-labs": {
   "classified_at": "2026-09-12T11:59:09+00:00",
@@ -142,6 +274,28 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "bellatrix-aerospace": {
+  "classified_at": "2026-09-12T11:59:50+00:00",
+  "hash": "ee1b0581f8d6d9cd",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bellatrix Aerospace Pvt Ltd",
+  "note": "Bellatrix develops orbital launch vehicles and electric propulsion systems, directly matching the sub-sector's focus on advanced launch vehicles and propulsion innovation.",
+  "project_type": "Advanced and reusable launch vehicles, propulsion innovation (cryogenic / green propellants)",
+  "sector_id": "2",
+  "subsector_id": "2.5"
+ },
+ "bharati-robotic-systems-india": {
+  "classified_at": "2026-09-12T11:59:51+00:00",
+  "hash": "f313847f3f8d0179",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bharati Robotic Systems (India) Pvt Ltd",
+  "note": "Bharati Robotic Systems develops autonomous industrial floor cleaning robots with cloud connectivity, directly matching the autonomous navigation and perception capability required for intelligent robotic systems.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "subsector_id": "2.7"
+ },
  "bhugol-gis": {
   "classified_at": "2026-09-12T11:59:09+00:00",
   "hash": "ca2d0e51f9ba8f2a",
@@ -152,6 +306,17 @@
   "project_type": null,
   "sector_id": "5",
   "subsector_id": null
+ },
+ "bionic-hope": {
+  "classified_at": "2026-09-12T11:59:51+00:00",
+  "hash": "aae87b4e0e504166",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bionic Hope Pvt Ltd",
+  "note": "Bionic Hope develops robotic upper limb prosthetics, which directly aligns with smart prosthetics and rehabilitation technologies under medical devices.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "subsector_id": "4.5"
  },
  "botsrule": {
   "classified_at": "2026-09-12T11:59:09+00:00",
@@ -823,5 +988,390 @@
   "project_type": "Multi-functional, very low-toxicity biomaterials",
   "sector_id": "4",
   "subsector_id": "4.6"
+ },
+ "nxpec-technologies": {
+  "classified_at": "2026-09-12T11:59:35+00:00",
+  "hash": "205bc889fdde5297",
+  "missing": "electric vehicle power electronics",
+  "model": "claude-haiku-4-5",
+  "name": "NXPEC Technologies Pvt Ltd",
+  "note": "NXPEC's power electronics for EV charging and motor control are essential EV infrastructure but not covered by the taxonomy, which focuses on energy generation, storage, grid systems, and materials rather than vehicle electrification components.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "ostic-pharma": {
+  "classified_at": "2026-09-12T11:59:35+00:00",
+  "hash": "0c8eed1daeda7745",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ostic Pharma Pvt Ltd",
+  "note": "Ostic Pharma develops rapid lateral flow assays for point-of-care detection of TB and COVID-19 biomarkers, directly matching indigenous diagnostic kit development for infectious disease detection.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "pacify-medical-technologies": {
+  "classified_at": "2026-09-12T11:59:35+00:00",
+  "hash": "745d4f802b49dd54",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Pacify Medical Technologies Pvt Ltd",
+  "note": "Pacify's skin spray gun is a medical device for wound healing that combines drug delivery mechanism with biocompatible application technology for burn treatment.",
+  "project_type": "Advanced drug delivery systems and biocompatible materials",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "phonologies-india": {
+  "classified_at": "2026-09-12T11:59:35+00:00",
+  "hash": "fd5d3ed8c364e01d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Phonologies (INDIA) Pvt Ltd",
+  "note": "Phonologies' cloud-based voice enablement platform for business processes aligns with building vernacular voice interfaces that are foundational DPI infrastructure for inclusive digital access.",
+  "project_type": null,
+  "sector_id": "5",
+  "subsector_id": "5.9"
+ },
+ "piscium-health-sciences": {
+  "classified_at": "2026-09-12T11:59:35+00:00",
+  "hash": "ee8151b4db056473",
+  "missing": "dental equipment and instruments",
+  "model": "claude-haiku-4-5",
+  "name": "Piscium Health Sciences Pvt Ltd",
+  "note": "Piscium manufactures dental burs and instruments using nanotechnology coatings, which is dental equipment manufacturing rather than biotechnology, biomanufacturing, synthetic biology, pharmaceuticals, medical devices, biomaterials, or advanced therapeutics as defined in Sector 4.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
+ "powai-labs-technologies": {
+  "classified_at": "2026-09-12T11:59:35+00:00",
+  "hash": "fa1254eeaac809cb",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Powai Labs Technologies Pvt Ltd",
+  "note": "Powai Labs Technologies provides technology solutions in electronics design, which directly aligns with chip design work in the semiconductors and electronics sub-sector.",
+  "project_type": "Chip design and advanced node fabrication",
+  "sector_id": "2",
+  "subsector_id": "2.2"
+ },
+ "power-anser-labs": {
+  "classified_at": "2026-09-12T11:59:36+00:00",
+  "hash": "78b743b045ab88c9",
+  "missing": "power grid analytics and optimization",
+  "model": "claude-haiku-4-5",
+  "name": "Power Anser Labs Pvt Ltd",
+  "note": "Power Anser Labs provides power system analysis and consulting services, which is infrastructure optimization and advisory rather than deep-tech development of new energy technologies, materials, or systems.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "profprenuer-innovations": {
+  "classified_at": "2026-09-12T11:59:37+00:00",
+  "hash": "a2724fc11e3bab38",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Profprenuer Innovations Pvt Ltd",
+  "note": "Profprenuer develops IoT-enabled wearable neuroplatform devices with flexible soft electrodes for continuous remote health monitoring, directly matching the wearable health monitors project type under Medical Devices & Diagnostics.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "proplant-foods": {
+  "classified_at": "2026-09-12T11:59:37+00:00",
+  "hash": "8056ca8d4364c317",
+  "missing": "alternative protein manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "Proplant Foods Pvt Ltd",
+  "note": "Proplant Foods produces plant-based meat alternatives through food processing and ingredient formulation, not through biotechnology, biomanufacturing, synthetic biology, pharmaceuticals, or medical devices.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
+ "proteomica-international": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "060190c89776bd93",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Proteomica International Pvt Ltd",
+  "note": "Proteomica's core focus on proteomics and metabolomics-based digital health signatures with AI/big data analytics directly aligns with multi-omics platform development for personalized health applications.",
+  "project_type": "Multi-omics platforms: transcriptomics, proteomics, metabolomics",
+  "sector_id": "4",
+  "subsector_id": "4.1"
+ },
+ "qawach-bio": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "c06694458d6efcf5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Qawach Bio Pvt Ltd",
+  "note": "Qawach Bio develops point-of-care diagnostic kits for acute kidney injury detection, which directly matches the indigenous diagnostic kits category focused on rapid, accessible testing solutions.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "quantum-phinance": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "1289063155528249",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Quantum Phinance Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "rural-surgery-innovations": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "6995aa81efc19034",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Rural Surgery Innovations Pvt Ltd",
+  "note": "Rural Surgery Innovations develops a laptop-based cystoscope for urological procedures with remote proctorship training, which is an image-guided surgical system enabling minimally invasive surgery in resource-constrained settings.",
+  "project_type": "Image-guided and robotic surgical systems",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "safe-securities-inc": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "ad1bebacfac1e43d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Safe Securities Inc",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "seclore-technology": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "70be2696396d623d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Seclore Technology Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "sedemac-mechatronics": {
+  "classified_at": "2026-09-12T11:59:38+00:00",
+  "hash": "ff37ce0becdf92be",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sedemac Mechatronics Ltd",
+  "note": "Sedemac's engine control systems for small engines and powertrains are electronic control systems, which is explicitly listed as a project type under the Semiconductors & Electronics sub-sector.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "subsector_id": "2.2"
+ },
+ "senseqube-technologies": {
+  "classified_at": "2026-09-12T11:59:40+00:00",
+  "hash": "a40dac268527d461",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Senseqube Technologies Pvt Ltd",
+  "note": "SoilTrident's IoT and AI-based smart irrigation and nutrition assistant directly matches the precision irrigation and climate-smart input optimization focus within Digital Agriculture.",
+  "project_type": "Precision irrigation and climate-smart input optimization technologies",
+  "sector_id": "5",
+  "subsector_id": "5.2"
+ },
+ "sensibol-audio-technologies": {
+  "classified_at": "2026-09-12T11:59:40+00:00",
+  "hash": "a0d549c57a9d2993",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sensibol Audio Technologies Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "shodhsens-diagnostics": {
+  "classified_at": "2026-09-12T11:59:41+00:00",
+  "hash": "3131370bd89ad8fa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Shodhsens Diagnostics Pvt Ltd",
+  "note": "AUDOSens is developing a handheld, low-cost colorimetric diagnostic device for rapid point-of-care testing of chronic kidney disease, directly matching the indigenous diagnostic kits category.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "simutomy-medtech": {
+  "classified_at": "2026-09-12T11:59:41+00:00",
+  "hash": "e1b5a5a327c3ee80",
+  "missing": "surgical simulation and medical training technologies",
+  "model": "claude-haiku-4-5",
+  "name": "Simutomy Medtech Pvt Ltd",
+  "note": "Simutomy's work involves creating anatomical models and simulation platforms for surgical training, which is a medical education and training technology rather than a biotechnology, biomanufacturing, pharmaceutical, medical device, biomaterial, or therapeutic development capability.",
+  "project_type": null,
+  "sector_id": "4",
+  "subsector_id": null
+ },
+ "slashmatrix-innovations": {
+  "classified_at": "2026-09-12T11:59:41+00:00",
+  "hash": "a0792fe0c66ef947",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SlashMatrix Innovations Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "sristan-technologies": {
+  "classified_at": "2026-09-12T11:59:41+00:00",
+  "hash": "d2bb9f5c472bf663",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sristan Technologies Pvt Ltd",
+  "note": "Sristan Technologies develops axial flux motors using rare earth-free permanent magnets, directly addressing the need for high-performance magnetic materials without toxic and scarce rare earth elements.",
+  "project_type": "Rare earth-free magnets",
+  "sector_id": "1",
+  "subsector_id": "1.13"
+ },
+ "sustainable-reference-analytics": {
+  "classified_at": "2026-09-12T11:59:42+00:00",
+  "hash": "dc602fbebd7c232e",
+  "missing": "smart grid and demand management infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "Sustainable Reference Analytics Pvt Ltd",
+  "note": "Sustainable Reference Analytics provides electricity metering and data analytics infrastructure for the grid, which supports energy transition but is not itself an energy generation, storage, conversion, or climate technology.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "tesla-innovations": {
+  "classified_at": "2026-09-12T11:59:42+00:00",
+  "hash": "e32027dac2fa6627",
+  "missing": "environmental pollution control and remediation",
+  "model": "claude-haiku-4-5",
+  "name": "Tesla Innovations Pvt Ltd",
+  "note": "Industrial effluent treatment and air pollution monitoring/treatment are environmental compliance and remediation technologies, not energy transition or climate action technologies.",
+  "project_type": null,
+  "sector_id": "1",
+  "subsector_id": null
+ },
+ "trikshana-tech": {
+  "classified_at": "2026-09-12T11:59:42+00:00",
+  "hash": "3def26e1e1b6b3cb",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Trikshana Tech Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "unino-healthcare": {
+  "classified_at": "2026-09-12T11:59:43+00:00",
+  "hash": "8b8448c51c5ddded",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Unino Healthcare Pvt Ltd",
+  "note": "PleuraGoh\u00ae is a chest tube securement device that functions as a specialized implant/medical device to prevent pneumothorax recurrence, fitting within the medical devices category focused on therapeutic implants and wound/complication management.",
+  "project_type": "Implants (bone, cochlear, pacemaker), neural chip implants and wound healing materials",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "urjanovac": {
+  "classified_at": "2026-09-12T11:59:43+00:00",
+  "hash": "aa507dc333852dfd",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Urjanovac Pvt Ltd",
+  "note": "Urjanovac's water and catalyst-based technology directly addresses rapid, low-cost CO2 capture, the core capability listed under CCUS sub-sector 1.6.",
+  "project_type": "Low-cost CO2 capture, mineralization, bioconversion, enhanced oil recovery",
+  "sector_id": "1",
+  "subsector_id": "1.6"
+ },
+ "vegayan-systems": {
+  "classified_at": "2026-09-12T11:59:43+00:00",
+  "hash": "eb6e118475b3c866",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Vegayan Systems Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "weathercast-solutions": {
+  "classified_at": "2026-09-12T11:59:44+00:00",
+  "hash": "d0fac5226443bd3e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Weathercast Solutions Pvt Ltd",
+  "note": "WeatherCast's hyperlocal weather and micro-climate intelligence using meteorology, big data analytics, and ML directly aligns with advanced climate modelling and simulation tools that inform climate-ready decision-making.",
+  "project_type": "High-resolution climate modelling / simulation tools",
+  "sector_id": "1",
+  "subsector_id": "1.16"
+ },
+ "webaroo-technology-india": {
+  "classified_at": "2026-09-12T11:59:44+00:00",
+  "hash": "9cfe05e7f0d9f71a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Webaroo Technology India Pvt Ltd",
+  "note": "Gupshup's omni-channel messaging platform with APIs and SDKs for building programmable bots aligns with providing API interoperability protocols and orchestration capabilities that enable services to integrate across multiple communication channels as part of digital public infrastructure.",
+  "project_type": "API interoperability protocols and AI-powered DPI orchestration tools",
+  "sector_id": "5",
+  "subsector_id": "5.9"
+ },
+ "whiterabbit-ai-technologies": {
+  "classified_at": "2026-09-12T11:59:45+00:00",
+  "hash": "148b10efe6dd864a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Whiterabbit.ai technologies LLP",
+  "note": "Whiterabbit.ai's AI/ML system for early cancer detection directly matches the project type focused on using predictive models for disease detection.",
+  "project_type": "Early disease detection for cancer, TB, diabetes using predictive models",
+  "sector_id": "3",
+  "subsector_id": "3.2"
+ },
+ "wka-technology": {
+  "classified_at": "2026-09-12T11:59:45+00:00",
+  "hash": "77f6ce640802adbf",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "WKA Technology Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "wonderlend-hubs": {
+  "classified_at": "2026-09-12T11:59:46+00:00",
+  "hash": "42d985357de4204f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "WonderLend Hubs Pvt Ltd",
+  "note": "WonderLend Hubs operates a multi-product, multi-provider digital lending platform that aggregates financial institutions and enables streamlined loan processing, directly matching the fintech focus on digital lending infrastructure.",
+  "project_type": "Digital lending and micro-insurance platforms",
+  "sector_id": "5",
+  "subsector_id": "5.4"
+ },
+ "zeus-numerix": {
+  "classified_at": "2026-09-12T11:59:46+00:00",
+  "hash": "3dcbb5fb4c4e9a63",
+  "missing": "computational engineering software tools",
+  "model": "claude-haiku-4-5",
+  "name": "Zeus Numerix Pvt Ltd",
+  "note": "Zeus Numerix provides CAE software tools (CFD, CEM, CSM simulations) which are enabling infrastructure for engineering design across multiple sectors, but not themselves a deep technology capability within the Sector 2 taxonomy.",
+  "project_type": null,
+  "sector_id": "2",
+  "subsector_id": null
+ },
+ "zwilling-labs": {
+  "classified_at": "2026-09-12T11:59:46+00:00",
+  "hash": "3536f7b491118712",
+  "missing": "digital twins and industrial IoT",
+  "model": "claude-haiku-4-5",
+  "name": "Zwilling Labs Pvt Ltd",
+  "note": "Zwilling Labs develops a cross-industry digital twin platform with IoT and AI, which is a horizontal manufacturing/industrial optimization technology not targeted at agriculture, health, education or the specific cross-domain problems listed in 3.4.",
+  "project_type": null,
+  "sector_id": "3",
+  "subsector_id": null
  }
 }
