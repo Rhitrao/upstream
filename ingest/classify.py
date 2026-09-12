@@ -30,6 +30,8 @@ import json
 import pathlib
 import threading
 
+import os
+
 import anthropic
 
 from ingest.sources.base import Company, clean
@@ -228,6 +230,25 @@ def _fingerprint(company: Company) -> str:
     return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
 
 
+def _client() -> anthropic.Anthropic:
+    """The SDK resolves ANTHROPIC_API_KEY itself; .env is here for a Codespace.
+
+    A key in .env never reaches git — the file is ignored — and it keeps the
+    pipeline runnable without a shell that persists between commands.
+    """
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return anthropic.Anthropic()
+
+    env_file = pathlib.Path(__file__).parent.parent / ".env"
+    if env_file.exists():
+        for line in env_file.read_text(encoding="utf-8").splitlines():
+            name, _, value = line.partition("=")
+            if name.strip() == "ANTHROPIC_API_KEY" and value.strip():
+                return anthropic.Anthropic(api_key=value.strip().strip("\"'"))
+
+    return anthropic.Anthropic()
+
+
 def _load(path: pathlib.Path) -> dict:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -286,7 +307,7 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
     if not todo:
         return results, usage
 
-    client = anthropic.Anthropic()
+    client = _client()
     lock = threading.Lock()
     done = 0
 
@@ -332,7 +353,7 @@ def estimate(companies: list[Company]) -> str:
     if not todo:
         return "Nothing to do: every company is cached or overridden. A re-run costs $0.00."
 
-    client = anthropic.Anthropic()
+    client = _client()
     sample = todo[: min(12, len(todo))]
     sector_tokens = 0
     subsector_tokens = 0
