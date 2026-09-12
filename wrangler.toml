@@ -9,3 +9,7 @@ enabled = true
 binding = "DB"
 database_name = "upstream"
 database_id = "3dff162c-3c60-4f80-8b9e-10f49e4956bd"
+
+[[routes]]
+pattern = "rohitrao.in/upstream*"
+zone_name = "rohitrao.in"
