@@ -19,6 +19,18 @@
  */
 export const TRACE_TYPES = ['website', 'press', 'grant', 'incubator', 'dpiit'] as const;
 
+/**
+ * Every signal type the ingest will accept, and the only place that decides.
+ *
+ * This list and TRACE_TYPES used to be documented in a comment on the signals
+ * table, which is a snapshot of what was true in migration 0001 and does not
+ * mention `dpiit`. A scraper that emits a type nobody knows about gets stored,
+ * displayed, and silently counted as zero traces — a typo would cost a company
+ * its tier and say nothing. The endpoint now refuses anything not on this list,
+ * so adding a type is a deliberate edit here rather than a quiet accident there.
+ */
+export const SIGNAL_TYPES = [...TRACE_TYPES, 'patent', 'incorporation'] as const;
+
 export type Tier = 'A' | 'B' | 'C';
 
 /**

@@ -1,5 +1,8 @@
 import { env, SELF } from 'cloudflare:test';
 import { describe, it, expect, beforeEach } from 'vitest';
+import { SIGNAL_TYPES, TRACE_TYPES } from '../src/rank';
+import { SUBSECTORS } from '../src/taxonomy';
+import { demoCompanies } from '../src/demo';
 
 const KEY = 'test-ingest-key';
 const ORIGIN = 'https://rohitrao.in';
@@ -282,6 +285,18 @@ describe('POST /upstream/api/ingest', () => {
 		await post({ source: 'test', mode: 'live', companies: [{ id: 'found', name: 'Found' }] });
 
 		expect((await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('found').first<any>()).tier).toBe('B');
+	});
+
+	it('refuses a signal type nobody knows about', async () => {
+		const res = await post({
+			source: 'test',
+			companies: [{ id: 'a', name: 'A' }],
+			// One letter wrong, and without this it would store, display, and count
+			// as zero traces.
+			signals: [{ company_id: 'a', type: 'incubater', label: 'SINE' }],
+		});
+		expect(res.status).toBe(400);
+		expect((await res.json<any>()).error).toContain('must be one of');
 	});
 
 	it('counts a DPIIT listing as a trace', async () => {
@@ -650,5 +665,24 @@ describe('GET /upstream (the page)', () => {
 		expect(html).not.toContain('javascript:');
 		// Nothing to link to, so the chip stays plain text.
 		expect(html).toContain('<span class="chip">click &quot;me&quot;</span>');
+	});
+});
+
+describe('lists that only one file is allowed to own', () => {
+	it('keeps every trace type inside the accepted vocabulary', () => {
+		// TRACE_TYPES is a subset of SIGNAL_TYPES by construction; this fails if
+		// someone ever rewrites it as a second hand-maintained list.
+		for (const type of TRACE_TYPES) {
+			expect(SIGNAL_TYPES as readonly string[]).toContain(type);
+		}
+	});
+
+	it('only uses sub-sector ids the taxonomy actually has', () => {
+		// The sample rows carry hand-written ids. A taxonomy edit that orphaned one
+		// would show as "Not yet classified" on the demo page and nowhere else.
+		const valid = new Set(SUBSECTORS.map((s) => s.subsector_id));
+		for (const company of demoCompanies()) {
+			if (company.subsector_id) expect(valid).toContain(company.subsector_id);
+		}
 	});
 });

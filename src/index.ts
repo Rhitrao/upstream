@@ -11,7 +11,7 @@
  *   GET  /upstream/api/gaps         companies the taxonomy has no cell for, grouped
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
-import { TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
+import { SIGNAL_TYPES, TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
 import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, queryGaps, queryHasRanked, type Filters } from './db';
 import { renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, splitDemo } from './demo';
@@ -334,6 +334,10 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const label = str(s.label);
 		if (!companyId) return json({ error: `signals[${i}].company_id is required` }, 400);
 		if (!type) return json({ error: `signals[${i}].type is required` }, 400);
+		// A type nobody knows about would be stored and then counted as nothing.
+		if (!(SIGNAL_TYPES as readonly string[]).includes(type)) {
+			return json({ error: `signals[${i}].type must be one of ${SIGNAL_TYPES.join(', ')}` }, 400);
+		}
 		if (!label) return json({ error: `signals[${i}].label is required` }, 400);
 		signals.push({ ...(s as object), company_id: companyId, type, label } as SignalInput);
 	}
