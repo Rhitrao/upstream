@@ -357,6 +357,8 @@ describe('GET /upstream (the page)', () => {
 
 	it('renders 44 coverage cells, all empty, on an empty database', async () => {
 		const html = await page();
+		// Nothing has arrived in a backfill either, so the page says nothing about one.
+		expect(html).not.toContain('arrived in a backfill');
 		const cells = html.match(/class="cell [^"]*"/g) ?? [];
 		expect(cells).toHaveLength(44);
 		expect(cells.every((c) => c.includes('empty'))).toBe(true);

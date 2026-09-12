@@ -305,7 +305,9 @@ function listed(view: PageView): number {
  * quietly changing its own promise.
  */
 function backfillNote(view: PageView): string {
-	if (!view.backfillOnly) return '';
+	// On an empty database it is vacuously true and reads as an excuse. Nothing to
+	// explain until there is something to explain.
+	if (!view.backfillOnly || view.tracked === 0) return '';
 	return `<p class="note">Every company here arrived in a backfill. Tier A and B are for companies we see appear
     &mdash; those fill in from the first live run onward.</p>`;
 }
