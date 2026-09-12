@@ -138,6 +138,8 @@ interface CompanyInput {
 	name: string;
 	description?: string | null;
 	website?: string | null;
+	/** False when the source publishes no website field at all, so an empty one proves nothing. */
+	website_checked?: boolean;
 	city?: string | null;
 	state?: string | null;
 	cin?: string | null;
@@ -191,14 +193,16 @@ interface SignalInput {
  */
 const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
-  id, name, description, website, city, state, cin, founded_year, origin_year,
+  id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
   sector_id, subsector_id, project_type, classify_note,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
   website       = COALESCE(excluded.website,       companies.website),
+  -- One source that publishes websites is enough to have looked.
+  website_checked = MAX(companies.website_checked, excluded.website_checked),
   city          = COALESCE(excluded.city,          companies.city),
   state         = COALESCE(excluded.state,         companies.state),
   cin           = COALESCE(excluded.cin,           companies.cin),
@@ -466,6 +470,7 @@ async function applyIngest(
 			today,
 			nowIso,
 			cohort,
+			c.website_checked === false ? 0 : 1,
 		);
 	});
 

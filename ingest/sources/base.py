@@ -67,6 +67,10 @@ class Company:
     name: str
     description: str | None = None
     website: str | None = None
+    # False when the source publishes no website field at all. An empty website is
+    # then a fact about the source, not about the company, and the page must not
+    # mark it as one.
+    website_checked: bool = True
     city: str | None = None
     state: str | None = None
     cin: str | None = None

@@ -105,6 +105,8 @@ def _company(record: dict, industry: str) -> Company | None:
     return Company.named(
         name,
         description=_description(record, industry),
+        # The register has no website field, so its silence is not evidence.
+        website_checked=False,
         city=clean(record.get("city")),
         state=clean(record.get("state")),
         # record_year, never origin_year. The register says when it recognised the

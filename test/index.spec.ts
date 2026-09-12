@@ -480,6 +480,35 @@ describe('GET /upstream (the page)', () => {
 		expect(ranked).not.toContain('Undated Co');
 	});
 
+	it('anchors every row by slug so one can be linked to', async () => {
+		await post({ source: 'test', mode: 'live', companies: [{ id: 'hexcarb-advanced-materials', name: 'Hexcarb' }] });
+		expect(await page('?tier=all')).toContain('<li class="company" id="c-hexcarb-advanced-materials">');
+	});
+
+	it('only marks "no website yet" where a source actually looked', async () => {
+		await post({
+			source: 'test',
+			mode: 'live',
+			companies: [
+				{ id: 'looked', name: 'Looked At Co' },
+				{ id: 'register', name: 'Register Only Co', website_checked: false },
+			],
+		});
+
+		const html = await page('?tier=all');
+		const looked = html.slice(html.indexOf('Looked At Co'), html.indexOf('Register Only Co'));
+		expect(looked).toContain('no website yet');
+		expect(html.slice(html.indexOf('Register Only Co'))).not.toContain('no website yet');
+	});
+
+	it('lets one source that looked settle it for the others', async () => {
+		await post({ source: 'dpiit', companies: [{ id: 'shared', name: 'Shared Co', website_checked: false }] });
+		await post({ source: 'sine', companies: [{ id: 'shared', name: 'Shared Co' }] });
+
+		const row = await env.DB.prepare('SELECT website_checked FROM companies WHERE id = ?').bind('shared').first<any>();
+		expect(row.website_checked).toBe(1);
+	});
+
 	it('marks a company dated by a register rather than a founding year', async () => {
 		await post({
 			source: 'dpiit',

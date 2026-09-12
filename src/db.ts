@@ -17,6 +17,8 @@ export interface Company {
 	name: string;
 	description: string | null;
 	website: string | null;
+	/** 0 when no source that publishes websites has looked at this company. */
+	website_checked: number;
 	city: string | null;
 	state: string | null;
 	cin: string | null;

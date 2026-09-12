@@ -259,7 +259,10 @@ function chips(company: Company): string {
 	});
 
 	// Said out loud, and marked, because here it is a point in the company's favour.
-	if (!company.website) {
+	// Only where a source that publishes websites came back empty: a register that
+	// has no website field has not told us anything about whether one exists, and
+	// the page's one yellow marker has to keep meaning what it says.
+	if (!company.website && company.website_checked) {
 		items.push('<li><span class="chip positive">no website yet</span></li>');
 	}
 
@@ -274,8 +277,10 @@ function companyRow(company: Company, now: Date): string {
 	const site = safeUrl(company.website);
 	const name = site ? `<a href="${esc(site)}" rel="noopener nofollow">${esc(company.name)}</a>` : esc(company.name);
 
+	// Anchored by slug so a single row can be linked to and argued with, rather than
+	// "it is somewhere in the list under 2.6".
 	return `
-  <li class="company">
+  <li class="company" id="c-${esc(company.id)}">
     <div class="row-head">
       <span class="tier t${esc(company.tier).toLowerCase()}">${esc(tierLabel(company.tier))}</span>
       <h3>${name}</h3>

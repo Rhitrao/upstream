@@ -16,14 +16,14 @@ import traceback
 
 from ingest import classify as classifier
 from ingest import gaps as gap_labels
-from ingest.sources import grants_csv, rtbi, sine
+from ingest.sources import dpiit, grants_csv, rtbi, sine
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, upload
 
 # Order decides which source's description a shared company keeps, and the
 # grants CSV goes last on purpose: "BIG awardee, category: Diagnostics" is a
 # worse thing to classify on than whatever the incubator wrote about them.
-SOURCES = [sine, rtbi, grants_csv]
+SOURCES = [sine, rtbi, grants_csv, dpiit]
 
 
 def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], list[str]]:
