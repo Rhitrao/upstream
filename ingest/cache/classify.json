@@ -1,1 +1,202 @@
-{}
+{
+ "a3-remote-monitoring-technologies": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "db98594fcbc52e24",
+  "model": "claude-haiku-4-5",
+  "name": "A3 Remote Monitoring Technologies Pvt Ltd",
+  "note": "A3's remote cardiac monitoring technology aligns with wearable health monitoring solutions that enable continuous patient surveillance and real-time health data collection for cardio-respiratory care management.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "acuradyne-medical-systems": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "7d039bac314c5534",
+  "model": "claude-haiku-4-5",
+  "name": "Acuradyne Medical Systems Pvt Ltd",
+  "note": "Acuradyne's arterial pulse wave analyzer is a wearable cardiovascular monitoring device that fits the medical devices category focused on continuous health monitoring and cardio-respiratory care applications.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "advanced-renewable-tandem-photovoltaics-india": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "fe509dd316896bf7",
+  "model": "claude-haiku-4-5",
+  "name": "Advanced Renewable Tandem-Photovoltaics India Pvt Ltd",
+  "note": "Tandem photovoltaic technology directly advances solar cell power conversion efficiency by stacking multiple semiconductor layers to capture a broader spectrum of light, making it a core innovation in next-generation solar cells.",
+  "project_type": "Cells with higher power conversion",
+  "sector_id": "1",
+  "subsector_id": "1.3"
+ },
+ "ajivam-water": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "58cc3af2a2f5dc7a",
+  "model": "claude-haiku-4-5",
+  "name": "Ajivam Water Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "albatross-energetics": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "704d7355fa4d02b0",
+  "model": "claude-haiku-4-5",
+  "name": "Albatross Energetics Pvt Ltd",
+  "note": "Albatross Energetics develops a novel air conditioning mechanism specifically designed to reduce energy consumption and carbon footprint, which directly aligns with the high efficiency air conditioners project type under the Energy-Efficient Cooling sub-sector.",
+  "project_type": "High efficiency air conditioners",
+  "sector_id": "1",
+  "subsector_id": "1.10"
+ },
+ "algosurg-inc": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "3e2c181d24ea707a",
+  "model": "claude-haiku-4-5",
+  "name": "Algosurg Inc",
+  "note": "Algosurg's conversion of 2D X-ray images to 3D models for surgical planning directly aligns with image-guided surgical systems that enhance surgical precision and planning.",
+  "project_type": "Image-guided and robotic surgical systems",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "amyscan-healthcare": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "c733909622416e94",
+  "model": "claude-haiku-4-5",
+  "name": "Amyscan Healthcare Pvt Ltd",
+  "note": "AmyScan's development of diagnostic tests for detecting amyloid seeds in circulation represents an indigenous point-of-care diagnostic platform addressing disease detection and management.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "anyd-materials": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "66780c99d13460db",
+  "model": "claude-haiku-4-5",
+  "name": "AnyD Materials Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ },
+ "atomberg-technologies": {
+  "classified_at": "2026-09-12T10:17:57+00:00",
+  "hash": "be83fb721b70bec1",
+  "model": "claude-haiku-4-5",
+  "name": "Atomberg Technologies Pvt Ltd",
+  "note": "Atomberg's energy-efficient fan technology directly addresses the demand for high-efficiency cooling appliances that reduce electricity consumption, aligning with the subsector's focus on reducing energy use in cooling systems.",
+  "project_type": "High efficiency air conditioners",
+  "sector_id": "1",
+  "subsector_id": "1.10"
+ },
+ "aubotz-labs": {
+  "classified_at": "2026-09-12T10:17:58+00:00",
+  "hash": "c747478975a37320",
+  "model": "claude-haiku-4-5",
+  "name": "Aubotz Labs Pvt Ltd",
+  "note": "Aubotz Labs develops intelligent autonomous robots that require autonomous navigation and perception capabilities to operate independently on industrial floors without human intervention.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "subsector_id": "2.7"
+ },
+ "auflows-cardiotech": {
+  "classified_at": "2026-09-12T10:18:01+00:00",
+  "hash": "0af96309ca978656",
+  "model": "claude-haiku-4-5",
+  "name": "Auflows CardioTech Pvt Ltd",
+  "note": "Auflows' cardiovascular implantation device for congenital heart surgery is a specialized cardiac implant that directly aligns with the implants category under Medical Devices & Diagnostics.",
+  "project_type": "Implants (bone, cochlear, pacemaker), neural chip implants and wound healing materials",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "ayu-devices": {
+  "classified_at": "2026-09-12T10:18:01+00:00",
+  "hash": "aa5ba1847d6bee8d",
+  "model": "claude-haiku-4-5",
+  "name": "Ayu Devices Pvt Ltd",
+  "note": "Ayu Devices' digital stethoscope module converts analog acoustic signals into digital diagnostic data that can be processed and analyzed, aligning with AI/ML-powered diagnostic devices that enhance clinical decision-making and disease detection.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "babblebots-ai-inc-mystinaai-labs": {
+  "classified_at": "2026-09-12T10:18:01+00:00",
+  "hash": "6f9fb8360df12e72",
+  "model": "claude-haiku-4-5",
+  "name": "Babblebots.AI Inc/ MystinaAI Labs Pvt Ltd",
+  "note": "The company's AI & NLP voice bot automates recruitment screening for small and medium enterprises, directly supporting MSME operational efficiency and process automation.",
+  "project_type": "AI tools for MSME automation",
+  "sector_id": "3",
+  "subsector_id": "3.4"
+ },
+ "bhugol-gis": {
+  "classified_at": "2026-09-12T10:18:03+00:00",
+  "hash": "bc86cf114b1f8e3d",
+  "model": "claude-haiku-4-5",
+  "name": "Bhugol GIS Pvt Ltd",
+  "note": "Bhugol's GIS and image processing products directly enable remote sensing-based agricultural applications including crop monitoring, land mapping, and data analytics that form the core of smart farming systems.",
+  "project_type": "Smart farming systems leveraging IoT, AI and remote sensing",
+  "sector_id": "5",
+  "subsector_id": "5.2"
+ },
+ "botsrule": {
+  "classified_at": "2026-09-12T10:18:03+00:00",
+  "hash": "32406f1a8bc5dd54",
+  "model": "claude-haiku-4-5",
+  "name": "Botsrule Pvt Ltd",
+  "note": "Botsrule's water distribution management solution directly optimizes water delivery to agricultural systems, which aligns with precision irrigation technologies that reduce water waste and improve crop efficiency in digital agriculture.",
+  "project_type": "Precision irrigation and climate-smart input optimization technologies",
+  "sector_id": "5",
+  "subsector_id": "5.2"
+ },
+ "c-tech-labs": {
+  "classified_at": "2026-09-12T10:18:03+00:00",
+  "hash": "ddded81667252196",
+  "model": "claude-haiku-4-5",
+  "name": "C-tech Labs Pvt Ltd",
+  "note": "C-tech Labs' solar rice cookers and LED lighting systems directly address decentralized energy access for off-grid and rural applications, aligning with last-mile energy solutions for underserved communities.",
+  "project_type": "Solar home systems, micro-hydro, biomass gasification for rural areas",
+  "sector_id": "1",
+  "subsector_id": "1.9"
+ },
+ "carenx-innovations": {
+  "classified_at": "2026-09-12T10:18:03+00:00",
+  "hash": "0384a1c868d030ec",
+  "model": "claude-haiku-4-5",
+  "name": "CareNx Innovations Pvt Ltd",
+  "note": "CareNx's mobile-based prenatal monitoring solution for early risk identification aligns with wearable health monitoring technology that enables remote patient surveillance and diagnostic decision-making.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "carimo-technologies": {
+  "classified_at": "2026-09-12T10:18:03+00:00",
+  "hash": "b84e0b6739bee21c",
+  "model": "claude-haiku-4-5",
+  "name": "Carimo Technologies Pvt Ltd",
+  "note": "Carimo's CAPMAC Edge device is an AI-powered edge computing solution on microcontroller units designed for real-time monitoring and predictive maintenance in resource-constrained environments, directly aligning with the development of edge-AI hardware for low-resource deployments.",
+  "project_type": "Edge-AI hardware for deployment in low-resource and rural settings",
+  "sector_id": "3",
+  "subsector_id": "3.4"
+ },
+ "chainworks-digital": {
+  "classified_at": "2026-09-12T10:18:04+00:00",
+  "hash": "abc4602adfaea5dd",
+  "model": "claude-haiku-4-5",
+  "name": "Chainworks Digital Pvt Ltd",
+  "note": "Chainworks Digital's blockchain-based organ transplant management system functions as a platform technology for managing transplant-related medical data and logistics, which aligns most closely with platform technologies for healthcare management, though the system primarily addresses organ allocation coordination rather than infectious disease detection specifically.",
+  "project_type": "Platform technologies for infectious disease detection and management",
+  "sector_id": "4",
+  "subsector_id": "4.5"
+ },
+ "choira-musictech": {
+  "classified_at": "2026-09-12T10:18:04+00:00",
+  "hash": "15662b93f58d8c27",
+  "model": "claude-haiku-4-5",
+  "name": "Choira Musictech Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "subsector_id": null
+ }
+}

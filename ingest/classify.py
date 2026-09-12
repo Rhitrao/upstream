@@ -57,9 +57,10 @@ SECTOR_BY_ID = {s["id"]: s for s in SECTORS}
 MAX_TOKENS = 400
 WORKERS = 8
 
-# Both answers are short: an id, a project string, one sentence. Only used by
-# --estimate, and only for the half of the bill that cannot be counted up front.
-OUTPUT_TOKENS_ASSUMED = 110
+# Both answers are short: an id, a project string, one sentence. Measured at 76
+# per company over the first 20; rounded up because it is the one part of the
+# bill that cannot be counted before the call is made.
+OUTPUT_TOKENS_ASSUMED = 85
 
 
 @dataclasses.dataclass(slots=True)
@@ -358,8 +359,14 @@ def estimate(companies: list[Company]) -> str:
     sector_tokens = 0
     subsector_tokens = 0
     for company in sample:
+        # The schema goes in the count too. Its enums carry every id and project
+        # string in the sector, which is 900-odd tokens of billed input — leaving
+        # it out under-counted the first estimate of this run by 40%.
         sector_tokens += client.messages.count_tokens(
-            model=MODEL, system=SECTOR_SYSTEM, messages=[{"role": "user", "content": _sector_prompt(company)}]
+            model=MODEL,
+            system=SECTOR_SYSTEM,
+            messages=[{"role": "user", "content": _sector_prompt(company)}],
+            output_config={"format": _sector_schema()},
         ).input_tokens
         # Sector 1 is the biggest of the five (16 sub-sectors), so pricing the
         # second call against it overstates rather than surprises.
@@ -367,6 +374,7 @@ def estimate(companies: list[Company]) -> str:
             model=MODEL,
             system=SUBSECTOR_SYSTEM,
             messages=[{"role": "user", "content": _subsector_prompt(company, SECTOR_BY_ID["1"])}],
+            output_config={"format": _subsector_schema(SECTOR_BY_ID["1"])},
         ).input_tokens
 
     per_company_in = (sector_tokens + subsector_tokens) / len(sample)
