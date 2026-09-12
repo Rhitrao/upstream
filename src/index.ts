@@ -142,7 +142,14 @@ interface CompanyInput {
 	state?: string | null;
 	cin?: string | null;
 	founded_year?: number | null;
+	/** When the company began, as a source claims it. Drives the age gate. */
 	origin_year?: number | null;
+	/**
+	 * When it entered a public record — an incubation cohort, a grant award, a
+	 * recognition register. Drives first_seen. Defaults to origin_year, because for
+	 * most sources the two are the same fact; DPIIT is the case where they are not.
+	 */
+	record_year?: number | null;
 	sector_id?: string | null;
 	subsector_id?: string | null;
 	project_type?: string | null;
@@ -303,8 +310,11 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		if (!id) return json({ error: `companies[${i}].id is required` }, 400);
 		if (!name) return json({ error: `companies[${i}].name is required` }, 400);
 		// A junk year would quietly decide whether a company is old enough to hide.
-		if (c.origin_year !== undefined && c.origin_year !== null && !isPlausibleYear(int(c.origin_year), now)) {
-			return json({ error: `companies[${i}].origin_year must be a four-digit year no later than next year` }, 400);
+		for (const field of ['origin_year', 'record_year'] as const) {
+			const value = c[field];
+			if (value !== undefined && value !== null && !isPlausibleYear(int(value), now)) {
+				return json({ error: `companies[${i}].${field} must be a four-digit year no later than next year` }, 400);
+			}
 		}
 		companies.push({ ...(c as object), id, name } as CompanyInput);
 	}
@@ -432,7 +442,8 @@ async function applyIngest(
 		// row we are inserting today. On a backfill the cohort year is the best we can
 		// honestly claim; on a live run the company was not on this list last time, and
 		// today is the truthful date of that.
-		const cohort = cohortDate(int(c.origin_year));
+		// What put them on the public record, which is not always what started them.
+		const cohort = cohortDate(int(c.record_year) ?? int(c.origin_year));
 		const firstSeen = backfill ? cohort : today;
 		const basis = firstSeen === null ? null : backfill ? 'cohort' : 'discovered';
 

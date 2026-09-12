@@ -205,7 +205,16 @@ export function splitDemo(companies: Company[], now: Date): { ranked: Company[];
 	const older = dated.filter((c) => (origin(c) ?? cutoff) < cutoff);
 	const ranked = dated.filter((c) => (origin(c) ?? cutoff) >= cutoff);
 
-	return { ranked, undated, buckets: { ranked: ranked.length, older: older.length, undated: undated.length } };
+	return {
+		ranked,
+		undated,
+		buckets: {
+			ranked: ranked.length,
+			older: older.length,
+			undated: undated.length,
+			unknownAge: ranked.filter((c) => c.origin_year === null && c.founded_year === null).length,
+		},
+	};
 }
 
 /** Three invented holes, so the off-map section can be seen before real data lands. */

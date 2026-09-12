@@ -12,8 +12,12 @@
  * Part 9's list is: live website, press mention, DPIIT listing, funding
  * announcement, accelerator badge. `incorporation` and `patent` are deliberately
  * excluded: those are how we FIND a company, not evidence anyone has noticed it.
+ *
+ * A DPIIT recognition is on the list and is not incorporation: the company applied,
+ * a department assessed it, and the result is published in a register anyone can
+ * search. That is somebody having noticed.
  */
-export const TRACE_TYPES = ['website', 'press', 'grant', 'incubator'] as const;
+export const TRACE_TYPES = ['website', 'press', 'grant', 'incubator', 'dpiit'] as const;
 
 export type Tier = 'A' | 'B' | 'C';
 

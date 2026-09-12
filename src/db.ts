@@ -72,6 +72,12 @@ export interface Buckets {
 	older: number;
 	/** No date at all, from any source. */
 	undated: number;
+	/**
+	 * Ranked, but with no founding year to judge — a recognition register dates the
+	 * record without saying when the company started. Part of `ranked`, not a fourth
+	 * bucket: they are listed, they just cannot be aged.
+	 */
+	unknownAge: number;
 }
 
 export interface CoverageCell {
@@ -189,16 +195,22 @@ export async function queryBuckets(env: Env, filters: Filters, minOriginYear: nu
 SELECT
   SUM(CASE WHEN c.first_seen IS NOT NULL AND (${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?) ${ranked} THEN 1 ELSE 0 END) AS ranked,
   SUM(CASE WHEN c.first_seen IS NOT NULL AND ${ORIGIN_YEAR} < ? ${ranked} THEN 1 ELSE 0 END) AS older,
-  SUM(CASE WHEN c.first_seen IS NULL THEN 1 ELSE 0 END) AS undated
+  SUM(CASE WHEN c.first_seen IS NULL THEN 1 ELSE 0 END) AS undated,
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND ${ORIGIN_YEAR} IS NULL ${ranked} THEN 1 ELSE 0 END) AS unknown_age
 FROM companies c
 ${whereSql(clauses)}`;
 
 	const row = await env.DB.prepare(sql)
-		.bind(minOriginYear, ...tiers, minOriginYear, ...tiers, ...binds)
-		.first<{ ranked: number | null; older: number | null; undated: number | null }>();
+		.bind(minOriginYear, ...tiers, minOriginYear, ...tiers, ...tiers, ...binds)
+		.first<{ ranked: number | null; older: number | null; undated: number | null; unknown_age: number | null }>();
 
 	// SUM over no rows is NULL, not 0.
-	return { ranked: row?.ranked ?? 0, older: row?.older ?? 0, undated: row?.undated ?? 0 };
+	return {
+		ranked: row?.ranked ?? 0,
+		older: row?.older ?? 0,
+		undated: row?.undated ?? 0,
+		unknownAge: row?.unknown_age ?? 0,
+	};
 }
 
 function parseSignals(raw: unknown): Signal[] {

@@ -53,9 +53,14 @@ class Company:
     really was found today). A scraper that sent its own date would hand every
     backfilled company a discovery it never had.
 
-    `origin_year` is the one date fact a scraper does carry: the year the source says
-    the company was incubated or founded. Year precision only, because that is all any
-    of these pages publish.
+    Two date facts, and they are not the same one. `origin_year` is the year the
+    source says the company began — incubated or founded — and it is what the age
+    gate reads. `record_year` is the year it entered a public record. For an
+    incubator cohort or a grant award those coincide and a scraper sets only
+    origin_year; a recognition register publishes the second and not the first,
+    and saying so is the whole point of having two fields.
+
+    Year precision only, because that is all any of these pages publish.
     """
 
     id: str
@@ -67,6 +72,7 @@ class Company:
     cin: str | None = None
     founded_year: int | None = None
     origin_year: int | None = None
+    record_year: int | None = None
     sector_id: str | None = None
     subsector_id: str | None = None
     project_type: str | None = None
@@ -190,8 +196,11 @@ def preview(companies: list[Company], signals: list[Signal], limit: int = 5) -> 
     lines = [f"{len(companies)} companies, {len(signals)} signals"]
     missing = sum(1 for c in companies if not c.website)
     lines.append(f"{missing} without a website, {sum(1 for c in companies if not c.description)} without a description")
-    undated = sum(1 for c in companies if c.origin_year is None)
-    lines.append(f"{undated} with no year, which the page lists as undated rather than ranking")
+    undated = sum(1 for c in companies if c.origin_year is None and c.record_year is None)
+    lines.append(f"{undated} with no year at all, which the page lists as undated rather than ranking")
+    no_age = sum(1 for c in companies if c.origin_year is None and c.record_year is not None)
+    if no_age:
+        lines.append(f"{no_age} on record but with no founding year, so the age gate cannot judge them")
     for company in companies[:limit]:
         lines.append(f"\n  {company.id}\n    {company.name}")
         if company.website:

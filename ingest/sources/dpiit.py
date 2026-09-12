@@ -23,7 +23,7 @@ final few pages of each deep-tech industry and leave the other 470,000 alone.
 What the endpoint does NOT give: no incorporation date, no description, no
 website. Only the name, where they are, their industry and sector, and how far
 along they say they are. `registeredOn` is the DPIIT recognition date, not the
-date the company was founded — see _origin_year.
+date the company was founded — see _record_year.
 
     python3 -m ingest.sources.dpiit
 """
@@ -107,7 +107,10 @@ def _company(record: dict, industry: str) -> Company | None:
         description=_description(record, industry),
         city=clean(record.get("city")),
         state=clean(record.get("state")),
-        origin_year=_origin_year(record),
+        # record_year, never origin_year. The register says when it recognised the
+        # company, not when the company started, and writing a recognition year
+        # into the founding field is the exact lie this split exists to prevent.
+        record_year=_record_year(record),
     )
 
 
@@ -132,19 +135,21 @@ def _description(record: dict, industry: str) -> str:
 
 def _label(record: dict) -> str:
     number = clean(record.get("dippNumber"))
-    year = _origin_year(record)
+    year = _record_year(record)
     recognised = f"DPIIT recognised {year}" if year else "DPIIT recognised"
     return f"{recognised} ({number})" if number else recognised
 
 
-def _origin_year(record: dict) -> int | None:
-    """The year DPIIT recognised them.
+def _record_year(record: dict) -> int | None:
+    """The year DPIIT recognised them, which dates the record and nothing else.
 
-    NOT the incorporation year: the register does not publish one through this
-    endpoint. Recognition requires incorporation within the previous ten years,
-    so this is an upper bound that can be up to a decade late — the only date
-    here that errs towards making a company look younger than it is. The upsert
-    keeps whichever year is earliest, so any source that knows better wins.
+    Checked three ways before settling for it: the search endpoint publishes 30
+    fields and no incorporation date, the CIN lookup wants a CIN this endpoint
+    never gives, and the profile page asks you to log in. So there is no founding
+    year for these companies anywhere public, and the page says so rather than
+    letting a recognition year stand in for one — recognition only requires
+    incorporation within the previous ten years, so a company founded in 2019 and
+    recognised last week would otherwise read as brand new.
     """
     stamp = record.get("registeredOn")
     if not isinstance(stamp, (int, float)) or stamp <= 0:

@@ -284,9 +284,23 @@ describe('POST /upstream/api/ingest', () => {
 		expect((await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('found').first<any>()).tier).toBe('B');
 	});
 
-	it('rejects a nonsense mode or origin_year', async () => {
+	it('counts a DPIIT listing as a trace', async () => {
+		await post({
+			source: 'dpiit',
+			mode: 'live',
+			companies: [{ id: 'quiet', name: 'Quiet Co' }],
+			signals: [{ company_id: 'quiet', type: 'dpiit', label: 'DPIIT recognised 2026 (DIPP280898)' }],
+		});
+
+		// A register entry is somebody having noticed — BUILD Part 9 lists it.
+		const row = await env.DB.prepare('SELECT trace_count, tier FROM companies WHERE id = ?').bind('quiet').first<any>();
+		expect(row).toMatchObject({ trace_count: 1, tier: 'A' });
+	});
+
+	it('rejects a nonsense mode or year', async () => {
 		expect((await post({ source: 'test', mode: 'sideways', companies: [] })).status).toBe(400);
 		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: 12 }] })).status).toBe(400);
+		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', record_year: 12 }] })).status).toBe(400);
 		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: THIS_YEAR + 5 }] })).status).toBe(400);
 		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: 'soon' }] })).status).toBe(400);
 	});
@@ -464,6 +478,43 @@ describe('GET /upstream (the page)', () => {
 		const ranked = html.slice(html.indexOf('id="list"'), html.indexOf('id="undated"'));
 		expect(ranked).toContain('Found Co');
 		expect(ranked).not.toContain('Undated Co');
+	});
+
+	it('marks a company dated by a register rather than a founding year', async () => {
+		await post({
+			source: 'dpiit',
+			companies: [
+				// A register knows when it recognised them, not when they started.
+				{ id: 'registered', name: 'Registered Co', record_year: THIS_YEAR },
+				{ id: 'founded', name: 'Founded Co', origin_year: THIS_YEAR },
+			],
+		});
+
+		const rows = await env.DB.prepare('SELECT id, first_seen, origin_year FROM companies ORDER BY id').all<any>();
+		expect(rows.results).toEqual([
+			// Both dated; only one claims to know when the company began.
+			{ id: 'founded', first_seen: `${THIS_YEAR}-01-01`, origin_year: THIS_YEAR },
+			{ id: 'registered', first_seen: `${THIS_YEAR}-01-01`, origin_year: null },
+		]);
+
+		const html = await page('?tier=all');
+		expect(html).toContain('founding year unknown');
+		expect(html).toContain('dated by a public register rather than by a');
+		// The one with a founding year is listed without the caveat.
+		const founded = html.slice(html.indexOf('Founded Co'), html.indexOf('Founded Co') + 400);
+		expect(founded).not.toContain('founding year unknown');
+	});
+
+	it('does not let a register date stand in for a founding year at the gate', async () => {
+		await post({
+			source: 'dpiit',
+			companies: [{ id: 'registered', name: 'Registered Co', record_year: THIS_YEAR }],
+		});
+
+		// Unknown age is not old age: it stays listed, exactly as an undated company
+		// stays visible, and the page carries the caveat instead.
+		expect(await page('?tier=all')).toContain('Registered Co');
+		expect(await page('?tier=all')).not.toContain('started more than 5 years ago');
 	});
 
 	it('holds back companies that started more than five years ago, and says so', async () => {

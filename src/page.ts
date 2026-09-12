@@ -92,11 +92,20 @@ function ago(firstSeen: string, now: Date): string {
  */
 function dateLine(company: Company, now: Date): string | null {
 	if (company.first_seen === null) return null;
-	if (company.first_seen_basis === 'cohort') {
-		const year = company.origin_year ?? company.first_seen.slice(0, 4);
-		return `on public record from ${year}`;
-	}
-	return ago(company.first_seen, now);
+
+	const said =
+		company.first_seen_basis === 'cohort'
+			? `on public record from ${esc(company.origin_year ?? company.first_seen.slice(0, 4))}`
+			: esc(ago(company.first_seen, now));
+
+	// A register can date the record without saying when the company started, and a
+	// row in that state has to say so: otherwise the date reads as a founding year,
+	// which is how a 2019 company recognised last week comes to look brand new.
+	return ageKnown(company) ? said : `${said} &middot; founding year unknown`;
+}
+
+function ageKnown(company: Company): boolean {
+	return company.origin_year !== null || company.founded_year !== null;
 }
 
 function tierLabel(tier: Tier): string {
@@ -275,7 +284,7 @@ function companyRow(company: Company, now: Date): string {
     ${company.description ? `<p class="desc">${esc(company.description)}</p>` : ''}
     ${rdi}
     ${chips(company)}
-    ${dateLine(company, now) ? `<p class="seen">${esc(dateLine(company, now))}</p>` : ''}
+    ${dateLine(company, now) ? `<p class="seen">${dateLine(company, now)}</p>` : ''}
   </li>`;
 }
 
@@ -315,6 +324,22 @@ function backfillNote(view: PageView): string {
     &mdash; those fill in from the first live run onward.</p>`;
 }
 
+/**
+ * The companies the age gate cannot judge, counted where the gate is described.
+ *
+ * They are in the list rather than held back, on the same rule as an undated
+ * company: "we do not know" is not "it is old". But the gate is the page's claim
+ * to be showing recent companies, and it is not making that claim about these.
+ */
+function unknownAge(view: PageView): string {
+	const n = view.buckets.unknownAge;
+	if (n === 0) return '';
+
+	return `<p class="note">${n} of these ${n === 1 ? 'is dated' : 'are dated'} by a public register rather than by a
+    founding year &mdash; DPIIT publishes when it recognised a company, not when the company started. The
+    ${MAX_AGE_YEARS}-year filter cannot be applied to ${n === 1 ? 'it' : 'them'}, and ${n === 1 ? 'its row says' : 'their rows say'} so.</p>`;
+}
+
 /** Said only when the limit actually bit, so the count above stays trustworthy. */
 function truncated(shown: number, total: number): string {
 	return shown < total ? `<p class="note">Showing the first ${shown}.</p>` : '';
@@ -344,6 +369,7 @@ function list(view: PageView): string {
   ${banner}
   ${backfillNote(view)}
   ${heldBack(view)}
+  ${unknownAge(view)}
   ${truncated(companies.length, listed(view))}
   <ol class="companies">
 ${companies.map((company) => companyRow(company, now)).join('\n')}

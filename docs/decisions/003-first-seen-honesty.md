@@ -15,6 +15,11 @@ apart, so they are now four columns:
 | `discovered` | the day the row entered this database | insert only |
 | `origin_year` | the year a source says it was incubated or founded | any run, earliest wins |
 
+A fourth input, `record_year`, is accepted on ingest but not stored: it is the year
+a company entered a public record, and it drives `first_seen` when it differs from
+`origin_year`. For an incubator cohort or a grant award the two are the same fact
+and a scraper sets only `origin_year`. DPIIT is where they come apart — see below.
+
 The rule that matters: **a source's first day is a backfill.** Nothing in it was
 discovered by us, so nothing in it gets today's date. Those rows take the published
 cohort year (floored to 1 January) with basis `cohort`, or no date at all where the
@@ -67,6 +72,29 @@ Flooring a cohort year to 1 January is a deliberate error of up to twelve months
 the safe direction: it makes a company look older than it is, never newer. It cannot
 manufacture a Tier A, and it drops a company out of the age gate slightly early rather
 than slightly late.
+
+## The third state: dated, but ageless
+
+DPIIT's recognition register publishes when it recognised a company and, anywhere
+public, nothing about when the company was founded. We checked three ways: the
+search endpoint returns thirty fields and no incorporation date, the CIN lookup
+wants a CIN that endpoint never gives, and the profile page asks you to log in.
+
+Recognition only requires incorporation within the previous ten years, so a company
+founded in 2019 and recognised last week would read as brand new if the recognition
+year were written into `origin_year`. So it is not: those rows carry `record_year`
+instead, which dates `first_seen` and leaves `origin_year` null.
+
+That produces a state the page did not have — **dated for first_seen, undated for
+age** — and the page says so rather than hiding it:
+
+- the row's date line reads "on public record from 2026 · founding year unknown";
+- the list carries a count: "N of these are dated by a public register rather than
+  by a founding year — the five-year filter cannot be applied to them".
+
+They stay in the list rather than being held back, on the same rule that keeps
+undated companies visible: "we do not know" is not "it is old". What changes is that
+the page stops claiming the age gate covers them, because it does not.
 
 ## What would change our mind
 
