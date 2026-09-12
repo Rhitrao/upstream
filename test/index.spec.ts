@@ -236,3 +236,80 @@ describe('GET /upstream/api/companies', () => {
 		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=Z`)).status).toBe(400);
 	});
 });
+
+describe('GET /upstream (the page)', () => {
+	async function page(qs = '') {
+		const res = await SELF.fetch(`${ORIGIN}/upstream${qs}`);
+		expect(res.status).toBe(200);
+		return res.text();
+	}
+
+	it('renders 44 coverage cells, all empty, on an empty database', async () => {
+		const html = await page();
+		const cells = html.match(/class="cell [^"]*"/g) ?? [];
+		expect(cells).toHaveLength(44);
+		expect(cells.every((c) => c.includes('empty'))).toBe(true);
+		expect(html).toContain('Sub-sectors covered');
+		expect(html).toContain('>0<span class="of">/44</span>');
+	});
+
+	it('fills a cell once a company lands in it, and keeps the other 43', async () => {
+		await post({
+			source: 'test',
+			companies: [{ id: 'verve', name: 'Verve', sector_id: '2', subsector_id: '2.5' }],
+		});
+		const html = await page();
+		const cells = html.match(/class="cell [^"]*"/g) ?? [];
+		expect(cells).toHaveLength(44);
+		expect(cells.filter((c) => c.includes('filled'))).toHaveLength(1);
+	});
+
+	it('shows five sample companies behind a banner for ?demo=1 only', async () => {
+		const plain = await page();
+		expect(plain).not.toContain('Sample data');
+		expect(plain).toContain('Nothing matches yet');
+
+		const demo = await page('?demo=1');
+		expect(demo).toContain('Sample data');
+		expect(demo.match(/<li class="company">/g)).toHaveLength(5);
+		expect(demo).toContain('Verve Aerospace Private Limited');
+		// The four-word lesson in how the ranking works.
+		expect(demo).toContain('no website yet');
+		expect(demo).toContain('RDI 2.5 &mdash; Space Technologies');
+	});
+
+	it('defaults the tier toggle to A+B and honours the other choices', async () => {
+		expect(await page()).toContain('<label class="seg on" title="The default view">');
+		expect(await page('?tier=a')).toContain('<label class="seg on" title="New and quiet">');
+		expect(await page('?tier=all')).toContain('<label class="seg on" title="Including known territory">');
+	});
+
+	it('applies the tier toggle to the list', async () => {
+		const today = new Date().toISOString().slice(0, 10);
+		await post({
+			source: 'test',
+			companies: [
+				{ id: 'new-quiet', name: 'New Quiet', first_seen: today },
+				{ id: 'old-known', name: 'Old Known', first_seen: '2019-01-01' },
+			],
+		});
+
+		expect(await page('?tier=a')).not.toContain('Old Known');
+		expect(await page('?tier=all')).toContain('Old Known');
+	});
+
+	it('escapes scraped text and refuses a javascript: url', async () => {
+		await post({
+			source: 'test',
+			companies: [{ id: 'xss', name: '<script>alert(1)</script>', website: 'javascript:alert(1)' }],
+			signals: [{ company_id: 'xss', type: 'press', label: 'click "me"', url: 'javascript:alert(2)' }],
+		});
+
+		const html = await page('?tier=all');
+		expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+		expect(html).not.toContain('<script>alert(1)</script>');
+		expect(html).not.toContain('javascript:');
+		// Nothing to link to, so the chip stays plain text.
+		expect(html).toContain('<span class="chip">click &quot;me&quot;</span>');
+	});
+});

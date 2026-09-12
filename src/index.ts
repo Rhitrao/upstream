@@ -10,8 +10,10 @@
  *   GET  /upstream/api/coverage     company count per sub-sector, for the coverage map
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
-import { SUNRISE_SECTORS, SUNRISE_SUBSECTOR_IDS } from './taxonomy';
 import { TRACE_TYPES, TIERS, tierFor, type Tier } from './rank';
+import { queryAddedSince, queryCompanies, queryCoverage } from './db';
+import { renderPage, type TierChoice } from './page';
+import { demoCompanies } from './demo';
 
 const BASE = '/upstream';
 
@@ -60,128 +62,59 @@ function isoDate(now: Date): string {
 	return now.toISOString().slice(0, 10);
 }
 
+// --- shared filter parsing --------------------------------------------------
+
+/** The page's toggle (A / A+B / all) and the API's single-tier filter, in one place. */
+const TIER_SETS: Record<TierChoice, Tier[] | null> = {
+	a: ['A'],
+	ab: ['A', 'B'],
+	all: null,
+};
+
+function parseTierChoice(raw: string | null): TierChoice {
+	if (raw === 'a' || raw === 'all') return raw;
+	return 'ab';
+}
+
+function parseLimit(raw: string | null): number | null {
+	if (raw === null || raw === '') return DEFAULT_LIMIT;
+	const parsed = Number(raw);
+	if (!Number.isInteger(parsed) || parsed < 1) return null;
+	return Math.min(parsed, MAX_LIMIT);
+}
+
 // --- GET /upstream/api/companies -------------------------------------------
 
-/**
- * One row per company with its signals attached as JSON, tier first and newest first
- * inside a tier. The `?n IS NULL OR ...` filters let one statement serve every
- * combination of filters.
- */
-const LIST_SQL = `
-SELECT c.*,
-  (SELECT json_group_array(json_object(
-      'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date))
-   FROM signals s WHERE s.company_id = c.id) AS signals
-FROM companies c
-WHERE (?1 IS NULL OR c.sector_id = ?1)
-  AND (?2 IS NULL OR c.subsector_id = ?2)
-  AND (?3 IS NULL OR c.tier = ?3)
-ORDER BY
-  CASE c.tier WHEN 'A' THEN 0 WHEN 'B' THEN 1 ELSE 2 END,
-  c.first_seen DESC
-LIMIT ?4`;
-
-async function listCompanies(url: URL, env: Env): Promise<Response> {
-	const sector = url.searchParams.get('sector');
-	const subsector = url.searchParams.get('subsector');
+async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 	const tierParam = url.searchParams.get('tier');
-	const limitParam = url.searchParams.get('limit');
 
-	let tier: string | null = null;
+	let tiers: Tier[] | null = null;
 	if (tierParam !== null && tierParam !== '' && tierParam !== 'all') {
-		tier = tierParam.toUpperCase();
+		const tier = tierParam.toUpperCase();
 		if (!TIERS.includes(tier as Tier)) {
 			return json({ error: `tier must be one of ${TIERS.join(', ')}, or all` }, 400);
 		}
+		tiers = [tier as Tier];
 	}
 
-	let limit = DEFAULT_LIMIT;
-	if (limitParam !== null && limitParam !== '') {
-		const parsed = Number(limitParam);
-		if (!Number.isInteger(parsed) || parsed < 1) {
-			return json({ error: 'limit must be a positive integer' }, 400);
-		}
-		limit = Math.min(parsed, MAX_LIMIT);
-	}
+	const limit = parseLimit(url.searchParams.get('limit'));
+	if (limit === null) return json({ error: 'limit must be a positive integer' }, 400);
 
-	const { results } = await env.DB.prepare(LIST_SQL)
-		.bind(sector || null, subsector || null, tier, limit)
-		.all<Record<string, unknown>>();
-
-	const companies = results.map((row) => ({
-		...row,
-		signals: parseSignals(row.signals),
-	}));
+	const companies = await queryCompanies(env, {
+		sector: url.searchParams.get('sector') || null,
+		subsector: url.searchParams.get('subsector') || null,
+		tiers,
+		limit,
+	});
 
 	return json({ count: companies.length, limit, companies }, 200, PUBLIC_CACHE);
 }
 
-function parseSignals(raw: unknown): unknown[] {
-	if (typeof raw !== 'string') return [];
-	try {
-		const parsed = JSON.parse(raw);
-		return Array.isArray(parsed) ? parsed : [];
-	} catch {
-		return [];
-	}
-}
-
 // --- GET /upstream/api/coverage --------------------------------------------
 
-/**
- * The counts come from the companies table, but the LIST of sub-sectors comes from the
- * taxonomy — all 44, including the empty ones. Grouping the table alone would make
- * empty sub-sectors vanish and the map would be a lie.
- */
-async function coverage(env: Env): Promise<Response> {
-	const { results } = await env.DB.prepare('SELECT subsector_id, COUNT(*) AS n FROM companies GROUP BY subsector_id').all<{
-		subsector_id: string | null;
-		n: number;
-	}>();
-
-	const counts = new Map<string, number>();
-	let totalCompanies = 0;
-	let offMap = 0;
-	let unclassified = 0;
-
-	for (const row of results) {
-		totalCompanies += row.n;
-		if (row.subsector_id === null || row.subsector_id === '') {
-			unclassified += row.n;
-			offMap += row.n;
-		} else if (SUNRISE_SUBSECTOR_IDS.has(row.subsector_id)) {
-			counts.set(row.subsector_id, row.n);
-		} else {
-			// Sector 6 catch-alls, or an id the taxonomy no longer has.
-			offMap += row.n;
-		}
-	}
-
-	let covered = 0;
-	const sectors = SUNRISE_SECTORS.map((group) => ({
-		sector_id: group.sector_id,
-		sector: group.sector,
-		sector_name: group.sector_name,
-		subsectors: group.subsectors.map((sub) => {
-			const n = counts.get(sub.subsector_id) ?? 0;
-			if (n > 0) covered += 1;
-			return { subsector_id: sub.subsector_id, subsector: sub.subsector, n };
-		}),
-	}));
-
-	return json(
-		{
-			subsector_count: SUNRISE_SUBSECTOR_IDS.size,
-			covered,
-			total_companies: totalCompanies,
-			off_map: offMap,
-			unclassified,
-			generated_at: new Date().toISOString(),
-			sectors,
-		},
-		200,
-		PUBLIC_CACHE,
-	);
+async function coverageApi(env: Env): Promise<Response> {
+	const coverage = await queryCoverage(env);
+	return json({ ...coverage, generated_at: new Date().toISOString() }, 200, PUBLIC_CACHE);
 }
 
 // --- POST /upstream/api/ingest ---------------------------------------------
@@ -457,24 +390,36 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 
 // --- GET /upstream ----------------------------------------------------------
 
-/** Placeholder. The real page — coverage map, filters, list — is Part 7. */
-function page(): Response {
-	const body = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upstream</title>
-</head>
-<body>
-<h1>Upstream</h1>
-<p>Early-stage Indian companies in the RDI scheme's sunrise sectors, found from public traces.</p>
-<p>The page is Part 7. The API is live:
-<a href="${BASE}/api/companies">/api/companies</a> ·
-<a href="${BASE}/api/coverage">/api/coverage</a></p>
-</body>
-</html>`;
-	return new Response(body, {
+async function page(url: URL, env: Env): Promise<Response> {
+	const now = new Date();
+	const tier = parseTierChoice(url.searchParams.get('tier'));
+	const sector = url.searchParams.get('sector') || null;
+	const subsector = url.searchParams.get('subsector') || null;
+
+	// Five invented companies, so the row design can be checked before real data lands
+	// (CHECKPOINT 7). Never shown unless explicitly asked for, and always behind a banner.
+	const demo = url.searchParams.get('demo') === '1';
+
+	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
+	const [coverage, companies, addedThisWeek] = await Promise.all([
+		queryCoverage(env),
+		demo ? Promise.resolve(demoCompanies()) : queryCompanies(env, { sector, subsector, tiers: TIER_SETS[tier], limit: DEFAULT_LIMIT }),
+		queryAddedSince(env, weekAgo),
+	]);
+
+	const html = renderPage({
+		coverage,
+		companies,
+		tracked: coverage.total_companies,
+		addedThisWeek,
+		sector,
+		subsector,
+		tier,
+		demo,
+		now,
+	});
+
+	return new Response(html, {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
@@ -494,13 +439,13 @@ export default {
 
 		switch (path) {
 			case BASE:
-				return isRead ? page() : methodNotAllowed('GET, HEAD');
+				return isRead ? page(url, env) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/companies`:
-				return isRead ? listCompanies(url, env) : methodNotAllowed('GET, HEAD');
+				return isRead ? listCompaniesApi(url, env) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/coverage`:
-				return isRead ? coverage(env) : methodNotAllowed('GET, HEAD');
+				return isRead ? coverageApi(env) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/ingest`:
 				return request.method === 'POST' ? ingest(request, env) : methodNotAllowed('POST');

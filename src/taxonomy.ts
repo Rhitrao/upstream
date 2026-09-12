@@ -59,3 +59,6 @@ export const SUNRISE_SECTORS: SectorGroup[] = SECTOR_GROUPS.filter((group) => gr
 export const SUNRISE_SUBSECTORS: Subsector[] = SUNRISE_SECTORS.flatMap((g) => g.subsectors);
 
 export const SUNRISE_SUBSECTOR_IDS: ReadonlySet<string> = new Set(SUNRISE_SUBSECTORS.map((sub) => sub.subsector_id));
+
+/** Sub-sector by id, for rendering "RDI 2.5 — Space Technologies" on a company row. */
+export const SUBSECTOR_BY_ID: ReadonlyMap<string, Subsector> = new Map(SUBSECTORS.map((sub) => [sub.subsector_id, sub]));
