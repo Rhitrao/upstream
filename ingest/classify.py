@@ -46,7 +46,7 @@ PRICE_OUT = 5.00
 
 # Bump when a prompt changes: it is part of the cache key, so a reworded prompt
 # re-classifies rather than silently mixing old answers with new ones.
-PROMPT_VERSION = 1
+PROMPT_VERSION = 2
 
 CACHE_PATH = pathlib.Path(__file__).parent / "cache" / "classify.json"
 OVERRIDES_PATH = pathlib.Path(__file__).parent / "overrides.json"
@@ -65,7 +65,12 @@ OUTPUT_TOKENS_ASSUMED = 85
 
 @dataclasses.dataclass(slots=True)
 class Classification:
-    """What we decided about one company, and why."""
+    """What we decided about one company, and why.
+
+    Two ways to come back unplaced, and the difference is worth keeping: no
+    sector fits at all, or a sector fits but none of its sub-sectors do. Both
+    stay off the map; only the second tells you the taxonomy has a hole in it.
+    """
 
     sector_id: str | None
     subsector_id: str | None = None
@@ -132,7 +137,12 @@ government's Research, Development and Innovation scheme taxonomy.
 
 The sector is already decided. Pick the sub-sector within it that best matches the company's \
 work, then the single closest project type from the ones listed under that sub-sector, and \
-give a one-sentence reason a reader could check against the description."""
+give a one-sentence reason a reader could check against the description.
+
+If none of these sub-sectors actually covers what the company does, answer "none" for both \
+and say what is missing. Stretching a company into the nearest sub-sector puts a wrong tag \
+on a map that is supposed to show where we have looked — "none" is the better answer, and \
+the sector being right does not oblige you to find a sub-sector that is not."""
 
 
 def _subsector_prompt(company: Company, sector: dict) -> str:
@@ -140,7 +150,7 @@ def _subsector_prompt(company: Company, sector: dict) -> str:
     for sub in sector["subsectors"]:
         lines.append(f"  {sub['id']} — {sub['name']}")
         lines += [f"      · {project}" for project in sub["projects"]]
-    lines += ["", "Which sub-sector, which project type, and why?"]
+    lines += ["", 'Which sub-sector, which project type, and why? Or "none" for both.']
     return "\n".join(lines)
 
 
@@ -166,8 +176,8 @@ def _subsector_schema(sector: dict) -> dict:
         "schema": {
             "type": "object",
             "properties": {
-                "subsector_id": {"type": "string", "enum": [sub["id"] for sub in sector["subsectors"]]},
-                "project_type": {"type": "string", "enum": projects},
+                "subsector_id": {"type": "string", "enum": [sub["id"] for sub in sector["subsectors"]] + ["none"]},
+                "project_type": {"type": "string", "enum": projects + ["none"]},
                 "reason": {"type": "string"},
             },
             "required": ["subsector_id", "project_type", "reason"],
@@ -200,6 +210,12 @@ def _classify_one(client: anthropic.Anthropic, company: Company, usage: Usage, l
 
     sector = SECTOR_BY_ID[chosen]
     answer = _ask(client, SUBSECTOR_SYSTEM, _subsector_prompt(company, sector), _subsector_schema(sector), usage, lock)
+
+    if answer["subsector_id"] == "none":
+        # The sector was right and nothing under it fits. Keep the sector and the
+        # reason: unplaced for want of a sub-sector is a fact about the taxonomy,
+        # and it is the only way that hole ever gets noticed.
+        return Classification(sector_id=sector["id"], note=clean(answer["reason"]))
 
     subsector = next(sub for sub in sector["subsectors"] if sub["id"] == answer["subsector_id"])
     project = answer["project_type"]
@@ -405,7 +421,9 @@ def table(companies: list[Company], results: dict[str, Classification]) -> str:
                 company.name[:38],
                 description[:60] + ("…" if len(description) > 60 else ""),
                 f"{result.sector_id} {sectors.get(result.sector_id, '')}" if result.sector_id else "— dropped",
-                f"{result.subsector_id} {names.get(result.subsector_id, '')}" if result.subsector_id else "",
+                f"{result.subsector_id} {names.get(result.subsector_id, '')}"
+                if result.subsector_id
+                else ("— dropped, no sub-sector fits" if result.sector_id else ""),
             )
         )
 
@@ -446,7 +464,12 @@ if __name__ == "__main__":
     else:
         results, usage = classify(companies, force=args.force)
         on_map = sum(1 for r in results.values() if r.on_map)
-        print(f"{len(results)} companies: {on_map} placed, {len(results) - on_map} dropped as none")
+        no_sector = sum(1 for r in results.values() if r.sector_id is None)
+        no_subsector = len(results) - on_map - no_sector
+        print(
+            f"{len(results)} companies: {on_map} placed, "
+            f"{no_sector} dropped — no sector, {no_subsector} dropped — sector but no sub-sector"
+        )
         print(usage)
         if args.table:
             print()
