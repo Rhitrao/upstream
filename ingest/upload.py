@@ -14,6 +14,7 @@ swallows an upload error leaves a page that looks fine and is stale.
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import os
 import pathlib
@@ -47,21 +48,30 @@ def ingest_key() -> str:
     raise UploadError("no INGEST_KEY in the environment or .dev.vars")
 
 
-def batches(companies: list[Company], signals: list[Signal], size: int = BATCH):
-    """Companies in slices of `size`, each carrying its own signals."""
+def batches(companies: list[Company], signals: list[Signal], gaps: list[dict], size: int = BATCH):
+    """Companies in slices of `size`, each carrying its own signals.
+
+    Gaps ride along in slices of their own: they are keyed by company id and
+    reference nothing, so they do not have to travel with anything. Where one
+    list runs out first the other keeps going, which is the normal case — a run
+    has far more gaps than it has batches of companies, or the reverse.
+    """
     by_company: dict[str, list[Signal]] = {}
     for signal in signals:
         by_company.setdefault(signal.company_id, []).append(signal)
 
-    for start in range(0, len(companies), size):
-        chunk = companies[start : start + size]
-        yield chunk, [s for c in chunk for s in by_company.get(c.id, [])]
+    company_chunks = [companies[i : i + size] for i in range(0, len(companies), size)] or [[]]
+    gap_chunks = [gaps[i : i + size] for i in range(0, len(gaps), size)] or [[]]
+
+    for chunk, gap_chunk in itertools.zip_longest(company_chunks, gap_chunks, fillvalue=[]):
+        yield chunk, [s for c in chunk for s in by_company.get(c.id, [])], gap_chunk
 
 
 def upload(
     source: str,
     companies: list[Company],
     signals: list[Signal],
+    gaps: list[dict] | None = None,
     *,
     base_url: str = PRODUCTION,
     key: str | None = None,
@@ -73,8 +83,13 @@ def upload(
     headers = {"content-type": "application/json", "X-Ingest-Key": key or ingest_key()}
     results = []
 
-    for chunk, chunk_signals in batches(companies, signals, size):
-        body = {"source": source, "companies": [payload(c) for c in chunk], "signals": [payload(s) for s in chunk_signals]}
+    for chunk, chunk_signals, chunk_gaps in batches(companies, signals, gaps or [], size):
+        body = {
+            "source": source,
+            "companies": [payload(c) for c in chunk],
+            "signals": [payload(s) for s in chunk_signals],
+            "gaps": chunk_gaps,
+        }
         # The Worker decides whether a run is a backfill by looking at what this
         # source has done before, and it is chunk-aware; mode is here for the
         # case that inference cannot cover, which is re-seeding a wiped history.
@@ -87,7 +102,7 @@ def upload(
 
         result = response.json()
         results.append(result)
-        print(f"  {source}: {len(chunk)} companies, {len(chunk_signals)} signals -> {result}")
+        print(f"  {source}: {len(chunk)} companies, {len(chunk_signals)} signals, {len(chunk_gaps)} gaps -> {result}")
 
     return results
 
@@ -104,6 +119,7 @@ if __name__ == "__main__":
         data["source"],
         [Company(**c) for c in data.get("companies", [])],
         [Signal(**s) for s in data.get("signals", [])],
+        data.get("gaps", []),
         base_url=args.base_url,
         mode=args.mode,
     )

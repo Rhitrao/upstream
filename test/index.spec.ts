@@ -8,7 +8,12 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const THIS_YEAR = new Date().getUTCFullYear();
 
 async function clearDb() {
-	await env.DB.batch([env.DB.prepare('DELETE FROM signals'), env.DB.prepare('DELETE FROM companies'), env.DB.prepare('DELETE FROM runs')]);
+	await env.DB.batch([
+		env.DB.prepare('DELETE FROM signals'),
+		env.DB.prepare('DELETE FROM companies'),
+		env.DB.prepare('DELETE FROM runs'),
+		env.DB.prepare('DELETE FROM gaps'),
+	]);
 }
 
 function post(body: unknown, key: string | null = KEY) {
@@ -348,6 +353,57 @@ describe('GET /upstream/api/companies', () => {
 	});
 });
 
+describe('gaps — companies the taxonomy has no cell for', () => {
+	const gap = (id: string, missing: string) => ({
+		company_id: id,
+		name: `${id} Ltd`,
+		missing,
+		note: `Nothing under the chosen sector covers ${id}.`,
+		sector_id: '5',
+	});
+
+	it('records them, groups them commonest first, and keeps a few names', async () => {
+		const res = await post({
+			source: 'test',
+			gaps: [gap('botsrule', 'water infrastructure'), gap('ajivam', 'water infrastructure'), gap('bhugol', 'geospatial services')],
+		});
+		expect(await res.json()).toMatchObject({ gaps_recorded: 3 });
+
+		const body = await (await SELF.fetch(`${ORIGIN}/upstream/api/gaps`)).json<any>();
+		expect(body.total).toBe(3);
+		expect(body.groups.map((g: any) => [g.missing, g.n])).toEqual([
+			['water infrastructure', 2],
+			['geospatial services', 1],
+		]);
+		expect(body.groups[0].examples).toHaveLength(2);
+	});
+
+	it('stops being a gap the moment the company arrives as a real row', async () => {
+		await post({ source: 'test', gaps: [gap('botsrule', 'water infrastructure')] });
+		expect((await (await SELF.fetch(`${ORIGIN}/upstream/api/gaps`)).json<any>()).total).toBe(1);
+
+		// A taxonomy that gets fixed must not leave its old holes on the page.
+		await post({ source: 'test', companies: [{ id: 'botsrule', name: 'Botsrule Ltd', sector_id: '5', subsector_id: '5.1' }] });
+		expect((await (await SELF.fetch(`${ORIGIN}/upstream/api/gaps`)).json<any>()).total).toBe(0);
+	});
+
+	it('refuses a gap with no reason attached', async () => {
+		const bad = { company_id: 'x', name: 'X Ltd', missing: 'water infrastructure' };
+		expect((await post({ source: 'test', gaps: [bad] })).status).toBe(400);
+		expect((await post({ source: 'test', gaps: [{ ...bad, note: 'because' }, { name: 'no id' }] })).status).toBe(400);
+		expect((await post({ source: 'test', gaps: 'not an array' })).status).toBe(400);
+	});
+
+	it('keeps them out of the companies table and the coverage map', async () => {
+		await post({ source: 'test', gaps: [gap('botsrule', 'water infrastructure')] });
+
+		const coverage = await (await SELF.fetch(`${ORIGIN}/upstream/api/coverage`)).json<any>();
+		expect(coverage.total_companies).toBe(0);
+		const list = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all`)).json<any>();
+		expect(list.count).toBe(0);
+	});
+});
+
 describe('GET /upstream (the page)', () => {
 	async function page(qs = '') {
 		const res = await SELF.fetch(`${ORIGIN}/upstream${qs}`);
@@ -427,6 +483,28 @@ describe('GET /upstream (the page)', () => {
 		const everything = await page('?tier=all&age=all');
 		expect(everything).toContain('Ancient Co');
 		expect(everything).not.toContain('held back');
+	});
+
+	it('gives the off-map companies a section of their own', async () => {
+		await post({
+			source: 'test',
+			gaps: [
+				{ company_id: 'botsrule', name: 'Botsrule Ltd', missing: 'water infrastructure', note: 'No cell covers water distribution.' },
+				{ company_id: 'ajivam', name: 'Ajivam Ltd', missing: 'water infrastructure', note: 'No cell covers water pressurisation.' },
+			],
+		});
+
+		const html = await page();
+		expect(html).toContain('id="off-map"');
+		expect(html).toContain('Off the map');
+		expect(html).toContain('water infrastructure');
+		expect(html).toContain('Botsrule Ltd');
+		// The count is the companies, not the groups.
+		expect(html).toContain('<h2 id="off-map-h">Off the map <span class="count">2</span></h2>');
+	});
+
+	it('says nothing about the map having holes when it has none', async () => {
+		expect(await page()).not.toContain('id="off-map"');
 	});
 
 	it('defaults the tier toggle to A+B and honours the other choices', async () => {

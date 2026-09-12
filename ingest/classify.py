@@ -46,7 +46,7 @@ PRICE_OUT = 5.00
 
 # Bump when a prompt changes: it is part of the cache key, so a reworded prompt
 # re-classifies rather than silently mixing old answers with new ones.
-PROMPT_VERSION = 2
+PROMPT_VERSION = 3
 
 CACHE_PATH = pathlib.Path(__file__).parent / "cache" / "classify.json"
 OVERRIDES_PATH = pathlib.Path(__file__).parent / "overrides.json"
@@ -76,6 +76,7 @@ class Classification:
     subsector_id: str | None = None
     project_type: str | None = None
     note: str | None = None
+    missing: str | None = None
     source: str = "claude"
 
     @property
@@ -142,7 +143,13 @@ give a one-sentence reason a reader could check against the description.
 If none of these sub-sectors actually covers what the company does, answer "none" for both \
 and say what is missing. Stretching a company into the nearest sub-sector puts a wrong tag \
 on a map that is supposed to show where we have looked — "none" is the better answer, and \
-the sector being right does not oblige you to find a sub-sector that is not."""
+the sector being right does not oblige you to find a sub-sector that is not.
+
+When you answer "none", also name the missing capability in two to four lowercase words, as \
+a plain noun phrase: "water infrastructure", "geospatial services", "digital health \
+infrastructure". Name the field the taxonomy is missing, not this company — two companies \
+falling through the same hole must get the same name. Leave it empty when you chose a \
+sub-sector."""
 
 
 def _subsector_prompt(company: Company, sector: dict) -> str:
@@ -179,8 +186,13 @@ def _subsector_schema(sector: dict) -> dict:
                 "subsector_id": {"type": "string", "enum": [sub["id"] for sub in sector["subsectors"]] + ["none"]},
                 "project_type": {"type": "string", "enum": projects + ["none"]},
                 "reason": {"type": "string"},
+                # Free text, unlike everything else here, because the holes in a
+                # taxonomy cannot be enumerated in advance — that is what makes
+                # them holes. Grouped by exact match on the page, with
+                # ingest/gap-labels.json to tidy the near-misses by hand.
+                "missing": {"type": "string"},
             },
-            "required": ["subsector_id", "project_type", "reason"],
+            "required": ["subsector_id", "project_type", "reason", "missing"],
             "additionalProperties": False,
         },
     }
@@ -212,10 +224,14 @@ def _classify_one(client: anthropic.Anthropic, company: Company, usage: Usage, l
     answer = _ask(client, SUBSECTOR_SYSTEM, _subsector_prompt(company, sector), _subsector_schema(sector), usage, lock)
 
     if answer["subsector_id"] == "none":
-        # The sector was right and nothing under it fits. Keep the sector and the
-        # reason: unplaced for want of a sub-sector is a fact about the taxonomy,
-        # and it is the only way that hole ever gets noticed.
-        return Classification(sector_id=sector["id"], note=clean(answer["reason"]))
+        # The sector was right and nothing under it fits. Keep the sector, the
+        # reason and the name of the hole: unplaced for want of a sub-sector is a
+        # fact about the taxonomy, and this is the only way it ever gets noticed.
+        return Classification(
+            sector_id=sector["id"],
+            note=clean(answer["reason"]),
+            missing=clean(answer.get("missing")),
+        )
 
     subsector = next(sub for sub in sector["subsectors"] if sub["id"] == answer["subsector_id"])
     project = answer["project_type"]
@@ -284,6 +300,7 @@ def _from_cache(entry: dict) -> Classification:
         subsector_id=entry.get("subsector_id"),
         project_type=entry.get("project_type"),
         note=entry.get("note"),
+        missing=entry.get("missing"),
         source="cache",
     )
 
@@ -294,6 +311,7 @@ def _override(entry: dict) -> Classification:
         subsector_id=entry.get("subsector_id"),
         project_type=entry.get("project_type"),
         note=entry.get("note") or "Manual override.",
+        missing=entry.get("missing"),
         source="override",
     )
 
@@ -342,6 +360,7 @@ def classify(companies: list[Company], *, force: bool = False) -> tuple[dict[str
                     "subsector_id": result.subsector_id,
                     "project_type": result.project_type,
                     "note": result.note,
+                    "missing": result.missing,
                     "model": MODEL,
                     "classified_at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
                 }

@@ -50,6 +50,20 @@ export interface Filters {
 	limit: number;
 }
 
+/** One hole in the taxonomy, and who fell through it. */
+export interface GapGroup {
+	/** The missing capability, named by the classifier: "water infrastructure". */
+	missing: string;
+	n: number;
+	/** A few names, so the group is checkable rather than just a number. */
+	examples: string[];
+}
+
+export interface Gaps {
+	total: number;
+	groups: GapGroup[];
+}
+
 /** How the current filters split three ways. The page states all three out loud. */
 export interface Buckets {
 	/** Dated and recent enough for the ranked list. */
@@ -246,6 +260,33 @@ export async function queryCoverage(env: Env): Promise<Coverage> {
 		unclassified,
 		sectors,
 	};
+}
+
+/**
+ * Companies with a sector but no sub-sector, grouped by the hole they fell
+ * through, commonest first.
+ *
+ * group_concat gives us a few names per group without a query per group. Its
+ * order is unspecified, which is fine: these are examples, not a ranking, and
+ * the page says so.
+ */
+export async function queryGaps(env: Env): Promise<Gaps> {
+	const { results } = await env.DB.prepare(
+		`SELECT missing, COUNT(*) AS n, group_concat(name, '\n') AS names
+		 FROM gaps GROUP BY missing ORDER BY n DESC, missing`,
+	).all<{ missing: string; n: number; names: string | null }>();
+
+	let total = 0;
+	const groups = results.map((row) => {
+		total += row.n;
+		return {
+			missing: row.missing,
+			n: row.n,
+			examples: (row.names ?? '').split('\n').filter(Boolean).slice(0, 3),
+		};
+	});
+
+	return { total, groups };
 }
 
 /**

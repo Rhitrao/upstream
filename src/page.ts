@@ -8,7 +8,7 @@
  */
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
 import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
-import type { Buckets, Company, Coverage, Signal } from './db';
+import type { Buckets, Company, Coverage, Gaps, Signal } from './db';
 
 /** The tier toggle has its own vocabulary: A, A+B (the default), everything. */
 export type TierChoice = 'a' | 'ab' | 'all';
@@ -23,6 +23,8 @@ export interface PageView {
 	/** Companies no source will place in time. Listed below the ranking, never inside it. */
 	undated: Company[];
 	buckets: Buckets;
+	/** Companies the taxonomy has no cell for, grouped by the hole they fell through. */
+	gaps: Gaps;
 	tracked: number;
 	discoveredThisWeek: number;
 	sector: string | null;
@@ -372,6 +374,41 @@ ${undated.map((company) => companyRow(company, now)).join('\n')}
 </section>`;
 }
 
+/**
+ * The companies we read, understood, and could not file.
+ *
+ * They are not a failure to report — they are the most specific thing this page
+ * knows about the map it is drawn on. A coverage map that only showed what fit
+ * would be measuring its own taxonomy rather than the country.
+ */
+function offMap(view: PageView): string {
+	const { gaps } = view;
+	if (gaps.total === 0) return '';
+
+	const groups = gaps.groups
+		.map(
+			(group) => `    <li>
+      <span class="gap-n">${group.n}</span>
+      <span class="gap-name">${esc(group.missing)}</span>
+      ${group.examples.length > 0 ? `<span class="gap-eg">${esc(group.examples.join(', '))}</span>` : ''}
+    </li>`,
+		)
+		.join('\n');
+
+	return `
+<section class="list off-map" id="off-map" aria-labelledby="off-map-h">
+  <h2 id="off-map-h">Off the map <span class="count">${gaps.total}</span></h2>
+  <p class="note">${gaps.total} companies landed in a sector whose sub-sectors do not cover what they do.
+    Rather than stretch each one into the nearest cell &mdash; which would put a wrong tag on the map above and
+    make it useless &mdash; they are kept here under the name of what is missing. Read this as a list of holes in
+    the RDI taxonomy, not as a list of companies that failed: a map that only showed what fitted would be
+    measuring itself.</p>
+  <ul class="gap-groups">
+${groups}
+  </ul>
+</section>`;
+}
+
 function methodology(): string {
 	return `
 <section class="method" aria-labelledby="method-h">
@@ -627,6 +664,26 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 /* Below the ranking and visibly outside it — same rows, no claim about time. */
 .undated-list { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); }
 .undated-list h2 { color: var(--muted); }
+.off-map { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); }
+.off-map h2 { color: var(--muted); }
+.gap-groups { list-style: none; margin: 0; padding: 0; }
+.gap-groups li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.gap-n {
+  font-family: "DM Mono", ui-monospace, monospace;
+  font-size: 0.82rem;
+  min-width: 2.2rem;
+  text-align: right;
+  color: var(--muted);
+}
+.gap-name { font-weight: 500; }
+.gap-eg { font-size: 0.8rem; color: var(--muted); flex: 1 1 14rem; }
 .demo-banner {
   font-size: 0.85rem;
   color: var(--muted);
@@ -685,6 +742,7 @@ ${coverageMap(view)}
 ${filters(view)}
 ${list(view)}
 ${undatedList(view)}
+${offMap(view)}
 ${methodology()}
 </div>
 <script>

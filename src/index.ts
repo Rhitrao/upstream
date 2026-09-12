@@ -8,12 +8,13 @@
  *   GET  /upstream                  the HTML page
  *   GET  /upstream/api/companies    JSON list; filters: sector, subsector, tier, age, undated, limit
  *   GET  /upstream/api/coverage     company count per sub-sector, for the coverage map
+ *   GET  /upstream/api/gaps         companies the taxonomy has no cell for, grouped
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
 import { TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
-import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, queryHasRanked, type Filters } from './db';
+import { queryBuckets, queryCompanies, queryCoverage, queryDiscoveredSince, queryGaps, queryHasRanked, type Filters } from './db';
 import { renderPage, type AgeChoice, type TierChoice } from './page';
-import { demoCompanies, splitDemo } from './demo';
+import { demoCompanies, demoGaps, splitDemo } from './demo';
 
 const BASE = '/upstream';
 
@@ -148,6 +149,19 @@ interface CompanyInput {
 	classify_note?: string | null;
 }
 
+/**
+ * A company the classifier placed in a sector but in none of its sub-sectors.
+ * It is not a company row: it is the evidence that the taxonomy has a hole.
+ */
+interface GapInput {
+	company_id: string;
+	name: string;
+	missing: string;
+	note: string;
+	description?: string | null;
+	sector_id?: string | null;
+}
+
 interface SignalInput {
 	company_id: string;
 	type: string;
@@ -194,6 +208,24 @@ ON CONFLICT(id) DO UPDATE SET
 const INSERT_SIGNAL_SQL = `
 INSERT OR IGNORE INTO signals (company_id, type, label, date, url, source, found_at)
 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`;
+
+const UPSERT_GAP_SQL = `
+INSERT INTO gaps (company_id, name, description, sector_id, missing, note, source, found_at)
+VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+ON CONFLICT(company_id) DO UPDATE SET
+  name        = excluded.name,
+  description = COALESCE(excluded.description, gaps.description),
+  sector_id   = COALESCE(excluded.sector_id,   gaps.sector_id),
+  missing     = excluded.missing,
+  note        = excluded.note,
+  source      = excluded.source`;
+
+/**
+ * A company that has since been placed is no longer a gap. Re-running a source
+ * has to be able to empty this table as well as fill it, or a fixed taxonomy
+ * would leave its old holes on the page forever.
+ */
+const DELETE_GAP_SQL = 'DELETE FROM gaps WHERE company_id = ?1';
 
 const INSERT_RUN_SQL = `
 INSERT INTO runs (started_at, source, status, records_found, error)
@@ -292,8 +324,30 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		signals.push({ ...(s as object), company_id: companyId, type, label } as SignalInput);
 	}
 
+	if (payload.gaps !== undefined && !Array.isArray(payload.gaps)) {
+		return json({ error: 'gaps must be an array' }, 400);
+	}
+	const gaps: GapInput[] = [];
+	for (const [i, raw] of ((payload.gaps ?? []) as unknown[]).entries()) {
+		if (typeof raw !== 'object' || raw === null) {
+			return json({ error: `gaps[${i}] must be an object` }, 400);
+		}
+		const g = raw as Record<string, unknown>;
+		const companyId = str(g.company_id);
+		const name = str(g.name);
+		const missing = str(g.missing);
+		const note = str(g.note);
+		if (!companyId) return json({ error: `gaps[${i}].company_id is required` }, 400);
+		if (!name) return json({ error: `gaps[${i}].name is required` }, 400);
+		if (!missing) return json({ error: `gaps[${i}].missing is required` }, 400);
+		// The reason is not optional. A hole nobody argued for is a shrug, and a
+		// shrug is not evidence of anything.
+		if (!note) return json({ error: `gaps[${i}].note is required` }, 400);
+		gaps.push({ ...(g as object), company_id: companyId, name, missing, note } as GapInput);
+	}
+
 	try {
-		const result = await applyIngest(env, source, companies, signals, now, mode);
+		const result = await applyIngest(env, source, companies, signals, gaps, now, mode);
 		await env.DB.prepare(INSERT_RUN_SQL).bind(startedAt, source, 'ok', companies.length, null).run();
 		return json(result);
 	} catch (error) {
@@ -313,6 +367,7 @@ interface IngestResult {
 	updated: number;
 	signals_added: number;
 	signals_skipped: number;
+	gaps_recorded: number;
 	/** Said out loud in the response, because it decides what every date in it means. */
 	backfill: boolean;
 }
@@ -355,6 +410,7 @@ async function applyIngest(
 	source: string,
 	companies: CompanyInput[],
 	signals: SignalInput[],
+	gaps: GapInput[],
 	now: Date,
 	mode: string | null,
 ): Promise<IngestResult> {
@@ -434,10 +490,25 @@ async function applyIngest(
 		}
 	}
 
+	// A company arriving as a real row is no longer a hole in the taxonomy, and a
+	// company arriving as a hole must not also be a row.
+	const gapWrites: D1PreparedStatement[] = gaps.map((g) =>
+		env.DB.prepare(UPSERT_GAP_SQL).bind(g.company_id, g.name, str(g.description), str(g.sector_id), g.missing, g.note, source, nowIso),
+	);
+	for (const id of payloadIds) gapWrites.push(env.DB.prepare(DELETE_GAP_SQL).bind(id));
+	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
+
 	const touched = [...new Set([...payloadIds, ...accepted.map((s) => s.company_id)])];
 	await recomputeRanking(env, touched, nowIso, now);
 
-	return { inserted, updated, signals_added: signalsAdded, signals_skipped: signalsSkipped, backfill };
+	return {
+		inserted,
+		updated,
+		signals_added: signalsAdded,
+		signals_skipped: signalsSkipped,
+		gaps_recorded: gaps.length,
+		backfill,
+	};
 }
 
 async function selectExistingIds(env: Env, ids: string[]): Promise<Set<string>> {
@@ -481,6 +552,12 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 	if (updates.length > 0) await env.DB.batch(updates);
 }
 
+// --- GET /upstream/api/gaps -------------------------------------------------
+
+async function gapsApi(env: Env): Promise<Response> {
+	return json(await queryGaps(env), 200, PUBLIC_CACHE);
+}
+
 // --- GET /upstream ----------------------------------------------------------
 
 async function page(url: URL, env: Env): Promise<Response> {
@@ -516,11 +593,12 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const unplaceable: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, discoveredThisWeek] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek] = await Promise.all([
 		queryCoverage(env),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).ranked) : queryCompanies(env, ranked),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).undated) : queryCompanies(env, unplaceable),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked, cutoff),
+		demo ? Promise.resolve(demoGaps()) : queryGaps(env),
 		queryDiscoveredSince(env, weekAgo),
 	]);
 
@@ -529,6 +607,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		companies,
 		undated,
 		buckets,
+		gaps,
 		tracked: coverage.total_companies,
 		discoveredThisWeek,
 		sector,
@@ -568,6 +647,9 @@ export default {
 
 			case `${BASE}/api/coverage`:
 				return isRead ? coverageApi(env) : methodNotAllowed('GET, HEAD');
+
+			case `${BASE}/api/gaps`:
+				return isRead ? gapsApi(env) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/ingest`:
 				return request.method === 'POST' ? ingest(request, env) : methodNotAllowed('POST');
