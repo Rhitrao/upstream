@@ -63,9 +63,23 @@ export interface GapGroup {
 	examples: string[];
 }
 
+/**
+ * The one group name that does not mean "the taxonomy has no cell for this".
+ *
+ * Written by ingest/gaps.py, which owns the vocabulary; this is the reading end.
+ * A test asserts the two agree, because a silent drift here would file every thin
+ * description as a hole in the RDI scheme — the exact conflation the split exists
+ * to undo.
+ */
+export const NO_GAP_NAMED = 'no gap named';
+
 export interface Gaps {
 	total: number;
 	groups: GapGroup[];
+	/** Holes in the RDI taxonomy: a field it has no cell for. A finding about the scheme. */
+	taxonomy: { total: number; groups: GapGroup[] };
+	/** Companies whose published description was too thin to place. A finding about our sources. */
+	undescribed: { total: number; groups: GapGroup[] };
 }
 
 /** How the current filters split three ways. The page states all three out loud. */
@@ -292,9 +306,7 @@ export async function queryGaps(env: Env): Promise<Gaps> {
 		 FROM gaps GROUP BY missing ORDER BY n DESC, missing`,
 	).all<{ missing: string; n: number; names: string | null }>();
 
-	let total = 0;
 	const groups = results.map((row) => {
-		total += row.n;
 		return {
 			missing: row.missing,
 			n: row.n,
@@ -302,7 +314,27 @@ export async function queryGaps(env: Env): Promise<Gaps> {
 		};
 	});
 
-	return { total, groups };
+	return splitGaps(groups);
+}
+
+/**
+ * Two different findings, and the page states them as two. One says the RDI scheme
+ * has no cell for a field; the other says we could not describe the company well
+ * enough to try. Counting them together let the second hide inside the first — and
+ * the second was the larger of the two.
+ *
+ * Exported so the sample data splits by the same rule as the real thing.
+ */
+export function splitGaps(groups: GapGroup[]): Gaps {
+	const sum = (rows: GapGroup[]) => rows.reduce((n, g) => n + g.n, 0);
+	const undescribed = groups.filter((g) => g.missing === NO_GAP_NAMED);
+	const taxonomy = groups.filter((g) => g.missing !== NO_GAP_NAMED);
+	return {
+		total: sum(groups),
+		groups,
+		taxonomy: { total: sum(taxonomy), groups: taxonomy },
+		undescribed: { total: sum(undescribed), groups: undescribed },
+	};
 }
 
 /**

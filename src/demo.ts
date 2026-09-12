@@ -8,7 +8,7 @@
  * renders them only for that explicit query parameter, and always behind a banner
  * saying so. Delete this file once the ingest in Part 10 is producing real rows.
  */
-import type { Buckets, Company, Gaps } from './db';
+import { NO_GAP_NAMED, splitGaps, type Buckets, type Company, type Gaps } from './db';
 import { minOriginYear } from './rank';
 
 /** Dates are written relative to render time so the "first seen N days ago" line stays sane. */
@@ -233,12 +233,12 @@ export function splitDemo(companies: Company[], now: Date): { ranked: Company[];
 
 /** Three invented holes, so the off-map section can be seen before real data lands. */
 export function demoGaps(): Gaps {
-	return {
-		total: 7,
-		groups: [
-			{ missing: 'water infrastructure', n: 3, examples: ['Ajivam Water Pvt Ltd', 'Botsrule Pvt Ltd'] },
-			{ missing: 'geospatial services', n: 2, examples: ['Bhugol GIS Pvt Ltd'] },
-			{ missing: 'digital health infrastructure', n: 2, examples: ['Chainworks Digital Pvt Ltd'] },
-		],
-	};
+	// Both kinds, because a sample that showed only taxonomy holes would not
+	// demonstrate the distinction the section is built around.
+	return splitGaps([
+		{ missing: 'water infrastructure', n: 3, examples: ['Ajivam Water Pvt Ltd', 'Botsrule Pvt Ltd'] },
+		{ missing: 'geospatial services', n: 2, examples: ['Bhugol GIS Pvt Ltd'] },
+		{ missing: 'digital health infrastructure', n: 2, examples: ['Chainworks Digital Pvt Ltd'] },
+		{ missing: NO_GAP_NAMED, n: 4, examples: ['Sundar Systems Pvt Ltd', 'Meera Devices Pvt Ltd'] },
+	]);
 }

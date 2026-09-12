@@ -25,6 +25,9 @@ export interface PageView {
 	buckets: Buckets;
 	/** Companies the taxonomy has no cell for, grouped by the hole they fell through. */
 	gaps: Gaps;
+	/** Every company the pipeline holds: placed plus off-map. The top of the funnel. */
+	found: number;
+	/** The ones that reached a cell on the coverage map. */
 	tracked: number;
 	discoveredThisWeek: number;
 	sector: string | null;
@@ -114,18 +117,53 @@ function tierLabel(tier: Tier): string {
 
 // --- pieces -----------------------------------------------------------------
 
+/**
+ * The funnel, in the masthead, in the order it happens.
+ *
+ * "Companies tracked" used to head this on its own, and it counted only the ones
+ * a classifier could fit into an RDI sub-sector — 702 of 1,545. Everywhere else
+ * this page refuses to let anything disappear quietly: 843 off-map companies are
+ * listed under the name of the hole they fell through, undated companies get
+ * their own section, empty cells are left visibly empty. A headline number that
+ * silently meant "the placed subset" was the one place that broke the rule.
+ *
+ * So both numbers, adjacent, and the drop between them legible without scrolling.
+ * The drop is not an embarrassment to be smoothed over — it is the argument.
+ */
+/**
+ * What happened to the ones that did not make the map, split by whose fault it is.
+ *
+ * The first draft of this line said all 843 were "what the taxonomy had no room
+ * for". 147 of them were nothing of the kind — they were companies whose only
+ * published description was a name and a dropdown industry. Claiming those as a
+ * finding about the RDI scheme overstates the critique and hides the admission.
+ */
+function funnelNote(gaps: Gaps): string {
+	if (gaps.total === 0) return '';
+	const parts: string[] = [];
+	if (gaps.taxonomy.total > 0) {
+		parts.push(`<a href="#off-map">${gaps.taxonomy.total}</a> fell outside every sub-sector the taxonomy offers`);
+	}
+	if (gaps.undescribed.total > 0) {
+		parts.push(`<a href="#undescribed">${gaps.undescribed.total}</a> we could not describe well enough to place`);
+	}
+	return `<p class="funnel-note">Of the ${gaps.total} not on the map, ${parts.join(', and ')}.</p>`;
+}
+
 function header(view: PageView): string {
-	const { coverage, tracked, discoveredThisWeek } = view;
+	const { coverage, found, tracked, discoveredThisWeek, gaps } = view;
 	return `
 <header class="masthead">
   <h1>Upstream</h1>
   <p class="lede">Early-stage Indian deep-tech companies that have left a public trace and not much else &mdash;
     ordered by how few people know about them, never by how impressive they look.</p>
   <dl class="stats">
-    <div><dt>Companies tracked</dt><dd>${tracked}</dd></div>
+    <div><dt>Companies found</dt><dd>${found}</dd></div>
+    <div><dt>Placed on the map</dt><dd>${tracked}<span class="of">/${found}</span></dd></div>
     <div><dt>Discovered this week</dt><dd>${discoveredThisWeek}</dd></div>
     <div><dt>Sub-sectors covered</dt><dd>${coverage.covered}<span class="of">/${coverage.subsector_count}</span></dd></div>
   </dl>
+  ${funnelNote(gaps)}
 </header>`;
 }
 
@@ -421,11 +459,8 @@ ${undated.map((company) => companyRow(company, now)).join('\n')}
  * knows about the map it is drawn on. A coverage map that only showed what fit
  * would be measuring its own taxonomy rather than the country.
  */
-function offMap(view: PageView): string {
-	const { gaps } = view;
-	if (gaps.total === 0) return '';
-
-	const groups = gaps.groups
+function gapList(groups: { missing: string; n: number; examples: string[] }[]): string {
+	return groups
 		.map(
 			(group) => `    <li>
       <span class="gap-n">${group.n}</span>
@@ -434,20 +469,50 @@ function offMap(view: PageView): string {
     </li>`,
 		)
 		.join('\n');
+}
 
-	return `
+function offMap(view: PageView): string {
+	const { gaps } = view;
+	if (gaps.total === 0) return '';
+
+	// Two sections, because they are two findings and only one of them is about
+	// the taxonomy. Lumped together, the larger — companies we could not describe
+	// — sat inside a heading that called it a hole in the RDI scheme. It is not.
+	// It is a fact about what our sources publish, and it reads as an admission
+	// rather than a critique, which is the honest way round.
+	const taxonomy =
+		gaps.taxonomy.total === 0
+			? ''
+			: `
 <section class="list off-map" id="off-map" aria-labelledby="off-map-h">
-  <h2 id="off-map-h">Off the map <span class="count">${gaps.total}</span></h2>
-  <p class="note">${gaps.total} companies landed in a sector whose sub-sectors do not cover what they do.
-    Rather than stretch each one into the nearest cell &mdash; which would put a wrong tag on the map above and
-    make it useless &mdash; they are kept here under the name of what is missing. Read this as a list of holes in
-    the RDI taxonomy, not as a list of companies that failed: a map that only showed what fitted would be
-    measuring itself.</p>
+  <h2 id="off-map-h">Companies the RDI taxonomy has no cell for <span class="count">${gaps.taxonomy.total}</span></h2>
+  <p class="note">These landed in a sector whose sub-sectors do not cover what they do. Rather than stretch each one
+    into the nearest cell &mdash; which would put a wrong tag on the map above and make it useless &mdash; they are
+    kept here under the name of what is missing. Read this as a list of holes in the RDI taxonomy, not as a list of
+    companies that failed: a map that only showed what fitted would be measuring itself.</p>
   <ul class="gap-groups">
-${groups}
+${gapList(gaps.taxonomy.groups)}
   </ul>
 </section>`;
+
+	const undescribed =
+		gaps.undescribed.total === 0
+			? ''
+			: `
+<section class="list off-map" id="undescribed" aria-labelledby="undescribed-h">
+  <h2 id="undescribed-h">Companies we could not describe well enough to place <span class="count">${gaps.undescribed.total}</span></h2>
+  <p class="note">Nothing is wrong with the taxonomy here, and nothing is known to be wrong with these companies.
+    Most arrived from the DPIIT register, where the only published facts are a name and an industry picked from a
+    dropdown &mdash; not enough to say what the company does, and so not enough to place it. This is a limit of what
+    our sources publish, and counting it as a gap in the RDI scheme would be blaming the scheme for our own blind spot.</p>
+  <ul class="gap-groups">
+${gapList(gaps.undescribed.groups)}
+  </ul>
+</section>`;
+
+	return `${taxonomy}${undescribed}`;
 }
+
 
 function methodology(): string {
 	return `
@@ -556,7 +621,8 @@ p { margin: 0 0 0.75rem; }
 /* header */
 .masthead h1 { font-size: 1.9rem; margin: 0 0 0.4rem; font-weight: 600; }
 .lede { color: var(--muted); max-width: 34rem; margin-bottom: 1.4rem; }
-.stats { display: flex; flex-wrap: wrap; gap: 1.6rem; margin: 0 0 2.4rem; padding: 0; }
+.stats { display: flex; flex-wrap: wrap; gap: 1.6rem; margin: 0 0 0.7rem; padding: 0; }
+.funnel-note { color: var(--muted); font-size: 0.85rem; max-width: 42rem; margin: 0 0 2.2rem; }
 .stats dt { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .stats dd {
   margin: 0.1rem 0 0;
