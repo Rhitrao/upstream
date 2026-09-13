@@ -885,6 +885,43 @@ describe('GET /upstream (the page)', () => {
 		expect(row.website_checked).toBe(1);
 	});
 
+	it('keeps the source event and the collection date apart, and only a new event reaches Tier A', async () => {
+		// Probird, as it was on 13 September 2026: a live DPIIT run found it that day,
+		// carrying a recognition from 25 August 2023, and it was ranked Tier A.
+		const recent = new Date(Date.now() - 20 * 86_400_000).toISOString().slice(0, 10);
+		await post({
+			source: 'dpiit-startup-india',
+			mode: 'live',
+			companies: [
+				{ id: 'probird', name: 'Probird', sector_id: '2', subsector_id: '2.3', classify_basis: 'register-label' },
+				{ id: 'fresh', name: 'Fresh Co', sector_id: '2', subsector_id: '2.3', classify_basis: 'register-label' },
+			],
+			signals: [
+				{ company_id: 'probird', type: 'dpiit', label: 'DPIIT recognised 2023', date: '2023-08-25' },
+				{ company_id: 'fresh', type: 'dpiit', label: `DPIIT recognised ${recent.slice(0, 4)}`, date: recent },
+			],
+		});
+
+		const tiers = await env.DB.prepare('SELECT id, first_seen_basis, tier FROM companies ORDER BY id').all<any>();
+		expect(tiers.results).toEqual([
+			{ id: 'fresh', first_seen_basis: 'discovered', tier: 'A' },
+			// Still new to us, so still inside B's window; no longer claimed as early.
+			{ id: 'probird', first_seen_basis: 'discovered', tier: 'B' },
+		]);
+
+		const html = await page('?tier=all&age=all');
+		const start = html.indexOf('id="c-probird"');
+		const row = html.slice(start, html.indexOf('</li>', start));
+		expect(row).toContain('DPIIT recognition 25 Aug 2023');
+		expect(row).toContain('added to Upstream today');
+		expect(row.indexOf('25 Aug 2023')).toBeLessThan(row.indexOf('added to Upstream'));
+		expect(html).toContain('2 added to Upstream in the last seven days.');
+		expect(html).not.toContain('discovered in the last seven days');
+
+		const detailHtml = await detail('probird');
+		expect(detailHtml).toContain('A source dates this company to 25 Aug 2023');
+	});
+
 	it('marks a company dated by a register rather than a founding year', async () => {
 		await post({
 			source: 'dpiit',
@@ -1275,7 +1312,8 @@ describe('searching and one company at a time', () => {
 		expect(html).toContain('no link published');
 
 		// The dates are separate because they mean different things.
-		expect(html).toContain('In this database');
+		expect(html).toContain('Source event');
+		expect(html).toContain('Added to Upstream');
 		expect(html).toContain('On record');
 
 		// And the tier, with the rule that produced it rather than just the letter.
@@ -1329,7 +1367,9 @@ describe('searching and one company at a time', () => {
 		expect(row).toContain('Benchtop assay kits for district hospitals.');
 		expect(row).toContain('2 public traces');
 		expect(row).toContain('website');
-		expect(row).toContain('first seen');
+		expect(row).toContain('incubator listing 4 Jan 2026');
+		expect(row).toContain('added to Upstream today');
+		expect(row).not.toContain('first seen');
 		// And the tier badge is gone from the row: every company is Tier C today, so
 		// it was a column of identical labels that read as a bug.
 		expect(row).not.toContain('Tier C');

@@ -11,7 +11,7 @@
  *   GET  /upstream/api/gaps         companies the taxonomy has no cell for, grouped
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
  */
-import { SIGNAL_TYPES, TRACE_TYPES, TIERS, minOriginYear, tierFor, type Tier } from './rank';
+import { SIGNAL_TYPES, TRACE_TYPES, TIERS, earliestEvent, minOriginYear, tierFor, type Tier } from './rank';
 import {
 	queryBuckets,
 	queryCompanies,
@@ -732,20 +732,28 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 
 	for (const group of chunk(ids, BIND_CHUNK)) {
 		const { results } = await env.DB.prepare(
-			`SELECT c.id, c.first_seen, c.first_seen_basis,
+			`SELECT c.id, c.first_seen, c.first_seen_basis, c.origin_year,
 			   (SELECT COUNT(*) FROM signals s
 			     WHERE s.company_id = c.id
-			       AND s.type IN (${placeholders(TRACE_TYPES.length)})) AS trace_count
+			       AND s.type IN (${placeholders(TRACE_TYPES.length)})) AS trace_count,
+			   (SELECT MIN(s.date) FROM signals s WHERE s.company_id = c.id AND s.date IS NOT NULL) AS earliest_signal
 			 FROM companies c WHERE c.id IN (${placeholders(group.length)})`,
 		)
 			.bind(...TRACE_TYPES, ...group)
-			.all<{ id: string; first_seen: string | null; first_seen_basis: string | null; trace_count: number }>();
+			.all<{
+				id: string;
+				first_seen: string | null;
+				first_seen_basis: string | null;
+				origin_year: number | null;
+				trace_count: number;
+				earliest_signal: string | null;
+			}>();
 
 		for (const row of results) {
 			updates.push(
 				env.DB.prepare('UPDATE companies SET trace_count = ?1, tier = ?2, updated_at = ?3 WHERE id = ?4').bind(
 					row.trace_count,
-					tierFor(row.first_seen, row.first_seen_basis, row.trace_count, now),
+					tierFor(row.first_seen, row.first_seen_basis, row.trace_count, now, earliestEvent([row.earliest_signal], row.origin_year)),
 					nowIso,
 					row.id,
 				),

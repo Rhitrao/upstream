@@ -62,7 +62,25 @@ export function daysSince(iso: string, now: Date): number {
 	return (now.getTime() - ms) / 86_400_000;
 }
 
-export function tierFor(firstSeen: string | null, basis: string | null, traceCount: number, now: Date = new Date()): Tier {
+/**
+ * The oldest thing any source says happened to the company, as an ISO date, or null.
+ *
+ * The earliest dated signal, or the last day of a stated origin year — the latest the
+ * company can have started, so a year is never read as more recent than it is.
+ */
+export function earliestEvent(signalDates: readonly (string | null)[], originYear: number | null): string | null {
+	const dates = signalDates.filter((d): d is string => typeof d === 'string' && d.length >= 10).map((d) => d.slice(0, 10));
+	if (originYear !== null) dates.push(`${originYear}-12-31`);
+	return dates.length ? dates.sort()[0] : null;
+}
+
+export function tierFor(
+	firstSeen: string | null,
+	basis: string | null,
+	traceCount: number,
+	now: Date = new Date(),
+	sourceEvent: string | null = null,
+): Tier {
 	// No date, no claim. A company we cannot place in time is not a company we found
 	// early, however new it looks.
 	if (firstSeen === null) return 'C';
@@ -70,7 +88,13 @@ export function tierFor(firstSeen: string | null, basis: string | null, traceCou
 	const age = daysSince(firstSeen, now);
 	// Tier A says WE were early. Only a real discovery can say that: a cohort year
 	// read off a portfolio page during a backfill is the incubator's news, not ours.
-	if (basis === 'discovered' && age < 90 && traceCount <= 2) return 'A';
+	//
+	// And being new to us is not being new. Probird arrived in a live DPIIT run on
+	// 13 September 2026 carrying a recognition dated 25 August 2023; the register had
+	// said so for three years before we read it. Where any source dates an event, it
+	// has to be under 90 days old too.
+	const eventIsRecent = sourceEvent === null || daysSince(sourceEvent, now) < 90;
+	if (basis === 'discovered' && age < 90 && traceCount <= 2 && eventIsRecent) return 'A';
 	if (age < 180 && traceCount <= 5) return 'B';
 	return 'C';
 }

@@ -7,7 +7,7 @@
  * without it: the filters are a GET form and every coverage cell is a link.
  */
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
-import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
+import { daysSince, earliestEvent, MAX_AGE_YEARS, type Tier } from './rank';
 import {
 	SORTS,
 	SOURCES,
@@ -121,36 +121,68 @@ function query(params: Record<string, string | null | undefined>): string {
 	return s ? `?${s}` : '';
 }
 
-function ago(firstSeen: string, now: Date): string {
-	const days = Math.floor(daysSince(firstSeen, now));
-	if (!Number.isFinite(days)) return 'first seen — date unknown';
-	if (days <= 0) return 'first seen today';
-	if (days === 1) return 'first seen yesterday';
-	if (days < 60) return `first seen ${days} days ago`;
-	const months = Math.round(days / 30);
-	return `first seen about ${months} months ago`;
+/** What each kind of evidence is called when its date is the one on the row. */
+const EVENT_NAMES: Record<string, string> = {
+	dpiit: 'DPIIT recognition',
+	incubator: 'incubator listing',
+	grant: 'grant award',
+	press: 'press mention',
+	patent: 'patent filing',
+	incorporation: 'incorporated',
+	website: 'website seen',
+};
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "25 Aug 2023" — a date a reader can place without arithmetic. */
+function shortDate(iso: string): string {
+	const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+	return d && m ? `${d} ${MONTHS[m - 1]} ${y}` : String(y);
 }
 
 /**
- * What a row is allowed to say about its own date.
+ * The oldest dated thing a source says about the company, named: "DPIIT recognition
+ * 25 Aug 2023". Null when no source dates anything.
+ */
+function sourceEvent(company: Company): { label: string; date: string } | null {
+	const dated = company.signals.filter((s) => s.date && s.date.length >= 10).sort((a, b) => (a.date! < b.date! ? -1 : 1));
+	if (dated.length) return { label: EVENT_NAMES[dated[0].type] ?? dated[0].type, date: dated[0].date!.slice(0, 10) };
+	if (company.first_seen_basis === 'cohort' && company.first_seen !== null) {
+		return { label: 'on public record from', date: String(company.origin_year ?? company.first_seen.slice(0, 4)) };
+	}
+	return null;
+}
+
+/**
+ * The two dates a row must never let a reader merge: when the world first heard of
+ * the company, and when this list did.
  *
- * "First seen" is a claim that we found it, so only a real discovery gets to make it.
- * A backfilled row says what year it was on record by — an incubator cohort, a grant
- * award — without claiming we were there. A row with no date says nothing at all; the
- * section it sits in has already said it.
+ * They used to be one phrase. Probird's row said "first seen today" beside a DPIIT
+ * recognition from August 2023, and a reader took "today" as the company's news. Now
+ * the source's event comes first and says what it was, and the collection date says
+ * it is ours. Every row has the second; only rows some source dates have the first.
  */
 function dateLine(company: Company, now: Date): string | null {
-	if (company.first_seen === null) return null;
-
-	const said =
-		company.first_seen_basis === 'cohort'
-			? `on public record from ${esc(company.origin_year ?? company.first_seen.slice(0, 4))}`
-			: esc(ago(company.first_seen, now));
+	const event = sourceEvent(company);
+	const said = event
+		? `${esc(event.label)} ${esc(event.date.length === 4 ? event.date : shortDate(event.date))}`
+		: null;
+	const added = `added to Upstream ${esc(addedAgo(company.discovered, now))}`;
 
 	// A register can date the record without saying when the company started, and a
 	// row in that state has to say so: otherwise the date reads as a founding year,
 	// which is how a 2019 company recognised last week comes to look brand new.
-	return ageKnown(company) ? said : `${said} &middot; founding year unknown`;
+	const founding = event && !ageKnown(company) ? ' &middot; founding year unknown' : '';
+	return said ? `${said}${founding} &middot; ${added}` : added;
+}
+
+function addedAgo(iso: string, now: Date): string {
+	const days = Math.floor(daysSince(iso, now));
+	if (!Number.isFinite(days)) return 'on a date not recorded';
+	if (days <= 0) return 'today';
+	if (days === 1) return 'yesterday';
+	if (days < 60) return `${days} days ago`;
+	return `on ${shortDate(iso)}`;
 }
 
 function ageKnown(company: Company): boolean {
@@ -309,7 +341,7 @@ function header(view: PageView): string {
 		// Only when there is something to report. A liveness line that reads "0
 		// discovered in the last seven days" every day until the first discovery lands
 		// says the machine is broken, which is not what it means.
-		discoveredThisWeek > 0 ? `<p class="fresh">${discoveredThisWeek} discovered in the last seven days.</p>` : ''
+		discoveredThisWeek > 0 ? `<p class="fresh">${discoveredThisWeek} added to Upstream in the last seven days.</p>` : ''
 	}
 </header>`;
 }
@@ -915,7 +947,7 @@ function methodology(view: PageView): string {
     as well; nothing collects it yet, so for now it does not, and the trace counts on this page are lower than they
     would be.</p>
   <ul class="rules">
-    <li><span class="tier ta">Tier A</span> Found by us under 90 days ago, at most 2 traces. New and quiet. Read these first.</li>
+    <li><span class="tier ta">Tier A</span> Added to Upstream by a run under 90 days ago, with no source dating anything about it earlier than 90 days ago, and at most 2 traces. New and quiet. Read these first.</li>
     <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Early, some visibility.</li>
     <li><span class="tier tc">Tier C</span> Everything else. Known territory &mdash; listed, not promoted.</li>
   </ul>
@@ -975,9 +1007,19 @@ function whyTier(company: Company): string {
       incubator's news rather than ours, and only a company we watched arrive can reach Tier A.`;
 	}
 	const traces = company.trace_count;
+	const event = earliestEvent(
+		company.signals.map((s) => s.date),
+		company.origin_year,
+	);
+	const old = event !== null && daysSince(event, new Date()) >= 90;
 	return `Found in a run of a source that was already running, with ${traces === 1 ? '1 public trace' : `${traces} public traces`}
-    at the time. Tier A is a discovery under 90 days old with at most 2 traces; Tier B under 180 days with
-    at most 5.`;
+    at the time. Tier A is a discovery under 90 days old with at most 2 traces, where no source dates anything about the
+    company earlier than that; Tier B under 180 days with at most 5.${
+			old
+				? ` A source dates this company to ${esc(shortDate(event))}, so however recently we found it, it was not
+    new when we did.`
+				: ''
+		}`;
 }
 
 /** What reading the homepage came to, said in full on the one page with room for it. */
@@ -1074,12 +1116,22 @@ export function renderCompanyPage(view: CompanyView): string {
 
 	const dates = [
 		['Started', company.origin_year ?? company.founded_year, 'The year a source says the company began. This is what the age gate reads.'],
+		(() => {
+			const event = sourceEvent(company);
+			return [
+				'Source event',
+				event ? `${event.label} ${event.date}` : null,
+				'The oldest dated thing any source says about the company. This is their timeline, not ours.',
+			] as const;
+		})(),
 		[
 			'On record',
 			company.first_seen,
-			company.first_seen_basis === 'cohort' ? 'Read off a published cohort or award year.' : 'The day it appeared in a run of ours.',
+			company.first_seen_basis === 'cohort'
+				? 'Read off a published cohort or award year.'
+				: 'The day it appeared in a run of ours. When we noticed, not when it happened.',
 		],
-		['In this database', company.discovered, 'The day the row was written. Never a claim about the company.'],
+		['Added to Upstream', company.discovered, 'The day the row was written. Never a claim about the company.'],
 	] as const;
 
 	return `<!doctype html>
