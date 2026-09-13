@@ -18,8 +18,12 @@ import {
 	queryCoverage,
 	queryDiscoveredSince,
 	queryOneTraceCount,
+	deleteNote,
 	queryCompany,
+	queryNote,
+	queryNotes,
 	queryProductOutcomes,
+	saveNote,
 	SORTS,
 	SOURCES,
 	type SiteState,
@@ -30,6 +34,8 @@ import {
 	type Filters,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
+import { accessConfig, identify } from './access';
+import { PRIVATE_HEADERS, renderNotebook, renderNoteEditor } from './notes';
 import { BASE_PATH, renderCompanyPage, renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
 
@@ -956,6 +962,64 @@ async function companyPage(id: string, env: Env): Promise<Response> {
 	});
 }
 
+// --- the private notebook ---------------------------------------------------
+
+/**
+ * Everything under /upstream/notes, behind Cloudflare Access.
+ *
+ * Two guards, and the order matters. Unconfigured is a 404 and not a 403: before
+ * ACCESS_AUD is set there is no application in front of this, so answering "forbidden"
+ * would be advertising an unprotected door. Configured but unproven is a 403, which is
+ * the honest answer to somebody who reached a real door without a key.
+ *
+ * The identity comes from `identify`, which verifies the token's signature. The
+ * `Cf-Access-Authenticated-User-Email` header is never read anywhere in this file.
+ */
+async function notes(request: Request, url: URL, env: Env, path: string): Promise<Response> {
+	if (accessConfig(env) === null) return json({ error: 'not found' }, 404);
+
+	const who = await identify(request, env);
+	if (who === null) {
+		return new Response('Forbidden', {
+			status: 403,
+			headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'private, no-store' },
+		});
+	}
+
+	const rest = path.slice(`${BASE}/notes`.length).replace(/^\//, '');
+
+	if (rest === '') {
+		if (request.method !== 'GET' && request.method !== 'HEAD') return methodNotAllowed('GET, HEAD');
+		return new Response(renderNotebook(await queryNotes(env), who.email), { headers: PRIVATE_HEADERS });
+	}
+
+	const companyId = rest;
+	if (companyId.includes('/')) return json({ error: 'not found' }, 404);
+
+	if (request.method === 'POST') {
+		const form = await request.formData();
+		if (form.get('delete') === '1') {
+			await deleteNote(env, companyId);
+		} else {
+			const body = String(form.get('body') ?? '').trim();
+			// An empty note is a deleted note. Storing a row with nothing in it would
+			// put a blank entry in the notebook that reads as a bug.
+			if (body === '') await deleteNote(env, companyId);
+			else await saveNote(env, companyId, body, who.email);
+		}
+		// POST then redirect, so a refresh after saving does not write again.
+		return new Response(null, {
+			status: 303,
+			headers: { location: `${BASE}/notes/${companyId}`, 'cache-control': 'private, no-store' },
+		});
+	}
+
+	if (request.method !== 'GET' && request.method !== 'HEAD') return methodNotAllowed('GET, HEAD, POST');
+
+	const [company, note] = await Promise.all([queryCompany(env, companyId), queryNote(env, companyId)]);
+	return new Response(renderNoteEditor(company, companyId, note, who.email), { headers: PRIVATE_HEADERS });
+}
+
 // --- router -----------------------------------------------------------------
 
 function methodNotAllowed(allow: string): Response {
@@ -968,6 +1032,12 @@ export default {
 		// Trailing slashes are the same route: /upstream/ is /upstream.
 		const path = url.pathname.replace(/\/+$/, '') || '/';
 		const isRead = request.method === 'GET' || request.method === 'HEAD';
+
+		// The notebook, before anything else, because it is the one part of this Worker
+		// that answers differently depending on who is asking.
+		if (path === `${BASE}/notes` || path.startsWith(`${BASE}/notes/`)) {
+			return notes(request, url, env, path);
+		}
 
 		// One company, by slug. Checked before the switch because it is the only route
 		// with a variable in it, and a slug is not a path: anything with a slash in it

@@ -1,0 +1,31 @@
+{
+  "note": "A throwaway RSA keypair, generated for tests only. It signs nothing real and protects nothing; it exists so the Access verifier can be tested against a genuine signature rather than a stub.",
+  "kid": "upstream-test-key",
+  "publicJwk": {
+    "key_ops": [
+      "verify"
+    ],
+    "ext": true,
+    "alg": "RS256",
+    "kty": "RSA",
+    "n": "3WHl2xoH-4SIGnd4UCHVxhRQ17V97dng1rtFaJAjCVIt2YNImU5dE4ixb-vuoCmct-Kr58h2xiloU0DDBAOs8a1YKA6IStll37YFYdUvFDap6Ktjn78kQUqEGeQov_WszaAnM0xRqq3u3EsIQ-L8zlZ6QjBHKmFAAUGPRB3GwrkX7OIep3Os7UIsoNxH46v61AYOdnBzpicNSuB7iwpnN3eikVpZ9IjCCrtyxrn6iMgl8YSZQ4JKnug9KQXmrXUsRJYJOoJWmdq5hU7Y8FlANAK6YnSgkIo6WchYFch9UpnogCNSebLyamJrWLhCFgUNvnv2dcM3Gu5yuVHCR9WN3Q",
+    "e": "AQAB",
+    "kid": "upstream-test-key"
+  },
+  "privateJwk": {
+    "key_ops": [
+      "sign"
+    ],
+    "ext": true,
+    "alg": "RS256",
+    "kty": "RSA",
+    "n": "3WHl2xoH-4SIGnd4UCHVxhRQ17V97dng1rtFaJAjCVIt2YNImU5dE4ixb-vuoCmct-Kr58h2xiloU0DDBAOs8a1YKA6IStll37YFYdUvFDap6Ktjn78kQUqEGeQov_WszaAnM0xRqq3u3EsIQ-L8zlZ6QjBHKmFAAUGPRB3GwrkX7OIep3Os7UIsoNxH46v61AYOdnBzpicNSuB7iwpnN3eikVpZ9IjCCrtyxrn6iMgl8YSZQ4JKnug9KQXmrXUsRJYJOoJWmdq5hU7Y8FlANAK6YnSgkIo6WchYFch9UpnogCNSebLyamJrWLhCFgUNvnv2dcM3Gu5yuVHCR9WN3Q",
+    "e": "AQAB",
+    "d": "NsyZZ6thZ3aOdDK3guplLsNvoX2o_tvsZmrzyubG7XM8qzdunJhDvOacuW4m4tl6FCCVWeoK0JGGY_lHbLJ2OFqm1D-IqDJ5H6_AVE-_eBrx4witv-jCEjFeUsRh--ZV0I6AtZeCLaQhWMFv-dHxryfD2qd1rj1laQov6vYN8bwGW6BewIY_OxH6NMxqbPNpwa0Mb99fPsLIbjQaNAxer2mSDWXzxOW4H7vnkn4CokEyPWYBmui2Xlok2Div-_C3Hj25araWsP-ACgw11RgFmcEKu9MkKnoGOdCC8aahsJjv-P2UWW62REdMb96Xn4NYFkhQLWVkESd599MfGCKYlw",
+    "p": "_oEHt5MbDPR7DSV2hFIIXe6iFMV_OZNY6N3Wom0DT4EPaU3XMuFJ0R3Lsh4GroSH6uItyfd1RHbn2QckIUwEsCUjEi5oAbbHYXPOXb5y_OvZl_CMAomofPmmahnI9zH0YPlPDsvmhzifmjFemHcmz0QKx4JlUk1C8tZablutF1c",
+    "q": "3q8HABrrNtxEWF3Wr5_YGoYMKaZHFD7RFxl20nqslmTzpz8sLvG0WRwGdr6YNyyYuGEyY2AOPBnerkeGopUeF_rral1ZVD0XuvztkPGQgBZ_Pcdq5M8GBiBcDZ8vApfPubnKqBMXyJNxC_MLjo4mL55way6E41nS_xCwWSJIR-s",
+    "dp": "gBu5I7njyvChpCtwbgjQ919wrN4BPZ0jCwznxpjzKqj_dfVd1tm6i43hBAbDPEOwGxbBD8IFgHIOIJvMnwoh7fyzm6pKZlp4IGDnxx5fyVp7DFVkVL6wVkBgeVYDaBL4PXwhRIR0xSpGhJpHUJ3hpkFM38KOeBA2HAC0QorZJT8",
+    "dq": "vp8rqe5hLYwuwUpK7fox_rqDDOA29mCzkkeNDK5QsUlnveJ5CxKDJMi1y85p9MkrTqJ9hM4EQXSPx7aYzPJDWZnFDj8sqczGVJ4RK0NuRAd-Er9zhLynVnU697otftW_zyf5EBmQAXYdjnIWkYijrZ2-dDHVNd19njSGETckktM",
+    "qi": "K-KXiPv5rcw8iDF0NHVyKR2LvqJ7AggyZTHemUys82YxpWamsv_EuYRRXfVuiLbVBQg3oJHU-YAOF-cilNtey-dw-sapOH6scs1SUEYQ4fI7kKK8POJxsgdYxFFTfJEdwa9bwiKE2Z-C2qCEdPSz72rFEwdOJeAHc9CPLHFLiyU"
+  }
+}

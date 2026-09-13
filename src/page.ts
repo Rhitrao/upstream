@@ -84,8 +84,13 @@ const ESCAPES: Record<string, string> = {
 	"'": '&#39;',
 };
 
-/** Everything interpolated below is scraped text. All of it goes through here. */
-function esc(value: unknown): string {
+/**
+ * Everything interpolated below is scraped text. All of it goes through here.
+ *
+ * Exported because the notebook renders the same scraped text on its own pages, and a
+ * second escaper is a second thing to get wrong.
+ */
+export function esc(value: unknown): string {
 	return String(value ?? '').replace(/[&<>"']/g, (c) => ESCAPES[c]);
 }
 
@@ -1116,7 +1121,7 @@ export function renderCompanyPage(view: CompanyView): string {
 
 // --- styles -----------------------------------------------------------------
 
-const STYLES = `
+export const STYLES = `
 :root {
   color-scheme: light dark;
 
@@ -1670,6 +1675,37 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
 .dates dt { flex: 0 0 8rem; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .dates dd { margin: 0; font-family: var(--mono); font-size: var(--t-sm); }
 .dates dd.why { font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); flex: 1 1 18rem; }
+
+/* the notebook */
+.whoami { font-family: var(--mono); text-transform: none; letter-spacing: 0; margin-left: var(--s2); }
+textarea {
+  font: inherit;
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: inherit;
+  background: var(--raise);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  width: 100%;
+  resize: vertical;
+}
+textarea:hover { border-color: var(--rule-strong); }
+textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.note-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); margin-top: var(--s3); }
+/* Destructive, so it is a plain word rather than a button competing with Save. */
+.clear-button {
+  font: inherit;
+  font-size: var(--t-xs);
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.clear-button:hover { color: var(--ink); }
 
 /* methodology */
 .method h3 { font-size: var(--t-body); margin: var(--s5) 0 var(--s2); }

@@ -514,6 +514,66 @@ export async function queryProductOutcomes(env: Env): Promise<ProductOutcomes> {
 	};
 }
 
+/**
+ * A private note, and the company it is about.
+ *
+ * Notes live in their own table and are read by their own queries, never by a
+ * `SELECT c.*` that some public handler also runs. The separation is the safety
+ * property; these four functions are the only way in.
+ */
+export interface Note {
+	company_id: string;
+	body: string;
+	author: string;
+	created_at: string;
+	updated_at: string;
+}
+
+/** A note with enough of its company to list it without a second query. */
+export interface NoteWithCompany extends Note {
+	name: string | null;
+	product: string | null;
+	subsector_id: string | null;
+}
+
+export async function queryNote(env: Env, companyId: string): Promise<Note | null> {
+	return env.DB.prepare('SELECT * FROM notes WHERE company_id = ?').bind(companyId).first<Note>();
+}
+
+/**
+ * Every note, most recently touched first — the notebook, in the order a notebook is
+ * useful. LEFT JOIN because a note about a company that has since dropped out of the
+ * list is still a note, and losing it silently would be the worst failure this table
+ * has.
+ */
+export async function queryNotes(env: Env): Promise<NoteWithCompany[]> {
+	const { results } = await env.DB.prepare(
+		`SELECT n.*, c.name, c.product, c.subsector_id
+     FROM notes n LEFT JOIN companies c ON c.id = n.company_id
+     ORDER BY n.updated_at DESC`,
+	).all<NoteWithCompany>();
+	return results;
+}
+
+/** Write or replace one note. created_at survives an edit; updated_at does not. */
+export async function saveNote(env: Env, companyId: string, body: string, author: string): Promise<void> {
+	const now = new Date().toISOString();
+	await env.DB.prepare(
+		`INSERT INTO notes (company_id, body, author, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?4)
+     ON CONFLICT(company_id) DO UPDATE SET
+       body = excluded.body,
+       author = excluded.author,
+       updated_at = excluded.updated_at`,
+	)
+		.bind(companyId, body, author, now)
+		.run();
+}
+
+export async function deleteNote(env: Env, companyId: string): Promise<void> {
+	await env.DB.prepare('DELETE FROM notes WHERE company_id = ?').bind(companyId).run();
+}
+
 export async function queryRegisterOutcomes(env: Env): Promise<RegisterOutcomes> {
 	const row = await env.DB.prepare(
 		`SELECT
