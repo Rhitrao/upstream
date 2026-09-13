@@ -788,9 +788,22 @@ describe('GET /upstream (the page)', () => {
 		const html = await page('');
 		// The name is not the proposition. It is there, and it is not the headline.
 		expect(html).toContain('<p class="eyebrow">Upstream</p>');
-		expect(html).toMatch(/<h1>3 Indian deep-tech companies, ranked by how few people have heard of them\.<\/h1>/);
+		expect(html).toMatch(/<h1>3 Indian deep-tech companies, sorted by obscurity\.<\/h1>/);
 		// The argument, with the repeatable half emphasised.
-		expect(html).toMatch(/Rank by pedigree and you only ever find <strong>what every other fund has already/);
+		expect(html).toMatch(/which is why <strong>every fund\s+keeps finding the same twenty names<\/strong>/);
+
+		// The proof arrives last, and only after the rule that gives it meaning. A
+		// reader who meets "2 have left one public trace or none" before being told
+		// what a trace is has been shown the best number on the page at the one moment
+		// it cannot mean anything.
+		const lede = html.slice(html.indexOf('class="hook"'), html.indexOf('</p>', html.indexOf('class="hook"')));
+		expect(lede).toMatch(/one incubator listing and no\s+website beats a known name and a press cycle\./);
+		expect(lede.indexOf('incubator listing')).toBeLessThan(lede.indexOf('one public trace or none'));
+		expect(lede).toMatch(/Of the 3 here, 2 have left one public trace or none\./);
+
+		// And the headline owns "obscurity" — the lede under it has to do different
+		// work than repeat the word.
+		expect(lede).not.toContain('obscurity');
 
 		expect(html).toContain('<dt>Companies</dt><dd>3</dd>');
 		expect(html).toContain('<dt>One public trace at most</dt><dd>2</dd>');

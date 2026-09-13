@@ -120,29 +120,51 @@ function tierLabel(tier: Tier): string {
 }
 
 /**
- * The proposition and the argument for it — the two sentences a first-time reader is
+ * The proposition and the argument for it — the sentences a first-time reader is
  * actually guaranteed to read.
  *
  * Kept here rather than inline in the template because they get rewritten far more
  * often than the markup around them, and because a reader who disagrees with this page
- * disagrees with these two sentences and should be able to find them in one grep.
+ * disagrees with these sentences and should be able to find them in one grep.
  *
- * The count is interpolated for the same reason every other number on this page is: a
- * hand-typed 684 is true until tomorrow morning's run.
+ * Every count is interpolated for the same reason every other number on this page is:
+ * a hand-typed 684 is true until tomorrow morning's run.
  */
 function proposition(tracked: number): string {
-	return `${tracked} Indian deep-tech companies, ranked by how few people have heard of them.`;
+	return `${tracked} Indian deep-tech companies, sorted by obscurity.`;
 }
 
 /**
- * The argument, in the order it has to land: what everyone else does, why that fails,
- * what this does instead. The emphasis is on the half worth repeating to a colleague,
- * and it is weight rather than colour — the one yellow on this page already means
- * something else, and a second meaning would cost it the first.
+ * The argument, in the order it has to land.
+ *
+ * One: what everyone else does and why it fails — and this is the sentence written to
+ * be repeated to a colleague, so it carries the emphasis. The emphasis is weight, not
+ * colour: the one yellow on this page already means "nobody has noticed this company
+ * yet", and a second meaning would have cost it the first.
+ *
+ * Two: the rule, in the concrete. It deliberately does not say "obscurity" — the
+ * headline above owns that word, and a lede that repeats it has spent a sentence
+ * saying nothing new. Naming what actually beats what is the sentence that makes the
+ * ranking arguable instead of merely stated.
+ *
+ * Three: the number, and only now. 587 is the best figure on this page and it is
+ * meaningless before a reader knows what a trace is, which is what sentence two just
+ * told them. Held back until it can land.
  */
-const HOOK = `Rank by pedigree and you only ever find <strong>what every other fund has already
-  found</strong>. This ranks the other way: fewest public traces first, the evidence on every row,
-  and no score anywhere.`;
+function hook(tracked: number, oneTrace: number): string {
+	const argument = `Every other list ranks by how impressive a company looks, which is why <strong>every fund
+    keeps finding the same twenty names</strong>. This one ranks the other way: one incubator listing and no
+    website beats a known name and a press cycle.`;
+
+	// On an empty database there is no proof to offer, and "0 of 0" is not a modest
+	// claim, it is a broken one. The argument stands on its own until there is.
+	if (oneTrace === 0) return argument;
+
+	// "or none" rather than "a single trace", because the count is companies with at
+	// most one, and a company found through an incorporation filing alone has left no
+	// trace at all. That one is less known, not more, and belongs in this number.
+	return `${argument} Of the ${tracked} here, ${oneTrace} have left one public trace or none.`;
+}
 
 // --- pieces -----------------------------------------------------------------
 
@@ -211,7 +233,7 @@ function header(view: PageView): string {
 <header class="masthead">
   <p class="eyebrow">Upstream</p>
   <h1>${esc(proposition(tracked))}</h1>
-  <p class="hook">${HOOK}</p>
+  <p class="hook">${hook(tracked, oneTrace)}</p>
   <dl class="stats">
     <div><dt>Companies</dt><dd>${tracked}</dd></div>
     <div><dt>One public trace at most</dt><dd>${oneTrace}</dd></div>
@@ -1126,7 +1148,7 @@ export function renderPage(view: PageView): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Upstream &mdash; Indian deep tech, ranked by obscurity</title>
-<meta name="description" content="Rank by pedigree and you only ever find what every other fund has already found. ${view.tracked} early-stage Indian deep-tech companies, ranked instead by how few public traces they have left, with the evidence on every row.">
+<meta name="description" content="Every other list ranks by how impressive a company looks, which is why every fund keeps finding the same twenty names. ${view.tracked} early-stage Indian deep-tech companies, sorted by obscurity, with the evidence on every row.">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
