@@ -86,6 +86,8 @@ export interface Filters {
 	source: string | null;
 	/** Whether it publishes a website. See SiteState: 'none' is a claim, not an absence. */
 	site: SiteState | null;
+	/** A state as a source wrote it, or 'unknown' for records with none. null for any. */
+	state?: string | null;
 	/** How the list is ordered. See SORTS. */
 	sort: SortChoice;
 	limit: number;
@@ -273,6 +275,12 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 	if (filters.source) {
 		clauses.push('EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.source = ?)');
 		binds.push(filters.source);
+	}
+
+	if (filters.state === 'unknown') clauses.push("COALESCE(c.state, '') = ''");
+	else if (filters.state) {
+		clauses.push('c.state = ?');
+		binds.push(filters.state);
 	}
 
 	if (filters.site === 'has') clauses.push("c.website IS NOT NULL AND c.website <> ''");
@@ -678,6 +686,51 @@ export async function queryNotCompanies(env: Env): Promise<number> {
 		n: number;
 	}>();
 	return row?.n ?? 0;
+}
+
+/**
+ * Where the records are, by state, and how much of that is known.
+ *
+ * Counted over the whole database, like the coverage map, so a tile's number is the
+ * number a click on it reconciles to. The ranked-list share is counted separately
+ * because it is far lower — DPIIT gives a state for every company and is mostly
+ * undated; the dated incubator and grant rows mostly give none — and a page that
+ * quoted only the database-wide share would be flattering the list under it.
+ */
+export interface Places {
+	states: { state: string; n: number }[];
+	located: number;
+	total: number;
+	/** Of the located, how many a DPIIT recognition placed. */
+	fromRegister: number;
+	rankedLocated: number;
+	rankedTotal: number;
+}
+
+export async function queryPlaces(env: Env): Promise<Places> {
+	const [{ results: states }, totals] = await Promise.all([
+		env.DB.prepare("SELECT state, COUNT(*) AS n FROM companies WHERE COALESCE(state, '') <> '' GROUP BY state ORDER BY n DESC, state").all<{
+			state: string;
+			n: number;
+		}>(),
+		env.DB.prepare(
+			`SELECT COUNT(*) AS total,
+			   SUM(COALESCE(state, '') <> '') AS located,
+			   SUM(COALESCE(state, '') <> '' AND EXISTS (SELECT 1 FROM signals s WHERE s.company_id = companies.id AND s.type = 'dpiit')) AS from_register,
+			   SUM(first_seen IS NOT NULL) AS ranked_total,
+			   SUM(first_seen IS NOT NULL AND COALESCE(state, '') <> '') AS ranked_located
+			 FROM companies`,
+		).first<Record<string, number | null>>(),
+	]);
+	const n = (key: string) => Number(totals?.[key] ?? 0);
+	return {
+		states,
+		located: n('located'),
+		total: n('total'),
+		fromRegister: n('from_register'),
+		rankedLocated: n('ranked_located'),
+		rankedTotal: n('ranked_total'),
+	};
 }
 
 /** Where each source stands: its last attempt, and the last run whose data is on the page. */

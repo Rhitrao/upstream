@@ -21,6 +21,7 @@ import {
 	type SiteState,
 	type SortChoice,
 	type SourceHealth,
+	type Places,
 } from './db';
 
 /**
@@ -53,6 +54,9 @@ export interface PageView {
 	notCompanies: number;
 	/** Each source's last attempt and last good run. Empty until a run has reported. */
 	sourceHealth: SourceHealth[];
+	places: Places;
+	/** The state the list is filtered to, 'unknown', or null. */
+	state: string | null;
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -340,6 +344,46 @@ function freshness(view: PageView): string {
 }
 
 /**
+ * Where the records are, as state tiles with the unknown counted beside them.
+ *
+ * Tiles rather than a map. A map of India with pins at district precision, drawn
+ * from under half the records, would show the page's knowledge as geography; a row of
+ * counted tiles with "location unknown" as one of them shows what is and is not
+ * known, and clicking any of them, unknown included, filters the list under it.
+ */
+function geography(view: PageView): string {
+	const p = view.places;
+	if (p.total === 0 || p.located === 0) return '';
+
+	const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
+	const unknown = p.total - p.located;
+	const tile = (state: string, n: number, label = state) => {
+		const on = view.state === state;
+		const href = `${query(viewParams(view, { state: on ? null : state }))}#list`;
+		return `<a class="place${on ? ' on' : ''}${state === 'unknown' ? ' unknown' : ''}" href="${esc(href)}"><span class="place-n">${n}</span> ${esc(label)}</a>`;
+	};
+
+	const underHalf = p.located * 2 < p.total || p.rankedLocated * 2 < p.rankedTotal;
+	const caveat = underHalf
+		? ` <strong>That is under half${p.located * 2 >= p.total ? ' of the ranked list' : ''}, so this is not a picture of where
+    Indian deep-tech is.</strong> ${p.fromRegister} of the ${p.located} located records have a state because the DPIIT register
+    publishes one; the incubator and grant sources mostly do not. The tiles lean towards wherever DPIIT-recognised
+    companies registered.`
+		: '';
+
+	return `
+<section class="places" aria-labelledby="places-h">
+  <h2 id="places-h">Where they are</h2>
+  <p class="note">${p.located} of ${p.total} records (${pct(p.located, p.total)}%) have a state. On the ranked list it is
+    ${p.rankedLocated} of ${p.rankedTotal} (${pct(p.rankedLocated, p.rankedTotal)}%).${caveat}</p>
+  <div class="place-tiles">
+    ${p.states.map((s) => tile(s.state, s.n)).join('\n    ')}
+    ${tile('unknown', unknown, 'location unknown')}
+  </div>
+</section>`;
+}
+
+/**
  * The top of the page. Three things and nothing else: who this is, what it claims, and
  * three numbers that back the claim up.
  *
@@ -440,6 +484,7 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		subsector: view.subsector,
 		source: view.source,
 		site: view.site,
+		state: view.state,
 		sort: view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -587,6 +632,7 @@ function filters(view: PageView): string {
     </div>
   </div>
   ${subsector ? `<input type="hidden" name="subsector" value="${esc(subsector)}">` : ''}
+  ${view.state ? `<input type="hidden" name="state" value="${esc(view.state)}">` : ''}
   <button type="submit" class="apply">Apply</button>
   ${clear}
   <a class="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Download CSV</a>
@@ -723,7 +769,7 @@ function resultSummary(view: PageView): string {
 	if (view.dates === 'undated' && b.ranked > 0) hidden.push(`${b.ranked} dated ${are(b.ranked)} hidden by the dates filter`);
 	if (view.dates === 'dated' && b.undated > 0) hidden.push(`${b.undated} undated ${are(b.undated)} hidden by the dates filter`);
 
-	const filtered = Boolean(view.search || view.sector || view.subsector || view.source || view.site);
+	const filtered = Boolean(view.search || view.sector || view.subsector || view.source || view.site || view.state);
 	if (hidden.length === 0 && !filtered) return '';
 
 	const what = view.search
@@ -1782,6 +1828,12 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site:hover { text-decoration-color: currentColor; }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
 .result-summary { color: var(--muted); }
+.place-tiles { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; }
+.place { border: 1px solid var(--rule); padding: 2px var(--s1); color: var(--ink); text-decoration: none; font-size: var(--t-xs); white-space: nowrap; }
+.place:hover { border-color: var(--rule-strong); }
+.place.on { border-color: var(--ink); background: var(--raise); }
+.place.unknown { border-style: dashed; color: var(--muted); }
+.place-n { font-family: "DM Mono", ui-monospace, monospace; }
 .freshness { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
 .freshness strong { color: var(--ink); }
 .entity-tag { color: var(--muted); font-size: 0.8em; font-weight: normal; white-space: nowrap; }
@@ -1981,6 +2033,7 @@ export function renderPage(view: PageView): string {
 <div class="wrap">
 ${header(view)}
 ${coverageMap(view)}
+${geography(view)}
 ${filters(view)}
 ${list(view)}
 ${undatedList(view)}

@@ -32,6 +32,7 @@ import {
 	type SortChoice,
 	queryGaps,
 	queryHasRanked,
+	queryPlaces,
 	querySourceHealth,
 	queryNotCompanies,
 	queryRegisterOutcomes,
@@ -881,6 +882,9 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		search: (url.searchParams.get('q') || '').trim() || null,
 		source: parseSource(url.searchParams.get('source')),
 		site: parseSite(url.searchParams.get('site')),
+		// Bound as a value, never spliced, so any string is safe; one that names no
+		// state simply matches nothing and the list says so.
+		state: (url.searchParams.get('state') || '').trim().slice(0, 60) || null,
 		sort: parseSort(url.searchParams.get('sort')),
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
@@ -904,7 +908,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, places] = await Promise.all([
 		queryCoverage(env),
 		dates === 'undated'
 			? Promise.resolve([])
@@ -928,6 +932,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		demo ? Promise.resolve(demoProductOutcomes()) : queryProductOutcomes(env),
 		demo ? Promise.resolve(0) : queryNotCompanies(env),
 		querySourceHealth(env),
+		queryPlaces(env),
 	]);
 
 	const html = renderPage({
@@ -944,6 +949,8 @@ async function page(url: URL, env: Env): Promise<Response> {
 		tracked: coverage.total_companies,
 		notCompanies,
 		sourceHealth,
+		places,
+		state: ranked.state ?? null,
 		oneTrace,
 		discoveredThisWeek,
 		sector,

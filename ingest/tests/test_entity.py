@@ -59,5 +59,16 @@ class TheClassifierIsToldAndOnlyTheyRerun(unittest.TestCase):
         self.assertFalse(classify._answered_before_entity_types(company, off_map))
 
 
+
+class AStateForACity(unittest.TestCase):
+    def test_the_cities_the_grants_lists_print_have_states_and_nothing_else_is_guessed(self):
+        from ingest import places
+
+        self.assertEqual(places.state_for(" Bangalore "), "Karnataka")
+        self.assertEqual(places.state_for("Jammu, J & K"), "Jammu and Kashmir")
+        self.assertIsNone(places.state_for("Shell, Tricon Buildwell"))
+        self.assertIsNone(places.state_for(None))
+
+
 if __name__ == "__main__":
     unittest.main()

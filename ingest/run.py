@@ -17,7 +17,7 @@ import traceback
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import entity, health, identity
+from ingest import entity, health, identity, places
 from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
 from ingest.sources import base
 from ingest.sources.base import Company, Signal
@@ -158,6 +158,12 @@ def main() -> int:
                 # one to check, and checking it once means one answer for both copies.
                 first[company.id].website = company.website
                 first[company.id].website_checked = True
+
+    # A source that prints a city and no state still gives a state, where the city is
+    # one of the few these sources use. See ingest/places.py.
+    for company in unique:
+        if not company.state and company.city:
+            company.state = places.state_for(company.city)
 
     # Before classification, because the classifier is told when a record is a
     # person's project: otherwise it writes "the company" about Aishwarya Dasare.

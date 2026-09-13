@@ -1496,6 +1496,59 @@ describe('source health', () => {
 	});
 });
 
+describe('where they are', () => {
+	async function seed() {
+		// The real shape: the register gives a state and no date, the incubators a date
+		// and no state.
+		await post({
+			source: 'dpiit-startup-india',
+			companies: [
+				{ id: 'pune-co', name: 'Pune Co', state: 'Maharashtra', city: 'Pune', sector_id: '2', subsector_id: '2.3' },
+				{ id: 'thane-co', name: 'Thane Co', state: 'Maharashtra', sector_id: '2', subsector_id: '2.3' },
+				{ id: 'surat-co', name: 'Surat Co', state: 'Gujarat', sector_id: '2', subsector_id: '2.3' },
+			],
+			signals: ['pune-co', 'thane-co', 'surat-co'].map((id) => ({ company_id: id, type: 'dpiit', label: 'DPIIT recognised 2026' })),
+		});
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'a', name: 'A Co', origin_year: THIS_YEAR, sector_id: '2', subsector_id: '2.3' },
+				{ id: 'b', name: 'B Co', origin_year: THIS_YEAR, sector_id: '2', subsector_id: '2.3' },
+				{ id: 'c', name: 'C Co', origin_year: THIS_YEAR, sector_id: '2', subsector_id: '2.3' },
+				{ id: 'd', name: 'D Co', origin_year: THIS_YEAR, sector_id: '2', subsector_id: '2.3', state: 'Karnataka' },
+			],
+		});
+	}
+	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+	const rows = (html: string) => [...html.matchAll(/<li class="company" id="c-([^"]+)">/g)].map((m) => m[1]).sort();
+
+	it('counts what is known and unknown, and says when it is under half', async () => {
+		await seed();
+		const html = await text('?tier=all');
+		const section = html.slice(html.indexOf('<section class="places"'), html.indexOf('</section>', html.indexOf('<section class="places"')));
+		expect(section).toContain('4 of 7 records (57%) have a state. On the ranked list it is\n    1 of 4 (25%).');
+		expect(section).toContain('under half of the ranked list');
+		expect(section).toContain('3 of the 4 located records have a state because the DPIIT register');
+		expect(section).toContain('<span class="place-n">2</span> Maharashtra');
+		expect(section).toContain('<span class="place-n">3</span> location unknown');
+	});
+
+	it('filters the list, the counts and the file by a tile, unknown included', async () => {
+		await seed();
+		const maharashtra = await text('?tier=all&age=all&state=Maharashtra');
+		expect(rows(maharashtra)).toEqual(['pune-co', 'thane-co']);
+		expect(maharashtra).toContain('<strong>2</strong> companies match these filters');
+		expect(maharashtra).toContain('<input type="hidden" name="state" value="Maharashtra">');
+
+		const unknown = await text('?tier=all&age=all&state=unknown');
+		expect(rows(unknown)).toEqual(['a', 'b', 'c']);
+
+		const csv = await text('/export.csv?tier=all&age=all&state=Gujarat');
+		expect(csv.trim().split('\n')).toHaveLength(2);
+		expect(csv).toContain('Surat Co');
+	});
+});
+
 describe('counts that reconcile', () => {
 	// Energy Storage, as the reviewer found it: the cell said 14, the list under it
 	// was empty, four undated rows sat below, and the other ten were not accounted
