@@ -18,16 +18,17 @@ import {
 	queryCoverage,
 	queryDiscoveredSince,
 	queryOneTraceCount,
+	queryCompany,
 	queryProductOutcomes,
 	queryGaps,
 	queryHasRanked,
 	queryRegisterOutcomes,
 	type Filters,
 } from './db';
-import { renderPage, type AgeChoice, type TierChoice } from './page';
+import { BASE_PATH, renderCompanyPage, renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
 
-const BASE = '/upstream';
+const BASE = BASE_PATH;
 
 const DEFAULT_LIMIT = 200;
 const MAX_LIMIT = 500;
@@ -126,6 +127,7 @@ async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 	const companies = await queryCompanies(env, {
 		sector: url.searchParams.get('sector') || null,
 		subsector: url.searchParams.get('subsector') || null,
+		search: url.searchParams.get('q') || null,
 		tiers,
 		dated: undated ? 'undated' : 'dated',
 		minOriginYear: undated || age === 'all' ? null : minOriginYear(now),
@@ -677,10 +679,15 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const defaultTier: TierChoice = hasRanked ? 'ab' : 'all';
 	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
 
+	// Trimmed here rather than in the query, so what the box shows, what the URL says
+	// and what was searched for are one string.
+	const search = (url.searchParams.get('q') || '').trim() || null;
+
 	const cutoff = minOriginYear(now);
 	const ranked: Filters = {
 		sector,
 		subsector,
+		search,
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
 		minOriginYear: age === 'all' ? null : cutoff,
@@ -724,6 +731,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		discoveredThisWeek,
 		sector,
 		subsector,
+		search,
 		tier,
 		defaultTier,
 		backfillOnly: !hasRanked,
@@ -733,6 +741,20 @@ async function page(url: URL, env: Env): Promise<Response> {
 	});
 
 	return new Response(html, {
+		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
+	});
+}
+
+// --- GET /upstream/c/:id ----------------------------------------------------
+
+async function companyPage(id: string, env: Env): Promise<Response> {
+	const company = await queryCompany(env, id);
+	if (company === null) {
+		// A plain 404 rather than a redirect to the list: a link that stops working
+		// should say so, not quietly land somebody on a different page.
+		return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+	}
+	return new Response(renderCompanyPage({ company, now: new Date() }), {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
@@ -749,6 +771,15 @@ export default {
 		// Trailing slashes are the same route: /upstream/ is /upstream.
 		const path = url.pathname.replace(/\/+$/, '') || '/';
 		const isRead = request.method === 'GET' || request.method === 'HEAD';
+
+		// One company, by slug. Checked before the switch because it is the only route
+		// with a variable in it, and a slug is not a path: anything with a slash in it
+		// is somebody probing, not a company.
+		if (path.startsWith(`${BASE}/c/`)) {
+			if (!isRead) return methodNotAllowed('GET, HEAD');
+			const id = path.slice(`${BASE}/c/`.length);
+			return id && !id.includes('/') ? companyPage(id, env) : json({ error: 'not found' }, 404);
+		}
 
 		switch (path) {
 			case BASE:

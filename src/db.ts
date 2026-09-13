@@ -10,6 +10,10 @@ export interface Signal {
 	label: string;
 	url: string | null;
 	date: string | null;
+	/** Which scraper saw it. Only the detail view asks; the list has no room to say. */
+	source?: string;
+	/** When we recorded it, as against `date`, which is when it happened. */
+	found_at?: string;
 }
 
 export interface Company {
@@ -60,6 +64,11 @@ export interface Filters {
 	dated: DateState | null;
 	/** Drop anything that started earlier than this year. null lifts the age gate. */
 	minOriginYear: number | null;
+	/**
+	 * Free text, matched against the name and against both descriptions of what the
+	 * company does. null and empty are the same thing: no search.
+	 */
+	search: string | null;
 	limit: number;
 }
 
@@ -188,6 +197,18 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 		binds.push(...tiers);
 	}
 
+	// LIKE over three columns, on a few hundred rows. FTS5 would be the right answer
+	// at a hundred times this size and is theatre at this one — it would add a shadow
+	// table and a trigger to keep in step, to save a scan that takes under a
+	// millisecond. The escape is there because a founder's name really can contain a
+	// percent sign, and an unescaped one silently matches everything.
+	const search = filters.search?.trim();
+	if (search) {
+		const term = `%${search.replace(/[\\%_]/g, '\\$&')}%`;
+		clauses.push(`(c.name LIKE ? ESCAPE '\\' OR c.description LIKE ? ESCAPE '\\' OR c.product LIKE ? ESCAPE '\\')`);
+		binds.push(term, term, term);
+	}
+
 	if (filters.dated === 'dated') clauses.push('c.first_seen IS NOT NULL');
 	if (filters.dated === 'undated') clauses.push('c.first_seen IS NULL');
 
@@ -228,6 +249,28 @@ LIMIT ?`;
 		.all<Record<string, unknown>>();
 
 	return results.map((row) => ({ ...row, signals: parseSignals(row.signals) }) as unknown as Company);
+}
+
+/**
+ * One company, with everything known about it.
+ *
+ * Deliberately unfiltered: the age gate, the tier toggle and the sub-sector filter all
+ * shape a list, and none of them has any business deciding whether a company you asked
+ * for by name exists. A row held back from the front page still has a page.
+ */
+export async function queryCompany(env: Env, id: string): Promise<Company | null> {
+	const row = await env.DB.prepare(
+		`SELECT c.*,
+  (SELECT json_group_array(json_object(
+      'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date, 'source', s.source, 'found_at', s.found_at))
+   FROM signals s WHERE s.company_id = c.id) AS signals
+FROM companies c WHERE c.id = ?`,
+	)
+		.bind(id)
+		.first<Record<string, unknown>>();
+
+	if (row === null) return null;
+	return { ...row, signals: parseSignals(row.signals) } as unknown as Company;
 }
 
 /**

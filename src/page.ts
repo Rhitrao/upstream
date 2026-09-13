@@ -10,6 +10,13 @@ import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
 import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
 import type { Buckets, Company, Coverage, Gaps, ProductOutcomes, RegisterOutcomes, Signal } from './db';
 
+/**
+ * Where this whole site lives. Defined here rather than in the router because the
+ * page builds links and the router matches them, and the two disagreeing is how a
+ * detail link 404s.
+ */
+export const BASE_PATH = '/upstream';
+
 /** The tier toggle has its own vocabulary: A, A+B (the default), everything. */
 export type TierChoice = 'a' | 'ab' | 'all';
 
@@ -38,6 +45,8 @@ export interface PageView {
 	discoveredThisWeek: number;
 	sector: string | null;
 	subsector: string | null;
+	/** What was typed in the search box, trimmed. null when nothing was. */
+	search: string | null;
 	tier: TierChoice;
 	/** What the toggle means by "default" right now — it widens while the ranking is empty. */
 	defaultTier: TierChoice;
@@ -72,6 +81,13 @@ function safeUrl(raw: string | null): string | null {
 	}
 }
 
+/**
+ * A querystring from the parts that are not at their default.
+ *
+ * Defaults are omitted rather than written out, so a shared link carries what the
+ * reader actually chose and nothing else — and so the same view always has the same
+ * url, whichever control got it there.
+ */
 function query(params: Record<string, string | null | undefined>): string {
 	const search = new URLSearchParams();
 	for (const [key, value] of Object.entries(params)) {
@@ -115,10 +131,6 @@ function dateLine(company: Company, now: Date): string | null {
 
 function ageKnown(company: Company): boolean {
 	return company.origin_year !== null || company.founded_year !== null;
-}
-
-function tierLabel(tier: Tier): string {
-	return `Tier ${tier}`;
 }
 
 /**
@@ -251,7 +263,7 @@ function header(view: PageView): string {
 }
 
 function coverageMap(view: PageView): string {
-	const { coverage, subsector, sector, tier, defaultTier, age } = view;
+	const { coverage, subsector, sector, search, tier, defaultTier, age } = view;
 
 	const sectors = coverage.sectors
 		.map((group) => {
@@ -261,6 +273,7 @@ function coverageMap(view: PageView): string {
 					// Clicking the active cell clears the filter, so the map is a toggle.
 					const href = `${query({
 						sector,
+						q: search,
 						subsector: active ? null : cell.subsector_id,
 						tier: tier === defaultTier ? null : tier,
 						age: age === 'recent' ? null : age,
@@ -304,7 +317,7 @@ ${sectors}
 }
 
 function filters(view: PageView): string {
-	const { sector, subsector, tier, defaultTier, age } = view;
+	const { sector, subsector, search, tier, defaultTier, age } = view;
 
 	const options = [`<option value=""${sector ? '' : ' selected'}>All sectors</option>`]
 		.concat(
@@ -346,12 +359,17 @@ function filters(view: PageView): string {
 
 	const clear = subsector
 		? `<a class="clear" href="${esc(
-				query({ sector, tier: tier === defaultTier ? null : tier, age: age === 'recent' ? null : age }),
+				query({ sector, q: search, tier: tier === defaultTier ? null : tier, age: age === 'recent' ? null : age }),
 			)}#list">Clear ${esc(subsector)}</a>`
 		: '';
 
 	return `
 <form class="filters" method="get" action="#list">
+  <div class="field field-search">
+    <label for="q">Search</label>
+    <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="name or what they build"
+      autocomplete="off" spellcheck="false">
+  </div>
   <div class="field">
     <label for="sector">Sector</label>
     <select id="sector" name="sector">
@@ -376,36 +394,34 @@ function filters(view: PageView): string {
 </form>`;
 }
 
-function chips(company: Company): string {
-	const items = company.signals.map((signal: Signal) => {
-		const href = safeUrl(signal.url);
-		const label = esc(signal.label);
-		return href
-			? `<li><a class="chip" href="${esc(href)}" rel="noopener nofollow">${label}</a></li>`
-			: `<li><span class="chip">${label}</span></li>`;
-	});
-
-	// Said out loud, and marked, because here it is a point in the company's favour.
-	// Only where a source that publishes websites came back empty: a register that
-	// has no website field has not told us anything about whether one exists, and
-	// the page's one yellow marker has to keep meaning what it says.
-	if (!company.website && company.website_checked) {
-		items.push('<li><span class="chip positive">no website yet</span></li>');
-	}
-
-	return items.length ? `<ul class="chips">${items.join('')}</ul>` : '';
+/**
+ * How many people already know, as a number rather than as an implication.
+ *
+ * This is the quantity the whole list is sorted by and the row never printed it — a
+ * reader had to count the chips and know that two of the seven signal types are not
+ * traces. 587 of 699 companies have one or none, which is the page's central claim;
+ * a row that states its own trace count is a row that can be checked.
+ */
+function traceLine(company: Company): string {
+	const n = company.trace_count;
+	const said = n === 0 ? 'no public trace' : n === 1 ? '1 public trace' : `${n} public traces`;
+	// Emphasised only where it is the finding. At five traces it is just a number.
+	return `<span class="traces${n <= 1 ? ' quiet' : ''}">${said}</span>`;
 }
 
 function companyRow(company: Company, now: Date): string {
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	// A sub-sector chosen from a register's industry label is a claim about two
-	// vocabularies agreeing, not about the company. The row says which it is.
-	const fromLabel = company.classify_basis === 'register-label' ? '<span class="from-label">sector from register label</span>' : '';
+	// vocabularies agreeing, not about the company. The detail view spells that out;
+	// the row carries the id and the name, which is what a reader scans by.
 	const rdi = sub
-		? `<p class="rdi">RDI ${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}${fromLabel}</p>`
-		: '<p class="rdi unclassified">Not yet classified</p>';
+		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>`
+		: '<span class="rdi unclassified">not yet classified</span>';
 	const site = safeUrl(company.website);
-	const name = site ? `<a href="${esc(site)}" rel="noopener nofollow">${esc(company.name)}</a>` : esc(company.name);
+	// The name goes to the detail view, not to the company. Everything we hold is on
+	// that page, including the link out — and a row whose only link leaves the site is
+	// a row that cannot be looked into.
+	const name = `<a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>`;
 
 	// What the company says it builds, read off its own homepage. Attributed on every
 	// row that carries one, because this is the only line here that is not a fact
@@ -424,15 +440,25 @@ function companyRow(company: Company, now: Date): string {
 	return `
   <li class="company" id="c-${esc(company.id)}">
     <div class="row-head">
-      <span class="tier t${esc(company.tier).toLowerCase()}">${esc(tierLabel(company.tier))}</span>
       <h3>${name}</h3>
-      ${company.city ? `<span class="place">${esc(company.city)}</span>` : ''}
+      ${rdi}
     </div>
     ${builds}
     ${keepDescription ? `<p class="desc">${esc(company.description)}</p>` : ''}
-    ${rdi}
-    ${chips(company)}
-    ${dateLine(company, now) ? `<p class="seen">${dateLine(company, now)}</p>` : ''}
+    <p class="facts">
+      ${traceLine(company)}
+      ${
+				// Four fields, and this is the one a reader acts on fastest: no website
+				// means genuinely early, and it also means you will have to work to reach
+				// them. Only said where a source that publishes websites went looking.
+				site
+					? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">website</a>`
+					: company.website_checked
+						? '<span class="fact-none">no website</span>'
+						: ''
+			}
+      ${dateLine(company, now) ? `<span class="fact-seen">${dateLine(company, now)}</span>` : ''}
+    </p>
   </li>`;
 }
 
@@ -441,11 +467,11 @@ function companyRow(company: Company, now: Date): string {
  * has to account for the other two rather than let the map look like it lied.
  */
 function heldBack(view: PageView): string {
-	const { buckets, sector, subsector, tier, defaultTier, age } = view;
+	const { buckets, sector, subsector, search, tier, defaultTier, age } = view;
 	if (age === 'all' || buckets.older === 0) return '';
 
 	const n = buckets.older;
-	const href = `${query({ sector, subsector, tier: tier === defaultTier ? null : tier, age: 'all' })}#list`;
+	const href = `${query({ sector, subsector, q: search, tier: tier === defaultTier ? null : tier, age: 'all' })}#list`;
 	return `<p class="note">${n} ${n === 1 ? 'company' : 'companies'} here started more than ${MAX_AGE_YEARS} years ago
     and ${n === 1 ? 'is' : 'are'} held back. <a href="${esc(href)}">Show ${n === 1 ? 'it' : 'them'}</a>.</p>`;
 }
@@ -759,9 +785,9 @@ function methodology(view: PageView): string {
     Same companies, same government, two filing systems that do not map onto each other. That is a finding about the
     taxonomies, not a fault in either.</p>
   <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
-    company does, so those rows are marked <span class="from-label">sector from register label</span> and should be
-    read as exactly that much. It also means the fuller cells of the coverage map above are partly a map of where the
-    two vocabularies agree.</p>
+    company does, and should be read as exactly that much. Each company's own page says which of the two it was, in the
+    classifier's own words. It also means the fuller cells of the coverage map above are partly a map of where the two
+    vocabularies agree.</p>
 ${registerSplit(view)}
 
   <h3>What this misses</h3>
@@ -772,6 +798,190 @@ ${registerSplit(view)}
     &mdash; it is a gap in our sources, not evidence that nothing exists. Classification into RDI sub-sectors is automated
     and will sometimes be wrong.</p>
 </section>`;
+}
+
+// --- one company ------------------------------------------------------------
+
+export interface CompanyView {
+	company: Company;
+	now: Date;
+}
+
+/** Why this company is in the tier it is in, in the words of the rule that decided. */
+function whyTier(company: Company): string {
+	if (company.first_seen === null) {
+		return `No source will say when this company became visible, so it cannot be called an early find
+      however new it looks. A row with no date is Tier C by the rule, not by judgement.`;
+	}
+	if (company.first_seen_basis === 'cohort') {
+		return `The date here was read off a published cohort or award year during a backfill. That is the
+      incubator's news rather than ours, and only a company we watched arrive can reach Tier A.`;
+	}
+	const traces = company.trace_count;
+	return `Found in a run of a source that was already running, with ${traces === 1 ? '1 public trace' : `${traces} public traces`}
+    at the time. Tier A is a discovery under 90 days old with at most 2 traces; Tier B under 180 days with
+    at most 5.`;
+}
+
+/** What reading the homepage came to, said in full on the one page with room for it. */
+function productDetail(company: Company): string {
+	const site = safeUrl(company.website);
+	const link = site ? ` <a href="${esc(site)}" rel="noopener nofollow">${esc(site)}</a>` : '';
+
+	switch (company.product_status) {
+		case 'described':
+			return `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>
+        <p class="provenance">Read from${link || ' their homepage'} and not checked against anything. It is what the
+        company says about itself.</p>`;
+		case 'unreachable':
+			return `<p class="provenance">They publish${link}, and it does not answer. A recognised startup whose
+        own domain has stopped resolving is worth knowing about.</p>`;
+		case 'refused':
+			return `<p class="provenance">${link || 'Their site'} refused an automated reader, which is its right. What
+        they build is on that page; nobody here has read it.</p>`;
+		case 'thin':
+			return `<p class="provenance">${link || 'Their site'} answered with a page that draws itself in the
+        browser and carries no readable text, so there was nothing on it to read.</p>`;
+		case 'unclear':
+			return `<p class="provenance">We read${link || ' their homepage'} and it never said what they make.</p>`;
+		default:
+			// No status at all, which is three different situations and not one. The
+			// first is the trap: a company with a website we simply have not read yet
+			// is not a company without a website, and saying so would invent a finding
+			// out of a queue.
+			if (site) {
+				return `<p class="provenance">They publish${link}. Nobody has read it yet &mdash; the nightly run works
+          through new companies a few at a time.</p>`;
+			}
+			return company.website_checked
+				? `<p class="provenance">No website. A source that publishes them went looking and came back with
+          nothing, which on this list counts in their favour.</p>`
+				: `<p class="provenance">No source has published a website for this company, so we do not know
+          whether there is one.</p>`;
+	}
+}
+
+/**
+ * Everything held about one company, on a page of its own.
+ *
+ * The list has to choose four facts; this chooses none. The classifier's reasoning is
+ * printed verbatim rather than summarised, every signal is a link back to the page it
+ * came from, and all four dates are separate because they mean four different things.
+ * Somebody disagreeing with a placement should be able to see exactly what was decided
+ * and on what, without an API key and without reading the source.
+ */
+export function renderCompanyPage(view: CompanyView): string {
+	const { company, now } = view;
+	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
+	const site = safeUrl(company.website);
+
+	const signals = company.signals.length
+		? `<ul class="evidence">${company.signals
+				.map((signal) => {
+					const href = safeUrl(signal.url);
+					const where = href
+						? `<a href="${esc(href)}" rel="noopener nofollow">${esc(new URL(href).hostname)}</a>`
+						: '<span class="no-link">no link published</span>';
+					const when = signal.date ? `<span class="ev-date">${esc(signal.date)}</span>` : '';
+					return `<li>
+        <span class="ev-type">${esc(signal.type)}</span>
+        <span class="ev-label">${esc(signal.label)}</span>
+        ${when}
+        ${where}
+      </li>`;
+				})
+				.join('')}</ul>`
+		: '<p class="provenance">No signals recorded, which should not be possible &mdash; every company here arrived with at least one.</p>';
+
+	const dates = [
+		['Started', company.origin_year ?? company.founded_year, 'The year a source says the company began. This is what the age gate reads.'],
+		[
+			'On record',
+			company.first_seen,
+			company.first_seen_basis === 'cohort' ? 'Read off a published cohort or award year.' : 'The day it appeared in a run of ours.',
+		],
+		['In this database', company.discovered, 'The day the row was written. Never a claim about the company.'],
+	] as const;
+
+	return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(company.name)} &mdash; Upstream</title>
+<meta name="description" content="${esc(company.product ?? company.description ?? company.name)}">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<style>${STYLES}</style>
+</head>
+<body>
+<div class="wrap detail">
+  <p class="eyebrow"><a href="${esc(BASE_PATH)}">&larr; Upstream</a></p>
+
+  <header class="masthead">
+    <h1>${esc(company.name)}</h1>
+    <p class="facts">
+      ${traceLine(company)}
+      ${site ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : ''}
+      ${company.city ? `<span class="fact-seen">${esc(company.city)}${company.state ? `, ${esc(company.state)}` : ''}</span>` : ''}
+    </p>
+  </header>
+
+  <section>
+    <h2>What they build</h2>
+    ${productDetail(company)}
+    ${company.description ? `<p class="desc">${esc(company.description)}<span class="says">as the source described it</span></p>` : ''}
+  </section>
+
+  <section>
+    <h2>Where it sits in the RDI scheme</h2>
+    ${
+			sub
+				? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
+      ${company.project_type ? `<p class="provenance">Matched project: ${esc(company.project_type)}</p>` : ''}
+      ${
+				// The note is quoted when there is one; what the classifier was working from
+				// is stated either way. That distinction used to be a marker on the row, and
+				// nesting it inside the quote would have let it vanish for every company
+				// placed without a recorded reason.
+				company.classify_note ? `<blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote>` : ''
+			}
+      <p class="provenance">${company.classify_note ? 'That is the classifier&rsquo;s reasoning, printed as it was written. It' : 'The classifier'}
+        was working from ${
+					company.classify_basis === 'register-label'
+						? "a register's industry label, not a description of what the company does, so this placement rests on two vocabularies agreeing rather than on anything published about the company"
+						: 'the description above'
+				}.</p>`
+				: '<p class="provenance">Not placed in any sub-sector.</p>'
+		}
+  </section>
+
+  <section>
+    <h2>Evidence</h2>
+    <p class="provenance">Everything that put this company on the list, with the page it came from.</p>
+    ${signals}
+  </section>
+
+  <section>
+    <h2>Dates</h2>
+    <dl class="dates">
+      ${dates
+				.filter(([, value]) => value)
+				.map(([label, value, why]) => `<div><dt>${label}</dt><dd>${esc(value)}</dd><dd class="why">${why}</dd></div>`)
+				.join('')}
+    </dl>
+    ${company.first_seen === null ? '<p class="provenance">No source will say when this company became visible, so the list keeps it out of the ranking.</p>' : ''}
+  </section>
+
+  <section>
+    <h2>Tier ${esc(company.tier)}</h2>
+    <p class="provenance">${whyTier(company)}</p>
+  </section>
+</div>
+</body>
+</html>`;
 }
 
 // --- styles -----------------------------------------------------------------
@@ -1092,7 +1302,7 @@ select:hover, .apply:hover { border-color: var(--rule-strong); }
    show which one was meant. */
 .company:focus-within { background: var(--raise); }
 .company:target { background: var(--raise); box-shadow: inset 2px 0 0 var(--ink); }
-.row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2); margin-bottom: var(--s0h); }
+.row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); margin-bottom: var(--s2); }
 .row-head h3 { font-size: var(--t-h); font-weight: 600; margin: 0; flex: 1 1 auto; }
 .row-head h3 a { text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .row-head h3 a:hover { text-decoration-color: currentColor; }
@@ -1137,8 +1347,18 @@ select:hover, .apply:hover { border-color: var(--rule-strong); }
   white-space: nowrap;
 }
 .desc { margin: 0 0 var(--s0h); max-width: 56ch; color: var(--muted); font-size: var(--t-sm); }
-.rdi { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s2); font-family: var(--mono); }
-.rdi.unclassified { font-style: italic; }
+.rdi {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: var(--s0) var(--s2);
+}
+a.rdi:hover { border-color: var(--rule-strong); color: var(--ink); }
+.rdi.unclassified { font-style: italic; border-style: dashed; }
 .from-label {
   margin-left: var(--s2);
   padding: var(--s0) var(--s0h);
@@ -1162,6 +1382,32 @@ select:hover, .apply:hover { border-color: var(--rule-strong); }
 a.chip { color: var(--ink); }
 a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .chip.positive { background: var(--mark); border-color: var(--mark); color: #141310; }
+
+/* the four facts a row carries */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s3);
+  margin: 0;
+  font-size: var(--t-xs);
+  color: var(--muted);
+}
+.facts > * { white-space: nowrap; }
+/* The number the list is sorted by. Set in ink at one trace or none, because that
+   is the claim; at five it is just a number and stays muted. */
+.traces { font-family: var(--mono); }
+.traces.quiet { color: var(--ink); }
+/* The page's one yellow, and the same meaning it has always had: nobody has noticed
+   this company yet. It moved off a pill and onto the fact itself, which is a
+   highlighter rather than a badge — and the way this yellow is used on rohitrao.in. */
+.fact-none {
+  background: linear-gradient(to top, var(--mark) 0%, var(--mark) 45%, transparent 45%);
+  color: var(--ink);
+  padding: 0 var(--s0h) var(--s0);
+}
+.fact-site { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.fact-site:hover { text-decoration-color: currentColor; }
 .seen { font-size: var(--t-xs); color: var(--muted); margin: 0; }
 .empty { color: var(--muted); }
 /* Below the ranking and visibly outside it — same rows, no claim about time. */
@@ -1195,6 +1441,85 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
   padding: var(--s3) var(--s4);
   margin: var(--s4) 0 var(--s1);
 }
+
+/* search */
+.field-search { flex: 1 1 14rem; min-width: 0; }
+input[type='search'] {
+  font: inherit;
+  font-size: var(--t-sm);
+  color: inherit;
+  background: var(--raise);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+  width: 100%;
+  min-width: 0;
+}
+input[type='search']:hover { border-color: var(--rule-strong); }
+input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* one company */
+.detail section { margin-bottom: var(--s6); }
+.detail section > h2 {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 500;
+  margin: 0 0 var(--s3);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--rule);
+}
+.detail .masthead h1 { max-width: 20ch; }
+.detail .eyebrow a { text-decoration: none; }
+.detail .eyebrow a:hover { color: var(--ink); }
+/* Why a thing is what it is. Muted, because it is always explaining something else
+   on the page rather than being the thing itself. */
+.provenance { font-size: var(--t-sm); color: var(--muted); max-width: 60ch; }
+/* The classifier's reasoning, printed as written. Set apart so it cannot be mistaken
+   for the page speaking in its own voice. */
+.note-verbatim {
+  margin: var(--s3) 0;
+  padding: var(--s3) var(--s4);
+  border-left: 2px solid var(--rule-strong);
+  background: var(--raise);
+  font-size: var(--t-sm);
+  max-width: 60ch;
+}
+.rdi-full { font-family: var(--mono); font-size: var(--t-sm); margin: 0 0 var(--s2); }
+.evidence { list-style: none; margin: 0; padding: 0; }
+.evidence li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s3);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-sm);
+}
+.ev-type {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  flex: 0 0 5.5rem;
+}
+.ev-label { flex: 1 1 16rem; }
+.ev-date { font-family: var(--mono); font-size: var(--t-micro); color: var(--muted); }
+.no-link { color: var(--muted); font-style: italic; }
+.dates { margin: 0; }
+.dates > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s3);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+}
+.dates dt { flex: 0 0 8rem; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.dates dd { margin: 0; font-family: var(--mono); font-size: var(--t-sm); }
+.dates dd.why { font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); flex: 1 1 18rem; }
 
 /* methodology */
 .method h3 { font-size: var(--t-body); margin: var(--s5) 0 var(--s2); }

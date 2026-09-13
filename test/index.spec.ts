@@ -613,6 +613,12 @@ describe('GET /upstream (the page)', () => {
 		return res.text();
 	}
 
+	async function detail(id: string) {
+		const res = await SELF.fetch(`${ORIGIN}/upstream/c/${id}`);
+		expect(res.status).toBe(200);
+		return res.text();
+	}
+
 	it('renders 44 coverage cells, all empty, on an empty database', async () => {
 		const html = await page();
 		// Nothing has arrived in a backfill either, so the page says nothing about one.
@@ -650,9 +656,11 @@ describe('GET /upstream (the page)', () => {
 		expect(demo).toContain('Pravaha Filtration Private Limited');
 		expect(demo).not.toContain('Saral Hydro Systems Private Limited');
 		expect(demo).toContain('held back');
-		// The four-word lesson in how the ranking works.
-		expect(demo).toContain('no website yet');
-		expect(demo).toContain('RDI 2.5 &mdash; Space Technologies');
+		// The two-word lesson in how the ranking works, still carrying the page's one
+		// yellow — it moved from a pill to the fact itself and kept its meaning.
+		expect(demo).toContain('<span class="fact-none">no website</span>');
+		// The sub-sector is a filter link on the row now, not a sentence.
+		expect(demo).toMatch(/<a class="rdi" href="\?subsector=2\.5">2\.5 Space Technologies<\/a>/);
 	});
 
 	it('puts undated companies in their own section, out of the ranking', async () => {
@@ -680,17 +688,16 @@ describe('GET /upstream (the page)', () => {
 			],
 		});
 
-		const html = await page('?tier=all');
-		// Sliced by row anchor: the methodology explains the marker using the same
-		// words, so anything looser than this passes for the wrong reason.
-		const row = (id: string) => {
-			const start = html.indexOf(`id="c-${id}"`);
-			return html.slice(start, html.indexOf('</li>', start));
-		};
-		expect(row('from-label')).toContain('sector from register label');
-		expect(row('from-desc')).not.toContain('sector from register label');
+		// The marker left the row when the row was cut to four facts, and it went
+		// somewhere with room to say it properly: each company's own page, in the
+		// classifier's words. What must not happen is it quietly disappearing.
+		const label = await detail('from-label');
+		const desc = await detail('from-desc');
+		expect(label).toContain("a register's industry label, not a description of what the company does");
+		expect(desc).toContain('the description above');
+
 		// And the finding is written up, not just marked.
-		expect(html).toContain('Two official classifications that do not meet');
+		expect(await page('?tier=all')).toContain('Two official classifications that do not meet');
 	});
 
 	it('refuses a classify_basis nobody defined', async () => {
@@ -703,7 +710,7 @@ describe('GET /upstream (the page)', () => {
 		expect(await page('?tier=all')).toContain('<li class="company" id="c-hexcarb-advanced-materials">');
 	});
 
-	it('only marks "no website yet" where a source actually looked', async () => {
+	it('only says "no website" where a source actually looked', async () => {
 		await post({
 			source: 'test',
 			mode: 'live',
@@ -714,9 +721,17 @@ describe('GET /upstream (the page)', () => {
 		});
 
 		const html = await page('?tier=all');
-		const looked = html.slice(html.indexOf('Looked At Co'), html.indexOf('Register Only Co'));
-		expect(looked).toContain('no website yet');
-		expect(html.slice(html.indexOf('Register Only Co'))).not.toContain('no website yet');
+		// Sliced to the row, not to the end of the document: the methodology below
+		// counts these companies in a sentence containing the same words, and a looser
+		// slice would pass or fail for reasons that have nothing to do with the row.
+		const row = (id: string) => {
+			const start = html.indexOf(`id="c-${id}"`);
+			return html.slice(start, html.indexOf('</li>', start));
+		};
+		expect(row('looked')).toContain('<span class="fact-none">no website</span>');
+		// A register with no website field has said nothing about whether one exists,
+		// and the row must not turn that silence into a claim.
+		expect(row('register')).not.toContain('no website');
 	});
 
 	it('lets one source that looked settle it for the others', async () => {
@@ -1012,8 +1027,168 @@ describe('GET /upstream (the page)', () => {
 		expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
 		expect(html).not.toContain('<script>alert(1)</script>');
 		expect(html).not.toContain('javascript:');
-		// Nothing to link to, so the chip stays plain text.
-		expect(html).toContain('<span class="chip">click &quot;me&quot;</span>');
+
+		// The signal labels moved to the company's own page, and so does this. A
+		// javascript: url is refused an href and the label stays text either way.
+		const one = await detail('xss');
+		expect(one).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+		expect(one).not.toContain('javascript:');
+		expect(one).toContain('click &quot;me&quot;');
+		expect(one).toContain('no link published');
+	});
+});
+
+describe('searching and one company at a time', () => {
+	async function seed() {
+		await post({
+			source: 'test',
+			mode: 'live',
+			companies: [
+				{
+					id: 'kadamb-biolabs',
+					name: 'Kadamb Biolabs',
+					description: 'DPIIT-recognised startup. Industry: Biotechnology. Stage: Prototype.',
+					website: 'https://kadamb.example',
+					city: 'Pune',
+					state: 'Maharashtra',
+					origin_year: THIS_YEAR,
+					sector_id: '4',
+					subsector_id: '4.2',
+					project_type: 'Diagnostics and devices',
+					classify_note: 'Assay kits place this in diagnostics rather than therapeutics.',
+					classify_basis: 'register-label',
+					product: 'Benchtop assay kits for district hospitals.',
+					product_status: 'described',
+				},
+				{
+					id: 'nistara-grid',
+					name: 'Nistara Grid',
+					description: 'Grid-scale flow batteries.',
+					origin_year: THIS_YEAR,
+					sector_id: '1',
+					subsector_id: '1.4',
+				},
+			],
+			signals: [
+				{
+					company_id: 'kadamb-biolabs',
+					type: 'incubator',
+					label: 'SINE cohort 2026',
+					url: 'https://sineiitb.org/portfolio/',
+					date: '2026-01-04',
+				},
+				{ company_id: 'kadamb-biolabs', type: 'press', label: 'no url for this one' },
+			],
+		});
+	}
+
+	it('searches the name, the source description and what they build', async () => {
+		await seed();
+		const listed = async (q: string) => {
+			const body = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all&q=${encodeURIComponent(q)}`)).json<any>();
+			return body.companies.map((c: any) => c.id).sort();
+		};
+
+		expect(await listed('kadamb')).toEqual(['kadamb-biolabs']);
+		// The homepage sentence is searchable, which is most of the point of having it:
+		// "assay" appears nowhere in this company's name or in the register's line.
+		expect(await listed('assay')).toEqual(['kadamb-biolabs']);
+		expect(await listed('flow batteries')).toEqual(['nistara-grid']);
+		expect(await listed('nothing here')).toEqual([]);
+	});
+
+	it('treats a percent sign as a character, not as every row', async () => {
+		await seed();
+		const body = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all&q=%25`)).json<any>();
+		expect(body.companies).toHaveLength(0);
+	});
+
+	it('keeps the search when a coverage cell or the age gate is clicked', async () => {
+		await seed();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?q=assay&tier=all&age=all`)).text();
+		// Every link that changes the view has to carry what was typed, or the reader
+		// loses their search by touching the map.
+		expect(html).toMatch(/href="\?q=assay&amp;subsector=4\.2[^"]*"/);
+		expect(html).toContain('value="assay"');
+	});
+
+	it('gives every company a page of its own, with the reasoning printed as written', async () => {
+		await seed();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/kadamb-biolabs`)).text();
+
+		expect(html).toContain('<h1>Kadamb Biolabs</h1>');
+		// Verbatim, not summarised. Somebody disagreeing with a placement has to be
+		// able to see exactly what was decided and on what.
+		expect(html).toContain('Assay kits place this in diagnostics rather than therapeutics.');
+		expect(html).toContain("a register's industry label, not a description of what the company does");
+		expect(html).toContain('4.2');
+		expect(html).toContain('Diagnostics and devices');
+
+		// Every signal, with the page it came from — and the one with no url saying so
+		// rather than silently rendering as text.
+		expect(html).toContain('sineiitb.org');
+		expect(html).toContain('SINE cohort 2026');
+		expect(html).toContain('no link published');
+
+		// The dates are separate because they mean different things.
+		expect(html).toContain('In this database');
+		expect(html).toContain('On record');
+
+		// And the tier, with the rule that produced it rather than just the letter.
+		expect(html).toMatch(/<h2>Tier [ABC]<\/h2>/);
+		expect(html).toContain('Tier A is a discovery under 90 days old');
+	});
+
+	it('says what reading the homepage came to, whichever way it went', async () => {
+		await post({
+			source: 'test',
+			companies: [
+				{ id: 'dead', name: 'Dead Domain Co', website: 'https://dead.example', product_status: 'unreachable' },
+				{ id: 'shell', name: 'Shell Co', website: 'https://shell.example', product_status: 'thin' },
+			],
+		});
+
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/dead`)).text()).toContain('it does not answer');
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/shell`)).text()).toContain('draws itself in the');
+
+		// A website nobody has read yet is not a company without a website. Getting
+		// this wrong invents a finding out of a queue.
+		await post({ source: 'test', companies: [{ id: 'queued', name: 'Queued Co', website: 'https://queued.example' }] });
+		const queued = await (await SELF.fetch(`${ORIGIN}/upstream/c/queued`)).text();
+		expect(queued).toContain('Nobody has read it yet');
+		expect(queued).not.toContain('No website');
+	});
+
+	it('shows a company the front page is holding back', async () => {
+		// Undated, so it never appears in the ranking. Asking for it by name still
+		// works: a filter shapes a list and has no business deciding what exists.
+		await post({ source: 'test', companies: [{ id: 'undated-co', name: 'Undated Co', sector_id: '5', subsector_id: '5.1' }] });
+		const res = await SELF.fetch(`${ORIGIN}/upstream/c/undated-co`);
+		expect(res.status).toBe(200);
+		expect(await res.text()).toContain('<h1>Undated Co</h1>');
+	});
+
+	it('404s a company that is not there, rather than landing somebody on the list', async () => {
+		const res = await SELF.fetch(`${ORIGIN}/upstream/c/no-such-company`);
+		expect(res.status).toBe(404);
+	});
+
+	it('links the row to the company rather than straight off the site', async () => {
+		await seed();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		const start = html.indexOf('id="c-kadamb-biolabs"');
+		const row = html.slice(start, html.indexOf('</li>', start));
+
+		expect(row).toContain('href="/upstream/c/kadamb-biolabs"');
+		// The four facts that change a sourcing decision, and the trace count said out
+		// loud rather than left to be inferred from counting chips.
+		expect(row).toContain('Benchtop assay kits for district hospitals.');
+		expect(row).toContain('2 public traces');
+		expect(row).toContain('website');
+		expect(row).toContain('first seen');
+		// And the tier badge is gone from the row: every company is Tier C today, so
+		// it was a column of identical labels that read as a bug.
+		expect(row).not.toContain('Tier C');
 	});
 });
 
