@@ -275,6 +275,9 @@ interface CompanyInput {
 	/** How far the website got through the identity check: see WEBSITE_IDENTITIES. */
 	website_identity?: string | null;
 	website_identity_note?: string | null;
+	/** A year printed beside the company whose meaning the source does not state. */
+	source_year?: number | null;
+	source_year_type?: string | null;
 	/** company, researcher-project, lab or unverified — see ENTITY_TYPES. */
 	entity_type?: string | null;
 	entity_note?: string | null;
@@ -287,7 +290,7 @@ interface CompanyInput {
  * sentence for — the same failure the signal vocabulary was locked down to prevent.
  * Adding one is an edit here and a sentence on the page, in that order.
  */
-const PRODUCT_STATUSES = new Set(['described', 'unreachable', 'refused', 'thin', 'unclear', 'unverified']);
+const PRODUCT_STATUSES = new Set(['described', 'unreachable', 'refused', 'thin', 'unclear', 'unverified', 'source-described']);
 
 /**
  * How far a website got towards being evidence about this company — migration 0008.
@@ -335,9 +338,9 @@ const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
   id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
-  website_identity, website_identity_note, entity_type, entity_note,
+  website_identity, website_identity_note, entity_type, entity_note, source_year, source_year_type,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
@@ -347,6 +350,8 @@ ON CONFLICT(id) DO UPDATE SET
   website       = CASE WHEN excluded.website_identity IS NOT NULL THEN excluded.website
                        ELSE COALESCE(excluded.website, companies.website) END,
   entity_type   = COALESCE(excluded.entity_type,   companies.entity_type),
+  source_year      = COALESCE(excluded.source_year,      companies.source_year),
+  source_year_type = COALESCE(excluded.source_year_type, companies.source_year_type),
   entity_note   = COALESCE(excluded.entity_note,   companies.entity_note),
   website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
   website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
@@ -508,6 +513,15 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const productStatus = str(c.product_status);
 		if (productStatus !== null && !PRODUCT_STATUSES.has(productStatus)) {
 			return json({ error: `companies[${i}].product_status must be one of ${[...PRODUCT_STATUSES].join(', ')}` }, 400);
+		}
+		const sourceYear = c.source_year;
+		if (sourceYear !== undefined && sourceYear !== null && !isPlausibleYear(int(sourceYear), now)) {
+			return json({ error: `companies[${i}].source_year must be a four-digit year no later than next year` }, 400);
+		}
+		// Only one meaning exists today, and it is "nobody said". A second one would be
+		// a claim about what the year means, and has to be added here on purpose.
+		if (str(c.source_year_type) !== null && str(c.source_year_type) !== 'unknown') {
+			return json({ error: `companies[${i}].source_year_type must be unknown` }, 400);
 		}
 		const entityType = str(c.entity_type);
 		if (entityType !== null && !ENTITY_TYPES.has(entityType)) {
@@ -704,6 +718,8 @@ async function applyIngest(
 			str(c.website_identity_note),
 			str(c.entity_type),
 			str(c.entity_note),
+			int(c.source_year),
+			str(c.source_year_type),
 		);
 	});
 

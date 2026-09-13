@@ -86,6 +86,14 @@ UNCLEAR = "unclear"
 # so nothing on it was read. Not a failure of the site: a refusal on our side to
 # attribute a stranger's homepage to them.
 UNVERIFIED = "unverified"
+# The source's own card already says what the company builds, in a sentence written
+# about it rather than by it. Reading the homepage too would pay for a second, less
+# neutral version of the same sentence.
+SOURCE_DESCRIBED = "source-described"
+
+# Sources whose listing describes the product. Their companies' homepages are still
+# checked for identity — that is free, and it decides the trace — but not read.
+DESCRIBED_BY_SOURCE = frozenset({"venture-center"})
 
 SYSTEM = """You read a company's own homepage and say what the company builds.
 
@@ -363,6 +371,9 @@ def enrich(
         if held is not None:
             results[company.id] = Product(status=held, source="fetch" if text is None else "identity")
             continue
+        if company.source in DESCRIBED_BY_SOURCE:
+            results[company.id] = Product(status=SOURCE_DESCRIBED, source="identity")
+            continue
 
         entry = cache.get(company.id)
         if entry and entry.get("hash") == _fingerprint(company, text):
@@ -461,7 +472,7 @@ def enrich(
 # Every outcome where something answered at the address. A page that refused us, drew
 # itself in JavaScript or said nothing useful is still a website a person can visit,
 # which is all Part 9 asks of "a live website". Only a dead domain is not.
-ANSWERED = frozenset({DESCRIBED, REFUSED, THIN, UNCLEAR, UNVERIFIED})
+ANSWERED = frozenset({DESCRIBED, REFUSED, THIN, UNCLEAR, UNVERIFIED, SOURCE_DESCRIBED})
 
 # Part of the signal's UNIQUE key, so it must never be reworded casually: a new label
 # is a second trace for every company that already has the first.

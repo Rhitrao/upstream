@@ -63,12 +63,13 @@ a known cost.
 
 ## Where the data comes from
 
-Four public sources, none behind a login:
+Five public sources, none behind a login:
 
 | Source | What it gives |
 |---|---|
 | [SINE, IIT Bombay](https://www.sineiitb.org/portfolio/) | incubator portfolio, with incubation year |
 | [RTBI, IIT Madras](https://rtbi.in/incubationiitm/portfolio.html) | incubator portfolio |
+| [Venture Center, Pune](https://www.venturecenter.co.in/startups-and-success-stories/startups) | incubator portfolio, with a sentence on what each company builds; its bracketed year is kept with its meaning marked unknown |
 | [`ingest/sources/grants.csv`](ingest/sources/grants.csv) | BIRAC BIG rounds 21–24 and DST NIDHI-PRAYAS awardees, typed up from the published lists, each row linked to its list |
 | [DPIIT Startup India](https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup) | the newest recognitions in deep-tech industries, read from the end of the register |
 
@@ -109,8 +110,8 @@ extra requests.
 
 A fair amount. These are measured against the live database, not guessed.
 
-- **Four sources is a narrow view.** Patent filings, new MCA incorporations and every incubator
-  other than SINE and RTBI are not read. Incubators that publish tidy portfolio pages are
+- **Five sources is a narrow view.** Patent filings, new MCA incorporations and every incubator
+  other than SINE, RTBI and Venture Center are not read. Incubators that publish tidy portfolio pages are
   over-represented, and quieter regional ones hardly show up at all.
 - **No LinkedIn, and no stealth companies.** Proxycurl shut down in 2025 and scraping LinkedIn breaks
   its terms, so that gap is accepted. If a company hasn't appeared anywhere public, this can't see it.

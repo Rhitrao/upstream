@@ -18,7 +18,7 @@ from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
 from ingest import entity, health, identity
-from ingest.sources import dpiit, grants_csv, rtbi, sine
+from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
 from ingest.sources import base
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, upload
@@ -26,7 +26,9 @@ from ingest.upload import PRODUCTION, upload
 # Order decides which source's description a shared company keeps, and the
 # grants CSV goes last on purpose: "BIG awardee, category: Diagnostics" is a
 # worse thing to classify on than whatever the incubator wrote about them.
-SOURCES = [sine, rtbi, grants_csv, dpiit]
+# Venture Center last: a company it shares with an older source keeps that source's row
+# and cached classification, so adding it re-buys nothing that was already placed.
+SOURCES = [sine, rtbi, grants_csv, dpiit, venture_center]
 
 
 def scrape(module) -> tuple[list[Company], list[Signal]]:

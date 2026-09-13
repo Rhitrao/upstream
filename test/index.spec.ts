@@ -1417,6 +1417,45 @@ describe('people and projects are not companies', () => {
 	});
 });
 
+describe('a year a source does not explain', () => {
+	it('is stored and shown as printed, and dates and ranks nothing', async () => {
+		await post({
+			source: 'venture-center',
+			mode: 'live',
+			companies: [
+				{
+					id: 'call-x-ringers',
+					name: 'Call X Ringers Pvt Ltd',
+					description: 'Closing the loop on lithium-ion batteries.',
+					sector_id: '1',
+					subsector_id: '1.4',
+					source_year: 2015,
+					source_year_type: 'unknown',
+					website: 'https://lithiumionbattery-recycling.com/',
+					website_identity: 'associated',
+					product_status: 'source-described',
+				},
+			],
+		});
+		const row = await env.DB.prepare('SELECT origin_year, source_year, source_year_type, product_status FROM companies WHERE id = ?').bind('call-x-ringers').first<any>();
+		expect(row).toEqual({ origin_year: null, source_year: 2015, source_year_type: 'unknown', product_status: 'source-described' });
+
+		// 2015 would be past the five-year gate if it were read as a start year. It is not.
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all`)).text();
+		expect(html).toContain('Call X Ringers Pvt Ltd');
+
+		const detail = await (await SELF.fetch(`${ORIGIN}/upstream/c/call-x-ringers`)).text();
+		expect(detail).toContain('Year on the source listing');
+		expect(detail).toContain('no word on what it counts');
+		expect(detail).toContain('listing already says what they build');
+
+		const claimed = await post({ source: 'venture-center', companies: [{ id: 'y', name: 'Y', source_year: 2015, source_year_type: 'founded' }] });
+		expect(claimed.status).toBe(400);
+		const impossible = await post({ source: 'venture-center', companies: [{ id: 'y', name: 'Y', source_year: 1015 }] });
+		expect(impossible.status).toBe(400);
+	});
+});
+
 describe('source health', () => {
 	async function report(runs: unknown[], key = KEY) {
 		return SELF.fetch(`${ORIGIN}/upstream/api/source-runs`, {

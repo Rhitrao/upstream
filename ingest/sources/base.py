@@ -96,6 +96,11 @@ class Company:
     founded_year: int | None = None
     origin_year: int | None = None
     record_year: int | None = None
+    # A year a source prints beside a company without saying what it is ("Call X
+    # Ringers Pvt Ltd (2026)"). Kept, so nothing is thrown away, and never read as a
+    # founding or record year: its type says how much is known about it.
+    source_year: int | None = None
+    source_year_type: str | None = None
     sector_id: str | None = None
     subsector_id: str | None = None
     project_type: str | None = None

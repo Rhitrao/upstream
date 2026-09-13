@@ -448,12 +448,13 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 	};
 }
 
-/** The labels for the four sources, since the ids are not written for reading. */
+/** The labels for the sources, since the ids are not written for reading. */
 const SOURCE_LABELS: Record<string, string> = {
 	'sine-iitb': 'SINE IIT Bombay',
 	'rtbi-iitm': 'IIT Madras RTBI',
 	'grants-csv': 'Government grants',
 	'dpiit-startup-india': 'DPIIT register',
+	'venture-center': 'Venture Center',
 };
 
 const SORT_LABELS: Record<SortChoice, string> = {
@@ -1022,9 +1023,10 @@ function methodology(view: PageView): string {
   <h2 id="method-h">Methodology</h2>
 
   <h3>Where this comes from</h3>
-  <p>Public sources only, nothing behind a login. Four are read today: two incubator portfolios
-    (<a href="https://www.sineiitb.org/portfolio/" rel="noopener">SINE IIT Bombay</a> and
-    <a href="https://rtbi.in/incubationiitm/portfolio.html" rel="noopener">IIT Madras RTBI</a>), the published award lists
+  <p>Public sources only, nothing behind a login. Five are read today: three incubator portfolios
+    (<a href="https://www.sineiitb.org/portfolio/" rel="noopener">SINE IIT Bombay</a>,
+    <a href="https://rtbi.in/incubationiitm/portfolio.html" rel="noopener">IIT Madras RTBI</a> and
+    <a href="https://www.venturecenter.co.in/startups-and-success-stories/startups" rel="noopener">Venture Center, Pune</a>), the published award lists
     of two grant programmes (<a href="https://birac.nic.in/" rel="noopener">BIRAC BIG</a> rounds 21&ndash;24 and
     DST NIDHI-PRAYAS, typed up by hand from the lists themselves), and the
     <a href="https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup" rel="noopener">DPIIT Startup India
@@ -1145,6 +1147,9 @@ function productStatusDetail(company: Company, link: string, site: string | null
 			return `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>
         <p class="provenance">Read from${link || ' their homepage'}, whose name was checked and whose content was not.
         It is what the company says about itself.</p>`;
+		case 'source-described':
+			return `<p class="provenance">${link || 'Their site'} is theirs, and was not read: their incubator&rsquo;s
+        listing already says what they build, below, in a sentence written about them rather than by them.</p>`;
 		case 'unverified':
 			return `<p class="provenance">${link || 'Their site'} answered, but nothing on it confirmed the address is
         theirs, so it was not read. A sentence from someone else's homepage is worse than none.</p>`;
@@ -1227,6 +1232,11 @@ export function renderCompanyPage(view: CompanyView): string {
 				: 'The day it appeared in a run of ours. When we noticed, not when it happened.',
 		],
 		['Added to Upstream', company.discovered, 'The day the row was written. Never a claim about the company.'],
+		[
+			'Year on the source listing',
+			company.source_year,
+			'Printed beside the name, with no word on what it counts: founding, incubation or admission. Nothing here dates or ranks the company by it.',
+		],
 	] as const;
 
 	return `<!doctype html>

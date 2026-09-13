@@ -50,6 +50,9 @@ export interface Company {
 	 */
 	website_identity: string | null;
 	website_identity_note: string | null;
+	/** A year the source printed beside the name, meaning unstated. Never an age. */
+	source_year: number | null;
+	source_year_type: string | null;
 	/** company, researcher-project, lab or unverified; NULL is read as company. */
 	entity_type: string | null;
 	entity_note: string | null;
@@ -92,7 +95,7 @@ export interface Filters {
  * The four sources, as the ingest writes them. Listed so a filter cannot be handed an
  * arbitrary string and quietly return nothing, which looks identical to "no matches".
  */
-export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-india'] as const;
+export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-india', 'venture-center'] as const;
 
 /**
  * 'has' is simple. 'none' is not an absence but an assertion — a source that publishes
