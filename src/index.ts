@@ -223,6 +223,9 @@ interface CompanyInput {
 	product?: string | null;
 	/** Why there is or is not a product line: see PRODUCT_STATUSES. */
 	product_status?: string | null;
+	/** How far the website got through the identity check: see WEBSITE_IDENTITIES. */
+	website_identity?: string | null;
+	website_identity_note?: string | null;
 }
 
 /**
@@ -232,7 +235,13 @@ interface CompanyInput {
  * sentence for — the same failure the signal vocabulary was locked down to prevent.
  * Adding one is an edit here and a sentence on the page, in that order.
  */
-const PRODUCT_STATUSES = new Set(['described', 'unreachable', 'refused', 'thin', 'unclear']);
+const PRODUCT_STATUSES = new Set(['described', 'unreachable', 'refused', 'thin', 'unclear', 'unverified']);
+
+/**
+ * How far a website got towards being evidence about this company — migration 0008.
+ * A reachable address is not proof of whose it is: Grinntech was given HyperVerge's.
+ */
+const WEBSITE_IDENTITIES = new Set(['discovered', 'associated', 'verified']);
 
 /**
  * A company the classifier placed in a sector but in none of its sub-sectors.
@@ -271,12 +280,19 @@ const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
   id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
+  website_identity, website_identity_note,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
-  website       = COALESCE(excluded.website,       companies.website),
+  -- A checked address replaces whatever was there, including with nothing: COALESCE
+  -- would keep HyperVerge's address on Grinntech for ever once the parser stopped
+  -- sending it. An unchecked one (a scraper posting on its own) fills gaps only.
+  website       = CASE WHEN excluded.website_identity IS NOT NULL THEN excluded.website
+                       ELSE COALESCE(excluded.website, companies.website) END,
+  website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
+  website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
   -- One source that publishes websites is enough to have looked.
   website_checked = MAX(companies.website_checked, excluded.website_checked),
   city          = COALESCE(excluded.city,          companies.city),
@@ -292,8 +308,15 @@ ON CONFLICT(id) DO UPDATE SET
   -- COALESCE, not excluded: the four scrapers know nothing about homepages and post
   -- these as null every night. Overwriting would mean the last source to mention a
   -- company erased what reading its website cost us to learn.
-  product         = COALESCE(excluded.product,        companies.product),
-  product_status  = COALESCE(excluded.product_status, companies.product_status),
+  --
+  -- Except once the address has been checked and is not verified: then the sentence
+  -- goes, whatever an earlier run bought. A sentence kept from someone else's homepage
+  -- is the exact thing the check exists to remove.
+  product         = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
+                         ELSE COALESCE(excluded.product, companies.product) END,
+  product_status  = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified'
+                         THEN COALESCE(excluded.product_status, 'unverified')
+                         ELSE COALESCE(excluded.product_status, companies.product_status) END,
   first_seen       = CASE WHEN companies.first_seen IS NULL THEN ?18 ELSE companies.first_seen END,
   first_seen_basis = CASE WHEN companies.first_seen IS NULL AND ?18 IS NOT NULL THEN 'cohort' ELSE companies.first_seen_basis END,
   updated_at    = excluded.updated_at`;
@@ -426,10 +449,19 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		if (productStatus !== null && !PRODUCT_STATUSES.has(productStatus)) {
 			return json({ error: `companies[${i}].product_status must be one of ${[...PRODUCT_STATUSES].join(', ')}` }, 400);
 		}
+		const identity = str(c.website_identity);
+		if (identity !== null && !WEBSITE_IDENTITIES.has(identity)) {
+			return json({ error: `companies[${i}].website_identity must be one of ${[...WEBSITE_IDENTITIES].join(', ')}` }, 400);
+		}
 		// A description with no outcome attached is a sentence with no provenance, and
 		// a 'described' with nothing in it is a promise the row cannot keep.
 		if (str(c.product) !== null && productStatus !== 'described') {
 			return json({ error: `companies[${i}].product needs product_status 'described'` }, 400);
+		}
+		// The gate, enforced where it cannot be forgotten: a homepage whose identity was
+		// not confirmed cannot put a sentence in a company's mouth, whatever sent it.
+		if (str(c.product) !== null && identity !== 'verified') {
+			return json({ error: `companies[${i}].product needs website_identity 'verified'` }, 400);
 		}
 
 		const basis = str(c.classify_basis);
@@ -601,6 +633,8 @@ async function applyIngest(
 			str(c.classify_basis) ?? 'description',
 			str(c.product),
 			str(c.product_status),
+			str(c.website_identity),
+			str(c.website_identity_note),
 		);
 	});
 
@@ -653,7 +687,10 @@ async function applyIngest(
 
 	for (const id of payloadIds) gapWrites.push(env.DB.prepare(DELETE_GAP_SQL).bind(id));
 	for (const c of companies) {
-		if (str(c.product_status) === 'unreachable') gapWrites.push(env.DB.prepare(DELETE_WEBSITE_TRACE_SQL).bind(c.id));
+		// A dead domain, or an address that is not theirs: neither is a trace of them.
+		if (str(c.product_status) === 'unreachable' || str(c.website_identity) === 'discovered') {
+			gapWrites.push(env.DB.prepare(DELETE_WEBSITE_TRACE_SQL).bind(c.id));
+		}
 	}
 	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
 
@@ -856,6 +893,7 @@ const CSV_COLUMNS = [
 	'builds_from',
 	'source_description',
 	'website',
+	'website_identity',
 	'website_looked_for',
 	'city',
 	'state',
@@ -923,6 +961,7 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			c.product ? "the company's own homepage" : '',
 			c.description,
 			c.website,
+			c.website_identity,
 			c.website_checked ? 'yes' : 'no',
 			c.city,
 			c.state,

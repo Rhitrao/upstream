@@ -552,7 +552,11 @@ function companyRow(company: Company, now: Date): string {
 	const rdi = sub
 		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>`
 		: '<span class="rdi unclassified">not yet classified</span>';
-	const site = safeUrl(company.website);
+	// An address nothing ties to the company is not linked from its row as "website":
+	// that label is a claim, and for Grinntech it was HyperVerge's. The address and the
+	// reason stay on the detail page, where there is room to say why.
+	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
+	const unconfirmed = company.website_identity !== 'verified';
 	// The name goes to the detail view, not to the company. Everything we hold is on
 	// that page, including the link out — and a row whose only link leaves the site is
 	// a row that cannot be looked into.
@@ -562,7 +566,7 @@ function companyRow(company: Company, now: Date): string {
 	// row that carries one, because this is the only line here that is not a fact
 	// somebody published about the company in a register — it is the company's own
 	// account of itself, and the difference is the whole reason the label is there.
-	const builds = company.product ? `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>` : '';
+	const builds = company.product && company.website_identity === 'verified' ? `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>` : '';
 
 	// The source's description is kept unless the homepage has already said it better.
 	// A register-label row's "description" is an industry picked from a dropdown —
@@ -587,7 +591,7 @@ function companyRow(company: Company, now: Date): string {
 				// means genuinely early, and it also means you will have to work to reach
 				// them. Only said where a source that publishes websites went looking.
 				site
-					? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">website</a>`
+					? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">website</a>${unconfirmed ? ' <span class="fact-unconfirmed">not confirmed as theirs</span>' : ''}`
 					: company.website_checked
 						? '<span class="fact-none">no website</span>'
 						: ''
@@ -842,9 +846,14 @@ function productNote(view: PageView): string {
 	if (p.refused > 0) failures.push(`<strong>${p.refused}</strong> refused an automated reader`);
 	if (p.thin > 0) failures.push(`<strong>${p.thin}</strong> served a page with no readable text on it`);
 	if (p.unclear > 0) failures.push(`<strong>${p.unclear}</strong> never said what they make`);
+	if (p.unverified > 0)
+		failures.push(`<strong>${p.unverified}</strong> answered but could not be confirmed as the company&rsquo;s own site, so were not read`);
 
-	const read = `Of the ${p.total} companies here, ${p.withSite} publish a website. We fetched each one and read the front
-    page: <strong>${p.described}</strong> of them say plainly enough what they build for it to be worth quoting, and
+	const read = `Of the ${p.total} companies here, ${p.withSite} publish a website. Before reading one we check it is
+    theirs &mdash; that the company&rsquo;s own source record gives it, that no other record gives the same address, and
+    that their name is in the domain or on the page. A working address proves nothing about whose it is.${
+			p.notTheirs > 0 ? ` <strong>${p.notTheirs}</strong> addresses failed that and are not linked as anyone&rsquo;s website.` : ''
+		} <strong>${p.described}</strong> of them say plainly enough what they build for it to be worth quoting, and
     that sentence sits on the row, attributed, in their words and not ours. It is what a company claims about itself,
     which is not the same thing as a fact, and the link is there so you can disagree with it.`;
 
@@ -966,11 +975,32 @@ function productDetail(company: Company): string {
 	const site = safeUrl(company.website);
 	const link = site ? ` <a href="${esc(site)}" rel="noopener nofollow">${esc(site)}</a>` : '';
 
+	// Whose address it is comes before anything read from it, because it decides
+	// whether anything was read at all.
+	if (site && company.website_identity === 'discovered') {
+		return `<p class="provenance identity">A source gives${link} for this company, and it is not treated as
+        theirs: ${esc(company.website_identity_note ?? 'nothing ties the address to them')}. Nothing on it is shown
+        here.</p>`;
+	}
+	const identity =
+		site && company.website_identity
+			? `<p class="provenance identity">Website ${company.website_identity === 'verified' ? 'identity checked' : 'not confirmed as theirs'}:
+        ${esc(company.website_identity_note ?? '')}.</p>`
+			: '';
+
+	return identity + productStatusDetail(company, link, site);
+}
+
+function productStatusDetail(company: Company, link: string, site: string | null): string {
 	switch (company.product_status) {
 		case 'described':
+			if (!company.product || company.website_identity !== 'verified') break;
 			return `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>
-        <p class="provenance">Read from${link || ' their homepage'} and not checked against anything. It is what the
-        company says about itself.</p>`;
+        <p class="provenance">Read from${link || ' their homepage'}, whose name was checked and whose content was not.
+        It is what the company says about itself.</p>`;
+		case 'unverified':
+			return `<p class="provenance">${link || 'Their site'} answered, but nothing on it confirmed the address is
+        theirs, so it was not read. A sentence from someone else's homepage is worse than none.</p>`;
 		case 'unreachable':
 			return `<p class="provenance">They publish${link}, and it does not answer. A recognised startup whose
         own domain has stopped resolving is worth knowing about.</p>`;
@@ -982,21 +1012,20 @@ function productDetail(company: Company): string {
         browser and carries no readable text, so there was nothing on it to read.</p>`;
 		case 'unclear':
 			return `<p class="provenance">We read${link || ' their homepage'} and it never said what they make.</p>`;
-		default:
-			// No status at all, which is three different situations and not one. The
-			// first is the trap: a company with a website we simply have not read yet
-			// is not a company without a website, and saying so would invent a finding
-			// out of a queue.
-			if (site) {
-				return `<p class="provenance">They publish${link}. Nobody has read it yet &mdash; the nightly run works
-          through new companies a few at a time.</p>`;
-			}
-			return company.website_checked
-				? `<p class="provenance">No website. A source that publishes them went looking and came back with
-          nothing, which on this list counts in their favour.</p>`
-				: `<p class="provenance">No source has published a website for this company, so we do not know
-          whether there is one.</p>`;
 	}
+
+	// No status at all, which is three different situations and not one. The first is
+	// the trap: a company with a website we simply have not read yet is not a company
+	// without a website, and saying so would invent a finding out of a queue.
+	if (site) {
+		return `<p class="provenance">They publish${link}. Nobody has read it yet &mdash; the nightly run works
+          through new companies a few at a time.</p>`;
+	}
+	return company.website_checked
+		? `<p class="provenance">No website. A source that publishes them went looking and came back with
+          nothing, which on this list counts in their favour.</p>`
+		: `<p class="provenance">No source has published a website for this company, so we do not know
+          whether there is one.</p>`;
 }
 
 /**
@@ -1566,6 +1595,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 }
 .fact-site { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .fact-site:hover { text-decoration-color: currentColor; }
+.fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
 .seen { font-size: var(--t-xs); color: var(--muted); margin: 0; }
 .empty { color: var(--muted); }
 /* Below the ranking and visibly outside it — same rows, no claim about time. */

@@ -43,6 +43,13 @@ export interface Company {
 	 * saying what it cannot see instead of leaving a cell blank.
 	 */
 	product_status: string | null;
+	/**
+	 * Whether the website is theirs: 'discovered' (an address nothing ties to them),
+	 * 'associated' (their source record gives it, their name is not on it), 'verified'
+	 * (their name is), or NULL (no website, or not checked yet). Migration 0008.
+	 */
+	website_identity: string | null;
+	website_identity_note: string | null;
 	first_seen: string | null;
 	first_seen_basis: Basis | null;
 	discovered: string;
@@ -483,6 +490,10 @@ export interface ProductOutcomes {
 	thin: number;
 	/** There was text and it never said what they build. */
 	unclear: number;
+	/** It answered, and nothing confirmed the address is theirs, so it was not read. */
+	unverified: number;
+	/** An address nothing ties to the company: shared, a profile, or a different business. */
+	notTheirs: number;
 	/** A source that publishes websites looked, and this company has none. */
 	noSite: number;
 }
@@ -497,6 +508,8 @@ export async function queryProductOutcomes(env: Env): Promise<ProductOutcomes> {
 		   SUM(product_status = 'refused')                                           AS refused,
 		   SUM(product_status = 'thin')                                              AS thin,
 		   SUM(product_status = 'unclear')                                           AS unclear,
+		   SUM(product_status = 'unverified')                                        AS unverified,
+		   SUM(website_identity = 'discovered')                                      AS not_theirs,
 		   SUM(website_checked = 1 AND (website IS NULL OR website = ''))            AS no_site
 		 FROM companies`,
 	).first<Record<string, number | null>>();
@@ -510,6 +523,8 @@ export async function queryProductOutcomes(env: Env): Promise<ProductOutcomes> {
 		refused: n('refused'),
 		thin: n('thin'),
 		unclear: n('unclear'),
+		unverified: n('unverified'),
+		notTheirs: n('not_theirs'),
 		noSite: n('no_site'),
 	};
 }

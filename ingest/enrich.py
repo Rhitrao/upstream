@@ -42,7 +42,7 @@ import threading
 import anthropic
 from bs4 import BeautifulSoup
 
-from ingest import classify
+from ingest import classify, identity
 from ingest.sources.base import Company, Signal, clean, fetch_optional
 
 MODEL = "claude-haiku-4-5"
@@ -82,6 +82,10 @@ UNREACHABLE = "unreachable"
 REFUSED = "refused"
 THIN = "thin"
 UNCLEAR = "unclear"
+# The page answered, but identity.py could not confirm the address is the company's,
+# so nothing on it was read. Not a failure of the site: a refusal on our side to
+# attribute a stranger's homepage to them.
+UNVERIFIED = "unverified"
 
 SYSTEM = """You read a company's own homepage and say what the company builds.
 
@@ -154,25 +158,46 @@ def extract(html: str) -> str:
     return "\n".join(kept)[:MAX_PAGE_CHARS]
 
 
-def read_homepage(company: Company) -> tuple[str | None, str]:
-    """The company's homepage as text, or the name of what went wrong instead."""
+def visible_text(html: str) -> str:
+    """Everything a visitor could read, footer included — where a legal name lives."""
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(["script", "style", "noscript", "svg", "template"]):
+        tag.decompose()
+    parts = [soup.get_text(" ")]
+    if soup.title and soup.title.string:
+        parts.insert(0, soup.title.string)
+    return " ".join(parts)
+
+
+def read_homepage(company: Company) -> tuple[str | None, str, str | None]:
+    """The homepage as product text, the outcome, and the whole visible page.
+
+    The third value is for identity.py, and it survives a page too thin to read for a
+    product: a JavaScript shell with nothing in its body still has a title.
+    """
     if not company.website:
         # Nothing to fetch, and candidates() never enqueues one. Guarded anyway,
         # because the wrong answer here is a status claiming we looked at an address
         # that does not exist.
         raise ValueError(f"{company.id} has no website to read")
 
+    if identity.is_profile(company.website):
+        # A LinkedIn page is not their homepage, and fetching it would be reading
+        # LinkedIn. identity.assess says so; there is nothing to fetch.
+        return None, UNVERIFIED, None
+
     html, outcome = fetch_optional(company.website)
     if html is None:
-        return None, outcome
+        return None, outcome, None
 
     text = extract(html)
+    page = visible_text(html)
     if len(text) < MIN_PAGE_CHARS:
-        return None, THIN
-    return text, "ok"
+        return None, THIN, page
+    return text, "ok", page
 
 
-def _fetch_all(companies: list[Company]) -> list[tuple[Company, str | None, str]]:
+def _fetch_all(companies: list[Company]) -> list[tuple[Company, str | None, str, str | None]]:
     """Every homepage, concurrently.
 
     Concurrency is the polite option here, not the rude one. base.py paces requests
@@ -182,17 +207,17 @@ def _fetch_all(companies: list[Company]) -> list[tuple[Company, str | None, str]
     pool goes. Serialising it would spend twenty minutes being slow at nobody's
     benefit.
     """
-    out: list[tuple[Company, str | None, str]] = []
+    out: list[tuple[Company, str | None, str, str | None]] = []
     done = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=FETCHERS) as pool:
         futures = {pool.submit(read_homepage, company): company for company in companies}
         for future in concurrent.futures.as_completed(futures):
             company = futures[future]
             try:
-                text, outcome = future.result()
+                text, outcome, page = future.result()
             except Exception:  # noqa: BLE001 - a broken url is a fact about the company
-                text, outcome = None, UNREACHABLE
-            out.append((company, text, outcome))
+                text, outcome, page = None, UNREACHABLE, None
+            out.append((company, text, outcome, page))
             done += 1
             if done % 50 == 0:
                 print(f"  {done}/{len(companies)} fetched")
@@ -277,11 +302,34 @@ def candidates(companies: list[Company]) -> list[Company]:
     return [c for c in companies if c.website]
 
 
+def _gate(company: Company, text: str | None, outcome: str, page: str | None, shared: set[str]) -> str | None:
+    """Decide whose website this is, write it onto the company, and say what to do.
+
+    Returns the product status to record without reading, or None when the page is
+    verified, readable, and worth the model call. Decided before any money is spent:
+    an unverified page is never sent, so its sentence can never be bought.
+    """
+    state, note = identity.assess(
+        company.name,
+        company.website,
+        company.description,
+        text,
+        shared,
+        description_is_label=company.description_is_label,
+        name_text=page,
+    )
+    company.website_identity, company.website_identity_note = state, note
+    if text is None:
+        return outcome
+    return None if state == identity.VERIFIED else UNVERIFIED
+
+
 def enrich(
     companies: list[Company],
     *,
     max_cost: float | None = None,
     limit: int | None = None,
+    shared: set[str] | None = None,
 ) -> tuple[dict[str, Product], classify.Usage]:
     """Read every homepage we can reach and say what each company builds.
 
@@ -300,15 +348,20 @@ def enrich(
         todo = todo[:limit]
     if not todo:
         return results, usage
+    # Across everything the run scraped, not just this slice: two records giving one
+    # address is visible only when both are in view.
+    if shared is None:
+        shared = identity.shared_hosts(companies)
 
     cache = _load()
 
     # Phase one: fetch. Free, and cached on disk for 30 days by base.py.
     print(f"Reading {len(todo)} homepages")
     pages: list[tuple[Company, str]] = []
-    for company, text, outcome in _fetch_all(todo):
-        if text is None:
-            results[company.id] = Product(status=outcome, source="fetch")
+    for company, text, outcome, page in _fetch_all(todo):
+        held = _gate(company, text, outcome, page, shared)
+        if held is not None:
+            results[company.id] = Product(status=held, source="fetch" if text is None else "identity")
             continue
 
         entry = cache.get(company.id)
@@ -319,7 +372,11 @@ def enrich(
         pages.append((company, text))
 
     unreadable = sum(1 for p in results.values() if p.source == "fetch")
-    print(f"  {len(pages)} to read, {usage.cached} already answered, {unreadable} gave us nothing to read")
+    unverified = sum(1 for p in results.values() if p.source == "identity")
+    print(
+        f"  {len(pages)} to read, {usage.cached} already answered, {unreadable} gave us nothing to read, "
+        f"{unverified} not read because the address could not be confirmed as theirs"
+    )
     if not pages:
         return results, usage
 
@@ -404,7 +461,7 @@ def enrich(
 # Every outcome where something answered at the address. A page that refused us, drew
 # itself in JavaScript or said nothing useful is still a website a person can visit,
 # which is all Part 9 asks of "a live website". Only a dead domain is not.
-ANSWERED = frozenset({DESCRIBED, REFUSED, THIN, UNCLEAR})
+ANSWERED = frozenset({DESCRIBED, REFUSED, THIN, UNCLEAR, UNVERIFIED})
 
 # Part of the signal's UNIQUE key, so it must never be reworded casually: a new label
 # is a second trace for every company that already has the first.
@@ -427,7 +484,12 @@ def website_traces(companies: list[Company], products: dict[str, Product]) -> li
     traces = []
     for company in companies:
         product = products.get(company.id)
-        if company.website and product is not None and product.status in ANSWERED:
+        # Theirs, as far as we can tell: a stranger's homepage answering is not a trace
+        # of this company. 'associated' counts — the source record gives the address
+        # and nothing contradicts it — which is the same bar a scraped website field
+        # has always had to meet. 'discovered' does not.
+        theirs = company.website_identity in (identity.ASSOCIATED, identity.VERIFIED)
+        if company.website and theirs and product is not None and product.status in ANSWERED:
             traces.append(
                 Signal(
                     company_id=company.id,
@@ -466,9 +528,11 @@ def estimate(companies: list[Company]) -> str:
     cache = _load()
     pages: list[tuple[Company, str]] = []
     outcomes: dict[str, int] = {}
-    for company, text, outcome in _fetch_all(todo):
-        if text is None:
-            outcomes[outcome] = outcomes.get(outcome, 0) + 1
+    shared = identity.shared_hosts(companies)
+    for company, text, outcome, page in _fetch_all(todo):
+        held = _gate(company, text, outcome, page, shared)
+        if held is not None:
+            outcomes[held] = outcomes.get(held, 0) + 1
             continue
         entry = cache.get(company.id)
         if entry and entry.get("hash") == _fingerprint(company, text):

@@ -77,6 +77,10 @@ class Company:
     # then a fact about the source, not about the company, and the page must not
     # mark it as one.
     website_checked: bool = True
+    # How far the website got through ingest/identity.py: discovered, associated or
+    # verified, and why. None until enrichment has looked; a scraper never sets them.
+    website_identity: str | None = None
+    website_identity_note: str | None = None
     # What the company says it builds, read off its own homepage, and the outcome of
     # having looked. Both stay None in a scraper — filling them is enrich.py's job,
     # for the same reason the classification fields are classify.py's.

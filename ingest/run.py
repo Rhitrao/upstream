@@ -17,6 +17,7 @@ import traceback
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
+from ingest import identity
 from ingest.sources import dpiit, grants_csv, rtbi, sine
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, upload
@@ -113,11 +114,19 @@ def main() -> int:
     # by company id and both sources genuinely saw it.
     owner: dict[str, str] = {}
     unique: list[Company] = []
+    first: dict[str, Company] = {}
     for source in by_source:
         for company in by_source[source]:
             if company.id not in owner:
                 owner[company.id] = source
                 unique.append(company)
+                first[company.id] = company
+            elif not first[company.id].website and company.website:
+                # The owning source may publish no website field at all (the DPIIT
+                # register does not). The address another source gives is still the
+                # one to check, and checking it once means one answer for both copies.
+                first[company.id].website = company.website
+                first[company.id].website_checked = True
 
     print(f"\nClassifying {len(unique)} companies")
     try:
@@ -152,7 +161,9 @@ def main() -> int:
     on_map = [company for company in unique if company.id in placed]
     remaining = classifier.max_cost(args.max_cost) - usage.cost
     try:
-        products, product_usage = enricher.enrich(on_map, max_cost=max(remaining, 0.0))
+        products, product_usage = enricher.enrich(
+            on_map, max_cost=max(remaining, 0.0), shared=identity.shared_hosts(unique)
+        )
     except classifier.ConfigurationError as error:
         # Not fatal to the run. Classification already succeeded, which means there
         # are placements worth publishing; losing the product lines costs this run a
@@ -207,6 +218,13 @@ def main() -> int:
                         # published the same firm.
                         "product": enriched.get(company.id, company).product,
                         "product_status": enriched.get(company.id, company).product_status,
+                        # The address that was checked and what the check said, on every
+                        # copy of the company, so the second source to send it cannot put
+                        # back the address the first one's check rejected.
+                        "website": enriched.get(company.id, company).website,
+                        "website_checked": enriched.get(company.id, company).website_checked,
+                        "website_identity": enriched.get(company.id, company).website_identity,
+                        "website_identity_note": enriched.get(company.id, company).website_identity_note,
                     }
                 )
             )

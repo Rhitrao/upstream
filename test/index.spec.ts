@@ -521,6 +521,89 @@ describe('what a company builds', () => {
 		expect((await res.json<any>()).error).toMatch(/product needs product_status 'described'/);
 	});
 
+	it('refuses a sentence read from a homepage nobody confirmed is theirs', async () => {
+		for (const website_identity of [undefined, 'discovered', 'associated']) {
+			const res = await post({
+				source: 'enrich',
+				companies: [{ id: 'verve', name: 'Verve', product: 'Builds drones', product_status: 'described', website_identity }],
+			});
+			expect(res.status).toBe(400);
+			expect((await res.json<any>()).error).toMatch(/product needs website_identity 'verified'/);
+		}
+		expect((await post({ source: 'enrich', companies: [{ id: 'verve', name: 'Verve', website_identity: 'probably' }] })).status).toBe(400);
+	});
+
+	it("takes a stranger's address off a company, with its sentence and its trace", async () => {
+		// The state Grinntech was in: HyperVerge's address, HyperVerge's product, and
+		// — once website traces were collected — HyperVerge's homepage counted as theirs.
+		const grinntech = { id: 'grinntech', name: 'Grinntech Motors & Services Private Limited', sector_id: '1', subsector_id: '1.4', origin_year: THIS_YEAR };
+		await post({
+			source: 'rtbi-iitm',
+			mode: 'live',
+			companies: [
+				{ ...grinntech, website: 'http://hyperverge.co/', product: 'Identity verification and KYC software.', product_status: 'described', website_identity: 'verified' },
+			],
+			signals: [
+				{ company_id: 'grinntech', type: 'incubator', label: 'IITM RTBI portfolio' },
+				{ company_id: 'grinntech', type: 'website', label: 'website live', url: 'http://hyperverge.co/' },
+			],
+		});
+
+		// The corrected run: the parser gives the card's own link, and the check does not
+		// verify it. Nothing sends a null product; the check alone has to clear it.
+		await post({
+			source: 'rtbi-iitm',
+			companies: [
+				{
+					...grinntech,
+					website: 'http://grinntech.com/',
+					product_status: 'unverified',
+					website_identity: 'associated',
+					website_identity_note: 'given in the company\'s own source record, but the homepage does not name the company',
+				},
+			],
+		});
+		const row = await env.DB.prepare('SELECT website, product, product_status, website_identity FROM companies WHERE id = ?').bind('grinntech').first<any>();
+		expect(row).toEqual({ website: 'http://grinntech.com/', product: null, product_status: 'unverified', website_identity: 'associated' });
+
+		// And an address nothing ties to them loses the trace it earned while it was
+		// wrongly theirs.
+		await post({
+			source: 'rtbi-iitm',
+			companies: [{ ...grinntech, website: 'http://hyperverge.co/', product_status: 'unverified', website_identity: 'discovered', website_identity_note: 'the same address is given for another company, so it cannot identify this one' }],
+		});
+		const traces = await env.DB.prepare("SELECT COUNT(*) AS n FROM signals WHERE company_id = ? AND type = 'website'").bind('grinntech').first<any>();
+		expect(traces.n).toBe(0);
+		expect(await env.DB.prepare('SELECT trace_count FROM companies WHERE id = ?').bind('grinntech').first<any>()).toEqual({ trace_count: 1 });
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		const start = html.indexOf('id="c-grinntech"');
+		const listRow = html.slice(start, html.indexOf('</li>', start));
+		expect(listRow).not.toContain('hyperverge');
+		expect(listRow).not.toContain('>website<');
+		expect(listRow).not.toContain('Identity verification');
+
+		const detail = await (await SELF.fetch(`${ORIGIN}/upstream/c/grinntech`)).text();
+		expect(detail).toContain('is not treated as');
+		expect(detail).toContain('the same address is given for another company');
+		expect(detail).not.toContain('Identity verification');
+	});
+
+	it('marks an address their record gives but their homepage does not name', async () => {
+		await post({
+			source: 'sine-iitb',
+			mode: 'live',
+			companies: [
+				{ id: 'edsix', name: 'Edsix Brain Lab', website: 'http://skillangels.com/', sector_id: '5', subsector_id: '5.1', origin_year: THIS_YEAR, product_status: 'unverified', website_identity: 'associated', website_identity_note: 'given in the company\'s own source record, but the homepage does not name the company' },
+			],
+		});
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		const start = html.indexOf('id="c-edsix"');
+		const row = html.slice(start, html.indexOf('</li>', start));
+		expect(row).toContain('href="http://skillangels.com/"');
+		expect(row).toContain('not confirmed as theirs');
+	});
+
 	it('puts the sentence on the row, attributed, and never as our own claim', async () => {
 		await post({
 			source: 'test',
@@ -534,6 +617,7 @@ describe('what a company builds', () => {
 					subsector_id: '4.2',
 					product: 'Benchtop assay kits for district hospitals.',
 					product_status: 'described',
+					website_identity: 'verified',
 				},
 			],
 		});
@@ -561,6 +645,7 @@ describe('what a company builds', () => {
 					classify_basis: 'register-label',
 					product: 'Software that models CMOS reliability for chip design teams.',
 					product_status: 'described',
+					website_identity: 'verified',
 				},
 			],
 		});
@@ -585,6 +670,7 @@ describe('what a company builds', () => {
 					origin_year: THIS_YEAR,
 					product: 'Assay kits.',
 					product_status: 'described',
+					website_identity: 'verified',
 				},
 			],
 		});
@@ -611,6 +697,7 @@ describe('what a company builds', () => {
 					subsector_id: '5.1',
 					product: 'Makes A.',
 					product_status: 'described',
+					website_identity: 'verified',
 				},
 				{ id: 'b', name: 'B', website: 'https://b.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'unreachable' },
 				{ id: 'c', name: 'C', website: 'https://c.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'refused' },
@@ -1085,6 +1172,7 @@ describe('searching and one company at a time', () => {
 					classify_basis: 'register-label',
 					product: 'Benchtop assay kits for district hospitals.',
 					product_status: 'described',
+					website_identity: 'verified',
 				},
 				{
 					id: 'nistara-grid',

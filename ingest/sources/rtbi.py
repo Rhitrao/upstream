@@ -19,6 +19,7 @@ import re
 
 from bs4 import BeautifulSoup
 
+from ingest.identity import names_company
 from ingest.sources.base import Company, Signal, clean, fetch, preview
 
 SOURCE = "rtbi-iitm"
@@ -58,7 +59,7 @@ def scrape() -> tuple[list[Company], list[Signal]]:
         company = Company.named(
             name,
             description=_pitch(textbox.get_text(" ")),
-            website=_website(textbox),
+            website=_website(textbox, name),
         )
         if company.id in companies:
             continue
@@ -80,18 +81,38 @@ def _pitch(text: str) -> str | None:
     return clean(AFTER_PITCH.split(body, maxsplit=1)[0])
 
 
-def _website(textbox) -> str | None:
-    """The first real outbound link, which on every block is the logo.
+def _website(textbox, name: str) -> str | None:
+    """The link in this card that is the company's own, or None.
 
-    Some logos link to a relative image path instead of the company, so the scheme
-    check is doing real work here, not being defensive for its own sake.
+    It used to be the first outbound link, on the grounds that the logo comes first.
+    The page disproves that: its editor left about a hundred empty
+    `<a href="http://hyperverge.co/"></a>` tags scattered through other companies'
+    cards — no text, no image, nothing a visitor could click — and "first link" gave
+    Grinntech, an EV battery maker, the website of an identity-verification company.
+
+    So a link has to be something a reader could see, and the order is: one whose
+    domain carries the company's name, then the logo, then the first visible link
+    that is not a profile on some other platform. Whether that address really is
+    theirs is decided later, in identity.py; this only has to not invent the link.
     """
+    visible = []
     for anchor in textbox.find_all("a", href=True):
         href = clean(anchor["href"])
-        if href and href.lower().startswith(("http://", "https://")) and not SOCIAL.search(href):
-            return href
-    return None
+        # Some logos link to a relative image path instead of the company, so the
+        # scheme check is doing real work here, not being defensive for its own sake.
+        if not href or not href.lower().startswith(("http://", "https://")) or SOCIAL.search(href):
+            continue
+        if not (anchor.get_text(strip=True) or anchor.find("img")):
+            continue
+        visible.append((href, anchor.find("img") is not None))
 
+    for href, _ in visible:
+        if names_company(name, href, None) == "domain":
+            return href
+    for href, is_logo in visible:
+        if is_logo:
+            return href
+    return visible[0][0] if visible else None
 
 if __name__ == "__main__":
     print(preview(*scrape()))
