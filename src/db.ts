@@ -171,15 +171,24 @@ export interface Gaps {
 
 /** How the current filters split three ways. The page states all three out loud. */
 export interface Buckets {
-	/** Dated and recent enough for the ranked list. */
+	/**
+	 * Everything the sector, sub-sector, search, source and website filters match —
+	 * the number a coverage cell shows when only its sub-sector is chosen. The four
+	 * parts below are disjoint and always add up to it, so the page can account for
+	 * every company it is not showing.
+	 */
+	total: number;
+	/** Dated, inside the age gate, inside the tier choice: the ranked list. */
 	ranked: number;
-	/** Dated, but older than the age gate allows. */
-	older: number;
-	/** No date at all, from any source. */
+	/** No date at all, from any source. The section under the ranking. */
 	undated: number;
+	/** Dated, and started before the age gate allows. 0 when the gate is off. */
+	older: number;
+	/** Dated, inside the age gate, and in a tier the current choice leaves out. */
+	tierHidden: number;
 	/**
 	 * Ranked, but with no founding year to judge — a recognition register dates the
-	 * record without saying when the company started. Part of `ranked`, not a fourth
+	 * record without saying when the company started. Part of `ranked`, not a fifth
 	 * bucket: they are listed, they just cannot be aged.
 	 */
 	unknownAge: number;
@@ -331,33 +340,50 @@ FROM companies c WHERE c.id = ?`,
  * query rather than three counts, so the numbers on the page cannot disagree with
  * each other — "showing 12, 30 older, 42 undated" has to add up.
  */
-export async function queryBuckets(env: Env, filters: Filters, minOriginYear: number): Promise<Buckets> {
-	// The date state and the age gate are what we are counting, so they must not also
-	// filter the count. Neither may the tier toggle: it belongs to the ranking, so it
-	// narrows the first two buckets from inside the CASE and leaves the undated one
-	// alone — which is exactly how the two sections of the page behave.
+export async function queryBuckets(env: Env, filters: Filters): Promise<Buckets> {
+	// The date state, the age gate and the tier choice are what is being counted, so
+	// none of them may also filter the count. Each becomes a condition inside the SUM
+	// instead, built once and used in every bucket that needs it, in bind order.
 	const { clauses, binds } = conditions({ ...filters, tiers: null, dated: null, minOriginYear: null });
+	const gate = filters.minOriginYear;
 	const tiers = filters.tiers ?? [];
-	const ranked = tiers.length > 0 ? `AND c.tier IN (${new Array(tiers.length).fill('?').join(', ')})` : '';
+
+	const aged = gate === null ? { sql: '0', binds: [] as unknown[] } : { sql: `(${ORIGIN_YEAR} IS NOT NULL AND ${ORIGIN_YEAR} < ?)`, binds: [gate] };
+	const inTier = tiers.length ? { sql: `c.tier IN (${tiers.map(() => '?').join(', ')})`, binds: [...tiers] } : { sql: '1', binds: [] as unknown[] };
+
 	const sql = `
 SELECT
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND (${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?) ${ranked} THEN 1 ELSE 0 END) AS ranked,
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND ${ORIGIN_YEAR} < ? ${ranked} THEN 1 ELSE 0 END) AS older,
+  COUNT(*) AS total,
   SUM(CASE WHEN c.first_seen IS NULL THEN 1 ELSE 0 END) AS undated,
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND ${ORIGIN_YEAR} IS NULL ${ranked} THEN 1 ELSE 0 END) AS unknown_age
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND ${aged.sql} THEN 1 ELSE 0 END) AS older,
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND NOT ${aged.sql} AND NOT ${inTier.sql} THEN 1 ELSE 0 END) AS tier_hidden,
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND NOT ${aged.sql} AND ${inTier.sql} THEN 1 ELSE 0 END) AS ranked,
+  SUM(CASE WHEN c.first_seen IS NOT NULL AND NOT ${aged.sql} AND ${inTier.sql} AND ${ORIGIN_YEAR} IS NULL THEN 1 ELSE 0 END) AS unknown_age
 FROM companies c
 ${whereSql(clauses)}`;
 
 	const row = await env.DB.prepare(sql)
-		.bind(minOriginYear, ...tiers, minOriginYear, ...tiers, ...tiers, ...binds)
-		.first<{ ranked: number | null; older: number | null; undated: number | null; unknown_age: number | null }>();
+		.bind(
+			...aged.binds,
+			...aged.binds,
+			...inTier.binds,
+			...aged.binds,
+			...inTier.binds,
+			...aged.binds,
+			...inTier.binds,
+			...binds,
+		)
+		.first<Record<string, number | null>>();
 
 	// SUM over no rows is NULL, not 0.
+	const n = (key: string) => Number(row?.[key] ?? 0);
 	return {
-		ranked: row?.ranked ?? 0,
-		older: row?.older ?? 0,
-		undated: row?.undated ?? 0,
-		unknownAge: row?.unknown_age ?? 0,
+		total: n('total'),
+		ranked: n('ranked'),
+		undated: n('undated'),
+		older: n('older'),
+		tierHidden: n('tier_hidden'),
+		unknownAge: n('unknown_age'),
 	};
 }
 

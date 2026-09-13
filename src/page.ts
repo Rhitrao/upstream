@@ -647,14 +647,53 @@ function companyRow(company: Company, now: Date): string {
  * The held-back line. A coverage cell can say 3 while the list shows 1, and the page
  * has to account for the other two rather than let the map look like it lied.
  */
-function heldBack(view: PageView): string {
-	const { buckets, age } = view;
-	if (age === 'all' || buckets.older === 0) return '';
+/**
+ * Every company this view matches, and where each one went.
+ *
+ * Energy Storage's cell said 14; clicking it showed an empty ranked list and four
+ * undated rows, and the other ten were nowhere. They were Tier C, and the list was
+ * showing A and B — true, and said by nothing on the page. Searching for Grinntech
+ * printed "Nothing matches" above the one row that did.
+ *
+ * So the list opens with the total and its parts, which come from one query and
+ * always add up, and a link that shows all of them. It is skipped only when the view
+ * is showing everything it matches, and there is nothing to account for.
+ */
+function resultSummary(view: PageView): string {
+	const b = view.buckets;
+	if (b.total === 0) return '';
 
-	const n = buckets.older;
-	const href = `${query(viewParams(view, { age: 'all' }))}#list`;
-	return `<p class="note">${n} ${n === 1 ? 'company' : 'companies'} here started more than ${MAX_AGE_YEARS} years ago
-    and ${n === 1 ? 'is' : 'are'} held back. <a href="${esc(href)}">Show ${n === 1 ? 'it' : 'them'}</a>.</p>`;
+	const rankedShown = view.dates === 'undated' ? 0 : b.ranked;
+	const undatedShown = view.dates === 'dated' ? 0 : b.undated;
+	const hidden: string[] = [];
+	const are = (n: number) => (n === 1 ? 'is' : 'are');
+
+	if (b.older > 0) {
+		hidden.push(`${b.older} started more than ${MAX_AGE_YEARS} years ago and ${are(b.older)} held back by the age filter`);
+	}
+	if (b.tierHidden > 0) {
+		const outside = view.tier === 'a' ? 'Tier B or C' : 'Tier C';
+		const showing = view.tier === 'a' ? 'Tier A' : 'Tier A and B';
+		hidden.push(`${b.tierHidden} ${are(b.tierHidden)} ${outside}, and the list is showing ${showing}`);
+	}
+	if (view.dates === 'undated' && b.ranked > 0) hidden.push(`${b.ranked} dated ${are(b.ranked)} hidden by the dates filter`);
+	if (view.dates === 'dated' && b.undated > 0) hidden.push(`${b.undated} undated ${are(b.undated)} hidden by the dates filter`);
+
+	const filtered = Boolean(view.search || view.sector || view.subsector || view.source || view.site);
+	if (hidden.length === 0 && !filtered) return '';
+
+	const what = view.search
+		? `${b.total === 1 ? 'result' : 'results'} for &ldquo;${esc(view.search)}&rdquo;`
+		: filtered
+			? `${b.total === 1 ? 'company matches' : 'companies match'} these filters`
+			: `${b.total === 1 ? 'company' : 'companies'} in the database`;
+	const parts = [`${rankedShown} in the ranked list`, `${undatedShown} undated${undatedShown ? ', listed below it' : ''}`];
+	const notShown = b.total - rankedShown - undatedShown;
+	const all = `${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
+
+	return `<p class="result-summary"><strong>${b.total}</strong> ${what}: ${parts.join(', ')}.${
+		notShown > 0 ? ` ${notShown} not shown: ${hidden.join('; ')}. <a href="${esc(all)}">Show all ${b.total}</a>.` : ''
+	}</p>`;
 }
 
 /**
@@ -663,7 +702,7 @@ function heldBack(view: PageView): string {
  * — so with the gate lifted, the older ones are part of what is listed.
  */
 function listed(view: PageView): number {
-	return view.age === 'all' ? view.buckets.ranked + view.buckets.older : view.buckets.ranked;
+	return view.buckets.ranked;
 }
 
 /**
@@ -704,12 +743,20 @@ function list(view: PageView): string {
 	const { companies, now, demo } = view;
 
 	if (companies.length === 0) {
+		// "Nothing matches" only when nothing does. A search whose one hit is undated
+		// has a result, and saying otherwise above it is the page contradicting itself.
+		const empty =
+			view.buckets.total > 0
+				? ''
+				: view.tracked === 0
+					? '<p class="empty">Nothing matches yet. The ingest has not put anything here.</p>'
+					: '<p class="empty">Nothing matches these filters.</p>';
 		return `
 <section class="list" id="list">
   <h2>Companies</h2>
   ${backfillNote(view)}
-  <p class="empty">Nothing matches yet. Either the filters are narrow, or the ingest has not put anything here.</p>
-  ${heldBack(view)}
+  ${resultSummary(view)}
+  ${empty}
 </section>`;
 	}
 
@@ -723,7 +770,7 @@ function list(view: PageView): string {
   <h2>Companies <span class="count">${listed(view)}</span></h2>
   ${banner}
   ${backfillNote(view)}
-  ${heldBack(view)}
+  ${resultSummary(view)}
   ${unknownAge(view)}
   ${truncated(companies.length, listed(view))}
   <ol class="companies">
@@ -1667,6 +1714,8 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .fact-site:hover { text-decoration-color: currentColor; }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
+.result-summary { color: var(--muted); }
+.result-summary strong { color: var(--ink); }
 .basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
 .basis-tag.weak { color: var(--ink); background: linear-gradient(to top, var(--mark) 0%, var(--mark) 45%, transparent 45%); }
 .reasoning summary { cursor: pointer; color: var(--muted); }

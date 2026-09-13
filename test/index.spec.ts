@@ -1376,6 +1376,68 @@ describe('searching and one company at a time', () => {
 	});
 });
 
+describe('counts that reconcile', () => {
+	// Energy Storage, as the reviewer found it: the cell said 14, the list under it
+	// was empty, four undated rows sat below, and the other ten were not accounted
+	// for anywhere. Here: four in 1.4, one of each way a company can be out of view.
+	async function seed() {
+		// Something ranked elsewhere, so the default narrows to Tier A and B.
+		await post({ source: 'dpiit-startup-india', mode: 'live', companies: [{ id: 'fresh', name: 'Fresh Co', sector_id: '2', subsector_id: '2.3' }] });
+		await post({
+			source: 'rtbi-iitm',
+			mode: 'backfill',
+			companies: [
+				{ id: 'grinntech', name: 'Grinntech Motors', sector_id: '1', subsector_id: '1.4' },
+				{ id: 'cohort-a', name: 'Cohort A', sector_id: '1', subsector_id: '1.4', origin_year: THIS_YEAR },
+				{ id: 'cohort-b', name: 'Cohort B', sector_id: '1', subsector_id: '1.4', origin_year: THIS_YEAR - 1 },
+				{ id: 'old-co', name: 'Old Co', sector_id: '1', subsector_id: '1.4', origin_year: THIS_YEAR - 9 },
+			],
+		});
+	}
+	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+	const rows = (html: string) => [...html.matchAll(/<li class="company" id="c-([^"]+)">/g)].map((m) => m[1]).sort();
+
+	it('accounts for every company a coverage cell counts, and offers all of them', async () => {
+		await seed();
+		const html = await text('?subsector=1.4');
+		expect(html).toContain('<span class="cell-id">1.4</span><span class="cell-n">4</span>');
+
+		expect(html).toContain('<strong>4</strong> companies match these filters: 0 in the ranked list, 1 undated, listed below it.');
+		expect(html).toContain('3 not shown: 1 started more than 5 years ago and is held back by the age filter; 2 are Tier C, and the list is showing Tier A and B.');
+		expect(html).not.toContain('Nothing matches');
+		expect(rows(html)).toEqual(['grinntech']);
+
+		const all = html.match(/<a href="([^"]+)">Show all 4<\/a>/)![1].replace(/&amp;/g, '&');
+		expect(rows(await text(all))).toEqual(['cohort-a', 'cohort-b', 'grinntech', 'old-co']);
+	});
+
+	it('never prints "nothing matches" above a result', async () => {
+		await seed();
+		const html = await text('?q=grinntech');
+		expect(html).not.toContain('Nothing matches');
+		expect(html).toContain('<strong>1</strong> result for &ldquo;grinntech&rdquo;: 0 in the ranked list, 1 undated, listed below it.');
+		expect(rows(html)).toEqual(['grinntech']);
+
+		expect(await text('?q=nobody-by-this-name')).toContain('Nothing matches these filters.');
+	});
+
+	it('exports the rows the page is showing, not a wider default', async () => {
+		await seed();
+		for (const qs of ['?subsector=1.4', '', '?tier=all&age=all', '?q=cohort&tier=all']) {
+			const html = await text(qs);
+			const csv = await text(`/export.csv${qs}`);
+			const names = csv
+				.trim()
+				.split('\n')
+				.slice(1)
+				.map((line) => line.split(',')[0].replace(/"/g, ''))
+				.sort();
+			const shown = [...html.matchAll(/<li class="company" id="c-[^"]+">[\s\S]*?<h3><a [^>]*>([^<]+)<\/a>/g)].map((m) => m[1]).sort();
+			expect(names, qs).toEqual(shown);
+		}
+	});
+});
+
 describe('slicing the list', () => {
 	async function seed() {
 		await post({

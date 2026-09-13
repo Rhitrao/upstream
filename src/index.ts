@@ -770,18 +770,20 @@ async function gapsApi(env: Env): Promise<Response> {
 	return json(await queryGaps(env), 200, PUBLIC_CACHE);
 }
 
-// --- GET /upstream ----------------------------------------------------------
+// --- one view, three answers ------------------------------------------------
 
-async function page(url: URL, env: Env): Promise<Response> {
-	const now = new Date();
-	const age = parseAgeChoice(url.searchParams.get('age'));
-	const sector = url.searchParams.get('sector') || null;
-	const subsector = url.searchParams.get('subsector') || null;
-
-	// Seven invented companies, so the row design can be checked before real data lands
-	// (CHECKPOINT 7). Never shown unless explicitly asked for, and always behind a banner.
+/**
+ * A url turned into the two list queries it means, once, for the page, its counts
+ * and its CSV.
+ *
+ * These used to be built twice. The page defaulted the tier choice to A and B once
+ * anything was ranked; the export defaulted to every tier; so "Download CSV" on the
+ * front page handed over rows the page was not showing, and the counts above the
+ * list were about neither. Anything that answers "what is in this view" goes through
+ * here, or it is answering a different question.
+ */
+async function listView(url: URL, env: Env, now: Date, limit: number) {
 	const demo = url.searchParams.get('demo') === '1';
-
 	// Until the first live run, every row is a backfill and A+B is empty by
 	// construction. Opening on an empty list would read as a broken page, so the
 	// default widens to everything and the list says why. It narrows again on its own
@@ -789,32 +791,38 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const hasRanked = demo || (await queryHasRanked(env));
 	const defaultTier: TierChoice = hasRanked ? 'ab' : 'all';
 	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
-
-	// Trimmed here rather than in the query, so what the box shows, what the URL says
-	// and what was searched for are one string.
-	const search = (url.searchParams.get('q') || '').trim() || null;
-	const source = parseSource(url.searchParams.get('source'));
-	const site = parseSite(url.searchParams.get('site'));
-	const sort = parseSort(url.searchParams.get('sort'));
+	const age = parseAgeChoice(url.searchParams.get('age'));
 	const dates = parseDates(url.searchParams.get('dates'));
 
-	const cutoff = minOriginYear(now);
 	const ranked: Filters = {
-		sector,
-		subsector,
-		search,
-		source,
-		site,
-		sort,
+		sector: url.searchParams.get('sector') || null,
+		subsector: url.searchParams.get('subsector') || null,
+		// Trimmed here rather than in the query, so what the box shows, what the URL
+		// says and what was searched for are one string.
+		search: (url.searchParams.get('q') || '').trim() || null,
+		source: parseSource(url.searchParams.get('source')),
+		site: parseSite(url.searchParams.get('site')),
+		sort: parseSort(url.searchParams.get('sort')),
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
-		minOriginYear: age === 'all' ? null : cutoff,
-		limit: DEFAULT_LIMIT,
+		minOriginYear: age === 'all' ? null : minOriginYear(now),
+		limit,
 	};
 	// The undated section sits outside the ranking, so the tier toggle and the age gate
 	// have nothing to say about it. Sector and sub-sector still apply: clicking a
 	// coverage cell has to filter the whole page, not half of it.
-	const unplaceable: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
+	const undated: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
+
+	return { demo, hasRanked, defaultTier, tier, age, dates, ranked, undated, wantRanked: dates !== 'undated', wantUndated: dates !== 'dated' };
+}
+
+// --- GET /upstream ----------------------------------------------------------
+
+async function page(url: URL, env: Env): Promise<Response> {
+	const now = new Date();
+	const view = await listView(url, env, now, DEFAULT_LIMIT);
+	const { demo, hasRanked, defaultTier, tier, age, dates, ranked, undated: unplaceable } = view;
+	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
 	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products] = await Promise.all([
@@ -829,7 +837,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 			: demo
 				? Promise.resolve(splitDemo(demoCompanies(), now).undated)
 				: queryCompanies(env, unplaceable),
-		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked, cutoff),
+		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked),
 		demo ? Promise.resolve(demoGaps()) : queryGaps(env),
 		queryDiscoveredSince(env, weekAgo),
 		demo ? Promise.resolve(demoRegisterOutcomes()) : queryRegisterOutcomes(env),
@@ -928,39 +936,16 @@ const CSV_COLUMNS = [
 
 async function exportCsv(url: URL, env: Env): Promise<Response> {
 	const now = new Date();
-	const dates = parseDates(url.searchParams.get('dates'));
-	const age = parseAgeChoice(url.searchParams.get('age'));
-	const tier = parseTierChoice(url.searchParams.get('tier'), 'all');
-
-	const shared = {
-		sector: url.searchParams.get('sector') || null,
-		subsector: url.searchParams.get('subsector') || null,
-		search: (url.searchParams.get('q') || '').trim() || null,
-		source: parseSource(url.searchParams.get('source')),
-		site: parseSite(url.searchParams.get('site')),
-		sort: parseSort(url.searchParams.get('sort')),
-		// A file is for taking away, so it is capped higher than the page renders. That
-		// is the one way the two differ, and it differs by giving more rather than less.
-		limit: MAX_LIMIT,
-	};
+	// A file is for taking away, so it is capped higher than the page renders. That is
+	// the one way the two differ, and it differs by giving more rather than less.
+	const view = await listView(url, env, now, MAX_LIMIT);
 
 	// The page is two lists — the ranking, and the companies no source will date — and
-	// "export this view" has to mean both of them when both are on screen. Running one
-	// query with dated:null would nearly work and would quietly apply the age gate to
-	// rows that have no age, so this runs the same two queries the page runs, in the
-	// same order, under the same rules.
-	const wantRanked = dates !== 'undated';
-	const wantUndated = dates !== 'dated';
+	// "export this view" has to mean both of them when both are on screen, under the
+	// same filters, in the same order.
 	const [ranked, undatedRows] = await Promise.all([
-		wantRanked
-			? queryCompanies(env, {
-					...shared,
-					tiers: TIER_SETS[tier],
-					dated: 'dated',
-					minOriginYear: age === 'all' ? null : minOriginYear(now),
-				})
-			: Promise.resolve([]),
-		wantUndated ? queryCompanies(env, { ...shared, tiers: null, dated: 'undated', minOriginYear: null }) : Promise.resolve([]),
+		view.wantRanked ? queryCompanies(env, view.ranked) : Promise.resolve([]),
+		view.wantUndated ? queryCompanies(env, view.undated) : Promise.resolve([]),
 	]);
 	const companies = [...ranked, ...undatedRows];
 
