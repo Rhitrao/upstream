@@ -306,7 +306,7 @@ function funnelNote(view: PageView): string {
 	if (gaps.total === 0) return '';
 	const parts: string[] = [];
 	if (gaps.taxonomy.total > 0) {
-		parts.push(`<a href="#off-map">${gaps.taxonomy.total}</a> fell outside every sub-sector the taxonomy offers`);
+		parts.push(`<a href="#off-map">${gaps.taxonomy.total}</a> were not mapped to any sub-sector under the current taxonomy and classifier`);
 	}
 	if (gaps.undescribed.total > 0) {
 		parts.push(`<a href="#undescribed">${gaps.undescribed.total}</a> we could not describe well enough to place`);
@@ -854,11 +854,13 @@ function offMap(view: PageView): string {
 			? ''
 			: `
 <section class="list off-map" id="off-map" aria-labelledby="off-map-h">
-  <h2 id="off-map-h">Companies the RDI taxonomy has no cell for <span class="count">${gaps.taxonomy.total}</span></h2>
-  <p class="note">These landed in a sector whose sub-sectors do not cover what they do. Rather than stretch each one
-    into the nearest cell &mdash; which would put a wrong tag on the map above and make it useless &mdash; they are
-    kept here under the name of what is missing. Read this as a list of holes in the RDI taxonomy, not as a list of
-    companies that failed: a map that only showed what fitted would be measuring itself.</p>
+  <h2 id="off-map-h">Unmapped under the current taxonomy and classifier <span class="count">${gaps.taxonomy.total}</span></h2>
+  <p class="note">The classifier put these in a sector and then found no sub-sector in it that covers what they
+    describe. Rather than stretch each one into the nearest cell &mdash; which would put a wrong tag on the map above
+    &mdash; they are kept here under the name of what it said was missing. That can mean the RDI taxonomy has no cell
+    for the work. It can also mean a company spans two cells and a classifier allowed one label could not choose, or
+    that the classifier was wrong. None of these has been reviewed by hand, so read the groups as places to look for
+    gaps in the taxonomy, not as proof of them.</p>
   <ul class="gap-groups">
 ${gapList(gaps.taxonomy.groups)}
   </ul>
@@ -870,7 +872,7 @@ ${gapList(gaps.taxonomy.groups)}
 			: `
 <section class="list off-map" id="undescribed" aria-labelledby="undescribed-h">
   <h2 id="undescribed-h">Companies we could not describe well enough to place <span class="count">${gaps.undescribed.total}</span></h2>
-  <p class="note">Nothing is wrong with the taxonomy here, and nothing is known to be wrong with these companies.
+  <p class="note">Nothing here says anything about the taxonomy, and nothing is known to be wrong with these companies.
     Most arrived from the DPIIT register, where the only published facts are a name and an industry picked from a
     dropdown &mdash; not enough to say what the company does, and so not enough to place it. This is a limit of what
     our sources publish, and counting it as a gap in the RDI scheme would be blaming the scheme for our own blind spot.</p>
@@ -908,9 +910,10 @@ function registerSplit(view: PageView): string {
 		register.taxonomyGap === 0
 			? ''
 			: `
-  <p><strong>${register.taxonomyGap}</strong> are unplaced because the RDI taxonomy has
-    <a href="#off-map">no cell for what they build</a>. That is the scheme's boundary showing: a vocabulary written
-    for five sunrise sectors, meeting companies nobody drafted it around.</p>`;
+  <p><strong>${register.taxonomyGap}</strong> are unplaced because the classifier found
+    <a href="#off-map">no sub-sector under the current taxonomy</a> for what they build. Some of that will be the
+    scheme's boundary &mdash; a vocabulary written for five sunrise sectors &mdash; and some a classifier allowed one
+    label per company, or simply wrong. Nobody has reviewed them by hand to say which.</p>`;
 
 	const undescribed =
 		register.undescribed === 0
@@ -921,10 +924,11 @@ function registerSplit(view: PageView): string {
     an industry the founder picked from a dropdown, and for these ${register.undescribed} that is the entire public
     record. Enough to know they exist; nothing like enough to say what they build. They are left unplaced rather than
     guessed at.</p>
-  <p>This is the more interesting half. A national startup register &mdash; the government's own list of who is doing
-    this work &mdash; describes ${share}&nbsp;per&nbsp;cent of its companies too thinly for anyone to tell what they
-    are. Not too thinly for us in particular: too thinly for anyone reading it. That is a finding about the register,
-    and it deserves better than being averaged into a single number about sub-sectors.</p>`;
+  <p>This is the more interesting half. Of the ${register.total} records we took from the register, ${share}&nbsp;per&nbsp;cent
+    are described too thinly for anyone to tell what they are &mdash; not too thinly for us in particular, too thinly
+    for anyone reading them. That is a finding about those records, and only those: they are the newest few pages of
+    each deep-tech industry filter, not a sample of the 473,000 companies the register holds, and nothing here says
+    how the rest are described.</p>`;
 
 	return `
   <p>Of the ${register.total} companies read from the register, ${register.placed} reached a sub-sector and
@@ -1036,8 +1040,9 @@ function methodology(view: PageView): string {
   <p>Where the two vocabularies happen to have a near-twin, a company places almost automatically: DPIIT's
     &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent Systems &amp; Robotics&rdquo; placed 80 of 81. Where
     they have none, almost nothing places: 3 of 87 for &ldquo;Computer Vision&rdquo;, 7 of 83 for &ldquo;AI&rdquo;.
-    Same companies, same government, two filing systems that do not map onto each other. That is a finding about the
-    taxonomies, not a fault in either.</p>
+    Same companies, same government, two filing systems that, as this classifier maps them, do not meet. That is a
+    finding about the two vocabularies as read by one model from one-line labels, not a fault in either, and not a
+    reviewed crosswalk.</p>
   <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
     company does, and should be read as exactly that much. Each company's own page says which of the two it was, in the
     classifier's own words. It also means the fuller cells of the coverage map above are partly a map of where the two

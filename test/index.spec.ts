@@ -992,7 +992,7 @@ describe('GET /upstream (the page)', () => {
 		expect(html).toContain('water infrastructure');
 		expect(html).toContain('Botsrule Ltd');
 		// The count is the companies, not the groups.
-		expect(html).toContain('<h2 id="off-map-h">Companies the RDI taxonomy has no cell for <span class="count">2</span></h2>');
+		expect(html).toContain('<h2 id="off-map-h">Unmapped under the current taxonomy and classifier <span class="count">2</span></h2>');
 		// Nothing here was a description failure, so that section is absent entirely.
 		expect(html).not.toContain('id="undescribed"');
 	});
@@ -1009,7 +1009,7 @@ describe('GET /upstream (the page)', () => {
 
 		const html = await page();
 		// Two findings, two headings, two counts — and the counts do not overlap.
-		expect(html).toContain('<h2 id="off-map-h">Companies the RDI taxonomy has no cell for <span class="count">1</span></h2>');
+		expect(html).toContain('<h2 id="off-map-h">Unmapped under the current taxonomy and classifier <span class="count">1</span></h2>');
 		expect(html).toContain('<h2 id="undescribed-h">Companies we could not describe well enough to place <span class="count">2</span></h2>');
 		// The taxonomy section must not claim the two we simply could not read.
 		const taxonomySection = html.slice(html.indexOf('id="off-map"'), html.indexOf('id="undescribed"'));
@@ -1076,7 +1076,7 @@ describe('GET /upstream (the page)', () => {
 		// The drop is stated, not left for the reader to compute, and it is split by
 		// whose fault it is — the taxonomy gap is claimed only for the companies that
 		// actually are one.
-		expect(html).toMatch(/Of the 3 that are not, <a href="#off-map">3<\/a> fell outside every sub-sector/);
+		expect(html).toMatch(/Of the 3 that are not, <a href="#off-map">3<\/a> were not mapped to any sub-sector under the current taxonomy and classifier/);
 		// Scoped to the funnel note: the methodology below links to the same anchors
 		// when there is something to link to, which there is not here.
 		const note = html.slice(html.indexOf('class="funnel-note"'), html.indexOf('</p>', html.indexOf('class="funnel-note"')));
@@ -1157,10 +1157,14 @@ describe('GET /upstream (the page)', () => {
 		const html = await page('');
 		// Whitespace-tolerant: the template wraps these sentences across lines.
 		expect(html).toMatch(/Of the 3 companies read from the register,\s+1 reached a sub-sector and\s+2 did not/);
-		expect(html).toMatch(/<strong>1<\/strong> are unplaced because the RDI taxonomy has/);
+		expect(html).toMatch(/<strong>1<\/strong> are unplaced because the classifier found/);
 		expect(html).toMatch(/<strong>1<\/strong> are unplaced because[\s\S]*?the register never said what they do/);
 		// The share is of every register company, not of the unplaced ones.
-		expect(html).toMatch(/describes 33&nbsp;per&nbsp;cent of its companies too thinly/);
+		expect(html).toMatch(/Of the 3 records we took from the register, 33&nbsp;per&nbsp;cent\s+are described too thinly/);
+		// About the records read, never the register as a whole.
+		expect(html).toContain('not a sample of the 473,000 companies the register holds');
+		expect(html).not.toContain('A national startup register');
+		expect(html).not.toContain('holes in the RDI taxonomy');
 		// And the old undivided claim is gone for good.
 		expect(html).not.toContain('placed in no sub-sector at all');
 	});
