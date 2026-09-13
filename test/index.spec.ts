@@ -1192,6 +1192,186 @@ describe('searching and one company at a time', () => {
 	});
 });
 
+describe('slicing the list', () => {
+	async function seed() {
+		await post({
+			source: 'sine-iitb',
+			mode: 'live',
+			companies: [
+				{
+					id: 'sine-sited',
+					name: 'Sine Sited Co',
+					website: 'https://a.example',
+					origin_year: THIS_YEAR,
+					sector_id: '2',
+					subsector_id: '2.5',
+					trace_count: 1,
+				},
+				{ id: 'sine-bare', name: 'Sine Bare Co', origin_year: THIS_YEAR, sector_id: '2', subsector_id: '2.5' },
+			],
+			signals: [
+				{ company_id: 'sine-sited', type: 'incubator', label: 'SINE cohort' },
+				{ company_id: 'sine-bare', type: 'incubator', label: 'SINE cohort' },
+				{ company_id: 'sine-bare', type: 'press', label: 'written about' },
+				{ company_id: 'sine-bare', type: 'grant', label: 'a grant' },
+			],
+		});
+		await post({
+			source: 'dpiit-startup-india',
+			mode: 'live',
+			companies: [
+				// No website field from the register, so "no website" must not claim this one.
+				{
+					id: 'dpiit-unknown',
+					name: 'Dpiit Unknown Co',
+					website_checked: false,
+					origin_year: THIS_YEAR,
+					sector_id: '4',
+					subsector_id: '4.2',
+				},
+			],
+			signals: [{ company_id: 'dpiit-unknown', type: 'dpiit', label: 'DPIIT recognised' }],
+		});
+	}
+
+	const ids = async (qs: string) => {
+		const body = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all&${qs}`)).json<any>();
+		return body.companies.map((c: any) => c.id);
+	};
+
+	it('filters by the source that found it', async () => {
+		await seed();
+		expect((await ids('source=sine-iitb')).sort()).toEqual(['sine-bare', 'sine-sited']);
+		expect(await ids('source=dpiit-startup-india')).toEqual(['dpiit-unknown']);
+	});
+
+	it('counts a company once even when one source gave it several signals', async () => {
+		await seed();
+		// sine-bare carries three signals from one source. A join would return it three
+		// times and the count beside the list would stop matching the list.
+		expect((await ids('source=sine-iitb')).filter((id: string) => id === 'sine-bare')).toHaveLength(1);
+	});
+
+	it('treats "no website" as something somebody checked, not as an empty column', async () => {
+		await seed();
+		expect(await ids('site=has')).toEqual(['sine-sited']);
+		// sine-bare was looked for and has none. dpiit-unknown was never looked for, so
+		// it is absent from both answers rather than counted as either.
+		expect(await ids('site=none')).toEqual(['sine-bare']);
+	});
+
+	it('combines filters rather than letting the last one win', async () => {
+		await seed();
+		expect(await ids('source=sine-iitb&site=has')).toEqual(['sine-sited']);
+		expect(await ids('source=sine-iitb&site=has&sector=4')).toEqual([]);
+		expect(await ids('source=sine-iitb&site=none&q=bare')).toEqual(['sine-bare']);
+	});
+
+	it('sorts by what was asked for, and refuses what it does not know', async () => {
+		await seed();
+		// Fewest traces first. sine-sited and dpiit-unknown both have one and both went
+		// on record today, so which of the two leads is a tie and not a fact — the
+		// assertion is that the company with three traces comes last.
+		const quietest = await ids('sort=quietest');
+		expect(quietest).toHaveLength(3);
+		expect(quietest[2]).toBe('sine-bare');
+		expect(await ids('sort=name')).toEqual(['dpiit-unknown', 'sine-bare', 'sine-sited']);
+
+		const res = await SELF.fetch(`${ORIGIN}/upstream/api/companies?sort=; DROP TABLE companies`);
+		expect(res.status).toBe(400);
+		// And the table is still there.
+		expect((await (await SELF.fetch(`${ORIGIN}/upstream/api/coverage`)).json<any>()).total_companies).toBe(3);
+	});
+
+	it('rejects a source or a site state nobody defined', async () => {
+		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?source=linkedin`)).status).toBe(400);
+		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?site=maybe`)).status).toBe(400);
+	});
+
+	it('carries every filter into every link, so none of them is silently dropped', async () => {
+		await seed();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?q=bare&source=sine-iitb&site=none&sort=name&tier=all&age=all`)).text();
+
+		// A coverage cell keeps the search, the source, the website state and the sort.
+		const cell = html.slice(html.indexOf('class="cell '), html.indexOf('</a>', html.indexOf('class="cell ')));
+		for (const part of ['q=bare', 'source=sine-iitb', 'site=none', 'sort=name']) {
+			expect(cell).toContain(part);
+		}
+
+		// The CSV button offers the view on screen, not the whole database.
+		expect(html).toMatch(/href="\/upstream\/export\.csv\?q=bare&amp;source=sine-iitb&amp;site=none&amp;sort=name[^"]*"/);
+		// And the clear link says how many filters it is clearing.
+		expect(html).toContain('Clear 6 filters');
+	});
+
+	it('states one spelling of the view as canonical', async () => {
+		await seed();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?sort=obscurity&age=recent&q=bare`)).text();
+		// sort and age are at their defaults and drop out; the search does not.
+		expect(html).toContain('<link rel="canonical" href="/upstream?q=bare">');
+	});
+
+	it('shows only the section that was asked for', async () => {
+		await post({ source: 'test', mode: 'live', companies: [{ id: 'dated', name: 'Dated Co', origin_year: THIS_YEAR }] });
+		await post({ source: 'test', companies: [{ id: 'no-date', name: 'Undated Co' }] });
+
+		const dated = await (await SELF.fetch(`${ORIGIN}/upstream?dates=dated&tier=all&age=all`)).text();
+		expect(dated).toContain('Dated Co');
+		expect(dated).not.toContain('Undated Co');
+
+		const undated = await (await SELF.fetch(`${ORIGIN}/upstream?dates=undated&tier=all&age=all`)).text();
+		expect(undated).toContain('Undated Co');
+		expect(undated).not.toContain('Dated Co');
+	});
+
+	it('exports the view on screen as a spreadsheet that cannot run formulas', async () => {
+		await seed();
+		const res = await SELF.fetch(`${ORIGIN}/upstream/export.csv?source=sine-iitb&site=has&age=all&tier=all`);
+		expect(res.status).toBe(200);
+		expect(res.headers.get('content-type')).toContain('text/csv');
+		expect(res.headers.get('content-disposition')).toMatch(/attachment; filename="upstream-\d{4}-\d{2}-\d{2}\.csv"/);
+
+		// A BOM, or Excel reads scraped names as mojibake. Asserted on the bytes rather
+		// than on the decoded text, because Response.text() strips a leading U+FEFF and
+		// would report it missing when it is on the wire.
+		const bytes = new Uint8Array(await res.clone().arrayBuffer());
+		expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+
+		const csv = await res.text();
+		expect(csv).toContain('"name","builds","builds_from"');
+		// Nothing HTML-escaped reaches a spreadsheet: this file is not a web page, and
+		// an &amp; or an &apos; in a cell is a bug a reader would have to undo by hand.
+		expect(csv).not.toMatch(/&[a-z]+;|&#\d+;/);
+		expect(csv).toContain('"Sine Sited Co"');
+		// The filters applied: the bare one is excluded by site=has.
+		expect(csv).not.toContain('Sine Bare Co');
+		// A link back, because a spreadsheet cannot follow one it does not have.
+		expect(csv).toContain('/upstream/c/sine-sited');
+		expect(csv.split('\r\n').filter(Boolean)).toHaveLength(2);
+	});
+
+	it('defangs a scraped name that a spreadsheet would run as a formula', async () => {
+		await post({
+			source: 'test',
+			mode: 'live',
+			companies: [{ id: 'formula', name: '=HYPERLINK("http://evil.example")', description: 'has a "quote" in it', origin_year: THIS_YEAR }],
+		});
+
+		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?age=all&tier=all`)).text();
+		// Prefixed with an apostrophe, so Excel shows the text instead of calling out.
+		expect(csv).toContain('"\'=HYPERLINK(""http://evil.example"")"');
+		expect(csv).toContain('"has a ""quote"" in it"');
+	});
+
+	it('gives each sunrise sector a glyph, hidden from anything that reads aloud', async () => {
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		expect(html.match(/class="sector-icon"/g)).toHaveLength(5);
+		// The sector name is already text beside it; announcing the drawing too would
+		// be describing the decoration.
+		expect(html).toMatch(/class="sector-icon"[^>]*aria-hidden="true"/);
+	});
+});
+
 describe('lists that only one file is allowed to own', () => {
 	it('keeps every trace type inside the accepted vocabulary', () => {
 		// TRACE_TYPES is a subset of SIGNAL_TYPES by construction; this fails if

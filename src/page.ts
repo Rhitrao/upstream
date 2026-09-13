@@ -8,7 +8,19 @@
  */
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
 import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
-import type { Buckets, Company, Coverage, Gaps, ProductOutcomes, RegisterOutcomes, Signal } from './db';
+import {
+	SORTS,
+	SOURCES,
+	type Buckets,
+	type Company,
+	type Coverage,
+	type Gaps,
+	type ProductOutcomes,
+	type RegisterOutcomes,
+	type Signal,
+	type SiteState,
+	type SortChoice,
+} from './db';
 
 /**
  * Where this whole site lives. Defined here rather than in the router because the
@@ -47,6 +59,13 @@ export interface PageView {
 	subsector: string | null;
 	/** What was typed in the search box, trimmed. null when nothing was. */
 	search: string | null;
+	/** Which scraper found it, or null for any. */
+	source: string | null;
+	/** Whether it publishes a website, or null for either. */
+	site: SiteState | null;
+	sort: SortChoice;
+	/** Which of the two list sections to show. */
+	dates: 'both' | 'dated' | 'undated';
 	tier: TierChoice;
 	/** What the toggle means by "default" right now — it widens while the ranking is empty. */
 	defaultTier: TierChoice;
@@ -180,6 +199,34 @@ function hook(tracked: number, oneTrace: number): string {
 	return `${argument} Of the ${tracked} here, ${oneTrace} have left one public trace or none.`;
 }
 
+/**
+ * One glyph per sunrise sector, so the five blocks of the coverage map are findable
+ * by shape before they are read.
+ *
+ * Inline, because an artifact of this page is that it loads instantly on a phone and
+ * five sprites would be five requests for five small drawings. Drawn from the sector's
+ * own subject rather than from a generic icon set: a bolt for energy, an orbit for deep
+ * tech and space, a node graph for AI, a helix for biotech, a grid for the digital
+ * economy. currentColor throughout, so they follow the theme without a second palette.
+ *
+ * aria-hidden on all of them. The sector name is right there in text; a screen reader
+ * announcing "bolt" before it would be describing the decoration, not the thing.
+ */
+const SECTOR_ICONS: Record<string, string> = {
+	'1': '<path d="M13 2 4.5 13H10l-1 9 8.5-11H12l1-9Z"/>',
+	'2': '<circle cx="12" cy="12" r="3.2"/><ellipse cx="12" cy="12" rx="10" ry="4.6" transform="rotate(-28 12 12)"/>',
+	'3': '<circle cx="5" cy="7" r="2"/><circle cx="5" cy="17" r="2"/><circle cx="18" cy="12" r="2.4"/><path d="M7 7.8l8.6 3M7 16.2l8.6-3"/>',
+	'4': '<path d="M8.5 2c0 5 7 5 7 10s-7 5-7 10"/><path d="M15.5 2c0 5-7 5-7 10s7 5 7 10"/><path d="M9.2 7h5.6M9.2 17h5.6"/>',
+	'5': '<rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/>',
+};
+
+function sectorIcon(id: string): string {
+	const glyph = SECTOR_ICONS[id];
+	if (!glyph) return '';
+	return `<svg class="sector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${glyph}</svg>`;
+}
+
 // --- pieces -----------------------------------------------------------------
 
 /**
@@ -263,7 +310,7 @@ function header(view: PageView): string {
 }
 
 function coverageMap(view: PageView): string {
-	const { coverage, subsector, sector, search, tier, defaultTier, age } = view;
+	const { coverage, subsector } = view;
 
 	const sectors = coverage.sectors
 		.map((group) => {
@@ -271,13 +318,7 @@ function coverageMap(view: PageView): string {
 				.map((cell) => {
 					const active = subsector === cell.subsector_id;
 					// Clicking the active cell clears the filter, so the map is a toggle.
-					const href = `${query({
-						sector,
-						q: search,
-						subsector: active ? null : cell.subsector_id,
-						tier: tier === defaultTier ? null : tier,
-						age: age === 'recent' ? null : age,
-					})}#list`;
+					const href = `${query(viewParams(view, { subsector: active ? null : cell.subsector_id }))}#list`;
 					const classes = ['cell', cell.n > 0 ? 'filled' : 'empty', active ? 'active' : ''].filter(Boolean).join(' ');
 					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${cell.n}"${
 						active ? ' aria-current="true"' : ''
@@ -289,7 +330,7 @@ function coverageMap(view: PageView): string {
 				.join('\n');
 
 			return `<div class="sector">
-      <h3><span class="sector-id">${esc(group.sector_id)}</span> ${esc(group.sector)}</h3>
+      <h3>${sectorIcon(group.sector_id)}<span class="sector-id">${esc(group.sector_id)}</span> ${esc(group.sector)}</h3>
       <div class="grid">
 ${cells}
       </div>
@@ -316,8 +357,46 @@ ${sectors}
 </section>`;
 }
 
+/**
+ * Every filter in the view, as querystring parameters, with the defaults left out.
+ *
+ * One function so that the coverage map, the held-back link, the sort control, the
+ * clear link and the CSV button cannot drift apart — the bug this replaces is a link
+ * that silently drops a filter the reader set, which reads as the page ignoring them.
+ * Overrides are merged on top, so a link that changes one thing says only that.
+ */
+function viewParams(view: PageView, overrides: Record<string, string | null> = {}): Record<string, string | null> {
+	return {
+		q: view.search,
+		sector: view.sector,
+		subsector: view.subsector,
+		source: view.source,
+		site: view.site,
+		sort: view.sort === 'obscurity' ? null : view.sort,
+		dates: view.dates === 'both' ? null : view.dates,
+		tier: view.tier === view.defaultTier ? null : view.tier,
+		age: view.age === 'recent' ? null : view.age,
+		...overrides,
+	};
+}
+
+/** The labels for the four sources, since the ids are not written for reading. */
+const SOURCE_LABELS: Record<string, string> = {
+	'sine-iitb': 'SINE IIT Bombay',
+	'rtbi-iitm': 'IIT Madras RTBI',
+	'grants-csv': 'Government grants',
+	'dpiit-startup-india': 'DPIIT register',
+};
+
+const SORT_LABELS: Record<SortChoice, string> = {
+	obscurity: 'Obscurity',
+	quietest: 'Fewest traces',
+	newest: 'Newest on record',
+	name: 'Name',
+};
+
 function filters(view: PageView): string {
-	const { sector, subsector, search, tier, defaultTier, age } = view;
+	const { sector, subsector, search, source, site, sort, dates, tier, defaultTier, age } = view;
 
 	const options = [`<option value=""${sector ? '' : ' selected'}>All sectors</option>`]
 		.concat(
@@ -357,10 +436,36 @@ function filters(view: PageView): string {
 		)
 		.join('\n      ');
 
-	const clear = subsector
-		? `<a class="clear" href="${esc(
-				query({ sector, q: search, tier: tier === defaultTier ? null : tier, age: age === 'recent' ? null : age }),
-			)}#list">Clear ${esc(subsector)}</a>`
+	const sourceOptions = [`<option value=""${source ? '' : ' selected'}>Any source</option>`]
+		.concat(SOURCES.map((id) => `<option value="${esc(id)}"${source === id ? ' selected' : ''}>${esc(SOURCE_LABELS[id] ?? id)}</option>`))
+		.join('\n      ');
+
+	const siteOptions = [
+		['', 'Website or not'],
+		['has', 'Has a website'],
+		// Worth its own option: on this list the absence is the signal.
+		['none', 'No website'],
+	]
+		.map(([value, label]) => `<option value="${value}"${(site ?? '') === value ? ' selected' : ''}>${esc(label)}</option>`)
+		.join('\n      ');
+
+	const datesOptions = [
+		['both', 'Dated and not'],
+		['dated', 'On record only'],
+		['undated', 'Undated only'],
+	]
+		.map(([value, label]) => `<option value="${value}"${dates === value ? ' selected' : ''}>${esc(label)}</option>`)
+		.join('\n      ');
+
+	const sortOptions = (Object.keys(SORTS) as SortChoice[])
+		.map((value) => `<option value="${value}"${sort === value ? ' selected' : ''}>${esc(SORT_LABELS[value])}</option>`)
+		.join('\n      ');
+
+	// Every filter that is not at its default, counted, so "clear" can say what it
+	// clears and a reader can see at a glance that the list is narrowed.
+	const active = Object.entries(viewParams(view)).filter(([, value]) => value !== null && value !== '');
+	const clear = active.length
+		? `<a class="clear" href="${esc(BASE_PATH)}#list">Clear ${active.length} filter${active.length === 1 ? '' : 's'}</a>`
 		: '';
 
 	return `
@@ -374,6 +479,30 @@ function filters(view: PageView): string {
     <label for="sector">Sector</label>
     <select id="sector" name="sector">
       ${options}
+    </select>
+  </div>
+  <div class="field">
+    <label for="source">Found by</label>
+    <select id="source" name="source">
+      ${sourceOptions}
+    </select>
+  </div>
+  <div class="field">
+    <label for="site">Website</label>
+    <select id="site" name="site">
+      ${siteOptions}
+    </select>
+  </div>
+  <div class="field">
+    <label for="dates">Dates</label>
+    <select id="dates" name="dates">
+      ${datesOptions}
+    </select>
+  </div>
+  <div class="field">
+    <label for="sort">Sort by</label>
+    <select id="sort" name="sort">
+      ${sortOptions}
     </select>
   </div>
   <div class="field">
@@ -391,6 +520,7 @@ function filters(view: PageView): string {
   ${subsector ? `<input type="hidden" name="subsector" value="${esc(subsector)}">` : ''}
   <button type="submit" class="apply">Apply</button>
   ${clear}
+  <a class="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Download CSV</a>
 </form>`;
 }
 
@@ -467,11 +597,11 @@ function companyRow(company: Company, now: Date): string {
  * has to account for the other two rather than let the map look like it lied.
  */
 function heldBack(view: PageView): string {
-	const { buckets, sector, subsector, search, tier, defaultTier, age } = view;
+	const { buckets, age } = view;
 	if (age === 'all' || buckets.older === 0) return '';
 
 	const n = buckets.older;
-	const href = `${query({ sector, subsector, q: search, tier: tier === defaultTier ? null : tier, age: 'all' })}#list`;
+	const href = `${query(viewParams(view, { age: 'all' }))}#list`;
 	return `<p class="note">${n} ${n === 1 ? 'company' : 'companies'} here started more than ${MAX_AGE_YEARS} years ago
     and ${n === 1 ? 'is' : 'are'} held back. <a href="${esc(href)}">Show ${n === 1 ? 'it' : 'them'}</a>.</p>`;
 }
@@ -1161,11 +1291,17 @@ section > h2 {
 /* coverage map */
 .sector { margin-bottom: var(--s5); }
 .sector h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
   font-size: var(--t-xs);
   font-weight: 500;
   margin: 0 0 var(--s2);
   color: var(--muted);
 }
+/* Sized in em so it tracks the heading rather than being pinned to a pixel, and
+   flex-shrink: 0 so a long sector name cannot squash it. */
+.sector-icon { width: 1.35em; height: 1.35em; flex: 0 0 auto; opacity: 0.75; }
 .sector-id { font-family: var(--mono); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: var(--s1); }
 .cell {
@@ -1235,7 +1371,9 @@ section > h2 {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--s4);
+  /* Seven controls now. On a phone they stack two-up rather than one long column,
+     which is why the selects are allowed to shrink below their content width. */
+  gap: var(--s3) var(--s4);
   padding: var(--s4) 0;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
@@ -1259,6 +1397,10 @@ select {
   max-width: 100%;
 }
 select:hover, .apply:hover { border-color: var(--rule-strong); }
+/* Without this a select refuses to go narrower than its longest option and the bar
+   pushes the page sideways on a phone. */
+.filters .field { flex: 1 1 9rem; min-width: 0; }
+.filters select { width: 100%; }
 .seg:hover:not(.on) { background: var(--paper); }
 .segmented { display: flex; border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
 .seg {
@@ -1283,6 +1425,14 @@ select:hover, .apply:hover { border-color: var(--rule-strong); }
   cursor: pointer;
 }
 .clear { font-size: var(--t-xs); color: var(--muted); }
+.export {
+  font-size: var(--t-xs);
+  color: var(--muted);
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 3px;
+  margin-left: auto;
+}
+.export:hover { color: var(--ink); text-decoration-color: currentColor; }
 
 /* list */
 .list h2 .count { font-family: var(--mono); }
@@ -1557,6 +1707,9 @@ export function renderPage(view: PageView): string {
 <title>Upstream &mdash; Indian deep tech, ranked by obscurity</title>
 <meta name="description" content="Every other list ranks by how impressive a company looks, which is why every fund keeps finding the same twenty names. ${view.tracked} early-stage Indian deep-tech companies, sorted by obscurity, with the evidence on every row.">
 <meta name="color-scheme" content="light dark">
+<!-- The same list is reachable by several orderings of the same parameters, and by
+     parameters sitting at their defaults. This is the one spelling of it. -->
+<link rel="canonical" href="${esc(`${BASE_PATH}${query(viewParams(view))}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">

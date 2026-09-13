@@ -20,11 +20,16 @@ import {
 	queryOneTraceCount,
 	queryCompany,
 	queryProductOutcomes,
+	SORTS,
+	SOURCES,
+	type SiteState,
+	type SortChoice,
 	queryGaps,
 	queryHasRanked,
 	queryRegisterOutcomes,
 	type Filters,
 } from './db';
+import { SUBSECTOR_BY_ID } from './taxonomy';
 import { BASE_PATH, renderCompanyPage, renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
 
@@ -101,6 +106,33 @@ function parseLimit(raw: string | null): number | null {
 	return Math.min(parsed, MAX_LIMIT);
 }
 
+/**
+ * The filters that arrive as a name from a fixed list, parsed once for the page, the
+ * API and the export, so all three answer the same url the same way.
+ *
+ * A value that is not on the list becomes null rather than a 400 on the page: a reader
+ * editing a url by hand should get the unfiltered list, not an error page. The API is
+ * stricter, because a client passing nonsense wants to be told.
+ */
+function parseSource(raw: string | null): string | null {
+	return raw && (SOURCES as readonly string[]).includes(raw) ? raw : null;
+}
+
+function parseSite(raw: string | null): SiteState | null {
+	return raw === 'has' || raw === 'none' ? raw : null;
+}
+
+function parseSort(raw: string | null): SortChoice {
+	return raw !== null && raw in SORTS ? (raw as SortChoice) : 'obscurity';
+}
+
+function parseDates(raw: string | null): DatesChoice {
+	return raw === 'dated' || raw === 'undated' ? raw : 'both';
+}
+
+/** Which of the two list sections a reader has asked to see. */
+export type DatesChoice = 'both' | 'dated' | 'undated';
+
 // --- GET /upstream/api/companies -------------------------------------------
 
 async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
@@ -124,10 +156,20 @@ async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 	const age = parseAgeChoice(url.searchParams.get('age'));
 	const now = new Date();
 
+	const source = url.searchParams.get('source');
+	if (source && !parseSource(source)) return json({ error: `source must be one of ${SOURCES.join(', ')}` }, 400);
+	const site = url.searchParams.get('site');
+	if (site && !parseSite(site)) return json({ error: "site must be 'has' or 'none'" }, 400);
+	const sort = url.searchParams.get('sort');
+	if (sort && !(sort in SORTS)) return json({ error: `sort must be one of ${Object.keys(SORTS).join(', ')}` }, 400);
+
 	const companies = await queryCompanies(env, {
 		sector: url.searchParams.get('sector') || null,
 		subsector: url.searchParams.get('subsector') || null,
 		search: url.searchParams.get('q') || null,
+		source: parseSource(source),
+		site: parseSite(site),
+		sort: parseSort(sort),
 		tiers,
 		dated: undated ? 'undated' : 'dated',
 		minOriginYear: undated || age === 'all' ? null : minOriginYear(now),
@@ -682,12 +724,19 @@ async function page(url: URL, env: Env): Promise<Response> {
 	// Trimmed here rather than in the query, so what the box shows, what the URL says
 	// and what was searched for are one string.
 	const search = (url.searchParams.get('q') || '').trim() || null;
+	const source = parseSource(url.searchParams.get('source'));
+	const site = parseSite(url.searchParams.get('site'));
+	const sort = parseSort(url.searchParams.get('sort'));
+	const dates = parseDates(url.searchParams.get('dates'));
 
 	const cutoff = minOriginYear(now);
 	const ranked: Filters = {
 		sector,
 		subsector,
 		search,
+		source,
+		site,
+		sort,
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
 		minOriginYear: age === 'all' ? null : cutoff,
@@ -701,8 +750,16 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
 	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products] = await Promise.all([
 		queryCoverage(env),
-		demo ? Promise.resolve(splitDemo(demoCompanies(), now).ranked) : queryCompanies(env, ranked),
-		demo ? Promise.resolve(splitDemo(demoCompanies(), now).undated) : queryCompanies(env, unplaceable),
+		dates === 'undated'
+			? Promise.resolve([])
+			: demo
+				? Promise.resolve(splitDemo(demoCompanies(), now).ranked)
+				: queryCompanies(env, ranked),
+		dates === 'dated'
+			? Promise.resolve([])
+			: demo
+				? Promise.resolve(splitDemo(demoCompanies(), now).undated)
+				: queryCompanies(env, unplaceable),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked, cutoff),
 		demo ? Promise.resolve(demoGaps()) : queryGaps(env),
 		queryDiscoveredSince(env, weekAgo),
@@ -732,6 +789,10 @@ async function page(url: URL, env: Env): Promise<Response> {
 		sector,
 		subsector,
 		search,
+		source,
+		site,
+		sort,
+		dates,
 		tier,
 		defaultTier,
 		backfillOnly: !hasRanked,
@@ -742,6 +803,125 @@ async function page(url: URL, env: Env): Promise<Response> {
 
 	return new Response(html, {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
+	});
+}
+
+// --- GET /upstream/export.csv -----------------------------------------------
+
+/**
+ * One CSV field. Quoted whenever it could possibly need to be, and a leading =, +, -
+ * or @ defanged with a single quote.
+ *
+ * That last part is not paranoia about our own data: a spreadsheet treats a cell
+ * starting with = as a formula, these names and descriptions are scraped from pages we
+ * do not control, and the whole point of this file is that somebody opens it in Excel.
+ */
+function csvField(value: unknown): string {
+	if (value === null || value === undefined) return '';
+	const text = String(value);
+	const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+	return `"${safe.replace(/"/g, '""')}"`;
+}
+
+/**
+ * The current view as a file, with the columns that carry a decision.
+ *
+ * Every column is something on the page. The two that are not — the detail url and the
+ * signal count — are there because a spreadsheet cannot follow a link it does not have
+ * and cannot count rows it cannot see. Nothing is invented, nothing is summarised, and
+ * a NULL stays empty rather than becoming "unknown", which would be this file claiming
+ * something the database does not.
+ */
+const CSV_COLUMNS = [
+	'name',
+	'builds',
+	'builds_from',
+	'source_description',
+	'website',
+	'website_looked_for',
+	'city',
+	'state',
+	'rdi_sector',
+	'rdi_subsector',
+	'rdi_project',
+	'placed_from',
+	'classifier_reasoning',
+	'tier',
+	'public_traces',
+	'on_record',
+	'on_record_basis',
+	'started',
+	'in_database',
+	'signals',
+	'page',
+] as const;
+
+async function exportCsv(url: URL, env: Env): Promise<Response> {
+	const now = new Date();
+	const undated = parseDates(url.searchParams.get('dates')) === 'undated';
+	const age = parseAgeChoice(url.searchParams.get('age'));
+	const tier = parseTierChoice(url.searchParams.get('tier'), 'all');
+
+	// The export is capped where the page is not, because a file is a download and a
+	// surprise 700-row one is worse than a stated limit.
+	const companies = await queryCompanies(env, {
+		sector: url.searchParams.get('sector') || null,
+		subsector: url.searchParams.get('subsector') || null,
+		search: (url.searchParams.get('q') || '').trim() || null,
+		source: parseSource(url.searchParams.get('source')),
+		site: parseSite(url.searchParams.get('site')),
+		sort: parseSort(url.searchParams.get('sort')),
+		tiers: TIER_SETS[tier],
+		dated: undated ? 'undated' : 'dated',
+		minOriginYear: undated || age === 'all' ? null : minOriginYear(now),
+		limit: MAX_LIMIT,
+	});
+
+	const origin = `${url.origin}${BASE}`;
+	const rows = companies.map((c) =>
+		[
+			c.name,
+			c.product,
+			// Said in the file too. A column of sentences with no provenance is exactly
+			// the thing the page refuses to print. Plain text, not an HTML entity: this
+			// is a spreadsheet, and &apos; in a cell is just wrong.
+			c.product ? "the company's own homepage" : '',
+			c.description,
+			c.website,
+			c.website_checked ? 'yes' : 'no',
+			c.city,
+			c.state,
+			c.sector_id,
+			c.subsector_id ? (SUBSECTOR_BY_ID.get(c.subsector_id)?.subsector ?? c.subsector_id) : '',
+			c.project_type,
+			c.classify_basis,
+			c.classify_note,
+			c.tier,
+			c.trace_count,
+			c.first_seen,
+			c.first_seen_basis,
+			c.origin_year ?? c.founded_year,
+			c.discovered,
+			c.signals.length,
+			`${origin}/c/${c.id}`,
+		]
+			.map(csvField)
+			.join(','),
+	);
+
+	// \r\n and a BOM, because the audience for this file is a spreadsheet on Windows
+	// and without the BOM Excel reads UTF-8 names as mojibake.
+	const body = `\uFEFF${[CSV_COLUMNS.map(csvField).join(','), ...rows].join('\r\n')}\r\n`;
+
+	// Dated, so two exports a week apart do not overwrite each other in a downloads
+	// folder — the list changes nightly and which day it was is part of the data.
+	const name = `upstream-${isoDate(now)}.csv`;
+	return new Response(body, {
+		headers: {
+			'content-type': 'text/csv; charset=utf-8',
+			'content-disposition': `attachment; filename="${name}"`,
+			'cache-control': PUBLIC_CACHE,
+		},
 	});
 }
 
@@ -784,6 +964,9 @@ export default {
 		switch (path) {
 			case BASE:
 				return isRead ? page(url, env) : methodNotAllowed('GET, HEAD');
+
+			case `${BASE}/export.csv`:
+				return isRead ? exportCsv(url, env) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/companies`:
 				return isRead ? listCompaniesApi(url, env) : methodNotAllowed('GET, HEAD');

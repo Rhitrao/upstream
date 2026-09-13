@@ -69,8 +69,45 @@ export interface Filters {
 	 * company does. null and empty are the same thing: no search.
 	 */
 	search: string | null;
+	/** Which scraper found it — one of SOURCES, or null for any. */
+	source: string | null;
+	/** Whether it publishes a website. See SiteState: 'none' is a claim, not an absence. */
+	site: SiteState | null;
+	/** How the list is ordered. See SORTS. */
+	sort: SortChoice;
 	limit: number;
 }
+
+/**
+ * The four sources, as the ingest writes them. Listed so a filter cannot be handed an
+ * arbitrary string and quietly return nothing, which looks identical to "no matches".
+ */
+export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-india'] as const;
+
+/**
+ * 'has' is simple. 'none' is not an absence but an assertion — a source that publishes
+ * websites went looking and came back empty — because a register with no website field
+ * has said nothing at all about whether one exists, and filtering those in would turn
+ * that silence into a finding.
+ */
+export type SiteState = 'has' | 'none';
+
+export type SortChoice = 'obscurity' | 'newest' | 'quietest' | 'name';
+
+/**
+ * The orderings, as SQL, keyed by the only names the URL is allowed to use.
+ *
+ * A map rather than a string from the querystring, for the obvious reason. The default
+ * is the one the page is an argument for: tier first, newest inside a tier.
+ */
+export const SORTS: Record<SortChoice, string> = {
+	obscurity: `CASE c.tier WHEN 'A' THEN 0 WHEN 'B' THEN 1 ELSE 2 END, c.first_seen DESC`,
+	newest: 'c.first_seen DESC',
+	// The list's own logic, made explicit: fewest traces first. Ties break to the most
+	// recently on record, so the top of this list is the newest of the least known.
+	quietest: 'c.trace_count ASC, c.first_seen DESC',
+	name: 'c.name ASC',
+};
 
 /** One hole in the taxonomy, and who fell through it. */
 export interface GapGroup {
@@ -209,6 +246,17 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 		binds.push(term, term, term);
 	}
 
+	// EXISTS rather than a join: a company can carry two signals from one source, and
+	// a join would return it twice and make the list disagree with its own count.
+	if (filters.source) {
+		clauses.push('EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.source = ?)');
+		binds.push(filters.source);
+	}
+
+	if (filters.site === 'has') clauses.push("c.website IS NOT NULL AND c.website <> ''");
+	// Only where somebody looked. See SiteState.
+	if (filters.site === 'none') clauses.push("c.website_checked = 1 AND (c.website IS NULL OR c.website = '')");
+
 	if (filters.dated === 'dated') clauses.push('c.first_seen IS NOT NULL');
 	if (filters.dated === 'undated') clauses.push('c.first_seen IS NULL');
 
@@ -239,9 +287,7 @@ SELECT c.*,
    FROM signals s WHERE s.company_id = c.id) AS signals
 FROM companies c
 ${whereSql(clauses)}
-ORDER BY
-  CASE c.tier WHEN 'A' THEN 0 WHEN 'B' THEN 1 ELSE 2 END,
-  c.first_seen DESC
+ORDER BY ${SORTS[filters.sort] ?? SORTS.obscurity}
 LIMIT ?`;
 
 	const { results } = await env.DB.prepare(sql)
