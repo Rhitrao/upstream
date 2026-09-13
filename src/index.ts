@@ -17,6 +17,7 @@ import {
 	queryCompanies,
 	queryCoverage,
 	queryDiscoveredSince,
+	queryOneTraceCount,
 	queryGaps,
 	queryHasRanked,
 	queryRegisterOutcomes,
@@ -660,7 +661,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const unplaceable: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace] = await Promise.all([
 		queryCoverage(env),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).ranked) : queryCompanies(env, ranked),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).undated) : queryCompanies(env, unplaceable),
@@ -668,6 +669,9 @@ async function page(url: URL, env: Env): Promise<Response> {
 		demo ? Promise.resolve(demoGaps()) : queryGaps(env),
 		queryDiscoveredSince(env, weekAgo),
 		demo ? Promise.resolve(demoRegisterOutcomes()) : queryRegisterOutcomes(env),
+		// The demo set has to answer this the same way the database does, or the row
+		// design gets checked against a headline number that is not about it.
+		demo ? Promise.resolve(demoCompanies().filter((c) => c.trace_count <= 1).length) : queryOneTraceCount(env),
 	]);
 
 	const html = renderPage({
@@ -681,6 +685,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		found: coverage.total_companies + gaps.total,
 		register,
 		tracked: coverage.total_companies,
+		oneTrace,
 		discoveredThisWeek,
 		sector,
 		subsector,

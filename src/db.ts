@@ -397,6 +397,23 @@ export async function queryHasRanked(env: Env): Promise<boolean> {
  * Deliberately not a count of rows added: a backfill adds hundreds in an afternoon
  * and none of them are this week's news. Only a first_seen we earned counts.
  */
+/**
+ * How many companies have at most one public trace.
+ *
+ * The page's whole claim is that these companies are unknown, and this is the number
+ * that shows it instead of asserting it: one trace means exactly one institution
+ * anywhere has said this company exists. `<= 1` rather than `= 1` because a company
+ * found only through a patent or an incorporation carries no trace at all, and that is
+ * less known, not more — the label above it says "at most" for that reason.
+ *
+ * Counted here rather than typed into the template, like every other number on this
+ * page: a hand-written figure is true until the next run.
+ */
+export async function queryOneTraceCount(env: Env): Promise<number> {
+	const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM companies WHERE trace_count <= 1').first<{ n: number }>();
+	return row?.n ?? 0;
+}
+
 export async function queryDiscoveredSince(env: Env, since: string): Promise<number> {
 	const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM companies WHERE first_seen_basis = 'discovered' AND first_seen >= ?1")
 		.bind(since)

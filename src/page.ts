@@ -29,6 +29,8 @@ export interface PageView {
 	found: number;
 	/** The ones that reached a cell on the coverage map. */
 	tracked: number;
+	/** How many of those have at most one public trace — the obscurity claim, counted. */
+	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
 	register: RegisterOutcomes;
 	discoveredThisWeek: number;
@@ -117,6 +119,31 @@ function tierLabel(tier: Tier): string {
 	return `Tier ${tier}`;
 }
 
+/**
+ * The proposition and the argument for it — the two sentences a first-time reader is
+ * actually guaranteed to read.
+ *
+ * Kept here rather than inline in the template because they get rewritten far more
+ * often than the markup around them, and because a reader who disagrees with this page
+ * disagrees with these two sentences and should be able to find them in one grep.
+ *
+ * The count is interpolated for the same reason every other number on this page is: a
+ * hand-typed 684 is true until tomorrow morning's run.
+ */
+function proposition(tracked: number): string {
+	return `${tracked} Indian deep-tech companies, ranked by how few people have heard of them.`;
+}
+
+/**
+ * The argument, in the order it has to land: what everyone else does, why that fails,
+ * what this does instead. The emphasis is on the half worth repeating to a colleague,
+ * and it is weight rather than colour — the one yellow on this page already means
+ * something else, and a second meaning would cost it the first.
+ */
+const HOOK = `Rank by pedigree and you only ever find <strong>what every other fund has already
+  found</strong>. This ranks the other way: fewest public traces first, the evidence on every row,
+  and no score anywhere.`;
+
 // --- pieces -----------------------------------------------------------------
 
 /**
@@ -140,7 +167,17 @@ function tierLabel(tier: Tier): string {
  * published description was a name and a dropdown industry. Claiming those as a
  * finding about the RDI scheme overstates the critique and hides the admission.
  */
-function funnelNote(gaps: Gaps): string {
+/**
+ * What the map does not show, said under the map instead of above the list.
+ *
+ * This used to head the page, where it explained the pipeline to someone who did not
+ * yet know what the pipeline was for. The arithmetic still has to be stated somewhere
+ * and stated in full — a headline number that quietly means "the subset that fitted"
+ * is the one thing this page must never do — so it sits with the map it is about, and
+ * still links down to the sections that hold the companies it is counting.
+ */
+function funnelNote(view: PageView): string {
+	const { gaps, found, tracked } = view;
 	if (gaps.total === 0) return '';
 	const parts: string[] = [];
 	if (gaps.taxonomy.total > 0) {
@@ -149,23 +186,43 @@ function funnelNote(gaps: Gaps): string {
 	if (gaps.undescribed.total > 0) {
 		parts.push(`<a href="#undescribed">${gaps.undescribed.total}</a> we could not describe well enough to place`);
 	}
-	return `<p class="funnel-note">Of the ${gaps.total} not on the map, ${parts.join(', and ')}.</p>`;
+	return `<p class="funnel-note">${found} companies have reached this pipeline and ${tracked} are on the map above.
+    Of the ${gaps.total} that are not, ${parts.join(', and ')}.</p>`;
 }
 
+/**
+ * The top of the page. Three things and nothing else: who this is, what it claims, and
+ * three numbers that back the claim up.
+ *
+ * What used to be here and is not any more: the pipeline's own arithmetic — companies
+ * found, how many we managed to place, how far the two diverge. All of it is true and
+ * none of it is an answer to the question a stranger arrives with, which is what this
+ * is and why they should care. It now sits under the coverage map, with the map it is
+ * about. See funnelNote.
+ *
+ * The three that stayed are the three a reader could act on. The empty sub-sectors are
+ * the finding rather than the shortfall, so the stat counts the empty ones and not the
+ * covered ones: a national priority with nothing in it is the interesting square.
+ */
 function header(view: PageView): string {
-	const { coverage, found, tracked, discoveredThisWeek, gaps } = view;
+	const { coverage, tracked, oneTrace, discoveredThisWeek } = view;
+	const empty = coverage.subsector_count - coverage.covered;
 	return `
 <header class="masthead">
-  <h1>Upstream</h1>
-  <p class="lede">Early-stage Indian deep-tech companies that have left a public trace and not much else &mdash;
-    ordered by how few people know about them, never by how impressive they look.</p>
+  <p class="eyebrow">Upstream</p>
+  <h1>${esc(proposition(tracked))}</h1>
+  <p class="hook">${HOOK}</p>
   <dl class="stats">
-    <div><dt>Companies found</dt><dd>${found}</dd></div>
-    <div><dt>Placed on the map</dt><dd>${tracked}<span class="of">/${found}</span></dd></div>
-    <div><dt>Discovered this week</dt><dd>${discoveredThisWeek}</dd></div>
-    <div><dt>Sub-sectors covered</dt><dd>${coverage.covered}<span class="of">/${coverage.subsector_count}</span></dd></div>
+    <div><dt>Companies</dt><dd>${tracked}</dd></div>
+    <div><dt>One public trace at most</dt><dd>${oneTrace}</dd></div>
+    <div><dt>Sub-sectors still empty</dt><dd>${empty}<span class="of">/${coverage.subsector_count}</span></dd></div>
   </dl>
-  ${funnelNote(gaps)}
+  ${
+		// Only when there is something to report. A liveness line that reads "0
+		// discovered in the last seven days" every day until the first discovery lands
+		// says the machine is broken, which is not what it means.
+		discoveredThisWeek > 0 ? `<p class="fresh">${discoveredThisWeek} discovered in the last seven days.</p>` : ''
+	}
 </header>`;
 }
 
@@ -207,8 +264,8 @@ ${cells}
 <section class="coverage" aria-labelledby="coverage-h">
   <h2 id="coverage-h">Coverage</h2>
   <p class="note">All ${coverage.subsector_count} sunrise sub-sectors of the RDI scheme. An outlined cell is one we have
-    found nothing in yet &mdash; a gap in what we can see, not proof the sector is empty. Pick a cell to filter the list.
-    Counts here are every company we hold, including the ones the list below sets aside as old or undated.</p>
+    found nothing in yet &mdash; our blind spot, not proof the sector is empty. Pick a cell to filter the list; the counts
+    include the companies the list below sets aside as old or undated.</p>
   <details class="map-fold" open>
     <summary>
       <span class="map-fold-label">Coverage map</span>
@@ -218,6 +275,7 @@ ${cells}
 ${sectors}
     </div>
   </details>
+  ${funnelNote(view)}
 </section>`;
 }
 
@@ -515,7 +573,6 @@ ${gapList(gaps.undescribed.groups)}
 	return `${taxonomy}${undescribed}`;
 }
 
-
 /**
  * The register's companies, split by why each one did or did not place.
  *
@@ -632,12 +689,59 @@ ${registerSplit(view)}
 const STYLES = `
 :root {
   color-scheme: light dark;
+
+  /* Ink on paper, the same two as rohitrao.in. --raise is the one step up from the
+     page: the surface a row or a control sits on when it is being touched. */
   --paper: #fbfaf8;
   --raise: #ffffff;
   --ink: #141310;
   --muted: #6e6a62;
   --rule: #e5e1d9;
+  /* A second weight of line, so "this is a boundary" and "this is the boundary that
+     matters" do not have to be the same hairline. */
+  --rule-strong: #d3cec3;
+
+  /* The one yellow. It means exactly one thing on this page — nobody has noticed this
+     company yet — and it is spent on the Tier A marker and the "no website yet" chip.
+     Everything else that needs emphasis gets weight or space instead, because a colour
+     that means two things means neither. */
   --mark: #ffd84a;
+
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* One ladder of space. Every margin and every pad below is a rung on it, which is
+     the whole difference between a page with rhythm and a page of decisions taken one
+     at a time. */
+  /* Below the ladder on purpose, and only for the inside of a pill: a chip or a badge
+     padded to a full quarter-rem stops reading as a label and starts reading as a
+     button. Two rungs, so the exception cannot quietly become the rule. */
+  --s0: 0.125rem;
+  --s0h: 0.375rem;
+
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+
+  /* And one ladder of type. Phone first: only the two largest sizes grow with the
+     viewport, and everything else holds still — a body size that scales with the
+     screen is how a list stops feeling like the same list on a laptop. */
+  --t-hero: clamp(1.6rem, 5.4vw, 2.45rem);
+  --t-lede: clamp(1rem, 1.9vw, 1.12rem);
+  --t-stat: 1.6rem;
+  --t-h: 1.05rem;
+  --t-body: 1rem;
+  --t-sm: 0.875rem;
+  --t-xs: 0.8rem;
+  --t-micro: 0.72rem;
+  /* The map only. Forty-four cells on a phone is the one place on this page that
+     has to go below the smallest size the prose is allowed to use. */
+  --t-nano: 0.66rem;
+
   --radius: 10px;
 }
 @media (prefers-color-scheme: dark) {
@@ -647,6 +751,7 @@ const STYLES = `
     --ink: #f1eee8;
     --muted: #9b968c;
     --rule: #2e2a24;
+    --rule-strong: #423c33;
   }
 }
 
@@ -657,61 +762,117 @@ body {
   padding: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 16px;
-  line-height: 1.55;
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   /* Scraped names and labels can be long and unbroken; never let one scroll the page. */
   overflow-wrap: break-word;
 }
-.wrap { max-width: 60rem; margin: 0 auto; padding: 2rem 1.15rem 4rem; }
+.wrap { max-width: 60rem; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
 a { color: inherit; }
 h1, h2, h3 { line-height: 1.2; letter-spacing: -0.015em; }
-p { margin: 0 0 0.75rem; }
+p { margin: 0 0 var(--s3); }
+/* Long unbroken scraped names stay inside their column; headings break where a
+   reader would rather they did. */
+h1, h2, h3, .hook, .note { text-wrap: pretty; }
 
 /* header */
-.masthead h1 { font-size: 1.9rem; margin: 0 0 0.4rem; font-weight: 600; }
-.lede { color: var(--muted); max-width: 34rem; margin-bottom: 1.4rem; }
-.stats { display: flex; flex-wrap: wrap; gap: 1.6rem; margin: 0 0 0.7rem; padding: 0; }
-.funnel-note { color: var(--muted); font-size: 0.85rem; max-width: 42rem; margin: 0 0 2.2rem; }
-.stats dt { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.stats dd {
-  margin: 0.1rem 0 0;
-  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 1.5rem;
-  font-weight: 500;
+.masthead { margin-bottom: var(--s7); }
+/* The wordmark, demoted on purpose. The name is not the proposition, and a reader
+   who has never heard of this needs the second thing first. */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  margin: 0 0 var(--s3);
 }
-.stats .of { color: var(--muted); font-size: 1rem; }
+.masthead h1 {
+  font-size: var(--t-hero);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  margin: 0 0 var(--s4);
+  /* Measured in characters, so the line breaks at a readable length on any screen
+     rather than at whatever width the viewport happens to be. */
+  max-width: 26ch;
+  text-wrap: balance;
+}
+.hook { font-size: var(--t-lede); color: var(--muted); max-width: 48ch; margin: 0 0 var(--s6); }
+/* The half worth repeating, lifted out of the muted text by weight alone. */
+.hook strong { color: var(--ink); font-weight: 500; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--s4) var(--s5);
+  margin: 0;
+  padding: var(--s4) 0 0;
+  border-top: 1px solid var(--rule);
+}
+.stats dt {
+  font-size: var(--t-micro);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+}
+.stats dd {
+  margin: var(--s1) 0 0;
+  font-family: var(--mono);
+  font-size: var(--t-stat);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.stats .of { color: var(--muted); font-size: var(--t-sm); letter-spacing: 0; }
+/* Only rendered when it is not zero, so this is always news. */
+.fresh { font-size: var(--t-xs); color: var(--muted); margin: var(--s4) 0 0; }
+.funnel-note { color: var(--muted); font-size: var(--t-xs); max-width: 46ch; margin: var(--s5) 0 0; }
 
 /* section furniture */
-section { margin: 0 0 2.6rem; }
+section { margin: 0 0 var(--s7); }
+/* Everything that is not the list gets the quiet head: a label on a rule. */
 section > h2 {
-  font-size: 0.78rem;
+  font-size: var(--t-micro);
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.1em;
   color: var(--muted);
   font-weight: 500;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.5rem;
+  margin: 0 0 var(--s2);
+  padding-bottom: var(--s2);
   border-bottom: 1px solid var(--rule);
 }
-.note { color: var(--muted); font-size: 0.87rem; max-width: 42rem; margin-bottom: 1.1rem; }
+/* The list is the page. Its head is the one that reads as a heading rather than as
+   furniture — every section looking equally important is how a product reads as a
+   report. */
+.list > h2 {
+  font-size: var(--t-h);
+  text-transform: none;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  font-weight: 600;
+  padding-bottom: var(--s3);
+  border-bottom-color: var(--rule-strong);
+}
+.note { color: var(--muted); font-size: var(--t-xs); max-width: 52ch; margin-bottom: var(--s4); }
 
 /* coverage map */
-.sector { margin-bottom: 1.3rem; }
+.sector { margin-bottom: var(--s5); }
 .sector h3 {
-  font-size: 0.8rem;
+  font-size: var(--t-xs);
   font-weight: 500;
-  margin: 0 0 0.45rem;
+  margin: 0 0 var(--s2);
   color: var(--muted);
 }
-.sector-id { font-family: "DM Mono", ui-monospace, monospace; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 0.3rem; }
+.sector-id { font-family: var(--mono); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: var(--s1); }
 .cell {
   display: flex;
   flex-direction: column;
   min-height: 46px;
-  padding: 0.3rem 0.35rem;
+  padding: var(--s1) var(--s0h);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   text-decoration: none;
@@ -720,12 +881,12 @@ section > h2 {
 /* id and count share a line. Two stacked lines was most of the cell's height,
    and the count is the thing being compared across cells — putting it next to
    the id reads better than parking it at the bottom. */
-.cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.3rem; line-height: 1.2; }
-.cell-id { font-family: "DM Mono", ui-monospace, monospace; font-size: 0.62rem; color: var(--muted); }
+.cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s1); line-height: 1.2; }
+.cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
 .cell-name {
-  font-size: 0.66rem;
+  font-size: var(--t-nano);
   line-height: 1.2;
-  margin-top: 0.12rem;
+  margin-top: var(--s0);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -733,14 +894,16 @@ section > h2 {
   overflow: hidden;
 }
 .cell-n {
-  font-family: "DM Mono", ui-monospace, monospace;
-  font-size: 0.72rem;
+  font-family: var(--mono);
+  font-size: var(--t-micro);
 }
 .cell.empty { color: var(--muted); border-style: dashed; }
 .cell.empty .cell-n { opacity: 0.45; }
 .cell.filled { background: var(--raise); border-color: color-mix(in srgb, var(--ink) 22%, transparent); }
 .cell.filled .cell-n { font-weight: 500; }
-.cell:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+.cell:hover { border-color: var(--rule-strong); background: var(--raise); }
+.cell.filled:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+.cell:active { transform: translateY(1px); }
 .cell.active { border-color: var(--ink); border-style: solid; box-shadow: inset 0 0 0 1px var(--ink); }
 
 /* The map folds on a narrow screen only. Above the breakpoint the summary is
@@ -751,19 +914,19 @@ section > h2 {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: var(--s2);
     cursor: pointer;
-    padding: 0.55rem 0.7rem;
-    margin-bottom: 0.9rem;
+    padding: var(--s2) var(--s3);
+    margin-bottom: var(--s4);
     border: 1px solid var(--rule);
     border-radius: var(--radius);
     list-style: none;
   }
   .map-fold > summary::-webkit-details-marker { display: none; }
   .map-fold-label { font-weight: 500; }
-  .map-fold-meta { color: var(--muted); font-size: 0.82rem; }
+  .map-fold-meta { color: var(--muted); font-size: var(--t-xs); }
   /* The affordance, written by CSS so the two states cannot disagree. */
-  .map-fold > summary::after { content: "show"; margin-left: auto; color: var(--muted); font-size: 0.82rem; }
+  .map-fold > summary::after { content: "show"; margin-left: auto; color: var(--muted); font-size: var(--t-xs); }
   .map-fold[open] > summary::after { content: "hide"; }
 }
 
@@ -772,33 +935,35 @@ section > h2 {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.9rem;
-  padding: 0.9rem 0;
+  gap: var(--s4);
+  padding: var(--s4) 0;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
-  margin-bottom: 1.6rem;
+  margin-bottom: var(--s5);
 }
-.field { display: flex; flex-direction: column; gap: 0.3rem; }
+.field { display: flex; flex-direction: column; gap: var(--s1); }
 .field label, .legend {
-  font-size: 0.72rem;
+  font-size: var(--t-micro);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
 }
 select {
   font: inherit;
-  font-size: 0.9rem;
+  font-size: var(--t-sm);
   color: inherit;
   background: var(--raise);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
-  padding: 0.42rem 0.55rem;
+  padding: var(--s2) var(--s3);
   max-width: 100%;
 }
+select:hover, .apply:hover { border-color: var(--rule-strong); }
+.seg:hover:not(.on) { background: var(--paper); }
 .segmented { display: flex; border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
 .seg {
-  font-size: 0.85rem;
-  padding: 0.42rem 0.7rem;
+  font-size: var(--t-sm);
+  padding: var(--s2) var(--s3);
   cursor: pointer;
   background: var(--raise);
   border-right: 1px solid var(--rule);
@@ -809,30 +974,45 @@ select {
 .seg.on { background: var(--ink); color: var(--paper); }
 .apply {
   font: inherit;
-  font-size: 0.85rem;
-  padding: 0.45rem 0.9rem;
+  font-size: var(--t-sm);
+  padding: var(--s2) var(--s4);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: var(--raise);
   color: inherit;
   cursor: pointer;
 }
-.clear { font-size: 0.82rem; color: var(--muted); }
+.clear { font-size: var(--t-xs); color: var(--muted); }
 
 /* list */
-.list h2 .count { font-family: "DM Mono", ui-monospace, monospace; }
+.list h2 .count { font-family: var(--mono); }
 .companies { list-style: none; margin: 0; padding: 0; }
-.company { padding: 1.25rem 0; border-bottom: 1px solid var(--rule); }
-.row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.55rem; margin-bottom: 0.35rem; }
-.row-head h3 { font-size: 1.02rem; font-weight: 600; margin: 0; flex: 1 1 auto; }
-.row-head h3 a { text-decoration-color: var(--rule); text-underline-offset: 2px; }
-.place { font-size: 0.82rem; color: var(--muted); }
+/* Padded past the text column and pulled back by the same amount, so a row can take
+   a background on hover without the text appearing to shift. */
+.company {
+  padding: var(--s5) var(--s3);
+  margin-inline: calc(var(--s3) * -1);
+  border-bottom: 1px solid var(--rule);
+}
+@media (hover: hover) {
+  .company:hover { background: var(--raise); }
+}
+/* Keyboard and link-sharing get the same acknowledgement as a mouse. Rows are
+   anchored by slug precisely so one can be sent to someone; arriving at it should
+   show which one was meant. */
+.company:focus-within { background: var(--raise); }
+.company:target { background: var(--raise); box-shadow: inset 2px 0 0 var(--ink); }
+.row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2); margin-bottom: var(--s0h); }
+.row-head h3 { font-size: var(--t-h); font-weight: 600; margin: 0; flex: 1 1 auto; }
+.row-head h3 a { text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.row-head h3 a:hover { text-decoration-color: currentColor; }
+.place { font-size: var(--t-xs); color: var(--muted); }
 .tier {
-  font-family: "DM Mono", ui-monospace, monospace;
-  font-size: 0.68rem;
+  font-family: var(--mono);
+  font-size: var(--t-micro);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.12rem 0.4rem;
+  padding: var(--s0) var(--s0h);
   border-radius: 4px;
   border: 1px solid var(--rule);
   color: var(--muted);
@@ -841,23 +1021,34 @@ select {
 /* The yellow appears exactly twice on this page: on a Tier A marker and on
    "no website yet". Both say the same thing — this one is still unnoticed. */
 .tier.ta { background: var(--mark); border-color: var(--mark); color: #141310; }
-.desc { margin: 0 0 0.35rem; max-width: 46rem; }
-.rdi { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.5rem; font-family: "DM Mono", ui-monospace, monospace; }
+/* On a dark screen a solid fill of this yellow is the brightest thing on the page by
+   a wide margin, which turns a quiet marker into a siren. Washed back to a
+   highlighter — the way the same yellow is used on rohitrao.in — it still reads as
+   marked without taking over the row. */
+@media (prefers-color-scheme: dark) {
+  .tier.ta, .chip.positive {
+    background: color-mix(in srgb, var(--mark) 20%, transparent);
+    border-color: color-mix(in srgb, var(--mark) 45%, transparent);
+    color: var(--ink);
+  }
+}
+.desc { margin: 0 0 var(--s0h); max-width: 46rem; }
+.rdi { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s2); font-family: var(--mono); }
 .rdi.unclassified { font-style: italic; }
 .from-label {
-  margin-left: 0.5rem;
-  padding: 0.05rem 0.4rem;
+  margin-left: var(--s2);
+  padding: var(--s0) var(--s0h);
   border: 1px solid var(--rule);
   border-radius: 4px;
-  font-size: 0.72rem;
-  font-family: Inter, system-ui, sans-serif;
+  font-size: var(--t-micro);
+  font-family: var(--sans);
   white-space: nowrap;
 }
-.chips { list-style: none; display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.5rem; padding: 0; }
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s0h); margin: 0 0 var(--s2); padding: 0; }
 .chip {
   display: inline-block;
-  font-size: 0.78rem;
-  padding: 0.16rem 0.5rem;
+  font-size: var(--t-xs);
+  padding: var(--s0) var(--s2);
   border: 1px solid var(--rule);
   border-radius: 999px;
   background: var(--raise);
@@ -867,54 +1058,53 @@ select {
 a.chip { color: var(--ink); }
 a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .chip.positive { background: var(--mark); border-color: var(--mark); color: #141310; }
-.seen { font-size: 0.78rem; color: var(--muted); margin: 0; }
+.seen { font-size: var(--t-xs); color: var(--muted); margin: 0; }
 .empty { color: var(--muted); }
 /* Below the ranking and visibly outside it — same rows, no claim about time. */
-.undated-list { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); }
+.undated-list { margin-top: var(--s6); padding-top: var(--s5); border-top: 1px solid var(--rule); }
 .undated-list h2 { color: var(--muted); }
-.off-map { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); }
+.off-map { margin-top: var(--s6); padding-top: var(--s5); border-top: 1px solid var(--rule); }
 .off-map h2 { color: var(--muted); }
 .gap-groups { list-style: none; margin: 0; padding: 0; }
 .gap-groups li {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.55rem;
-  padding: 0.6rem 0;
+  gap: var(--s2);
+  padding: var(--s2) 0;
   border-bottom: 1px solid var(--rule);
 }
 .gap-n {
-  font-family: "DM Mono", ui-monospace, monospace;
-  font-size: 0.82rem;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
   min-width: 2.2rem;
   text-align: right;
   color: var(--muted);
 }
 .gap-name { font-weight: 500; }
-.gap-eg { font-size: 0.8rem; color: var(--muted); flex: 1 1 14rem; }
+.gap-eg { font-size: var(--t-xs); color: var(--muted); flex: 1 1 14rem; }
 .demo-banner {
-  font-size: 0.85rem;
+  font-size: var(--t-sm);
   color: var(--muted);
   border: 1px dashed var(--rule);
   border-radius: var(--radius);
-  padding: 0.7rem 0.85rem;
-  margin: 0.9rem 0 0.2rem;
+  padding: var(--s3) var(--s4);
+  margin: var(--s4) 0 var(--s1);
 }
 
 /* methodology */
-.method h3 { font-size: 0.92rem; margin: 1.4rem 0 0.4rem; }
-.method p, .method li { font-size: 0.89rem; color: var(--muted); max-width: 44rem; }
+.method h3 { font-size: var(--t-body); margin: var(--s5) 0 var(--s2); }
+.method p, .method li { font-size: var(--t-sm); color: var(--muted); max-width: 56ch; }
 .method a { color: var(--ink); }
-.rules { list-style: none; margin: 0 0 0.9rem; padding: 0; }
-.rules li { margin-bottom: 0.4rem; display: flex; gap: 0.5rem; align-items: baseline; }
+.rules { list-style: none; margin: 0 0 var(--s4); padding: 0; }
+.rules li { margin-bottom: var(--s0h); display: flex; gap: var(--s2); align-items: baseline; }
 .rules .tier { flex: 0 0 auto; }
 
 /* wider screens */
 @media (min-width: 46rem) {
-  .wrap { padding: 3rem 2rem 5rem; }
-  .masthead h1 { font-size: 2.4rem; }
+  .wrap { padding: var(--s7) var(--s6) calc(var(--s7) * 1.5); }
   .grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
-  .row-head h3 { font-size: 1.08rem; }
+  .company { padding-inline: var(--s4); margin-inline: calc(var(--s4) * -1); }
 }
 
 /* The radio inputs behind the segmented control are visually hidden but still
@@ -923,7 +1113,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 a:focus-visible, select:focus-visible, .apply:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .cell, .chip, .apply { transition: border-color 120ms ease, background 120ms ease; }
+  .cell, .chip, .apply, .company, select, .seg { transition: border-color 120ms ease, background 120ms ease; }
 }
 `;
 
@@ -935,8 +1125,8 @@ export function renderPage(view: PageView): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upstream &mdash; early-stage Indian deep tech, sorted by obscurity</title>
-<meta name="description" content="Early-stage Indian deep-tech companies that have left a public trace and little else, ranked by how few people know about them. Every row carries its evidence.">
+<title>Upstream &mdash; Indian deep tech, ranked by obscurity</title>
+<meta name="description" content="Rank by pedigree and you only ever find what every other fund has already found. ${view.tracked} early-stage Indian deep-tech companies, ranked instead by how few public traces they have left, with the evidence on every row.">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

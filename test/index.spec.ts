@@ -224,7 +224,10 @@ describe('POST /upstream/api/ingest', () => {
 		}
 
 		const rows = await env.DB.prepare('SELECT first_seen_basis, COUNT(*) AS n FROM companies GROUP BY 1 ORDER BY 1').all<any>();
-		expect(rows.results).toEqual([{ first_seen_basis: null, n: 1 }, { first_seen_basis: 'cohort', n: 2 }]);
+		expect(rows.results).toEqual([
+			{ first_seen_basis: null, n: 1 },
+			{ first_seen_basis: 'cohort', n: 2 },
+		]);
 	});
 
 	it('treats a run on a later day as live, per source', async () => {
@@ -488,8 +491,10 @@ describe('GET /upstream (the page)', () => {
 		const cells = html.match(/class="cell [^"]*"/g) ?? [];
 		expect(cells).toHaveLength(44);
 		expect(cells.every((c) => c.includes('empty'))).toBe(true);
-		expect(html).toContain('Sub-sectors covered');
-		expect(html).toContain('>0<span class="of">/44</span>');
+		// The stat counts the empty squares, not the covered ones: an RDI priority with
+		// nothing in it is the finding, and on an empty database all 44 are that.
+		expect(html).toContain('Sub-sectors still empty');
+		expect(html).toContain('>44<span class="of">/44</span>');
 	});
 
 	it('fills a cell once a company lands in it, and keeps the other 43', async () => {
@@ -722,11 +727,12 @@ describe('GET /upstream (the page)', () => {
 		expect(after).not.toContain('Backfilled Co');
 	});
 
-	it('heads the masthead with the whole funnel, not just the placed subset', async () => {
-		// Two placed, three off the map. The headline number is what the pipeline
-		// holds — 5 — not the 2 that happened to fit a sub-sector. A number that
-		// silently meant "the placed subset" was the one place on this page where
-		// something disappeared without being named.
+	it('states the whole funnel, under the map rather than above the proposition', async () => {
+		// Two placed, three off the map. Both numbers still have to be said — a figure
+		// that silently meant "the subset that fitted" was the one place on this page
+		// where something disappeared without being named — but they are the pipeline
+		// explaining itself, and they no longer come before the page has said what it
+		// is. They sit with the map they are about.
 		await post({
 			source: 'test',
 			companies: [
@@ -741,19 +747,62 @@ describe('GET /upstream (the page)', () => {
 		});
 
 		const html = await page('');
-		expect(html).toContain('<dt>Companies found</dt><dd>5</dd>');
-		expect(html).toContain('<dt>Placed on the map</dt><dd>2<span class="of">/5</span>');
-		// The drop is stated, not left for the reader to compute.
-		// The line under the stats splits the drop by whose fault it is, and claims
-		// the taxonomy gap only for the companies that actually are one.
-		expect(html).toMatch(/Of the 3 not on the map, <a href="#off-map">3<\/a> fell outside every sub-sector/);
+		// Both ends of the funnel, in full.
+		expect(html).toMatch(/5 companies have reached this pipeline and 2 are on the map above/);
+		// The drop is stated, not left for the reader to compute, and it is split by
+		// whose fault it is — the taxonomy gap is claimed only for the companies that
+		// actually are one.
+		expect(html).toMatch(/Of the 3 that are not, <a href="#off-map">3<\/a> fell outside every sub-sector/);
 		// Scoped to the funnel note: the methodology below links to the same anchors
 		// when there is something to link to, which there is not here.
 		const note = html.slice(html.indexOf('class="funnel-note"'), html.indexOf('</p>', html.indexOf('class="funnel-note"')));
 		expect(note).not.toContain('#undescribed');
+
+		// And the arithmetic is below the claim, not in front of it. A stranger meets
+		// the proposition first; the pipeline's accounting of itself comes after the
+		// map it describes.
+		expect(html.indexOf('class="hook"')).toBeLessThan(html.indexOf('class="funnel-note"'));
+		expect(html).not.toContain('Companies found');
+		expect(html).not.toContain('Placed on the map');
 	});
 
-	it('splits the register\'s unplaced companies into the two things they actually are', async () => {
+	it('opens with the proposition and three numbers that back it up', async () => {
+		await post({
+			source: 'test',
+			companies: [
+				// One trace apiece for two of them, three for the third: the headline
+				// counts the quiet ones, which is the claim the page is making.
+				{ id: 'quiet-one', name: 'Quiet One', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'quiet-two', name: 'Quiet Two', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'noticed', name: 'Noticed Co', sector_id: '5', subsector_id: '5.2' },
+			],
+			signals: [
+				{ company_id: 'quiet-one', type: 'incubator', label: 'One cohort' },
+				{ company_id: 'quiet-two', type: 'incubator', label: 'One cohort' },
+				{ company_id: 'noticed', type: 'incubator', label: 'One cohort' },
+				{ company_id: 'noticed', type: 'website', label: 'Has a site' },
+				{ company_id: 'noticed', type: 'press', label: 'Written about' },
+			],
+		});
+
+		const html = await page('');
+		// The name is not the proposition. It is there, and it is not the headline.
+		expect(html).toContain('<p class="eyebrow">Upstream</p>');
+		expect(html).toMatch(/<h1>3 Indian deep-tech companies, ranked by how few people have heard of them\.<\/h1>/);
+		// The argument, with the repeatable half emphasised.
+		expect(html).toMatch(/Rank by pedigree and you only ever find <strong>what every other fund has already/);
+
+		expect(html).toContain('<dt>Companies</dt><dd>3</dd>');
+		expect(html).toContain('<dt>One public trace at most</dt><dd>2</dd>');
+		// 44 sub-sectors, two of them now occupied.
+		expect(html).toContain('<dt>Sub-sectors still empty</dt><dd>42<span class="of">/44</span>');
+
+		// Nothing was discovered live, so the liveness line is absent rather than
+		// reporting a zero that reads as a broken pipeline.
+		expect(html).not.toContain('discovered in the last seven days');
+	});
+
+	it("splits the register's unplaced companies into the two things they actually are", async () => {
 		// Three from the register: one placed, one the taxonomy has no cell for, one
 		// the register described too thinly. The methodology must not average them.
 		// Gaps take the payload's source, not a per-row one, so this posts as the
