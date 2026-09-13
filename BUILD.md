@@ -747,17 +747,24 @@ Written so far:
 3. `003-first-seen-honesty.md` — why a backfill is not a discovery, and the four date
    columns that keep the two apart.
 
+4. `004-private-notes.md` — why the notebook is behind Cloudflare Access with a verified
+   token rather than a shared secret, and why it 404s until it is configured.
+
 Still to write:
 
-4. `004-rdi-taxonomy.md` — why the government's 44 sub-sectors and not our own list.
-5. `005-ingestion-on-github.md` — why not scheduled Workers.
-6. `006-no-linkedin.md` — Proxycurl shut down in 2025; scraping breaches their terms;
+5. `005-rdi-taxonomy.md` — why the government's 44 sub-sectors and not our own list.
+6. `006-ingestion-on-github.md` — why not scheduled Workers.
+7. `007-no-linkedin.md` — Proxycurl shut down in 2025; scraping breaches their terms;
    we accept the coverage gap.
-7. `007-two-call-classification.md` — why sector then sub-sector, not one shot over 44.
+8. `008-two-call-classification.md` — why sector then sub-sector, not one shot over 44.
+9. `009-homepage-product-read.md` — why what a company says it builds is quoted and
+   attributed rather than treated as a fact, and why every way the read failed is stored
+   under its own name.
 
-Numbers 002 and 003 went to decisions that came up while building Part 10, so the four
-planned after them shifted down. Numbering follows what was decided when, not a plan
-written before the decisions existed.
+Numbers 002 and 003 went to decisions that came up while building Part 10, and 004 to
+one that came up building the notebook, so the planned ones keep shifting down.
+Numbering follows what was decided when, not a plan written before the decisions
+existed.
 
 **These are what a partner or a hiring manager actually reads.** Four short decision
 records tell someone more about how you think than four thousand lines of code.
