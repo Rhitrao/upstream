@@ -544,13 +544,23 @@ function traceLine(company: Company): string {
 	return `<span class="traces${n <= 1 ? ' quiet' : ''}">${said}</span>`;
 }
 
+/** What a sub-sector placement rests on, in three words, for beside the placement. */
+function basisTag(company: Company): string {
+	return company.classify_basis === 'register-label'
+		? ' <span class="basis-tag weak">register label only</span>'
+		: ' <span class="basis-tag">from its description</span>';
+}
+
 function companyRow(company: Company, now: Date): string {
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	// A sub-sector chosen from a register's industry label is a claim about two
 	// vocabularies agreeing, not about the company. The detail view spells that out;
 	// the row carries the id and the name, which is what a reader scans by.
+	// What the placement rests on, beside it rather than on another page: a sub-sector
+	// read off "Industry: Robotics" is a weaker claim than one read off a paragraph about
+	// the product, and a reader scanning the row should not have to click to learn that.
 	const rdi = sub
-		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>`
+		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>${basisTag(company)}`
 		: '<span class="rdi unclassified">not yet classified</span>';
 	// An address nothing ties to the company is not linked from its row as "website":
 	// that label is a claim, and for Grinntech it was HyperVerge's. The address and the
@@ -1109,20 +1119,27 @@ export function renderCompanyPage(view: CompanyView): string {
     ${
 			sub
 				? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
-      ${company.project_type ? `<p class="provenance">Matched project: ${esc(company.project_type)}</p>` : ''}
+      <p class="provenance basis">${basisTag(company)} ${
+				company.classify_basis === 'register-label'
+					? "The only thing placing it here is a register's industry label, picked by the founder from a fixed list. That supports this sub-sector and nothing narrower."
+					: 'Placed from the description above.'
+			}</p>
+      <p class="provenance">Project type: ${
+				company.project_type
+					? esc(company.project_type)
+					: company.classify_basis === 'register-label'
+						? 'unknown &mdash; nothing published about the company says what kind of product it is'
+						: 'none matched'
+			}</p>
       ${
-				// The note is quoted when there is one; what the classifier was working from
-				// is stated either way. That distinction used to be a marker on the row, and
-				// nesting it inside the quote would have let it vanish for every company
-				// placed without a recorded reason.
-				company.classify_note ? `<blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote>` : ''
-			}
-      <p class="provenance">${company.classify_note ? 'That is the classifier&rsquo;s reasoning, printed as it was written. It' : 'The classifier'}
-        was working from ${
-					company.classify_basis === 'register-label'
-						? "a register's industry label, not a description of what the company does, so this placement rests on two vocabularies agreeing rather than on anything published about the company"
-						: 'the description above'
-				}.</p>`
+				// Kept for inspection, and said to be what it is. The classifier restating
+				// the label in a full sentence ("a robotics company developing robotic
+				// platforms") is not a second source agreeing with the first.
+				company.classify_note
+					? `<details class="reasoning"><summary>How the classifier decided &mdash; its reasoning, not evidence</summary>
+        <blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote></details>`
+					: ''
+			}`
 				: '<p class="provenance">Not placed in any sub-sector.</p>'
 		}
   </section>
@@ -1598,6 +1615,9 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .fact-site:hover { text-decoration-color: currentColor; }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
+.basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
+.basis-tag.weak { color: var(--ink); background: linear-gradient(to top, var(--mark) 0%, var(--mark) 45%, transparent 45%); }
+.reasoning summary { cursor: pointer; color: var(--muted); }
 .seen { font-size: var(--t-xs); color: var(--muted); margin: 0; }
 .empty { color: var(--muted); }
 /* Below the ranking and visibly outside it — same rows, no claim about time. */

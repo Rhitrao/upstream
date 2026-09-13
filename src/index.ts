@@ -302,7 +302,10 @@ ON CONFLICT(id) DO UPDATE SET
   origin_year   = COALESCE(MIN(companies.origin_year, excluded.origin_year), companies.origin_year, excluded.origin_year),
   sector_id     = COALESCE(excluded.sector_id,     companies.sector_id),
   subsector_id  = COALESCE(excluded.subsector_id,  companies.subsector_id),
-  project_type  = COALESCE(excluded.project_type,  companies.project_type),
+  -- A register label supports a sub-sector at most. A project type kept from an
+  -- earlier run would outlive the rule that says it was never supported.
+  project_type  = CASE WHEN excluded.classify_basis = 'register-label' THEN NULL
+                       ELSE COALESCE(excluded.project_type, companies.project_type) END,
   classify_note = COALESCE(excluded.classify_note, companies.classify_note),
   classify_basis  = excluded.classify_basis,
   -- COALESCE, not excluded: the four scrapers know nothing about homepages and post
@@ -467,6 +470,9 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const basis = str(c.classify_basis);
 		if (basis !== null && basis !== 'description' && basis !== 'register-label') {
 			return json({ error: `companies[${i}].classify_basis must be description or register-label` }, 400);
+		}
+		if (basis === 'register-label' && str(c.project_type) !== null) {
+			return json({ error: `companies[${i}].project_type needs a description behind it, not a register label` }, 400);
 		}
 		// A junk year would quietly decide whether a company is old enough to hide.
 		for (const field of ['origin_year', 'record_year'] as const) {

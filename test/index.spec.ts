@@ -810,11 +810,37 @@ describe('GET /upstream (the page)', () => {
 		// classifier's words. What must not happen is it quietly disappearing.
 		const label = await detail('from-label');
 		const desc = await detail('from-desc');
-		expect(label).toContain("a register's industry label, not a description of what the company does");
-		expect(desc).toContain('the description above');
+		expect(label).toContain("register's industry label");
+		expect(label).toContain('supports this sub-sector and nothing narrower');
+		expect(desc).toContain('Placed from the description above.');
+
+		// Beside the placement on the row too, not only a click away.
+		const list = await page('?tier=all&age=all');
+		const rowOf = (id: string) => list.slice(list.indexOf(`id="c-${id}"`), list.indexOf('</li>', list.indexOf(`id="c-${id}"`)));
+		expect(rowOf('from-label')).toContain('register label only');
+		expect(rowOf('from-desc')).toContain('from its description');
 
 		// And the finding is written up, not just marked.
 		expect(await page('?tier=all')).toContain('Two official classifications that do not meet');
+	});
+
+	it('lets a register label place a company in a sub-sector and no further', async () => {
+		// Probird: "Industry: Robotics. Stage: Validation." was given the project type
+		// "Modular robotic platforms". Nothing published about it says that.
+		const refused = await post({
+			source: 'dpiit-startup-india',
+			companies: [{ id: 'probird', name: 'Probird', sector_id: '2', subsector_id: '2.3', project_type: 'Modular robotic platforms', classify_basis: 'register-label' }],
+		});
+		expect(refused.status).toBe(400);
+		expect((await refused.json<any>()).error).toMatch(/project_type needs a description/);
+
+		// A row that got one before the rule existed loses it on the next run that
+		// sends it, however that run is worded.
+		await post({ source: 'grants-csv', companies: [{ id: 'probird', name: 'Probird', sector_id: '2', subsector_id: '2.3', project_type: 'Modular robotic platforms' }] });
+		await post({ source: 'dpiit-startup-india', companies: [{ id: 'probird', name: 'Probird', sector_id: '2', subsector_id: '2.3', classify_basis: 'register-label' }] });
+		const row = await env.DB.prepare('SELECT subsector_id, project_type FROM companies WHERE id = ?').bind('probird').first<any>();
+		expect(row).toEqual({ subsector_id: '2.3', project_type: null });
+		expect(await detail('probird')).toContain('Project type: unknown');
 	});
 
 	it('refuses a classify_basis nobody defined', async () => {
@@ -1171,7 +1197,6 @@ describe('searching and one company at a time', () => {
 					origin_year: THIS_YEAR,
 					sector_id: '4',
 					subsector_id: '4.2',
-					project_type: 'Diagnostics and devices',
 					classify_note: 'Assay kits place this in diagnostics rather than therapeutics.',
 					classify_basis: 'register-label',
 					product: 'Benchtop assay kits for district hospitals.',
@@ -1238,9 +1263,10 @@ describe('searching and one company at a time', () => {
 		// Verbatim, not summarised. Somebody disagreeing with a placement has to be
 		// able to see exactly what was decided and on what.
 		expect(html).toContain('Assay kits place this in diagnostics rather than therapeutics.');
-		expect(html).toContain("a register's industry label, not a description of what the company does");
+		expect(html).toContain('its reasoning, not evidence');
+		expect(html).toContain('register label only');
 		expect(html).toContain('4.2');
-		expect(html).toContain('Diagnostics and devices');
+		expect(html).toContain('Project type: unknown');
 
 		// Every signal, with the page it came from — and the one with no url saying so
 		// rather than silently rendering as text.

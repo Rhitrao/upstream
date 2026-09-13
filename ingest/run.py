@@ -207,7 +207,12 @@ def main() -> int:
                         **{f.name: getattr(company, f.name) for f in company.__dataclass_fields__.values()},
                         "sector_id": result.sector_id,
                         "subsector_id": result.subsector_id,
-                        "project_type": result.project_type,
+                        # A register label says "Robotics" and a stage. That can carry a
+                        # company into a sub-sector; it cannot say which kind of robotic
+                        # platform they build, and a project type is exactly that claim.
+                        # The classifier still names one, because the prompt asks, so the
+                        # claim stops here rather than in the model's answer.
+                        "project_type": None if company.description_is_label else result.project_type,
                         "classify_note": result.note,
                         # Said in the row, not only in the note: a sub-sector
                         # chosen from a register's industry label is a different
