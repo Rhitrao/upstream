@@ -43,9 +43,10 @@ things locally.
 ### Use GitHub Codespaces. This is the recommended path.
 
 A Codespace is a full Linux machine running in a browser tab, with VS Code, a terminal,
-Node, Python and Git already installed. It is free for personal accounts (60 core-hours
-a month, which is roughly 120 hours on the 2-core default — far more than this project
-needs). Everything below assumes you are in a Codespace.
+Node, Python and Git already installed. It is free for personal accounts up to 120 compute
+hours a month. Compute hours are billed at the machine's core count, so the 2-core
+default uses them at twice the rate: that is roughly 60 hours of wall-clock time a
+month, not 120. Enough for this project, if you stop the Codespace when you step away. Everything below assumes you are in a Codespace.
 
 **Why not the ChromeOS Linux container (Crostini)?** It works, but Chromebooks are
 typically 4–8 GB RAM, `npm install` is slow, and browser-based auth flows from inside
@@ -125,8 +126,9 @@ Three separate pieces. Separate on purpose: if one breaks, the others keep worki
 ```
 
 **Why ingestion runs on GitHub, not on Cloudflare.** Workers have a CPU time limit of
-a few seconds. Scraping ten websites takes minutes. A GitHub Action has no such limit,
-a normal residential-looking IP, and full Python. It also logs every run publicly in
+a few seconds. Scraping ten websites takes minutes. A GitHub Action has no such limit
+and full Python. (It runs on a cloud VM, not a residential connection; a scraper that only
+works when it looks like a home browser is a scraper that should not be written.) It also logs every run publicly in
 your repo, which is exactly what you want for a project meant to be inspected.
 
 **Why the Worker never scrapes.** Page loads must be instant. All the slow work already
@@ -788,9 +790,9 @@ days of slack, not two hours.
 
 | Item | Cost |
 |---|---|
-| GitHub Codespaces | free — 60 core-hours/month |
+| GitHub Codespaces | free — 120 compute hours/month, used at 2× on a 2-core machine: about 60 wall-clock hours |
 | Cloudflare Workers | free — 100k requests/day |
-| Cloudflare D1 | free — 5 GB, 5M row reads/day |
+| Cloudflare D1 | free — 500 MB per database and 5 GB per account, 5M row reads/day, 7-day point-in-time recovery |
 | GitHub Actions | free for public repos |
 | Claude Haiku classification | ~$2–5 one-off, then near zero with the cache |
 

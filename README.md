@@ -127,15 +127,26 @@ A fair amount. These are measured against the live database, not guessed.
   a backfill and carries its published cohort year or no date at all. See
   [`003-first-seen-honesty.md`](docs/decisions/003-first-seen-honesty.md).
 - **Classification is automated and will sometimes be wrong.** 843 companies seen per run don't place
-  in any of the 44 sub-sectors. The page groups them by what the taxonomy is missing, or by the fact
-  that their source never said what they do, and doesn't force either kind into the nearest cell.
+  in any of the 44 sub-sectors. The page calls them unmapped under the current taxonomy and classifier,
+  groups them by what the classifier said was missing or by the fact that their source never said what
+  they do, and doesn't force either kind into the nearest cell. None of it has been reviewed by hand, so
+  an unmapped group is a place to look for a gap in the taxonomy, not proof of one.
   Every DPIIT placement that rests on the register's dropdown label rather than a description says so
   on the company's page.
-- **"What they build" is what a company says about itself.** It comes from the 129 of 209 homepages
-  that said clearly enough to quote. It is shown in their words, attributed, and every way the read
-  failed (a dead domain, a JavaScript shell, a refusal) is counted on the page by name.
+- **"What they build" is what a company says about itself.** It is read only from a homepage checked to
+  be theirs: their own source record gives the address, no other record gives the same one, and their
+  name is in the domain or on the page. A reachable URL proves nothing about whose it is; RTBI's page
+  once gave an EV battery maker an identity-verification company's site. Of 209 websites, 180 pass, 21
+  are theirs by the record but don't name them, and 8 aren't linked as anyone's. Every way a read
+  failed is counted on the page by name.
 - **An empty cell on the coverage map is our blind spot.** It isn't evidence that nothing exists
   there.
+- **Winning a grant pushes a company down the list.** A grant award is a public trace, and the list is
+  sorted by fewest traces, so the week a company wins one it falls below companies nobody has funded.
+  That is the week it is most worth a call: the grant is the reason to get in touch. This is a real flaw
+  in ranking by obscurity, not a trade-off being defended. Until the ranking can tell a trace that means
+  "already found" from one that means "just became worth finding", read a recent grant on a row as a
+  reason to look, whatever its position.
 
 ## Decisions
 
