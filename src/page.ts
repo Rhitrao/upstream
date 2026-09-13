@@ -1040,7 +1040,9 @@ function productStatusDetail(company: Company, link: string, site: string | null
 export function renderCompanyPage(view: CompanyView): string {
 	const { company, now } = view;
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
-	const site = safeUrl(company.website);
+	// Not a discovered address: the header link reads as "their site", and for Grinntech
+	// it was HyperVerge's. productDetail still names the address, with the reason.
+	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
 
 	const signals = company.signals.length
 		? `<ul class="evidence">${company.signals

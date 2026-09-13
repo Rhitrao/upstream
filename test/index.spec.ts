@@ -585,6 +585,10 @@ describe('what a company builds', () => {
 
 		const detail = await (await SELF.fetch(`${ORIGIN}/upstream/c/grinntech`)).text();
 		expect(detail).toContain('is not treated as');
+		// Named once, in the sentence explaining why it is not theirs, and never as a link
+		// in the header where it would read as their site.
+		expect(detail.match(/hyperverge\.co/g)).toHaveLength(2); // the href and its text, in that sentence
+		expect(detail).not.toContain('class="fact-site" href="http://hyperverge.co/"');
 		expect(detail).toContain('the same address is given for another company');
 		expect(detail).not.toContain('Identity verification');
 	});
