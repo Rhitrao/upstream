@@ -877,21 +877,23 @@ function methodology(view: PageView): string {
   <h2 id="method-h">Methodology</h2>
 
   <h3>Where this comes from</h3>
-  <p>Public sources only, nothing behind a login: incubator portfolios
-    (<a href="https://sineiitb.org/" rel="noopener">SINE IIT Bombay</a>,
-    <a href="https://rtbi.in/" rel="noopener">IIT Madras RTBI</a>,
-    <a href="https://iticincubator.in/" rel="noopener">ITIC IIT Hyderabad</a>, IISc and others),
-    government grant lists (<a href="https://birac.nic.in/" rel="noopener">BIRAC BIG</a>, NIDHI-PRAYAS, iDEX),
-    new incorporations filed with the <a href="https://www.mca.gov.in/" rel="noopener">MCA</a>,
-    filings at the <a href="https://ipindia.gov.in/" rel="noopener">Indian Patent Office</a>,
-    and whether a company has a working website at all. Every row carries the evidence that put it there.</p>
+  <p>Public sources only, nothing behind a login. Four are read today: two incubator portfolios
+    (<a href="https://www.sineiitb.org/portfolio/" rel="noopener">SINE IIT Bombay</a> and
+    <a href="https://rtbi.in/incubationiitm/portfolio.html" rel="noopener">IIT Madras RTBI</a>), the published award lists
+    of two grant programmes (<a href="https://birac.nic.in/" rel="noopener">BIRAC BIG</a> rounds 21&ndash;24 and
+    DST NIDHI-PRAYAS, typed up by hand from the lists themselves), and the
+    <a href="https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup" rel="noopener">DPIIT Startup India
+    recognition register</a>. Patent filings, new incorporations at the MCA and every other incubator would all
+    belong here and none of them is read yet, so nothing they would show is on this page. Every row carries the evidence that put it there.</p>
 
   ${productNote(view)}
 
   <h3>How the tiers are decided</h3>
   <p>There is no score. A number between 0 and 100 would pretend to a precision we do not have. Two facts decide the tier:
-    how recently we first saw the company, and how many public traces it already has &mdash; a working website, a press
-    mention, a grant, an accelerator badge.</p>
+    how recently we first saw the company, and how many public traces it already has &mdash; today that means an
+    incubator listing, a grant award and a DPIIT recognition. A working website and a press mention ought to count as
+    well; nothing collects either yet, so for now they do not, and the trace counts on this page are lower than they
+    would be.</p>
   <ul class="rules">
     <li><span class="tier ta">Tier A</span> Found by us under 90 days ago, at most 2 traces. New and quiet. Read these first.</li>
     <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Early, some visibility.</li>
