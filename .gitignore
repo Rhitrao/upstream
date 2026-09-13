@@ -176,6 +176,9 @@ __pycache__/
 
 ingest/cache/*
 !ingest/cache/.gitkeep
-# ...except the classifications, which are committed so a re-run costs nothing
-# and anyone can see what was decided without an API key.
+# ...except the answers we paid for, which are committed so a re-run costs nothing
+# and anyone can see what was decided without an API key. A fresh checkout has no
+# memory: if these are not in the repo, tomorrow morning re-buys what this morning
+# learned, every morning, and never converges.
 !ingest/cache/classify.json
+!ingest/cache/products.json

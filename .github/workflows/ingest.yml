@@ -82,13 +82,14 @@ jobs:
       # Saved before the commit is attempted, so a push that fails for any reason
       # — a protected branch, a token change, a conflict — still leaves the paid
       # answers somewhere retrievable instead of dying with the runner.
-      - name: Keep the classifications whatever happens next
+      - name: Keep the paid answers whatever happens next
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: classify-cache-${{ github.run_number }}
           path: |
             ingest/cache/classify.json
+            ingest/cache/products.json
             run.log
           retention-days: 30
           if-no-files-found: error
@@ -122,20 +123,25 @@ jobs:
       # if: always() because a run that died at company 800 still paid for 799
       # answers. The job stays red — the failed step decides that — but the
       # answers reach the repo instead of being re-bought tomorrow.
-      - name: Commit the classification cache
+      - name: Commit the paid answers
         if: always()
         run: |
           set -euo pipefail
           git config user.name "upstream-ingest"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet -- ingest/cache/classify.json; then
-            echo "No new classifications this run; nothing to commit."
+          # Both caches, and the same rule for each: classifications place a company
+          # on the map, product descriptions say what it builds, and both were paid
+          # for in dollars. Leaving either behind means re-buying it tomorrow.
+          paid="ingest/cache/classify.json ingest/cache/products.json"
+
+          if git diff --quiet -- $paid; then
+            echo "No new answers this run; nothing to commit."
             exit 0
           fi
 
-          git add ingest/cache/classify.json
-          git commit -m "cache: classifications from $(date -u +%Y-%m-%d)"
+          git add $paid
+          git commit -m "cache: answers from $(date -u +%Y-%m-%d)"
 
           # One rebase attempt, because a human may have pushed while this ran.
           # Anything past that is a real conflict and wants a person.

@@ -1,0 +1,989 @@
+{
+ "a3-remote-monitoring-technologies": {
+  "hash": "52e88b124ffa6d9f",
+  "model": "claude-haiku-4-5",
+  "product": "A wireless remote patient monitoring system that allows doctors to manage and monitor patients from anywhere using smartphones with a range of 50+ clinical capabilities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "abee-research-labs": {
+  "hash": "c64bff6fecd46696",
+  "model": "claude-haiku-4-5",
+  "product": "DeepInspect, an AI-powered visual defect detection system for manufacturers that inspects parts at high speed to identify surface and assembly defects.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "acceleron-labs": {
+  "hash": "ff3e439b9ace8dd9",
+  "model": "claude-haiku-4-5",
+  "product": "Hyperconverged appliances and data storage systems for enterprise customers, including the MDC minidata center with integrated storage, server and network performance capabilities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "acuradyne-medical-systems": {
+  "hash": "06d29c93c24fd87c",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "adiuvo-diagnostics": {
+  "hash": "af8116c3d72fa77d",
+  "model": "claude-haiku-4-5",
+  "product": "IlluminateBIO, a handheld AI-powered device that uses autofluorescence imaging to detect bacterial load in wounds for clinicians.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "advanced-renewable-tandem-photovoltaics-india": {
+  "hash": "d8e7080c512615a1",
+  "model": "claude-haiku-4-5",
+  "product": "Perovskite tandem solar cells for generating electricity.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "agnikul-cosmos": {
+  "hash": "c334600ee089d4ab",
+  "model": "claude-haiku-4-5",
+  "product": "Orbital-class launch vehicles powered by 3D-printed engines for custom satellite payloads.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "aibono-smart-farming": {
+  "hash": "9876339ffef1cdc1",
+  "model": "claude-haiku-4-5",
+  "product": "An agritech platform that aggregates and supplies fresh fruits and vegetables with just-in-time delivery for B2B and retail buyers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "albatross-energetics": {
+  "hash": "808cf67e0fade510",
+  "model": "claude-haiku-4-5",
+  "product": "Liquid desiccant air handling units for HVAC systems that provide temperature and humidity control for commercial facilities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "algosurg-inc": {
+  "hash": "479fbf1cddf36c20",
+  "model": "claude-haiku-4-5",
+  "product": "AlgoSurg makes cloud-based AI software that automates surgical planning from medical images for implant manufacturers, robotic surgery systems, and 3D printing companies.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "amaterasu-lifesciences": {
+  "hash": "08766dbab0b04f0b",
+  "model": "claude-haiku-4-5",
+  "product": "Drug delivery systems for malaria, Alzheimer's disease, and skin disorders, for patients and healthcare providers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ameliorate-biotech": {
+  "hash": "e6bfabe51b3e10a0",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "amyscan-healthcare": {
+  "hash": "3799e1e79c88d015",
+  "model": "claude-haiku-4-5",
+  "product": "A blood test to detect Parkinson's disease using biomarkers for patients suspected of having the condition.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "arishti-cybertech": {
+  "hash": "010e26ebd1add89d",
+  "model": "claude-haiku-4-5",
+  "product": "MessageMe\u2122, a consent-based enterprise messaging platform with data loss prevention for sensitive communications in financial services, business process outsourcing, defense, and legal organizations.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ashva-wearable-technologies": {
+  "hash": "16d00219b5961f93",
+  "model": "claude-haiku-4-5",
+  "product": "Fitknees and Fitmust are AI-powered devices for physiotherapy clinics that assess knee function and measure muscle strength, respectively.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "astrome-technologies": {
+  "hash": "0c8ebd914fb0c949",
+  "model": "claude-haiku-4-5",
+  "product": "Wireless backhaul radios, flat-panel satellite antennas, software-defined modems, and satellite transceivers for terrestrial and satellite communications networks.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "atmospheric-flight-technologies": {
+  "hash": "2c1fe02929786ae7",
+  "model": "claude-haiku-4-5",
+  "product": "AMRUTH is an unmanned rotorcraft for autonomous aerial logistics in remote and difficult terrain, for organizations needing to deliver supplies and medical care to locations that drones and helicopters cannot reliably reach.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "aubotz-labs": {
+  "hash": "e2f4ac15e2c33042",
+  "model": "claude-haiku-4-5",
+  "product": "Autonomous floor cleaning robots for commercial and industrial facilities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "augle-a-i": {
+  "hash": "db2009d42b0c325d",
+  "model": "claude-haiku-4-5",
+  "product": "Computer vision and AI software that gives industrial robots the ability to see and understand their environment for factory automation.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "aur-innovations": {
+  "hash": "f88ca7a5175bab58",
+  "model": "claude-haiku-4-5",
+  "product": "Flexible dental burs, jaw and neck exercising devices, and adhesive tape for healthcare providers and patients.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ayati-devices": {
+  "hash": "0af862888896e9ed",
+  "model": "claude-haiku-4-5",
+  "product": "Ayati Foot Labs is a platform of point-of-care diagnostic devices for clinics and hospitals to assess diabetic foot health through neuropathy, blood flow, microcirculation, and plantar pressure analysis.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "bharati-robotic-systems-india": {
+  "hash": "6c56e07596d9a622",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "bionic-hope": {
+  "hash": "6fa39778715d373a",
+  "model": "claude-haiku-4-5",
+  "product": "Functional prosthetic limbs fitted through an integrated rehabilitation program for amputees in partnership with limb clinics, NGOs, and CSR foundations.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "bodhiverse": {
+  "hash": "fcb101c208aa0b3a",
+  "model": "claude-haiku-4-5",
+  "product": "A platform for conducting exams, classes, and practical assessments with features for attendance tracking, grading, and lecture streaming for educators and students.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "bylin-medtech": {
+  "hash": "12d487d4c6b86ae1",
+  "model": "claude-haiku-4-5",
+  "product": "A hydrating patch made from biodegradable biomaterials to treat xerostomia (dry mouth) for patients with head and neck cancer, Sj\u00f6gren's syndrome, and diabetes.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "byline-medtch": {
+  "hash": "5f4b9caccde27f2a",
+  "model": "claude-haiku-4-5",
+  "product": "A hydrating patch made from biodegradable biomaterials for patients with xerostomia (dry mouth) caused by radiation therapy, Sjogren's syndrome, or other medical conditions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "caldor-health-technologies": {
+  "hash": "9bead86f6274f2f2",
+  "model": "claude-haiku-4-5",
+  "product": "SWASAM, a radiofrequency-based treatment stylus for ENT specialists to reshape the nasal septum and treat nasal obstruction in an outpatient clinic setting without surgery.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "caloreon-technologies": {
+  "hash": "ad92dd92349fa075",
+  "model": "claude-haiku-4-5",
+  "product": "Solid-state magnetocaloric cooling systems for commercial and industrial use that provide refrigerant-free cooling without compressors.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "carimo-technologies": {
+  "hash": "2e39914ca4142dfc",
+  "model": "claude-haiku-4-5",
+  "product": "AI software including agentic RAG systems, video analytics, and predictive maintenance for industrial automation, plus machine learning and DC motor kits for education.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "circular-ecotech": {
+  "hash": "30e5ea5f8fff6bbb",
+  "model": "claude-haiku-4-5",
+  "product": "Thermochemical conversion systems that transform biomass, plastics, waste, and sludge into carbon products, fuels, and energy through pyrolysis, carbonization, torrefaction, and related processes.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "cre-aid-labs": {
+  "hash": "a1961c94beeff4de",
+  "model": "claude-haiku-4-5",
+  "product": "MITHRIL, a line of custom-made splints and braces for patients needing orthopedic support.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "cygni-energy": {
+  "hash": "09e288e5b0058bb7",
+  "model": "claude-haiku-4-5",
+  "product": "Battery energy storage systems ranging from 1kWh to multi-megawatt hour containerized solutions for large-scale, commercial and industrial, and residential applications.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "desintox-technologies": {
+  "hash": "e2132be6b1267ec4",
+  "model": "claude-haiku-4-5",
+  "product": "Electric wheelchairs and patient transfer devices for people with mobility challenges.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "docsapp-phasorz-technologies": {
+  "hash": "ce49ba6566c68b88",
+  "model": "claude-haiku-4-5",
+  "product": "An online doctor consultation app where patients can consult specialist doctors via chat or call to receive diagnoses and prescriptions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "dr-pashu-technologies": {
+  "hash": "926588e013f8cf2c",
+  "model": "claude-haiku-4-5",
+  "product": "An app that connects pet owners and livestock farmers in India with veterinarians for video consultations, with AI-powered preliminary disease diagnosis and support for 11 Indian languages.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "driblet": {
+  "hash": "831d9f5259a200ec",
+  "model": "claude-haiku-4-5",
+  "product": "Flexible snake-like robots for sewer and confined industrial space operations that eliminate human entry into hazardous environments.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "drona-aviation": {
+  "hash": "ed900f9a5e5efcd7",
+  "model": "claude-haiku-4-5",
+  "product": "Educational drone kits called Pluto that students build, fly, and program using block coding or Python, along with STEM curriculum and classroom activities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "dtown-robotics": {
+  "hash": "1d083e711423ea1b",
+  "model": "claude-haiku-4-5",
+  "product": "Drones and unmanned ground vehicles for agriculture, surveillance, bomb disposal, and cinematography.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "durjeya-solutions": {
+  "hash": "65495b0d019dd236",
+  "model": "claude-haiku-4-5",
+  "product": "Nexa is an offline-capable digital testing platform for conducting exams in schools, universities, and recruitment settings with end-to-end encrypted question paper distribution and response collection.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "edhaa-innovations": {
+  "hash": "65bf9e389467ad07",
+  "model": "claude-haiku-4-5",
+  "product": "BIO-CHEQ, a portable diagnostic device for lab-quality testing in healthcare settings, and ON-POINT, a screening device for detecting high-risk pregnancy conditions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "edsix-brain-lab": {
+  "hash": "fb50edfa96064f24",
+  "model": "claude-haiku-4-5",
+  "product": "SkillAngels is a cognitive skills program for children aged 6\u201313 that uses AI-driven games and puzzles delivered over 25\u201330 weeks to strengthen memory, focus, problem-solving, critical thinking, and social-emotional learning.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "edutor-technologies-india": {
+  "hash": "f0f36718c7d2bafb",
+  "model": "claude-haiku-4-5",
+  "product": "A courseware platform that distributes eBooks and courses to learners on Android, iOS and Windows devices with DRM protection and subscription management.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "embright-infotech": {
+  "hash": "97bf751ed635c3ee",
+  "model": "claude-haiku-4-5",
+  "product": "Extended reality software and spatial computing experiences for inclusive learning environments.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "emertech-innovations": {
+  "hash": "fc9478cada36f710",
+  "model": "claude-haiku-4-5",
+  "product": "A platform for enterprises that uses AI and blockchain to assign digital identities to products, track them through supply chains, generate compliance documentation, and verify sustainability claims.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "endimension-technology": {
+  "hash": "e6d0bbe80e9bb24c",
+  "model": "claude-haiku-4-5",
+  "product": "AI-powered radiology reporting software that assists radiologists in analyzing medical images, identifying abnormalities, and generating diagnostic reports.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "energybae": {
+  "hash": "a51291187aa2203e",
+  "model": "claude-haiku-4-5",
+  "product": "Solar, wind, and hybrid energy systems for homes and businesses in India that combine solar panels, wind turbines, and battery storage in location-optimized ratios to reduce electricity bills.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "euphotic-labs": {
+  "hash": "372c4b68ddd2722d",
+  "model": "claude-haiku-4-5",
+  "product": "Nosh is an AI-powered robot that automatically cooks meals for home users.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "fabheads-automation": {
+  "hash": "6dbf3b3cad510b63",
+  "model": "claude-haiku-4-5",
+  "product": "Carbon fiber composite components for aerospace, mobility, marine, and robotics industries using 3D printing and automated fiber placement.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "fibsol-life-technologies": {
+  "hash": "a05f60d9d2809e75",
+  "model": "claude-haiku-4-5",
+  "product": "Biofertilizers and biocontrols for farmers in India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "flourishing-panckosha": {
+  "hash": "6f0fe7a32b068398",
+  "model": "claude-haiku-4-5",
+  "product": "A wellbeing assessment platform that measures and provides interventions for mental, physical, emotional, social and vitality wellness using a framework based on ancient Indian philosophy combined with contemporary research, for individuals, companies, and institutions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "fluoresight-bioprobes": {
+  "hash": "d290731feb1fbf73",
+  "model": "claude-haiku-4-5",
+  "product": "Fluorescent dyes for fluorescence and confocal microscopy imaging in live and fixed cells.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "fuma-labs": {
+  "hash": "d519f00c999912ce",
+  "model": "claude-haiku-4-5",
+  "product": "Green building materials and eco-friendly paper and packaging made from crop residue using patented manufacturing technology for construction and interior use.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "fuselage-innovations": {
+  "hash": "e0d547406220541f",
+  "model": "claude-haiku-4-5",
+  "product": "Agricultural drones for farmers and agricultural professionals for crop monitoring, spraying, and precision farming.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "gamasusco": {
+  "hash": "c825f6997d8e5b3d",
+  "model": "claude-haiku-4-5",
+  "product": "A climate intelligence platform that tracks carbon emissions across scopes 1, 2, and 3, generates ESG reports, and conducts lifecycle assessments for organizations.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "gd-environmental": {
+  "hash": "a0707b264f2410be",
+  "model": "claude-haiku-4-5",
+  "product": "A Tri Fusion Reactor that gasifies municipal solid waste and converts it to energy in the form of hot air stored in heat cells for generating electricity, air-conditioning, cold storage, or hot water, for municipalities managing waste.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "gigaton-research": {
+  "hash": "782575e3e82652a5",
+  "model": "claude-haiku-4-5",
+  "product": "High-purity scalable graphene for aerospace, energy storage, flexible electronics, coatings, and advanced materials.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "green-trek-research-and-development": {
+  "hash": "b0dcccc8a694ab50",
+  "model": "claude-haiku-4-5",
+  "product": "Green Trek recycles steel waste into pure molten metal with 99%+ iron content for manufacturers of crusher parts, grinding media, furnace liners, and industrial components.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "greenshift-energy": {
+  "hash": "51402dc6f0eb18e8",
+  "model": "claude-haiku-4-5",
+  "product": "Technologies that convert agricultural residues and industrial waste into recoverable materials and fuels, such as biomass densification and recovery products from rice husk ash and onion waste.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "grinntech-motors-services": {
+  "hash": "3c973b258fec8654",
+  "model": "claude-haiku-4-5",
+  "product": "AI-powered identity verification and KYC software that uses face authentication, liveness detection, and document analysis for financial services and government onboarding.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "gut-buddy-healthcare-services": {
+  "hash": "3fa23f2ce0f89a85",
+  "model": "claude-haiku-4-5",
+  "product": "A mobile app for people with IBS that provides virtual consultations with gastroenterologists and dietitians, personalized meal plans, symptom tracking, AI-driven dietary recommendations, and cognitive behavioral therapy sessions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "h2e-power-systems": {
+  "hash": "3916b6b7870722a9",
+  "model": "claude-haiku-4-5",
+  "product": "Electrolysers for producing green hydrogen and syngas through co-electrolysis for industrial customers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "haystack-analytics": {
+  "hash": "14a196afd64d7bb0",
+  "model": "claude-haiku-4-5",
+  "product": "An NGS-based culture-free test for diagnostic labs and hospitals to identify bacterial and fungal pathogens and antibiotic resistance in infectious disease patients.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ikesia-biologics": {
+  "hash": "28ad91189fdc222b",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "ikuber-financial-services-imf": {
+  "hash": "23c97acec6487ede",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "immunoadoptive-cell-therapy": {
+  "hash": "6a2dee73285b0431",
+  "model": "claude-haiku-4-5",
+  "product": "NexCAR19, a CAR-T cell therapy for blood cancer, lymphoma, and leukemia patients in India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "indent-designs": {
+  "hash": "2c8cf8a156c4cc28",
+  "model": "claude-haiku-4-5",
+  "product": "A battery-powered portable stair climber for people with mobility challenges.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "indrones-solutions": {
+  "hash": "5589f16539263294",
+  "model": "claude-haiku-4-5",
+  "product": "Drones and drone-based software solutions including orthophoto maps, 3D models, dimensional surveys, and multispectral imagery analysis for industries across India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "infyu-labs": {
+  "hash": "b36d06db49632689",
+  "model": "claude-haiku-4-5",
+  "product": "Infyzer, a handheld device that uses near-infrared spectroscopy and AI to non-destructively analyze fruits and vegetables for quality, nutrient content, and chemical composition for agricultural producers and suppliers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "innaumation-medical-devices": {
+  "hash": "84ca3cb2b7d34a82",
+  "model": "claude-haiku-4-5",
+  "product": "A voice prosthesis device implanted in laryngectomy patients to restore speech after surgical removal of the larynx.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "inspecity-space-laboratories": {
+  "hash": "4e156cfd3fd1ef5a",
+  "model": "claude-haiku-4-5",
+  "product": "Satellite life extension and refueling services using robotics and eco-friendly propulsion systems for operators.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "intellizon-energy": {
+  "hash": "741ebdd08c98b548",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "invention-labs-engineering-products": {
+  "hash": "3a5fcd124815a74b",
+  "model": "claude-haiku-4-5",
+  "product": "Avaz is a picture-based communication and learning app for people with speech disabilities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "iqsoft-technologies": {
+  "hash": "5c04930426ce373d",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "irov-eyerov-technologies": {
+  "hash": "d733aaac4a66481d",
+  "model": "claude-haiku-4-5",
+  "product": "AI-powered autonomous underwater ROVs named TUNA, SAGARA, and iBOAT ALPHA for marine inspections and surveys, plus EVAP, a data visualization and analytics platform for ROV-collected data.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "jatayu-healthcare-technologies": {
+  "hash": "6f997f2ccd33c787",
+  "model": "claude-haiku-4-5",
+  "product": "VoiceDocAI is an AI-powered voice documentation solution for hospitals and research teams that converts multi-speaker conversations into structured clinical notes and research reports in multiple languages.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "jeevatva-biosciences": {
+  "hash": "d97a2e1e9a47183d",
+  "model": "claude-haiku-4-5",
+  "product": "Microbiome restoration products composed of characterized microbial strains and prebiotics for people with dysbiosis.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "kore-additive-manufacturing-and-medical-reconstruction": {
+  "hash": "2dc3eb28f5b85629",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "krishiboot-technologies": {
+  "hash": "296fef2002870d32",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "life-and-limb": {
+  "hash": "debb814a5f73c920",
+  "model": "claude-haiku-4-5",
+  "product": "BIONICLI, a prosthetic hand with a non-circular wrist joint for users who need prostheses.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "lifespark-technologies": {
+  "hash": "2d68b3e63d0616e6",
+  "model": "claude-haiku-4-5",
+  "product": "WALK, a wearable device that uses neuromodulation and personalized therapy guidance to help people with Parkinson's disease improve their walking and reduce freezing episodes.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "magnimous-info-tech": {
+  "hash": "1b0f8e426dd881ff",
+  "model": "claude-haiku-4-5",
+  "product": "Wearable and point-of-care biosensors for healthcare and food diagnostics that interface with mobile and cloud technologies.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "matterwave-technologies": {
+  "hash": "61be137036342bb5",
+  "model": "claude-haiku-4-5",
+  "product": "GaN-based RF semiconductor devices for communication and sensing applications.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "med-inno-tech": {
+  "hash": "663072822bd21a98",
+  "model": "claude-haiku-4-5",
+  "product": "Transdermal drug delivery systems using microneedle technology and ultrasound for chronic pain management.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "medprime-technologies": {
+  "hash": "b78b602b97c4f031",
+  "model": "claude-haiku-4-5",
+  "product": "CILIKA digital microscopes and MICALYS whole slide scanners for pathologists, laboratories, and medical educators to enable faster diagnosis and telepathology.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "moldoc-biotech": {
+  "hash": "1822cff3c60ac7c0",
+  "model": "claude-haiku-4-5",
+  "product": "In vitro cell models and cell culture media for preclinical screening and biopharmaceutical research, including hepatocyte models and human skin tissue models for pharmaceutical and cosmetic testing.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "nanotherapx-innovations": {
+  "hash": "99dda40abd6eafd7",
+  "model": "claude-haiku-4-5",
+  "product": "Plant-based nanotech formulations for chronic skin conditions like psoriasis, delivered through lipid nanoparticles for targeted anti-inflammatory and antioxidant treatment.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "naturex-technologies": {
+  "hash": "b4564011fb82b67a",
+  "model": "claude-haiku-4-5",
+  "product": "Vertical farming automation software and hardware including farm climate control systems and nutrient dosing equipment for growers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "nava-design-innovation": {
+  "hash": "e71b3b7afd731735",
+  "model": "claude-haiku-4-5",
+  "product": "SAPER is a solar-powered autonomous robot for coconut sap collection that replaces manual tapping by farmers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ncf-green-energy": {
+  "hash": "820ee212883fe847",
+  "model": "claude-haiku-4-5",
+  "product": "Solar heating products for hot water, space heating, and industrial drying that use NCF (Nano Carbon Florets) material to convert sunlight to heat.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "neomavericks-ai": {
+  "hash": "7667726ef81fac10",
+  "model": "claude-haiku-4-5",
+  "product": "A runtime security layer that sanitizes prompts by replacing sensitive data with synthetic alternatives before they reach AI models, for enterprises to use AI tools and agents without leaking business data.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "neurostellar": {
+  "hash": "31ed6c31ca1e7dab",
+  "model": "claude-haiku-4-5",
+  "product": "Neurostellar Orbit is a wearable device that measures cognitive performance metrics like focus speed, mental agility, and cognitive endurance for athletes and executives, paired with coaching from a neuroscience team.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "newspace-research-technologies": {
+  "hash": "84b917424ea03699",
+  "model": "claude-haiku-4-5",
+  "product": "Unmanned aerial systems including heterogeneous UAVs with self-healing swarm capabilities and intelligent mesh networks for military and civilian use.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "offgrid-energy-labs": {
+  "hash": "82b0f00f021b366d",
+  "model": "claude-haiku-4-5",
+  "product": "Zinc-bromide battery technology for storing and dispatching renewable energy at data centres, industrial sites, and renewable energy projects.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "oko-icare-solutions": {
+  "hash": "c68b009bff7a7225",
+  "model": "claude-haiku-4-5",
+  "product": "Accuway, a non-contact intraocular pressure measurement device for eye surgeons and screening programs.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "optify-industrial-solution": {
+  "hash": "af674fe6d9a2734c",
+  "model": "claude-haiku-4-5",
+  "product": "OptiFeed Controller, an intelligent control system for industrial dryers used by fish feed and shrimp feed manufacturers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ossus-biorenewables": {
+  "hash": "4cc883f9c92e2ce3",
+  "model": "claude-haiku-4-5",
+  "product": "Bioreactors that convert industrial wastewater into green hydrogen for industrial users.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "ostic-pharma": {
+  "hash": "3ad1a1d871d8d3b6",
+  "model": "claude-haiku-4-5",
+  "product": "Diagnostic kits for healthcare professionals in India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "pacify-medical-technologies": {
+  "hash": "1dedf4e2a591ebf0",
+  "model": "claude-haiku-4-5",
+  "product": "A device that sprays skin for wound healing and micrografting for surgeons and hospitals.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "photom-technologies": {
+  "hash": "d74efa41fd4702e1",
+  "model": "claude-haiku-4-5",
+  "product": "Autonomous waterless robotic cleaning systems for solar power plants that remove soiling from solar panels.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "planys-technologies": {
+  "hash": "e14e8a5de51f0205",
+  "model": "claude-haiku-4-5",
+  "product": "Remotely operated and autonomous underwater vehicles for inspecting critical infrastructure like dams, bridges, and ports.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "powai-labs-technologies": {
+  "hash": "3ff3f31f56296d69",
+  "model": "claude-haiku-4-5",
+  "product": "Electronics design automation tools for chip design engineers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "profprenuer-innovations": {
+  "hash": "959af1f480f6fbdc",
+  "model": "claude-haiku-4-5",
+  "product": "Wearable biomonitors and conformal patches that track health data for remote monitoring, meditation, yoga, sports, and sleep.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "proteomica-international": {
+  "hash": "b9d95d5a4112b8a8",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "qawach-bio": {
+  "hash": "679a87e6645e9564",
+  "model": "claude-haiku-4-5",
+  "product": "Rapid diagnostic test kits and reagents for point-of-care health screening that deliver results in 10-15 minutes for clinicians and patients.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "qunu-labs": {
+  "hash": "533b06bc0b04b780",
+  "model": "claude-haiku-4-5",
+  "product": "Quantum key distribution and quantum random number generation products for organizations needing post-quantum cryptography security.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "rana-semiconductors": {
+  "hash": "92e6540f71035ddb",
+  "model": "claude-haiku-4-5",
+  "product": "Czochralski crystal growth systems and high-purity single crystals including silicon, germanium, nd:yag, and lithium niobate for semiconductor, defence, and photonics applications.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "roha-precision-systems-development": {
+  "hash": "d955af4a023b4145",
+  "model": "claude-haiku-4-5",
+  "product": "Portable diagnostic instruments for detecting gastrointestinal parasites in cattle for farmers in India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "roha369-biotech": {
+  "hash": "d98de974c3d35340",
+  "model": "claude-haiku-4-5",
+  "product": "Mycelium-based packaging material made from mushroom mycelium and agricultural residue as a replacement for polystyrene foam and plastic packaging.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "rrs-projectx-cloud-technologies": {
+  "hash": "961eeef0c6a03d60",
+  "model": "claude-haiku-4-5",
+  "product": "Infinity, an operating system where AI agents can run applications and control computer software directly without API keys or rate limits.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "sal-biosciences": {
+  "hash": "8d815970174b475d",
+  "model": "claude-haiku-4-5",
+  "product": "Light-pulsing technology that increases yields in fermentation-based drug and agricultural manufacturing.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "sense-it-out-intelligent-solutions": {
+  "hash": "5ab5ec6e975f8f5d",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "senseqube-technologies": {
+  "hash": "1740c73bb2f846d8",
+  "model": "claude-haiku-4-5",
+  "product": "AI-enabled sensing systems that use cameras and spectral sensors to assess fruit quality, analyze grain defects, and monitor soil parameters for farmers and agricultural processors.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "skylark-drones": {
+  "hash": "4fbfabe1f555b163",
+  "model": "claude-haiku-4-5",
+  "product": "Spectra, a cloud-based drone data analytics platform that processes drone survey data for volume measurement, inspection, and site monitoring in construction, mining, solar, and infrastructure industries.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "solinas-integrity": {
+  "hash": "760eecf2401e90a8",
+  "model": "claude-haiku-4-5",
+  "product": "Robots that inspect, clean, and digitize water pipelines, sewers, septic tanks, and stormwater drains for water utilities and municipalities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "solutions": {
+  "hash": "b643d857cd827011",
+  "model": "claude-haiku-4-5",
+  "product": "Portable Optical Coherence Tomography (OCT) devices for eye care, veterinary diagnostics, and industrial imaging.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "soulsense-innovations": {
+  "hash": "cc6739912b421f26",
+  "model": "claude-haiku-4-5",
+  "product": "Point-of-care devices for rapid blood typing and diagnostics.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "south-asia": {
+  "hash": "1cd1f9eee707b81a",
+  "model": "claude-haiku-4-5",
+  "product": "Agrocrete carbon-negative concrete blocks and Novastone cement-free building materials powered by BINDR technology for construction projects.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "spacefields": {
+  "hash": "5dcb83e6b91782f2",
+  "model": "claude-haiku-4-5",
+  "product": "Solid propulsion systems and rocket motors for aerospace and defense customers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "sristan-technologies": {
+  "hash": "59baad717e465008",
+  "model": "claude-haiku-4-5",
+  "product": "High-performance electric motors and smart controllers for electric vehicles, drones, and robotics.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "stellapps-technologies": {
+  "hash": "30d3170aa17fce87",
+  "model": "claude-haiku-4-5",
+  "product": "IoT devices and software applications for dairy supply chain management, including cattle monitoring, milk procurement, cold chain tracking, and financial services for dairy businesses.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "synersense": {
+  "hash": "c611a660898c03f3",
+  "model": "claude-haiku-4-5",
+  "product": "MoveAxon Platform, a marker-less motion capture and biomechanics analysis system for sports scientists, coaches, and clinicians to measure athlete performance and movement.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "taypro": {
+  "hash": "840f1beb7e47056c",
+  "model": "claude-haiku-4-5",
+  "product": "Waterless robotic solar panel cleaning robots and fleet management software for utility-scale solar plants in India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "techinvention-lifecare": {
+  "hash": "e5ac3463e1a228cf",
+  "model": "claude-haiku-4-5",
+  "product": "A company manufactures vaccines and biotherapeutics, including pneumococcal conjugate vaccine, meningococcal vaccines, and malaria vaccine, through an integrated GMP manufacturing facility for clinical and commercial batches.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "tenxer-technologies": {
+  "hash": "da4fd6d228126964",
+  "model": "claude-haiku-4-5",
+  "product": "LiveBench, a cloud platform that provides remote access to physical hardware labs for engineers to instantly evaluate integrated circuits and evaluation kits from their web browser.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "terrastack-technologies": {
+  "hash": "36f6bbf4977a9358",
+  "model": "claude-haiku-4-5",
+  "product": "A platform that combines location data from multiple sources to provide property assessments and neighborhood intelligence for consumer credit lenders and financial decision-makers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "thrustworks-dynetics": {
+  "hash": "75371209b66765f7",
+  "model": "claude-haiku-4-5",
+  "product": "A reusable 3D-printed 20 kN kerosene-oxygen rocket engine called ANYA for commercial space launch customers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "transformer-neural-scan-quest-ai": {
+  "hash": "09306112682fe28e",
+  "model": "claude-haiku-4-5",
+  "product": "TruScan, an AI assistant for radiologists that analyzes medical imaging scans and provides diagnostic support tools for conditions like spine, brain stroke, brain hemorrhage, and knee ligaments.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "transpact-enterprises": {
+  "hash": "2afa11f038a10704",
+  "model": "claude-haiku-4-5",
+  "product": "Therapeutic devices for vestibular and neurological rehabilitation, and cloud-based digital healthcare software, for people with disabilities.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "trestle-labs": {
+  "hash": "bab1c921074c5505",
+  "model": "claude-haiku-4-5",
+  "product": "Kibo, an AI system that converts printed, handwritten, and scanned documents into searchable, translated, and audio-enabled formats across 60+ languages for libraries, NGOs, corporates, and government institutions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "trinano-technologies": {
+  "hash": "ed4c9a8e310f2432",
+  "model": "claude-haiku-4-5",
+  "product": "Nano coatings applied to solar panels for residential, commercial, and utility-scale installations that increase energy output and reduce maintenance.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "uber-diagnostics": {
+  "hash": "ccdebde807512905",
+  "model": "claude-haiku-4-5",
+  "product": "An AI platform that integrates pathology, radiology, and cardiac screening across labs and healthcare providers in India, reading test results together to generate comprehensive health reports for individuals and insurance companies.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "unino-healthcare": {
+  "hash": "9f7790f96519dc3e",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
+ "utopic-tech": {
+  "hash": "7a5bfdc31ec71913",
+  "model": "claude-haiku-4-5",
+  "product": "Creasens, a point-of-care biosensor device that measures creatinine from a fingerprick blood sample to diagnose chronic kidney disease for patients.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "vasundharaa-geo-technologies": {
+  "hash": "b0132448f129c885",
+  "model": "claude-haiku-4-5",
+  "product": "The Vasundharaa Geo Portal is an online platform for geospatial analysis that visualizes and processes satellite and remote sensing data for agriculture and environmental monitoring.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "vaultionix-energy": {
+  "hash": "0ddefa7e4fe2a16a",
+  "model": "claude-haiku-4-5",
+  "product": "Sodium-ion batteries for electric vehicles, energy storage, and renewable integration as an alternative to lithium-ion batteries.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "vctr-labs": {
+  "hash": "3c9d3988fce09b98",
+  "model": "claude-haiku-4-5",
+  "product": "Humanoid robots, autonomous guided vehicles (AGVs), autonomous mobile robots (AMRs), and autonomous pallet movers for warehouse automation and industrial manufacturing.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "vision-earthcare": {
+  "hash": "5c22b636e7ef17d5",
+  "model": "claude-haiku-4-5",
+  "product": "Design, project management, commissioning and operation services for natural ecofriendly soil biotech technologies for various clients.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "voltrez-tech": {
+  "hash": "62e3e2892bdae27c",
+  "model": "claude-haiku-4-5",
+  "product": "Graphite-based anode materials and technology platforms for lithium-ion batteries that enable safer fast charging in electric vehicles, energy storage systems, and other applications.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "weathercast-solutions": {
+  "hash": "133cf14f2c54b538",
+  "model": "claude-haiku-4-5",
+  "product": "WeatherCast is a hyperlocal weather forecasting platform using IoT, satellite data, and AI/ML for businesses in renewable energy, agriculture, and defence sectors.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "whistl-healthtech": {
+  "hash": "c4f3509a4eeaadf3",
+  "model": "claude-haiku-4-5",
+  "product": "Whistl is an app that helps sports players find local games, organize matches, and connect with other players in their area.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "zedbee-technologies": {
+  "hash": "3c973b258fec8654",
+  "model": "claude-haiku-4-5",
+  "product": "AI-powered identity verification and digital onboarding software that uses face authentication, liveness detection, and document analysis for banks, fintech companies, and insurance providers.",
+  "prompt_version": 1,
+  "status": "described"
+ }
+}
