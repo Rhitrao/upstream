@@ -858,24 +858,41 @@ const CSV_COLUMNS = [
 
 async function exportCsv(url: URL, env: Env): Promise<Response> {
 	const now = new Date();
-	const undated = parseDates(url.searchParams.get('dates')) === 'undated';
+	const dates = parseDates(url.searchParams.get('dates'));
 	const age = parseAgeChoice(url.searchParams.get('age'));
 	const tier = parseTierChoice(url.searchParams.get('tier'), 'all');
 
-	// The export is capped where the page is not, because a file is a download and a
-	// surprise 700-row one is worse than a stated limit.
-	const companies = await queryCompanies(env, {
+	const shared = {
 		sector: url.searchParams.get('sector') || null,
 		subsector: url.searchParams.get('subsector') || null,
 		search: (url.searchParams.get('q') || '').trim() || null,
 		source: parseSource(url.searchParams.get('source')),
 		site: parseSite(url.searchParams.get('site')),
 		sort: parseSort(url.searchParams.get('sort')),
-		tiers: TIER_SETS[tier],
-		dated: undated ? 'undated' : 'dated',
-		minOriginYear: undated || age === 'all' ? null : minOriginYear(now),
+		// A file is for taking away, so it is capped higher than the page renders. That
+		// is the one way the two differ, and it differs by giving more rather than less.
 		limit: MAX_LIMIT,
-	});
+	};
+
+	// The page is two lists — the ranking, and the companies no source will date — and
+	// "export this view" has to mean both of them when both are on screen. Running one
+	// query with dated:null would nearly work and would quietly apply the age gate to
+	// rows that have no age, so this runs the same two queries the page runs, in the
+	// same order, under the same rules.
+	const wantRanked = dates !== 'undated';
+	const wantUndated = dates !== 'dated';
+	const [ranked, undatedRows] = await Promise.all([
+		wantRanked
+			? queryCompanies(env, {
+					...shared,
+					tiers: TIER_SETS[tier],
+					dated: 'dated',
+					minOriginYear: age === 'all' ? null : minOriginYear(now),
+				})
+			: Promise.resolve([]),
+		wantUndated ? queryCompanies(env, { ...shared, tiers: null, dated: 'undated', minOriginYear: null }) : Promise.resolve([]),
+	]);
+	const companies = [...ranked, ...undatedRows];
 
 	const origin = `${url.origin}${BASE}`;
 	const rows = companies.map((c) =>

@@ -1350,6 +1350,26 @@ describe('slicing the list', () => {
 		expect(csv.split('\r\n').filter(Boolean)).toHaveLength(2);
 	});
 
+	it('exports both lists when both are on screen', async () => {
+		await post({ source: 'test', mode: 'live', companies: [{ id: 'dated', name: 'Dated Co', origin_year: THIS_YEAR }] });
+		await post({ source: 'test', companies: [{ id: 'no-date', name: 'Undated Co' }] });
+
+		// The page is two lists. A file that claims to be this view and silently drops
+		// the second one is the quiet gap this whole project refuses to leave.
+		const both = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
+		expect(both).toContain('Dated Co');
+		expect(both).toContain('Undated Co');
+
+		// And asking for one section gives one section.
+		const onlyDated = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&dates=dated`)).text();
+		expect(onlyDated).toContain('Dated Co');
+		expect(onlyDated).not.toContain('Undated Co');
+
+		const onlyUndated = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&dates=undated`)).text();
+		expect(onlyUndated).toContain('Undated Co');
+		expect(onlyUndated).not.toContain('Dated Co');
+	});
+
 	it('defangs a scraped name that a spreadsheet would run as a formula', async () => {
 		await post({
 			source: 'test',
