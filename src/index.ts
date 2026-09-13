@@ -9,7 +9,9 @@
  *   GET  /upstream/api/companies    JSON list; filters: sector, subsector, tier, age, undated, limit
  *   GET  /upstream/api/coverage     company count per sub-sector, for the coverage map
  *   GET  /upstream/api/gaps         companies the taxonomy has no cell for, grouped
+ *   GET  /upstream/api/sources      per source: last attempt, last success, records
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
+ *   POST /upstream/api/source-runs  what each source did in a pipeline run, needs X-Ingest-Key
  */
 import { SIGNAL_TYPES, TRACE_TYPES, TIERS, earliestEvent, minOriginYear, tierFor, type Tier } from './rank';
 import {
@@ -30,6 +32,7 @@ import {
 	type SortChoice,
 	queryGaps,
 	queryHasRanked,
+	querySourceHealth,
 	queryNotCompanies,
 	queryRegisterOutcomes,
 	type Filters,
@@ -191,6 +194,51 @@ async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 async function coverageApi(env: Env): Promise<Response> {
 	const coverage = await queryCoverage(env);
 	return json({ ...coverage, generated_at: new Date().toISOString() }, 200, PUBLIC_CACHE);
+}
+
+// --- POST /upstream/api/source-runs ----------------------------------------
+
+const SOURCE_RUN_STATUSES = new Set(['ok', 'quarantined', 'failed']);
+
+/**
+ * What each source did in one pipeline run, written before anything is uploaded.
+ *
+ * Separate from /api/ingest on purpose: a source that failed or was quarantined
+ * uploads nothing, so the ingest endpoint never hears of it, and that silence is the
+ * failure this exists to end.
+ */
+async function recordSourceRuns(request: Request, env: Env): Promise<Response> {
+	if (!env.INGEST_KEY) return json({ error: 'ingest is not configured' }, 503);
+	if (!(await secretsMatch(request.headers.get('X-Ingest-Key') ?? '', env.INGEST_KEY))) {
+		return json({ error: 'unauthorized' }, 401);
+	}
+	let body: unknown;
+	try {
+		body = await request.json();
+	} catch {
+		return json({ error: 'body must be JSON' }, 400);
+	}
+	const runs = (body as { runs?: unknown })?.runs;
+	if (!Array.isArray(runs) || runs.length === 0) return json({ error: 'runs must be a non-empty array' }, 400);
+
+	const startedAt = new Date().toISOString();
+	const writes: D1PreparedStatement[] = [];
+	for (const [i, raw] of runs.entries()) {
+		const r = (raw ?? {}) as Record<string, unknown>;
+		const source = str(r.source);
+		const status = str(r.status);
+		if (!source) return json({ error: `runs[${i}].source is required` }, 400);
+		if (!status || !SOURCE_RUN_STATUSES.has(status)) return json({ error: `runs[${i}].status must be ok, quarantined or failed` }, 400);
+		// A quarantine or a failure with no reason is a red light with no label.
+		if (status !== 'ok' && !str(r.reason)) return json({ error: `runs[${i}].reason is required when status is ${status}` }, 400);
+		writes.push(
+			env.DB.prepare(
+				'INSERT INTO source_runs (started_at, source, status, records, previous, data_as_of, reason) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)',
+			).bind(startedAt, source, status, int(r.records) ?? 0, int(r.previous), str(r.data_as_of), str(r.reason)),
+		);
+	}
+	await env.DB.batch(writes);
+	return json({ recorded: writes.length });
 }
 
 // --- POST /upstream/api/ingest ---------------------------------------------
@@ -840,7 +888,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth] = await Promise.all([
 		queryCoverage(env),
 		dates === 'undated'
 			? Promise.resolve([])
@@ -863,6 +911,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// is about the seven companies on screen rather than about the database.
 		demo ? Promise.resolve(demoProductOutcomes()) : queryProductOutcomes(env),
 		demo ? Promise.resolve(0) : queryNotCompanies(env),
+		querySourceHealth(env),
 	]);
 
 	const html = renderPage({
@@ -878,6 +927,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		products,
 		tracked: coverage.total_companies,
 		notCompanies,
+		sourceHealth,
 		oneTrace,
 		discoveredThisWeek,
 		sector,
@@ -1135,6 +1185,12 @@ export default {
 
 			case `${BASE}/api/ingest`:
 				return request.method === 'POST' ? ingest(request, env) : methodNotAllowed('POST');
+
+			case `${BASE}/api/sources`:
+				return isRead ? json(await querySourceHealth(env), 200, PUBLIC_CACHE) : methodNotAllowed('GET, HEAD');
+
+			case `${BASE}/api/source-runs`:
+				return request.method === 'POST' ? recordSourceRuns(request, env) : methodNotAllowed('POST');
 
 			default:
 				return json({ error: 'not found' }, 404);

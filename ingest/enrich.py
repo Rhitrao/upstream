@@ -582,7 +582,7 @@ def main() -> int:
 
     from ingest.run import scrape_all
 
-    by_source, _, _ = scrape_all()
+    by_source, _, _, _ = scrape_all()
     seen: set[str] = set()
     companies: list[Company] = []
     for source in by_source:

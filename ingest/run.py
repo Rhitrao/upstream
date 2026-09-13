@@ -17,8 +17,9 @@ import traceback
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import entity, identity
+from ingest import entity, health, identity
 from ingest.sources import dpiit, grants_csv, rtbi, sine
+from ingest.sources import base
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, upload
 
@@ -43,25 +44,30 @@ def scrape(module) -> tuple[list[Company], list[Signal]]:
     return companies, signals
 
 
-def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], list[str]]:
-    """Every source that works, and the names of the ones that did not."""
+def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], dict[str, str], dict[str, str | None]]:
+    """Every source that returned, why each other one did not, and how old each one's pages are."""
     companies: dict[str, list[Company]] = {}
     signals: dict[str, list[Signal]] = {}
-    failed: list[str] = []
+    failed: dict[str, str] = {}
+    as_of: dict[str, str | None] = {}
 
     for module in SOURCES:
+        start = len(base.FETCHED_AT)
         try:
             found, traces = scrape(module)
             companies[module.SOURCE] = found
             signals[module.SOURCE] = traces
             print(f"  {module.SOURCE}: {len(found)} companies, {len(traces)} signals")
-        except Exception:
-            # Loud in the log, fatal to nothing.
-            failed.append(module.SOURCE)
+        except Exception as error:  # noqa: BLE001 - recorded, and the run goes red
+            failed[module.SOURCE] = f"{type(error).__name__}: {error}"
             print(f"  {module.SOURCE}: FAILED")
             traceback.print_exc()
+        # The oldest page used, since a source is only as current as its stalest page.
+        # A source that reads a local file fetches nothing and has no such date.
+        used = base.FETCHED_AT[start:]
+        as_of[module.SOURCE] = min(used) if used else None
 
-    return companies, signals, failed
+    return companies, signals, failed, as_of
 
 
 # Said by us, not by the model: call one returns a bare "none" with no argument
@@ -104,9 +110,30 @@ def main() -> int:
     args = parser.parse_args()
 
     print("Scraping")
-    by_source, signals_by_source, failed = scrape_all()
+    by_source, signals_by_source, failed, as_of = scrape_all()
+
+    # Judged before anything is classified or sent: a source that returned nothing, or
+    # far less than last time, is set aside whole and yesterday's rows for it stand.
+    print("\nSource health")
+    previous = health.history(args.base_url)
+    verdicts = [health.failed(source, reason) for source, reason in failed.items()]
+    for source, companies in by_source.items():
+        last = previous.get(source) or {}
+        verdicts.append(health.judge(source, len(companies), last.get("last_success_records"), as_of.get(source)))
+    for verdict in verdicts:
+        print(f"  {verdict.source}: {verdict.status}, {verdict.records} records" + (f" — {verdict.reason}" if verdict.reason else ""))
+        if verdict.status != health.OK:
+            by_source.pop(verdict.source, None)
+            signals_by_source.pop(verdict.source, None)
+    unhealthy = [v for v in verdicts if v.status != health.OK]
+    if not args.dry_run:
+        health.record(args.base_url, verdicts)
+
     if not by_source:
-        print("Every source failed. Nothing to upload.")
+        print("\nSummary")
+        print("  RUN FAILED — no source is fit to upload")
+        for verdict in unhealthy:
+            print(f"  {verdict.source}: {verdict.status} — {verdict.reason}")
         return 1
 
     # One company can appear in two portfolios. The first source to mention it
@@ -265,15 +292,19 @@ def main() -> int:
         print(f"  {usage.failed} COMPANIES COULD NOT BE CLASSIFIED — see the errors above")
     else:
         print("  no classification failures")
-    if failed:
-        print(f"  {len(failed)} SOURCES FAILED — {', '.join(failed)}")
-    print(f"  sources: {len(by_source)} ok, {len(failed)} failed{' — ' + ', '.join(failed) if failed else ''}")
+    for verdict in unhealthy:
+        print(f"  SOURCE {verdict.status.upper()} — {verdict.source}: {verdict.reason}. Nothing uploaded from it; its rows from the last good run stand.")
+    print(f"  sources: {len(by_source)} ok, {len(unhealthy)} set aside{' — ' + ', '.join(v.source for v in unhealthy) if unhealthy else ''}")
     print(f"  companies: {len(unique)} seen, {len(placed)} placed, {dropped} dropped")
     print(f"  classification: {usage}")
     print(f"  uploaded: {uploaded} companies, {recorded} gaps" if not args.dry_run else "  uploaded: nothing (dry run)")
     # Per-company failures are tolerated, reported and survivable: one company
     # whose answer would not parse is one row missing, not a broken pipeline.
-    return 0
+    #
+    # A source that failed or was set aside is not survivable in that sense: the page
+    # now carries data that is older than the run's date, and the job has to go red so
+    # somebody looks. Everything healthy has already been uploaded by this point.
+    return 3 if unhealthy else 0
 
 
 if __name__ == "__main__":

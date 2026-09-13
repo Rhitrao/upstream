@@ -101,7 +101,14 @@ jobs:
           set -uo pipefail
           {
             if grep -q "RUN FAILED" run.log 2>/dev/null; then
-              echo "## Ingest failed — configuration error"
+              echo "## Ingest failed"
+              echo
+              echo '```'
+              sed -n '/^Summary$/,$p' run.log
+              echo '```'
+            elif grep -qE "SOURCE (QUARANTINED|FAILED)" run.log 2>/dev/null; then
+              # The healthy sources uploaded; the job is red because one did not.
+              echo "## Ingest ran, but a source was set aside"
               echo
               echo '```'
               sed -n '/^Summary$/,$p' run.log

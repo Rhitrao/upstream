@@ -240,16 +240,27 @@ def fetch_json(url: str, body: dict, *, force: bool = False) -> dict:
     return json.loads(_cached(url, body, force=force))
 
 
+# When every page handed out was really fetched, cached or not, in the order asked for.
+# The pipeline slices this around each scraper to say how old that source's data is: a
+# source served entirely from a 29-day-old cache is 29 days old, however new the run.
+FETCHED_AT: list[str] = []
+
+
 def _cached(url: str, body: dict | None, *, force: bool, retries: int = RETRIES, timeout: int = TIMEOUT_SECONDS) -> str:
     path = _cache_path(url, body)
     if not force:
         cached = _read_cache(path)
         if cached is not None:
+            try:
+                FETCHED_AT.append(json.loads(path.read_text(encoding="utf-8"))["fetched_at"])
+            except (OSError, ValueError, KeyError):
+                pass
             return cached
 
     text = _request(url, body, retries=retries, timeout=timeout)
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     entry = {"url": url, "body": body, "fetched_at": _now().isoformat(), "response": text}
+    FETCHED_AT.append(entry["fetched_at"])
     path.write_text(json.dumps(entry), encoding="utf-8")
     return text
 

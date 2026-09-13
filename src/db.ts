@@ -677,6 +677,30 @@ export async function queryNotCompanies(env: Env): Promise<number> {
 	return row?.n ?? 0;
 }
 
+/** Where each source stands: its last attempt, and the last run whose data is on the page. */
+export interface SourceHealth {
+	source: string;
+	last_attempt: string;
+	last_status: 'ok' | 'quarantined' | 'failed';
+	last_reason: string | null;
+	last_success: string | null;
+	last_success_records: number | null;
+	data_as_of: string | null;
+}
+
+export async function querySourceHealth(env: Env): Promise<SourceHealth[]> {
+	const { results } = await env.DB.prepare(
+		`SELECT r.source,
+		   latest.started_at AS last_attempt, latest.status AS last_status, latest.reason AS last_reason,
+		   good.started_at AS last_success, good.records AS last_success_records, good.data_as_of AS data_as_of
+		 FROM (SELECT DISTINCT source FROM source_runs) r
+		 JOIN source_runs latest ON latest.id = (SELECT id FROM source_runs WHERE source = r.source ORDER BY started_at DESC, id DESC LIMIT 1)
+		 LEFT JOIN source_runs good ON good.id = (SELECT id FROM source_runs WHERE source = r.source AND status = 'ok' ORDER BY started_at DESC, id DESC LIMIT 1)
+		 ORDER BY r.source`,
+	).all<SourceHealth>();
+	return results;
+}
+
 export async function queryOneTraceCount(env: Env): Promise<number> {
 	const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM companies WHERE trace_count <= 1').first<{ n: number }>();
 	return row?.n ?? 0;

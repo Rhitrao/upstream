@@ -20,6 +20,7 @@ import {
 	type Signal,
 	type SiteState,
 	type SortChoice,
+	type SourceHealth,
 } from './db';
 
 /**
@@ -50,6 +51,8 @@ export interface PageView {
 	tracked: number;
 	/** Of `tracked`, the records nothing on record shows to be a company. */
 	notCompanies: number;
+	/** Each source's last attempt and last good run. Empty until a run has reported. */
+	sourceHealth: SourceHealth[];
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -316,6 +319,27 @@ function funnelNote(view: PageView): string {
 }
 
 /**
+ * How current each source is, one line, per source.
+ *
+ * A single "updated today" would let one healthy scraper vouch for four. DPIIT is the
+ * largest source here and the reviewer found its site answering 403; if that happens
+ * the page must say the DPIIT rows are as old as the last run that worked, not let the
+ * other three sources' fresh dates stand in for it.
+ */
+function freshness(view: PageView): string {
+	if (view.sourceHealth.length === 0) return '';
+	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
+	const parts = view.sourceHealth.map((h) => {
+		const name = esc(SOURCE_LABELS[h.source] ?? h.source);
+		const asOf = day(h.data_as_of ?? h.last_success);
+		if (h.last_status === 'ok') return `${name} ${asOf}`;
+		const what = h.last_status === 'failed' ? 'failed' : 'returned too little and was set aside';
+		return `${name} <strong>${what} on ${day(h.last_attempt)}</strong>${h.last_success ? `, showing ${asOf}` : ', nothing shown from it yet'}`;
+	});
+	return `<p class="freshness">Data as of: ${parts.join(' &middot; ')}.</p>`;
+}
+
+/**
  * The top of the page. Three things and nothing else: who this is, what it claims, and
  * three numbers that back the claim up.
  *
@@ -349,6 +373,7 @@ function header(view: PageView): string {
 		// says the machine is broken, which is not what it means.
 		discoveredThisWeek > 0 ? `<p class="fresh">${discoveredThisWeek} added to Upstream in the last seven days.</p>` : ''
 	}
+  ${freshness(view)}
 </header>`;
 }
 
@@ -1747,6 +1772,8 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site:hover { text-decoration-color: currentColor; }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
 .result-summary { color: var(--muted); }
+.freshness { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
+.freshness strong { color: var(--ink); }
 .entity-tag { color: var(--muted); font-size: 0.8em; font-weight: normal; white-space: nowrap; }
 .result-summary strong { color: var(--ink); }
 .basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }

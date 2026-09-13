@@ -18,6 +18,7 @@ async function clearDb() {
 		env.DB.prepare('DELETE FROM companies'),
 		env.DB.prepare('DELETE FROM runs'),
 		env.DB.prepare('DELETE FROM gaps'),
+		env.DB.prepare('DELETE FROM source_runs'),
 	]);
 }
 
@@ -1413,6 +1414,46 @@ describe('people and projects are not companies', () => {
 
 		const bad = await post({ source: 'sine-iitb', companies: [{ id: 'x', name: 'X', entity_type: 'person' }] });
 		expect(bad.status).toBe(400);
+	});
+});
+
+describe('source health', () => {
+	async function report(runs: unknown[], key = KEY) {
+		return SELF.fetch(`${ORIGIN}/upstream/api/source-runs`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', 'X-Ingest-Key': key },
+			body: JSON.stringify({ runs }),
+		});
+	}
+
+	it('records every verdict, and refuses an anonymous or unexplained one', async () => {
+		expect((await report([{ source: 'sine-iitb', status: 'ok', records: 233 }], 'wrong')).status).toBe(401);
+		expect((await report([{ source: 'dpiit-startup-india', status: 'quarantined', records: 0 }])).status).toBe(400);
+		expect((await report([{ source: 'dpiit-startup-india', status: 'sleepy', records: 0 }])).status).toBe(400);
+		expect((await report([{ source: 'sine-iitb', status: 'ok', records: 233, data_as_of: '2026-09-12T11:00:00Z' }])).status).toBe(200);
+	});
+
+	it('keeps the last good run beside a failure, and says both on the page', async () => {
+		await report([
+			{ source: 'dpiit-startup-india', status: 'ok', records: 330, data_as_of: '2026-09-12T15:07:00Z' },
+			{ source: 'sine-iitb', status: 'ok', records: 233, data_as_of: '2026-09-12T15:07:00Z' },
+		]);
+		await report([
+			{ source: 'dpiit-startup-india', status: 'failed', records: 0, reason: 'HTTPError: 403 Forbidden' },
+			{ source: 'sine-iitb', status: 'ok', records: 235, data_as_of: '2026-09-13T08:00:00Z' },
+		]);
+
+		const sources = await (await SELF.fetch(`${ORIGIN}/upstream/api/sources`)).json<any[]>();
+		const dpiit = sources.find((s) => s.source === 'dpiit-startup-india');
+		expect(dpiit).toMatchObject({ last_status: 'failed', last_reason: 'HTTPError: 403 Forbidden', last_success_records: 330 });
+		expect(dpiit.last_success).not.toBeNull();
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const line = html.slice(html.indexOf('<p class="freshness">'), html.indexOf('</p>', html.indexOf('<p class="freshness">')));
+		expect(line).toContain('DPIIT register <strong>failed on');
+		expect(line).toContain('showing 12 Sep 2026');
+		// One healthy source does not vouch for the other.
+		expect(line).toContain('SINE IIT Bombay 13 Sep 2026');
 	});
 });
 
