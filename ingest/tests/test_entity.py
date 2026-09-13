@@ -45,6 +45,19 @@ class TheClassifierIsToldAndOnlyTheyRerun(unittest.TestCase):
         self.assertEqual(classify._fingerprint(company), before)
         self.assertEqual(classify._company_text(company), "Company: Planys Technologies Private Limited\nWhat they do: Underwater robots")
 
+    def test_an_off_map_project_keeps_its_old_answer_and_a_placed_one_is_asked_again(self):
+        # 53 SINE records became non-companies; 34 of them were never placed. Their
+        # reasons appear on no page, so re-buying them to change a word is waste.
+        person = Company(id="p", name="Imran Hussain", description="NAAT device", source="sine-iitb", entity_type=entity.RESEARCHER_PROJECT)
+        old_key = classify._fingerprint(person, with_entity=False)
+        off_map = {"hash": old_key, "sector_id": "4", "subsector_id": None, "note": "The company builds..."}
+        placed = {"hash": old_key, "sector_id": "4", "subsector_id": "4.5", "note": "The company builds..."}
+        self.assertTrue(classify._answered_before_entity_types(person, off_map))
+        self.assertFalse(classify._answered_before_entity_types(person, placed))
+        # And a company never takes this path, whatever its cache says.
+        company = Company(id="c", name="Acme Pvt Ltd", description="x", source="sine-iitb", entity_type=entity.COMPANY)
+        self.assertFalse(classify._answered_before_entity_types(company, off_map))
+
 
 if __name__ == "__main__":
     unittest.main()

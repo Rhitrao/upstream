@@ -373,7 +373,22 @@ def _classify_one(client: anthropic.Anthropic, company: Company, usage: Usage, l
 # --- cache and overrides ----------------------------------------------------
 
 
-def _fingerprint(company: Company) -> str:
+def _answered_before_entity_types(company: Company, entry: dict | None) -> bool:
+    """A non-company whose earlier answer left it off the map, which stands.
+
+    Telling the classifier a record is a person's project changes only the word it
+    uses in its reason. For a record already placed that reason is printed on its
+    page, so it is worth the call. For one the classifier placed nowhere, no page
+    prints it: re-asking would re-buy 34 answers on 2026-09-13 to reword notes nobody
+    reads, and the rule in this project is not to pay for what never reaches the page.
+    """
+    if entry is None or company.entity_type in (None, entity.COMPANY):
+        return False
+    unchanged = entry.get("hash") == _fingerprint(company, with_entity=False)
+    return unchanged and not _from_cache(entry).on_map
+
+
+def _fingerprint(company: Company, *, with_entity: bool = True) -> str:
     """What we are about to send, as one short hash.
 
     The model and the prompt version are in here on purpose: re-running after
@@ -388,7 +403,7 @@ def _fingerprint(company: Company) -> str:
         [company.name, clean(company.description), MODEL, prompt_version(company.source)]
         # Appended only for records that are not companies, so every company's key is
         # exactly what it was and nothing already bought is bought again.
-        + ([company.entity_type] if company.entity_type not in (None, entity.COMPANY) else []),
+        + ([company.entity_type] if with_entity and company.entity_type not in (None, entity.COMPANY) else []),
         sort_keys=True,
     )
     return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
@@ -480,7 +495,7 @@ def classify(
             usage.overridden += 1
             continue
         entry = cache.get(company.id)
-        if entry and not force and entry.get("hash") == _fingerprint(company):
+        if entry and not force and (entry.get("hash") == _fingerprint(company) or _answered_before_entity_types(company, entry)):
             results[company.id] = _from_cache(entry)
             usage.cached += 1
             continue
@@ -638,7 +653,13 @@ def estimate(companies: list[Company]) -> str:
     """
     cache = _load(CACHE_PATH)
     overrides = _load(OVERRIDES_PATH)
-    todo = [c for c in companies if c.id not in overrides and cache.get(c.id, {}).get("hash") != _fingerprint(c)]
+    todo = [
+        c
+        for c in companies
+        if c.id not in overrides
+        and cache.get(c.id, {}).get("hash") != _fingerprint(c)
+        and not _answered_before_entity_types(c, cache.get(c.id))
+    ]
     if not todo:
         return "Nothing to do: every company is cached or overridden. A re-run costs $0.00."
 
@@ -725,9 +746,15 @@ def _companies() -> list[Company]:
     from ingest.run import SOURCES, scrape
 
     merged: dict[str, Company] = {}
+    listed_by: dict[str, set[str]] = {}
     for module in SOURCES:
         for company in scrape(module)[0]:
             merged.setdefault(company.id, company)
+            listed_by.setdefault(company.id, set()).add(module.SOURCE)
+    # As run.py does, because the entity type is part of a project's cache key: an
+    # estimate without it would miss every record whose question just changed.
+    for company in merged.values():
+        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id])
     return list(merged.values())
 
 
