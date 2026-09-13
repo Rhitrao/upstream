@@ -14,7 +14,7 @@ on:
       max_cost:
         description: "Dollars this run may spend on classification"
         required: false
-        default: "0.25"
+        default: "0.05"
 
 # Never two at once. Two runs classifying the same new companies in parallel pay
 # for them twice and then race to commit the answers.
@@ -72,8 +72,9 @@ jobs:
           INGEST_KEY: ${{ secrets.INGEST_KEY }}
           # The ceiling matters most here, where nobody is watching: a source that
           # starts returning 5,000 rows one morning stops at a known number
-          # instead of emptying the balance.
-          UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.25' }}
+          # instead of emptying the balance. Raise it for a one-off backfill by
+          # dispatching the workflow by hand; the nightly run keeps the floor.
+          UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.05' }}
         run: |
           set -euo pipefail
           python -m ingest.run --base-url https://rohitrao.in/upstream | tee run.log

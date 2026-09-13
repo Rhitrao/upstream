@@ -75,12 +75,19 @@ WORKERS = 8
 
 # What one run is allowed to spend before it stops and says so.
 #
-# The whole budget for this project is $5, and the thing that could take it in an
-# afternoon is not a price rise — it is a scraper that starts returning 5,000 rows
-# because someone redesigned a page. A ceiling turns that from an empty balance
-# into a log line. Overridable per run, and by the scheduled job, which has
-# nobody watching it.
-DEFAULT_MAX_COST = 0.25
+# The thing that could take the balance in an afternoon is not a price rise — it is
+# a scraper that starts returning 5,000 rows because someone redesigned a page. A
+# ceiling turns that from an empty balance into a log line. Overridable per run,
+# and by the scheduled job, which has nobody watching it.
+#
+# Five cents, not twenty-five, because what is left of the balance has to outlast a
+# date that is already fixed. At the old ceiling a fortnight of runaway mornings
+# spends more than there is, and a pipeline that stops days before it is due to be
+# shown to anyone is worse than one that never ran. At COST_PER_COMPANY that is
+# about sixteen new companies a night, which is far more than any day's genuine
+# arrivals; and a run that reaches the ceiling has not failed. It says what it
+# stopped at, banks what it bought, and the next morning starts where it stopped.
+DEFAULT_MAX_COST = 0.05
 MAX_COST_ENV = "UPSTREAM_MAX_COST"
 
 # What one company has cost, measured over 1,542 of them. Used to reserve against
