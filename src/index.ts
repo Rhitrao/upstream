@@ -18,13 +18,14 @@ import {
 	queryCoverage,
 	queryDiscoveredSince,
 	queryOneTraceCount,
+	queryProductOutcomes,
 	queryGaps,
 	queryHasRanked,
 	queryRegisterOutcomes,
 	type Filters,
 } from './db';
 import { renderPage, type AgeChoice, type TierChoice } from './page';
-import { demoCompanies, demoGaps, demoRegisterOutcomes, splitDemo } from './demo';
+import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
 
 const BASE = '/upstream';
 
@@ -168,7 +169,20 @@ interface CompanyInput {
 	classify_note?: string | null;
 	/** 'description' or 'register-label' — what the sub-sector was chosen from. */
 	classify_basis?: string | null;
+	/** What the company says it builds, read off its own homepage. */
+	product?: string | null;
+	/** Why there is or is not a product line: see PRODUCT_STATUSES. */
+	product_status?: string | null;
 }
+
+/**
+ * Every outcome enrichment can report, and the only ones this endpoint will store.
+ *
+ * A typo here would be stored, displayed, and counted as a state the page has no
+ * sentence for — the same failure the signal vocabulary was locked down to prevent.
+ * Adding one is an edit here and a sentence on the page, in that order.
+ */
+const PRODUCT_STATUSES = new Set(['described', 'unreachable', 'refused', 'thin', 'unclear']);
 
 /**
  * A company the classifier placed in a sector but in none of its sub-sectors.
@@ -206,9 +220,9 @@ interface SignalInput {
 const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
   id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
-  sector_id, subsector_id, project_type, classify_note, classify_basis,
+  sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
@@ -225,6 +239,11 @@ ON CONFLICT(id) DO UPDATE SET
   project_type  = COALESCE(excluded.project_type,  companies.project_type),
   classify_note = COALESCE(excluded.classify_note, companies.classify_note),
   classify_basis  = excluded.classify_basis,
+  -- COALESCE, not excluded: the four scrapers know nothing about homepages and post
+  -- these as null every night. Overwriting would mean the last source to mention a
+  -- company erased what reading its website cost us to learn.
+  product         = COALESCE(excluded.product,        companies.product),
+  product_status  = COALESCE(excluded.product_status, companies.product_status),
   first_seen       = CASE WHEN companies.first_seen IS NULL THEN ?18 ELSE companies.first_seen END,
   first_seen_basis = CASE WHEN companies.first_seen IS NULL AND ?18 IS NOT NULL THEN 'cohort' ELSE companies.first_seen_basis END,
   updated_at    = excluded.updated_at`;
@@ -344,6 +363,16 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const name = str(c.name);
 		if (!id) return json({ error: `companies[${i}].id is required` }, 400);
 		if (!name) return json({ error: `companies[${i}].name is required` }, 400);
+		const productStatus = str(c.product_status);
+		if (productStatus !== null && !PRODUCT_STATUSES.has(productStatus)) {
+			return json({ error: `companies[${i}].product_status must be one of ${[...PRODUCT_STATUSES].join(', ')}` }, 400);
+		}
+		// A description with no outcome attached is a sentence with no provenance, and
+		// a 'described' with nothing in it is a promise the row cannot keep.
+		if (str(c.product) !== null && productStatus !== 'described') {
+			return json({ error: `companies[${i}].product needs product_status 'described'` }, 400);
+		}
+
 		const basis = str(c.classify_basis);
 		if (basis !== null && basis !== 'description' && basis !== 'register-label') {
 			return json({ error: `companies[${i}].classify_basis must be description or register-label` }, 400);
@@ -511,6 +540,8 @@ async function applyIngest(
 			cohort,
 			c.website_checked === false ? 0 : 1,
 			str(c.classify_basis) ?? 'description',
+			str(c.product),
+			str(c.product_status),
 		);
 	});
 
@@ -661,7 +692,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const unplaceable: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products] = await Promise.all([
 		queryCoverage(env),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).ranked) : queryCompanies(env, ranked),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).undated) : queryCompanies(env, unplaceable),
@@ -672,6 +703,9 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// The demo set has to answer this the same way the database does, or the row
 		// design gets checked against a headline number that is not about it.
 		demo ? Promise.resolve(demoCompanies().filter((c) => c.trace_count <= 1).length) : queryOneTraceCount(env),
+		// The demo answers this from its own rows too, so the paragraph under the list
+		// is about the seven companies on screen rather than about the database.
+		demo ? Promise.resolve(demoProductOutcomes()) : queryProductOutcomes(env),
 	]);
 
 	const html = renderPage({
@@ -684,6 +718,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// so the top of the funnel is simply their sum.
 		found: coverage.total_companies + gaps.total,
 		register,
+		products,
 		tracked: coverage.total_companies,
 		oneTrace,
 		discoveredThisWeek,

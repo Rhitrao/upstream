@@ -477,6 +477,135 @@ describe('gaps — companies the taxonomy has no cell for', () => {
 	});
 });
 
+describe('what a company builds', () => {
+	it('refuses a product_status it has no sentence for', async () => {
+		const res = await post({ source: 'test', companies: [{ id: 'verve', name: 'Verve', product_status: 'probably-fine' }] });
+		expect(res.status).toBe(400);
+		expect((await res.json<any>()).error).toMatch(/product_status must be one of/);
+	});
+
+	it('refuses a description with no outcome behind it', async () => {
+		// A sentence with no provenance is the one thing this column must not store:
+		// it would read exactly like a read homepage and be nothing of the kind.
+		const res = await post({
+			source: 'test',
+			companies: [{ id: 'verve', name: 'Verve', product: 'Builds drones', product_status: 'unclear' }],
+		});
+		expect(res.status).toBe(400);
+		expect((await res.json<any>()).error).toMatch(/product needs product_status 'described'/);
+	});
+
+	it('puts the sentence on the row, attributed, and never as our own claim', async () => {
+		await post({
+			source: 'test',
+			companies: [
+				{
+					id: 'kadamb',
+					name: 'Kadamb Biolabs',
+					description: 'Diagnostics company.',
+					website: 'https://example.invalid/kadamb',
+					sector_id: '4',
+					subsector_id: '4.2',
+					product: 'Benchtop assay kits for district hospitals.',
+					product_status: 'described',
+				},
+			],
+		});
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		expect(html).toContain('Benchtop assay kits for district hospitals.');
+		// The attribution travels with it. Without this the row is asserting a fact
+		// about a company that we read off that company's own marketing page.
+		expect(html).toMatch(/Benchtop assay kits for district hospitals\.\s*<span class="says">in their own words<\/span>/);
+		// A real description from a real source still stands beside it.
+		expect(html).toContain('Diagnostics company.');
+	});
+
+	it('drops a register label once the homepage has said it better', async () => {
+		await post({
+			source: 'dpiit-startup-india',
+			companies: [
+				{
+					id: 'relsym',
+					name: 'Relsym',
+					description: 'DPIIT-recognised startup. Industry: Nanotechnology. Stage: Prototype.',
+					website: 'https://example.invalid/relsym',
+					sector_id: '2',
+					subsector_id: '2.2',
+					classify_basis: 'register-label',
+					product: 'Software that models CMOS reliability for chip design teams.',
+					product_status: 'described',
+				},
+			],
+		});
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		expect(html).toContain('Software that models CMOS reliability for chip design teams.');
+		// The dropdown line is gone. It was never a description of the company — it
+		// was an industry the founder picked from a list — and printing it under a
+		// sentence about what they actually make costs the row its clarity.
+		expect(html).not.toContain('Industry: Nanotechnology');
+	});
+
+	it('does not let a scraper that knows nothing about websites erase what reading one cost', async () => {
+		await post({
+			source: 'enrich',
+			companies: [
+				{
+					id: 'kadamb',
+					name: 'Kadamb',
+					sector_id: '4',
+					subsector_id: '4.2',
+					origin_year: THIS_YEAR,
+					product: 'Assay kits.',
+					product_status: 'described',
+				},
+			],
+		});
+		// The nightly scrapers post every company again with no product fields at all.
+		await post({
+			source: 'sine-iitb',
+			companies: [{ id: 'kadamb', name: 'Kadamb', sector_id: '4', subsector_id: '4.2', origin_year: THIS_YEAR }],
+		});
+
+		const list = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?age=all&tier=all`)).json<any>();
+		expect(list.companies[0].product).toBe('Assay kits.');
+		expect(list.companies[0].product_status).toBe('described');
+	});
+
+	it('counts every way reading a website failed, and names each one', async () => {
+		await post({
+			source: 'test',
+			companies: [
+				{
+					id: 'a',
+					name: 'A',
+					website: 'https://a.invalid',
+					sector_id: '5',
+					subsector_id: '5.1',
+					product: 'Makes A.',
+					product_status: 'described',
+				},
+				{ id: 'b', name: 'B', website: 'https://b.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'unreachable' },
+				{ id: 'c', name: 'C', website: 'https://c.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'refused' },
+				{ id: 'd', name: 'D', website: 'https://d.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'thin' },
+				{ id: 'e', name: 'E', website: 'https://e.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'unclear' },
+				// Looked for, and there is none. On this list that is a point in their favour.
+				{ id: 'f', name: 'F', sector_id: '5', subsector_id: '5.1' },
+			],
+		});
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		expect(html).toMatch(/Of the 6 companies here, 5 publish a website/);
+		expect(html).toMatch(/<strong>1<\/strong> of them say plainly enough what they build/);
+		expect(html).toMatch(/<strong>1<\/strong> publish an address that no longer answers/);
+		expect(html).toMatch(/<strong>1<\/strong> refused an automated reader/);
+		expect(html).toMatch(/<strong>1<\/strong> served a page with no readable text/);
+		expect(html).toMatch(/<strong>1<\/strong> never said what they make/);
+		expect(html).toMatch(/<strong>1<\/strong> have no website at all/);
+	});
+});
+
 describe('GET /upstream (the page)', () => {
 	async function page(qs = '') {
 		const res = await SELF.fetch(`${ORIGIN}/upstream${qs}`);

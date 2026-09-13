@@ -8,7 +8,7 @@
  * renders them only for that explicit query parameter, and always behind a banner
  * saying so. Delete this file once the ingest in Part 10 is producing real rows.
  */
-import { NO_GAP_NAMED, splitGaps, type Buckets, type Company, type Gaps, type RegisterOutcomes } from './db';
+import { NO_GAP_NAMED, splitGaps, type Buckets, type Company, type Gaps, type ProductOutcomes, type RegisterOutcomes } from './db';
 import { minOriginYear } from './rank';
 
 /** Dates are written relative to render time so the "first seen N days ago" line stays sane. */
@@ -34,6 +34,8 @@ export function demoCompanies(): Company[] {
 			project_type: 'Launch vehicle and satellite subsystem development',
 			classify_note: 'Sub-orbital launch vehicles — space technologies.',
 			classify_basis: 'description',
+			product: null,
+			product_status: null,
 			first_seen: daysAgo(12),
 			first_seen_basis: 'discovered',
 			discovered: daysAgo(12),
@@ -61,6 +63,8 @@ export function demoCompanies(): Company[] {
 			project_type: 'Green hydrogen production and storage',
 			classify_note: 'Electrolyser hardware — hydrogen economy.',
 			classify_basis: 'description',
+			product: null,
+			product_status: null,
 			first_seen: daysAgo(31),
 			first_seen_basis: 'discovered',
 			discovered: daysAgo(31),
@@ -88,6 +92,8 @@ export function demoCompanies(): Company[] {
 			project_type: 'Affordable diagnostics and medical devices',
 			classify_note: 'Reagents for diagnostics — bio and health.',
 			classify_basis: 'description',
+			product: 'Benchtop assay kits that let a district hospital run antimicrobial-resistance panels without a reference lab.',
+			product_status: 'described',
 			first_seen: daysAgo(74),
 			first_seen_basis: 'discovered',
 			discovered: daysAgo(74),
@@ -116,6 +122,8 @@ export function demoCompanies(): Company[] {
 			project_type: 'Grid-scale and distributed storage systems',
 			classify_note: 'Sodium-ion storage hardware — energy storage.',
 			classify_basis: 'description',
+			product: null,
+			product_status: null,
 			first_seen: daysAgo(5),
 			first_seen_basis: 'discovered',
 			discovered: daysAgo(5),
@@ -140,6 +148,8 @@ export function demoCompanies(): Company[] {
 			project_type: 'Semiconductor design and fabrication',
 			classify_note: 'Processor IP design — semiconductors.',
 			classify_basis: 'description',
+			product: null,
+			product_status: 'unreachable',
 			first_seen: '2026-01-01',
 			first_seen_basis: 'cohort',
 			discovered: daysAgo(212),
@@ -168,6 +178,8 @@ export function demoCompanies(): Company[] {
 			project_type: 'Renewable generation and integration',
 			classify_note: 'Micro-hydro generation — renewables.',
 			classify_basis: 'description',
+			product: null,
+			product_status: 'thin',
 			first_seen: '2013-01-01',
 			first_seen_basis: 'cohort',
 			discovered: daysAgo(212),
@@ -195,6 +207,11 @@ export function demoCompanies(): Company[] {
 			project_type: 'Water treatment and reuse',
 			classify_note: 'Membrane filtration — water security.',
 			classify_basis: 'register-label',
+			// The one row that shows what this column is for: placed from a register
+			// label, so the source's own line is a dropdown choice, and the homepage
+			// is the only thing here that says what the company actually makes.
+			product: 'Ceramic membrane modules that let a small municipal utility run filtration without a chemical dosing plant.',
+			product_status: 'described',
 			first_seen: null,
 			first_seen_basis: null,
 			discovered: daysAgo(212),
@@ -235,6 +252,28 @@ export function splitDemo(companies: Company[], now: Date): { ranked: Company[];
 /** The register split, in the same proportions the real one shows. */
 export function demoRegisterOutcomes(): RegisterOutcomes {
 	return { total: 12, placed: 5, taxonomyGap: 5, undescribed: 2 };
+}
+
+/**
+ * What the seven demo companies came to when we read their websites.
+ *
+ * Counted from the rows themselves rather than typed, so the paragraph under the
+ * demo list and the demo list cannot disagree — which is the same rule the real page
+ * follows, and the one a sample is most tempting to break.
+ */
+export function demoProductOutcomes(): ProductOutcomes {
+	const companies = demoCompanies();
+	const count = (status: string) => companies.filter((c) => c.product_status === status).length;
+	return {
+		total: companies.length,
+		withSite: companies.filter((c) => Boolean(c.website)).length,
+		described: count('described'),
+		unreachable: count('unreachable'),
+		refused: count('refused'),
+		thin: count('thin'),
+		unclear: count('unclear'),
+		noSite: companies.filter((c) => !c.website && c.website_checked === 1).length,
+	};
 }
 
 export function demoGaps(): Gaps {

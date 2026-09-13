@@ -8,7 +8,7 @@
  */
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
 import { daysSince, MAX_AGE_YEARS, type Tier } from './rank';
-import type { Buckets, Company, Coverage, Gaps, RegisterOutcomes, Signal } from './db';
+import type { Buckets, Company, Coverage, Gaps, ProductOutcomes, RegisterOutcomes, Signal } from './db';
 
 /** The tier toggle has its own vocabulary: A, A+B (the default), everything. */
 export type TierChoice = 'a' | 'ab' | 'all';
@@ -33,6 +33,8 @@ export interface PageView {
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
 	register: RegisterOutcomes;
+	/** What came of reading company websites — including every way it failed. */
+	products: ProductOutcomes;
 	discoveredThisWeek: number;
 	sector: string | null;
 	subsector: string | null;
@@ -405,6 +407,18 @@ function companyRow(company: Company, now: Date): string {
 	const site = safeUrl(company.website);
 	const name = site ? `<a href="${esc(site)}" rel="noopener nofollow">${esc(company.name)}</a>` : esc(company.name);
 
+	// What the company says it builds, read off its own homepage. Attributed on every
+	// row that carries one, because this is the only line here that is not a fact
+	// somebody published about the company in a register — it is the company's own
+	// account of itself, and the difference is the whole reason the label is there.
+	const builds = company.product ? `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>` : '';
+
+	// The source's description is kept unless the homepage has already said it better.
+	// A register-label row's "description" is an industry picked from a dropdown —
+	// printing "Industry: Nanotechnology. Stage: Prototype." under a sentence about
+	// what the company actually makes adds nothing and costs the row its clarity.
+	const keepDescription = company.description && !(company.product && company.classify_basis === 'register-label');
+
 	// Anchored by slug so a single row can be linked to and argued with, rather than
 	// "it is somewhere in the list under 2.6".
 	return `
@@ -414,7 +428,8 @@ function companyRow(company: Company, now: Date): string {
       <h3>${name}</h3>
       ${company.city ? `<span class="place">${esc(company.city)}</span>` : ''}
     </div>
-    ${company.description ? `<p class="desc">${esc(company.description)}</p>` : ''}
+    ${builds}
+    ${keepDescription ? `<p class="desc">${esc(company.description)}</p>` : ''}
     ${rdi}
     ${chips(company)}
     ${dateLine(company, now) ? `<p class="seen">${dateLine(company, now)}</p>` : ''}
@@ -644,6 +659,57 @@ function registerSplit(view: PageView): string {
     ${unplaced} did not. Reported whole, that second number says two different things at once, so it is split here.</p>${taxonomy}${undescribed}`;
 }
 
+/**
+ * What came of reading company websites, including every way it did not work.
+ *
+ * The reason this is a paragraph and not a marker on every row: seventy rows each
+ * saying "we could not read this one" is noise, and one sentence saying how many
+ * publish an address that no longer answers is a finding. It is the same decision
+ * the off-map companies got — group the absence, count it, name it.
+ *
+ * Every number is counted from the same database the rows come from. The temptation
+ * here is to print only the successes; a column that appears on a fifth of the rows
+ * and says nothing about the other four fifths is exactly the kind of quiet gap this
+ * page exists to refuse.
+ */
+function productNote(view: PageView): string {
+	const p = view.products;
+	if (p.total === 0) return '';
+
+	const failures: string[] = [];
+	if (p.unreachable > 0) failures.push(`<strong>${p.unreachable}</strong> publish an address that no longer answers`);
+	if (p.refused > 0) failures.push(`<strong>${p.refused}</strong> refused an automated reader`);
+	if (p.thin > 0) failures.push(`<strong>${p.thin}</strong> served a page with no readable text on it`);
+	if (p.unclear > 0) failures.push(`<strong>${p.unclear}</strong> never said what they make`);
+
+	const read = `Of the ${p.total} companies here, ${p.withSite} publish a website. We fetched each one and read the front
+    page: <strong>${p.described}</strong> of them say plainly enough what they build for it to be worth quoting, and
+    that sentence sits on the row, attributed, in their words and not ours. It is what a company claims about itself,
+    which is not the same thing as a fact, and the link is there so you can disagree with it.`;
+
+	const rest = failures.length
+		? ` The rest did not work, and how they did not work is worth saying: ${failures.join(', ')}.
+    A DPIIT-recognised startup whose domain has stopped resolving is a finding, not a missing cell.`
+		: '';
+
+	const none =
+		p.noSite > 0
+			? ` A further <strong>${p.noSite}</strong> have no website at all, where a source that publishes websites went
+    looking and came back with nothing. On this list that counts in their favour.`
+			: '';
+
+	const never = p.total - p.withSite - p.noSite;
+	const unlooked =
+		never > 0
+			? ` For the remaining ${never} no source has ever published a website field, so we do not know whether one
+    exists and the page does not guess.`
+			: '';
+
+	return `
+  <h3>What they build</h3>
+  <p>${read}${rest}${none}${unlooked}</p>`;
+}
+
 function methodology(view: PageView): string {
 	return `
 <section class="method" aria-labelledby="method-h">
@@ -658,6 +724,8 @@ function methodology(view: PageView): string {
     new incorporations filed with the <a href="https://www.mca.gov.in/" rel="noopener">MCA</a>,
     filings at the <a href="https://ipindia.gov.in/" rel="noopener">Indian Patent Office</a>,
     and whether a company has a working website at all. Every row carries the evidence that put it there.</p>
+
+  ${productNote(view)}
 
   <h3>How the tiers are decided</h3>
   <p>There is no score. A number between 0 and 100 would pretend to a precision we do not have. Two facts decide the tier:
@@ -1054,7 +1122,21 @@ select:hover, .apply:hover { border-color: var(--rule-strong); }
     color: var(--ink);
   }
 }
-.desc { margin: 0 0 var(--s0h); max-width: 46rem; }
+/* What the company says it builds. One rung up from the source's description
+   because on most rows it is the only concrete sentence there — and set in ink
+   rather than muted, so a row that has one reads differently at a glance from a
+   row that does not. */
+.builds { margin: 0 0 var(--s0h); max-width: 56ch; color: var(--ink); }
+/* The attribution is not decoration. This line is the company's own account of
+   itself and the row must never let it read as something we checked. */
+.says {
+  font-size: var(--t-micro);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+.desc { margin: 0 0 var(--s0h); max-width: 56ch; color: var(--muted); font-size: var(--t-sm); }
 .rdi { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s2); font-family: var(--mono); }
 .rdi.unclassified { font-style: italic; }
 .from-label {

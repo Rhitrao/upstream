@@ -30,6 +30,15 @@ export interface Company {
 	classify_note: string | null;
 	/** 'description', or 'register-label' where only an industry label was available. */
 	classify_basis: string;
+	/** One sentence from the company's own homepage. Never a verified fact — see below. */
+	product: string | null;
+	/**
+	 * Why there is or is not a product line. NULL means nobody has looked yet;
+	 * 'described' is the only value that comes with a sentence. The others —
+	 * 'unreachable', 'refused', 'thin', 'unclear' — are the page's material for
+	 * saying what it cannot see instead of leaving a cell blank.
+	 */
+	product_status: string | null;
 	first_seen: string | null;
 	first_seen_basis: Basis | null;
 	discovered: string;
@@ -359,6 +368,60 @@ export function splitGaps(groups: GapGroup[]): Gaps {
 		groups,
 		taxonomy: { total: sum(taxonomy), groups: taxonomy },
 		undescribed: { total: sum(undescribed), groups: undescribed },
+	};
+}
+
+/**
+ * What came of looking at company websites, counted.
+ *
+ * The page states these as a paragraph rather than marking up every row that has no
+ * product line, for the same reason the off-map companies are grouped: seventy rows
+ * each apologising for themselves is noise, and one sentence saying "forty-one
+ * companies publish an address that no longer answers" is a finding.
+ */
+export interface ProductOutcomes {
+	/** Companies with a website we have not yet read, or never will. */
+	total: number;
+	/** Has a website at all. */
+	withSite: number;
+	/** We read it and it said. */
+	described: number;
+	/** The domain did not answer. */
+	unreachable: number;
+	/** The site refused an automated reader. */
+	refused: number;
+	/** It loaded and carried no readable text. */
+	thin: number;
+	/** There was text and it never said what they build. */
+	unclear: number;
+	/** A source that publishes websites looked, and this company has none. */
+	noSite: number;
+}
+
+export async function queryProductOutcomes(env: Env): Promise<ProductOutcomes> {
+	const row = await env.DB.prepare(
+		`SELECT
+		   COUNT(*)                                                                  AS total,
+		   SUM(website IS NOT NULL AND website <> '')                                AS with_site,
+		   SUM(product_status = 'described')                                         AS described,
+		   SUM(product_status = 'unreachable')                                       AS unreachable,
+		   SUM(product_status = 'refused')                                           AS refused,
+		   SUM(product_status = 'thin')                                              AS thin,
+		   SUM(product_status = 'unclear')                                           AS unclear,
+		   SUM(website_checked = 1 AND (website IS NULL OR website = ''))            AS no_site
+		 FROM companies`,
+	).first<Record<string, number | null>>();
+
+	const n = (key: string) => Number(row?.[key] ?? 0);
+	return {
+		total: n('total'),
+		withSite: n('with_site'),
+		described: n('described'),
+		unreachable: n('unreachable'),
+		refused: n('refused'),
+		thin: n('thin'),
+		unclear: n('unclear'),
+		noSite: n('no_site'),
 	};
 }
 

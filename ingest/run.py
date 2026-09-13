@@ -15,6 +15,7 @@ import argparse
 import traceback
 
 from ingest import classify as classifier
+from ingest import enrich as enricher
 from ingest import gaps as gap_labels
 from ingest.sources import dpiit, grants_csv, rtbi, sine
 from ingest.sources.base import Company, Signal
@@ -138,6 +139,32 @@ def main() -> int:
     dropped = len(unique) - len(placed)
     print(f"  {len(placed)} placed on the map, {dropped} unplaced")
 
+    # Reading homepages comes after placement, and only for the companies placement
+    # kept. An unplaced company is not a row — it is a line in the off-map section
+    # under the name of the hole it fell through — so it has nowhere to put a product
+    # sentence, and paying to read its website buys a string with no cell to live in.
+    # That is a third of the websites in the scrape.
+    #
+    # Whatever the night's ceiling did not spend on classification is what is left to
+    # spend here, in that order: a company that cannot be placed never reaches the
+    # page at all, so placing them matters more than describing them. On a normal
+    # night classification is entirely cached, costs nothing, and all of it arrives.
+    on_map = [company for company in unique if company.id in placed]
+    remaining = classifier.max_cost(args.max_cost) - usage.cost
+    try:
+        products, product_usage = enricher.enrich(on_map, max_cost=max(remaining, 0.0))
+    except classifier.ConfigurationError as error:
+        # Not fatal to the run. Classification already succeeded, which means there
+        # are placements worth publishing; losing the product lines costs this run a
+        # column, not its output, and the cache keeps whatever was already bought.
+        products, product_usage = {}, classifier.Usage()
+        print(f"  reading homepages stopped: {error}")
+    described = sum(1 for product in products.values() if product.described)
+    print(f"  {described} of {len(products)} homepages said what the company builds. {product_usage}")
+    enricher.apply(on_map, products)
+
+    enriched = {company.id: company for company in unique}
+
     print("\nUploading" if not args.dry_run else "\nDry run: nothing uploaded")
     uploaded = 0
     recorded = 0
@@ -167,6 +194,11 @@ def main() -> int:
                         # chosen from a register's industry label is a different
                         # kind of claim from one chosen from a description.
                         "classify_basis": "register-label" if company.description_is_label else "description",
+                        # enrich.apply wrote these onto the deduplicated company, which
+                        # is a different object from this one when two sources both
+                        # published the same firm.
+                        "product": enriched.get(company.id, company).product,
+                        "product_status": enriched.get(company.id, company).product_status,
                     }
                 )
             )

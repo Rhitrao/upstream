@@ -77,6 +77,11 @@ class Company:
     # then a fact about the source, not about the company, and the page must not
     # mark it as one.
     website_checked: bool = True
+    # What the company says it builds, read off its own homepage, and the outcome of
+    # having looked. Both stay None in a scraper — filling them is enrich.py's job,
+    # for the same reason the classification fields are classify.py's.
+    product: str | None = None
+    product_status: str | None = None
     city: str | None = None
     state: str | None = None
     cin: str | None = None
@@ -182,6 +187,42 @@ def fetch(url: str, *, force: bool = False) -> str:
     return _cached(url, None, force=force)
 
 
+def fetch_optional(url: str, *, force: bool = False, patience: bool = False) -> tuple[str | None, str]:
+    """The page body and why, for a fetch that is allowed to fail.
+
+    `fetch` raises, which is right for a source: a portfolio that stops answering is
+    a broken scraper and the run should say so. A company's own homepage is the
+    opposite case — a dead domain is not a fault in this pipeline, it is a fact about
+    the company, and it is one of the more interesting ones a DPIIT-recognised
+    startup can present. So the failure comes back as a value to be recorded rather
+    than an exception to be handled.
+
+    The three outcomes are kept apart because they mean different things to a reader:
+    nothing answered at that address, something answered and refused us, or it
+    answered and there was nothing there.
+
+    `patience` is off by default, and that is the other difference from `fetch`. A
+    source gets three tries over ninety seconds because a flaky portfolio is this
+    pipeline's problem to absorb and there are four of them. A company's own homepage
+    gets one try and ten seconds, because there are two hundred of them and a front
+    page that cannot answer inside ten seconds has, for every purpose this page has,
+    not answered. Waiting ninety seconds to write down "unreachable" reaches the same
+    conclusion an hour later.
+    """
+    retries, timeout = (RETRIES, TIMEOUT_SECONDS) if patience else (1, 10)
+    try:
+        return _cached(url, None, force=force, retries=retries, timeout=timeout), "ok"
+    except requests.HTTPError as error:
+        status = getattr(error.response, "status_code", None)
+        # 401/403/405/406/429 are a site declining an automated reader, which is its
+        # right and not a malfunction. Anything else that got a real HTTP response is
+        # a server that is broken rather than defended.
+        return None, "refused" if status in {401, 403, 405, 406, 429} else "unreachable"
+    except requests.RequestException:
+        # DNS, TLS, connection refused, timeout: nothing is listening.
+        return None, "unreachable"
+
+
 def fetch_json(url: str, body: dict, *, force: bool = False) -> dict:
     """The same, for a search API that wants a POST.
 
@@ -191,14 +232,14 @@ def fetch_json(url: str, body: dict, *, force: bool = False) -> dict:
     return json.loads(_cached(url, body, force=force))
 
 
-def _cached(url: str, body: dict | None, *, force: bool) -> str:
+def _cached(url: str, body: dict | None, *, force: bool, retries: int = RETRIES, timeout: int = TIMEOUT_SECONDS) -> str:
     path = _cache_path(url, body)
     if not force:
         cached = _read_cache(path)
         if cached is not None:
             return cached
 
-    text = _request(url, body)
+    text = _request(url, body, retries=retries, timeout=timeout)
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     entry = {"url": url, "body": body, "fetched_at": _now().isoformat(), "response": text}
     path.write_text(json.dumps(entry), encoding="utf-8")
@@ -237,23 +278,29 @@ def _now() -> datetime.datetime:
 _last_call = 0.0
 
 
-def _request(url: str, body: dict | None = None) -> str:
-    """One polite call: wait our turn, try three times, back off between."""
+def _request(url: str, body: dict | None = None, *, retries: int = RETRIES, timeout: int = TIMEOUT_SECONDS) -> str:
+    """One polite call: wait our turn, try again, back off between.
+
+    The pacing is global rather than per-host, which is the right conservatism when
+    four scrapers are walking four sites. Reading two hundred company homepages is
+    the opposite shape — each host is visited exactly once in the whole run — so
+    enrich.py fetches those concurrently and this queue is not what holds it back.
+    """
     global _last_call
 
     headers = {"User-Agent": USER_AGENT}
     if body is not None:
         headers["content-type"] = "application/json"
 
-    for attempt in range(1, RETRIES + 1):
+    for attempt in range(1, retries + 1):
         pause = DELAY_SECONDS - (time.monotonic() - _last_call)
         if pause > 0:
             time.sleep(pause)
         try:
             if body is None:
-                response = requests.get(url, headers=headers, timeout=TIMEOUT_SECONDS)
+                response = requests.get(url, headers=headers, timeout=timeout)
             else:
-                response = requests.post(url, headers=headers, data=json.dumps(body), timeout=TIMEOUT_SECONDS)
+                response = requests.post(url, headers=headers, data=json.dumps(body), timeout=timeout)
             _last_call = time.monotonic()
             if response.status_code in RETRY_STATUSES:
                 raise requests.HTTPError(f"{response.status_code} from {url}", response=response)
@@ -265,7 +312,7 @@ def _request(url: str, body: dict | None = None) -> str:
             return response.text
         except requests.RequestException:
             _last_call = time.monotonic()
-            if attempt == RETRIES:
+            if attempt == retries:
                 raise
             time.sleep(DELAY_SECONDS * 2 ** (attempt - 1))
 
