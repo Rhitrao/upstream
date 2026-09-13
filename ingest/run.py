@@ -111,12 +111,12 @@ def main() -> int:
     # One company can appear in two portfolios. The first source to mention it
     # owns the row; the other's signals still attach, because a signal is keyed
     # by company id and both sources genuinely saw it.
-    seen: set[str] = set()
+    owner: dict[str, str] = {}
     unique: list[Company] = []
     for source in by_source:
         for company in by_source[source]:
-            if company.id not in seen:
-                seen.add(company.id)
+            if company.id not in owner:
+                owner[company.id] = source
                 unique.append(company)
 
     print(f"\nClassifying {len(unique)} companies")
@@ -162,6 +162,14 @@ def main() -> int:
     described = sum(1 for product in products.values() if product.described)
     print(f"  {described} of {len(products)} homepages said what the company builds. {product_usage}")
     enricher.apply(on_map, products)
+
+    # A homepage that answered is a trace (Part 9's "live website"), and until now
+    # nothing collected it. It rides in the batch of the source that owns the row, so
+    # the company it attaches to is always in the same request.
+    websites = enricher.website_traces(on_map, products)
+    for trace in websites:
+        signals_by_source[owner[trace.company_id]].append(trace)
+    print(f"  {len(websites)} homepages answered and count as a trace")
 
     enriched = {company.id: company for company in unique}
 

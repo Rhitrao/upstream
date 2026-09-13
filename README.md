@@ -114,9 +114,9 @@ A fair amount. These are measured against the live database, not guessed.
   over-represented, and quieter regional ones hardly show up at all.
 - **No LinkedIn, and no stealth companies.** Proxycurl shut down in 2025 and scraping LinkedIn breaks
   its terms, so that gap is accepted. If a company hasn't appeared anywhere public, this can't see it.
-- **Trace counts run low.** Only incubator listings, grant awards and DPIIT recognitions are counted.
-  A working website and a press mention should count too, and nothing collects either yet. 126 of the
-  602 companies shown as having one trace also publish a website.
+- **Trace counts run low.** Incubator listings, grant awards, DPIIT recognitions and websites that
+  answer a fetch are counted. A dead domain is not, and loses its trace when it stops answering. A
+  press mention should count too, and nothing collects it yet.
 - **No founding dates, no funding.** `cin` and `founded_year` are empty on every row. Without a CIN
   there is no join to MCA filings, so funding and financials are out of reach, and the grant lists
   don't publish award amounts. DPIIT rows are dated by when they were recognised, which is not when

@@ -891,8 +891,9 @@ function methodology(view: PageView): string {
   <h3>How the tiers are decided</h3>
   <p>There is no score. A number between 0 and 100 would pretend to a precision we do not have. Two facts decide the tier:
     how recently we first saw the company, and how many public traces it already has &mdash; today that means an
-    incubator listing, a grant award and a DPIIT recognition. A working website and a press mention ought to count as
-    well; nothing collects either yet, so for now they do not, and the trace counts on this page are lower than they
+    incubator listing, a grant award, a DPIIT recognition and a website that answered when we fetched it. A domain that
+    no longer resolves is not a trace, and stops being one the night it stops answering. A press mention ought to count
+    as well; nothing collects it yet, so for now it does not, and the trace counts on this page are lower than they
     would be.</p>
   <ul class="rules">
     <li><span class="tier ta">Tier A</span> Found by us under 90 days ago, at most 2 traces. New and quiet. Read these first.</li>

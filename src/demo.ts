@@ -153,13 +153,13 @@ export function demoCompanies(): Company[] {
 			first_seen: '2026-01-01',
 			first_seen_basis: 'cohort',
 			discovered: daysAgo(212),
-			trace_count: 6,
+			trace_count: 5,
 			tier: 'C',
 			updated_at: daysAgo(0),
+			// No website trace: the domain is unreachable, and a dead domain is not one.
 			signals: [
 				{ type: 'incubator', label: 'IISc incubation', url: 'https://iisc.ac.in/', date: daysAgo(212) },
 				{ type: 'press', label: 'covered in a trade weekly', url: 'https://example.invalid/press', date: daysAgo(120) },
-				{ type: 'website', label: 'website live', url: 'https://example.invalid/anvaya', date: daysAgo(190) },
 			],
 		},
 		{

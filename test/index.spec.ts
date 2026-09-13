@@ -317,6 +317,32 @@ describe('POST /upstream/api/ingest', () => {
 		expect(row).toMatchObject({ trace_count: 1, tier: 'A' });
 	});
 
+	it('withdraws a website trace once the homepage stops answering', async () => {
+		const company = { id: 'lapsed', name: 'Lapsed Co', website: 'https://lapsed.example' };
+		await post({
+			source: 'sine-iitb',
+			mode: 'live',
+			companies: [{ ...company, product_status: 'thin' }],
+			signals: [
+				{ company_id: 'lapsed', type: 'incubator', label: 'SINE IIT Bombay' },
+				{ company_id: 'lapsed', type: 'website', label: 'website live', url: company.website },
+			],
+		});
+		const trace = 'SELECT trace_count FROM companies WHERE id = ?';
+		expect(await env.DB.prepare(trace).bind('lapsed').first<any>()).toMatchObject({ trace_count: 2 });
+
+		// The next night the domain is dead. The pipeline sends no website trace, and
+		// INSERT OR IGNORE alone would leave last night's counting as live.
+		await post({
+			source: 'sine-iitb',
+			companies: [{ ...company, product_status: 'unreachable' }],
+			signals: [{ company_id: 'lapsed', type: 'incubator', label: 'SINE IIT Bombay' }],
+		});
+		expect(await env.DB.prepare(trace).bind('lapsed').first<any>()).toMatchObject({ trace_count: 1 });
+		const left = await env.DB.prepare("SELECT COUNT(*) AS n FROM signals WHERE company_id = ? AND type = 'website'").bind('lapsed').first<any>();
+		expect(left.n).toBe(0);
+	});
+
 	it('rejects a nonsense mode or year', async () => {
 		expect((await post({ source: 'test', mode: 'sideways', companies: [] })).status).toBe(400);
 		expect((await post({ source: 'test', companies: [{ id: 'a', name: 'A', origin_year: 12 }] })).status).toBe(400);

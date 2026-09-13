@@ -43,7 +43,7 @@ import anthropic
 from bs4 import BeautifulSoup
 
 from ingest import classify
-from ingest.sources.base import Company, clean, fetch_optional
+from ingest.sources.base import Company, Signal, clean, fetch_optional
 
 MODEL = "claude-haiku-4-5"
 
@@ -399,6 +399,44 @@ def enrich(
         )
 
     return results, usage
+
+
+# Every outcome where something answered at the address. A page that refused us, drew
+# itself in JavaScript or said nothing useful is still a website a person can visit,
+# which is all Part 9 asks of "a live website". Only a dead domain is not.
+ANSWERED = frozenset({DESCRIBED, REFUSED, THIN, UNCLEAR})
+
+# Part of the signal's UNIQUE key, so it must never be reworded casually: a new label
+# is a second trace for every company that already has the first.
+WEBSITE_LABEL = "website live"
+
+
+def website_traces(companies: list[Company], products: dict[str, Product]) -> list[Signal]:
+    """A trace for every company whose homepage answered when we fetched it.
+
+    Free: this is the fetch enrich() already made, read for a second fact. A company
+    missing from `products` gets nothing rather than a guess. That is one whose page
+    was readable but the night's ceiling stopped before the read, and it picks up its
+    trace on the next run, from cache.
+
+    The other direction is the Worker's job. A signal is INSERT OR IGNORE and nothing
+    here can withdraw one, so a company that arrives 'unreachable' has its website
+    trace removed server-side; otherwise a domain that lapsed would keep counting as
+    live forever.
+    """
+    traces = []
+    for company in companies:
+        product = products.get(company.id)
+        if company.website and product is not None and product.status in ANSWERED:
+            traces.append(
+                Signal(
+                    company_id=company.id,
+                    type="website",
+                    label=WEBSITE_LABEL,
+                    url=company.website,
+                )
+            )
+    return traces
 
 
 def apply(companies: list[Company], products: dict[str, Product]) -> None:

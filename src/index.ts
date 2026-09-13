@@ -338,6 +338,15 @@ const DELETE_GAP_SQL = 'DELETE FROM gaps WHERE company_id = ?1';
 const DELETE_COMPANY_SIGNALS_SQL = 'DELETE FROM signals WHERE company_id = ?1';
 const DELETE_COMPANY_SQL = 'DELETE FROM companies WHERE id = ?1';
 
+/**
+ * A website trace says something answered at the address. Signals are INSERT OR
+ * IGNORE, so nothing the pipeline sends can take one back: a company whose homepage
+ * has since stopped resolving arrives with product_status 'unreachable', and this is
+ * where its trace goes. Without it a lapsed domain counts as live for ever, which is
+ * exactly the claim the trace exists to make honestly.
+ */
+const DELETE_WEBSITE_TRACE_SQL = "DELETE FROM signals WHERE company_id = ?1 AND type = 'website'";
+
 const INSERT_RUN_SQL = `
 INSERT INTO runs (started_at, source, status, records_found, error)
 VALUES (?1, ?2, ?3, ?4, ?5)`;
@@ -643,6 +652,9 @@ async function applyIngest(
 	}
 
 	for (const id of payloadIds) gapWrites.push(env.DB.prepare(DELETE_GAP_SQL).bind(id));
+	for (const c of companies) {
+		if (str(c.product_status) === 'unreachable') gapWrites.push(env.DB.prepare(DELETE_WEBSITE_TRACE_SQL).bind(c.id));
+	}
 	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
 
 	// A row that has just been deleted has no ranking to recompute.
