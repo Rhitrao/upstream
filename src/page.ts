@@ -48,6 +48,8 @@ export interface PageView {
 	found: number;
 	/** The ones that reached a cell on the coverage map. */
 	tracked: number;
+	/** Of `tracked`, the records nothing on record shows to be a company. */
+	notCompanies: number;
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -200,8 +202,11 @@ function ageKnown(company: Company): boolean {
  * Every count is interpolated for the same reason every other number on this page is:
  * a hand-typed 684 is true until tomorrow morning's run.
  */
-function proposition(tracked: number): string {
-	return `${tracked} Indian deep-tech companies, sorted by obscurity.`;
+function proposition(tracked: number, notCompanies = 0): string {
+	// Aishwarya Dasare is a researcher with a funded project, not a company, and the
+	// headline counted her as one. The ones that are not companies are named as such.
+	if (notCompanies === 0) return `${tracked} Indian deep-tech companies, sorted by obscurity.`;
+	return `${tracked - notCompanies} Indian deep-tech companies and ${notCompanies} research projects, sorted by obscurity.`;
 }
 
 /**
@@ -330,10 +335,11 @@ function header(view: PageView): string {
 	return `
 <header class="masthead">
   <p class="eyebrow">Upstream</p>
-  <h1>${esc(proposition(tracked))}</h1>
+  <h1>${esc(proposition(tracked, view.notCompanies))}</h1>
   <p class="hook">${hook(tracked, oneTrace)}</p>
   <dl class="stats">
-    <div><dt>Companies</dt><dd>${tracked}</dd></div>
+    <div><dt>Companies</dt><dd>${tracked - view.notCompanies}</dd></div>
+    ${view.notCompanies > 0 ? `<div><dt>Projects, not companies</dt><dd>${view.notCompanies}</dd></div>` : ''}
     <div><dt>One public trace at most</dt><dd>${oneTrace}</dd></div>
     <div><dt>Sub-sectors still empty</dt><dd>${empty}<span class="of">/${coverage.subsector_count}</span></dd></div>
   </dl>
@@ -576,6 +582,18 @@ function traceLine(company: Company): string {
 	return `<span class="traces${n <= 1 ? ' quiet' : ''}">${said}</span>`;
 }
 
+/** Said beside the name of anything that is not, on the record, a company. */
+const ENTITY_LABELS: Record<string, string> = {
+	'researcher-project': 'a researcher&rsquo;s project, not a company',
+	lab: 'a lab, not a company',
+	unverified: 'no company on record',
+};
+
+function entityTag(company: Company): string {
+	const label = company.entity_type ? ENTITY_LABELS[company.entity_type] : undefined;
+	return label ? ` <span class="entity-tag">${label}</span>` : '';
+}
+
 /** What a sub-sector placement rests on, in three words, for beside the placement. */
 function basisTag(company: Company): string {
 	return company.classify_basis === 'register-label'
@@ -602,7 +620,7 @@ function companyRow(company: Company, now: Date): string {
 	// The name goes to the detail view, not to the company. Everything we hold is on
 	// that page, including the link out — and a row whose only link leaves the site is
 	// a row that cannot be looked into.
-	const name = `<a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>`;
+	const name = `<a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>${entityTag(company)}`;
 
 	// What the company says it builds, read off its own homepage. Attributed on every
 	// row that carries one, because this is the only line here that is not a fact
@@ -1200,6 +1218,11 @@ export function renderCompanyPage(view: CompanyView): string {
 
   <header class="masthead">
     <h1>${esc(company.name)}</h1>
+    ${
+			company.entity_type && company.entity_type !== 'company'
+				? `<p class="provenance entity">${ENTITY_LABELS[company.entity_type] ?? ''}: ${esc(company.entity_note ?? '')}.</p>`
+				: ''
+		}
     <p class="facts">
       ${traceLine(company)}
       ${site ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : ''}
@@ -1236,7 +1259,11 @@ export function renderCompanyPage(view: CompanyView): string {
 				// platforms") is not a second source agreeing with the first.
 				company.classify_note
 					? `<details class="reasoning"><summary>How the classifier decided &mdash; its reasoning, not evidence</summary>
-        <blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote></details>`
+        <blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote>${
+							company.entity_type && company.entity_type !== 'company' && /\bcompany\b/i.test(company.classify_note)
+								? '<p class="provenance">It says &ldquo;company&rdquo;. Nothing on record shows one exists.</p>'
+								: ''
+						}</details>`
 					: ''
 			}`
 				: '<p class="provenance">Not placed in any sub-sector.</p>'
@@ -1715,6 +1742,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site:hover { text-decoration-color: currentColor; }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
 .result-summary { color: var(--muted); }
+.entity-tag { color: var(--muted); font-size: 0.8em; font-weight: normal; white-space: nowrap; }
 .result-summary strong { color: var(--ink); }
 .basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
 .basis-tag.weak { color: var(--ink); background: linear-gradient(to top, var(--mark) 0%, var(--mark) 45%, transparent 45%); }

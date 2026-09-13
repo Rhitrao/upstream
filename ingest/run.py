@@ -17,7 +17,7 @@ import traceback
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import identity
+from ingest import entity, identity
 from ingest.sources import dpiit, grants_csv, rtbi, sine
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, upload
@@ -115,8 +115,10 @@ def main() -> int:
     owner: dict[str, str] = {}
     unique: list[Company] = []
     first: dict[str, Company] = {}
+    listed_by: dict[str, set[str]] = {}
     for source in by_source:
         for company in by_source[source]:
+            listed_by.setdefault(company.id, set()).add(source)
             if company.id not in owner:
                 owner[company.id] = source
                 unique.append(company)
@@ -127,6 +129,11 @@ def main() -> int:
                 # one to check, and checking it once means one answer for both copies.
                 first[company.id].website = company.website
                 first[company.id].website_checked = True
+
+    # Before classification, because the classifier is told when a record is a
+    # person's project: otherwise it writes "the company" about Aishwarya Dasare.
+    for company in unique:
+        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id])
 
     print(f"\nClassifying {len(unique)} companies")
     try:
@@ -230,6 +237,8 @@ def main() -> int:
                         "website_checked": enriched.get(company.id, company).website_checked,
                         "website_identity": enriched.get(company.id, company).website_identity,
                         "website_identity_note": enriched.get(company.id, company).website_identity_note,
+                        "entity_type": enriched.get(company.id, company).entity_type,
+                        "entity_note": enriched.get(company.id, company).entity_note,
                     }
                 )
             )

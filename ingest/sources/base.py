@@ -81,6 +81,10 @@ class Company:
     # verified, and why. None until enrichment has looked; a scraper never sets them.
     website_identity: str | None = None
     website_identity_note: str | None = None
+    # company, researcher-project, lab or unverified — ingest/entity.py. Set by the
+    # pipeline across every source that listed the record, never by one scraper.
+    entity_type: str | None = None
+    entity_note: str | None = None
     # What the company says it builds, read off its own homepage, and the outcome of
     # having looked. Both stay None in a scraper — filling them is enrich.py's job,
     # for the same reason the classification fields are classify.py's.

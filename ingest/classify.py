@@ -34,6 +34,7 @@ import os
 
 import anthropic
 
+from ingest import entity
 from ingest.sources.base import Company, clean
 from ingest.taxonomy import SUBSECTORS, TAXONOMY
 
@@ -227,7 +228,15 @@ class Usage:
 
 def _company_text(company: Company) -> str:
     description = clean(company.description) or "(no description published)"
-    return f"Company: {company.name}\nWhat they do: {description}"
+    if company.entity_type in (None, entity.COMPANY):
+        return f"Company: {company.name}\nWhat they do: {description}"
+    # Said in the input, not the shared system prompt: changing that would re-key and
+    # re-buy every company. Only these records' questions change, so only they re-run.
+    kind = "a person's funded project" if company.entity_type == entity.RESEARCHER_PROJECT else "a project or brand"
+    return (
+        f"Record: {company.name} — {kind}. No incorporated company is on record, so in your reason "
+        f"call it \"the project\", never \"the company\".\nWhat it does: {description}"
+    )
 
 
 SECTOR_SYSTEM = """You place Indian deep-tech companies into one sector of the government's \
@@ -376,7 +385,10 @@ def _fingerprint(company: Company) -> str:
     it already had, so scoping the key cost nothing and invalidated nothing.
     """
     material = json.dumps(
-        [company.name, clean(company.description), MODEL, prompt_version(company.source)],
+        [company.name, clean(company.description), MODEL, prompt_version(company.source)]
+        # Appended only for records that are not companies, so every company's key is
+        # exactly what it was and nothing already bought is bought again.
+        + ([company.entity_type] if company.entity_type not in (None, entity.COMPANY) else []),
         sort_keys=True,
     )
     return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]

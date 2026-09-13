@@ -50,6 +50,9 @@ export interface Company {
 	 */
 	website_identity: string | null;
 	website_identity_note: string | null;
+	/** company, researcher-project, lab or unverified; NULL is read as company. */
+	entity_type: string | null;
+	entity_note: string | null;
 	first_seen: string | null;
 	first_seen_basis: Basis | null;
 	discovered: string;
@@ -662,6 +665,18 @@ export async function queryHasRanked(env: Env): Promise<boolean> {
  * Counted here rather than typed into the template, like every other number on this
  * page: a hand-written figure is true until the next run.
  */
+/**
+ * Records that are not, as far as anything on record shows, companies — a person's
+ * funded project, a lab, a project name with no entity behind it. The headline counts
+ * them apart instead of calling them companies.
+ */
+export async function queryNotCompanies(env: Env): Promise<number> {
+	const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM companies WHERE entity_type IS NOT NULL AND entity_type <> 'company'").first<{
+		n: number;
+	}>();
+	return row?.n ?? 0;
+}
+
 export async function queryOneTraceCount(env: Env): Promise<number> {
 	const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM companies WHERE trace_count <= 1').first<{ n: number }>();
 	return row?.n ?? 0;

@@ -1376,6 +1376,42 @@ describe('searching and one company at a time', () => {
 	});
 });
 
+describe('people and projects are not companies', () => {
+	it('counts them apart, tags the row, and says so on their page', async () => {
+		await post({
+			source: 'sine-iitb',
+			mode: 'live',
+			companies: [
+				{
+					id: 'aishwarya-dasare',
+					name: 'Aishwarya Dasare',
+					description: 'Development of plant-based protein source from waste oil cake residues',
+					sector_id: '4',
+					subsector_id: '4.2',
+					classify_note: 'The company extracts plant-based protein from oil cake residues.',
+					entity_type: 'researcher-project',
+					entity_note: "listed under a person's name for a funded project; no company is on record",
+				},
+				{ id: 'planys', name: 'Planys Technologies Private Limited', sector_id: '2', subsector_id: '2.3', entity_type: 'company' },
+			],
+		});
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all`)).text();
+		expect(html).toContain('1 Indian deep-tech companies and 1 research projects, sorted by obscurity.');
+		expect(html).toContain('<div><dt>Companies</dt><dd>1</dd></div>');
+		expect(html).toContain('<div><dt>Projects, not companies</dt><dd>1</dd></div>');
+		const start = html.indexOf('id="c-aishwarya-dasare"');
+		expect(html.slice(start, html.indexOf('</li>', start))).toContain('a researcher&rsquo;s project, not a company');
+
+		const detail = await (await SELF.fetch(`${ORIGIN}/upstream/c/aishwarya-dasare`)).text();
+		expect(detail).toContain('no company is on record');
+		expect(detail).toContain('Nothing on record shows one exists.');
+
+		const bad = await post({ source: 'sine-iitb', companies: [{ id: 'x', name: 'X', entity_type: 'person' }] });
+		expect(bad.status).toBe(400);
+	});
+});
+
 describe('counts that reconcile', () => {
 	// Energy Storage, as the reviewer found it: the cell said 14, the list under it
 	// was empty, four undated rows sat below, and the other ten were not accounted

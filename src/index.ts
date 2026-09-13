@@ -30,6 +30,7 @@ import {
 	type SortChoice,
 	queryGaps,
 	queryHasRanked,
+	queryNotCompanies,
 	queryRegisterOutcomes,
 	type Filters,
 } from './db';
@@ -226,6 +227,9 @@ interface CompanyInput {
 	/** How far the website got through the identity check: see WEBSITE_IDENTITIES. */
 	website_identity?: string | null;
 	website_identity_note?: string | null;
+	/** company, researcher-project, lab or unverified — see ENTITY_TYPES. */
+	entity_type?: string | null;
+	entity_note?: string | null;
 }
 
 /**
@@ -242,6 +246,9 @@ const PRODUCT_STATUSES = new Set(['described', 'unreachable', 'refused', 'thin',
  * A reachable address is not proof of whose it is: Grinntech was given HyperVerge's.
  */
 const WEBSITE_IDENTITIES = new Set(['discovered', 'associated', 'verified']);
+
+/** What a record is. Only 'company' is counted as one — migration 0012. */
+const ENTITY_TYPES = new Set(['company', 'researcher-project', 'lab', 'unverified']);
 
 /**
  * A company the classifier placed in a sector but in none of its sub-sectors.
@@ -280,9 +287,9 @@ const UPSERT_COMPANY_SQL = `
 INSERT INTO companies (
   id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
-  website_identity, website_identity_note,
+  website_identity, website_identity_note, entity_type, entity_note,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
@@ -291,6 +298,8 @@ ON CONFLICT(id) DO UPDATE SET
   -- sending it. An unchecked one (a scraper posting on its own) fills gaps only.
   website       = CASE WHEN excluded.website_identity IS NOT NULL THEN excluded.website
                        ELSE COALESCE(excluded.website, companies.website) END,
+  entity_type   = COALESCE(excluded.entity_type,   companies.entity_type),
+  entity_note   = COALESCE(excluded.entity_note,   companies.entity_note),
   website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
   website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
   -- One source that publishes websites is enough to have looked.
@@ -451,6 +460,10 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const productStatus = str(c.product_status);
 		if (productStatus !== null && !PRODUCT_STATUSES.has(productStatus)) {
 			return json({ error: `companies[${i}].product_status must be one of ${[...PRODUCT_STATUSES].join(', ')}` }, 400);
+		}
+		const entityType = str(c.entity_type);
+		if (entityType !== null && !ENTITY_TYPES.has(entityType)) {
+			return json({ error: `companies[${i}].entity_type must be one of ${[...ENTITY_TYPES].join(', ')}` }, 400);
 		}
 		const identity = str(c.website_identity);
 		if (identity !== null && !WEBSITE_IDENTITIES.has(identity)) {
@@ -641,6 +654,8 @@ async function applyIngest(
 			str(c.product_status),
 			str(c.website_identity),
 			str(c.website_identity_note),
+			str(c.entity_type),
+			str(c.entity_note),
 		);
 	});
 
@@ -825,7 +840,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies] = await Promise.all([
 		queryCoverage(env),
 		dates === 'undated'
 			? Promise.resolve([])
@@ -847,6 +862,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// The demo answers this from its own rows too, so the paragraph under the list
 		// is about the seven companies on screen rather than about the database.
 		demo ? Promise.resolve(demoProductOutcomes()) : queryProductOutcomes(env),
+		demo ? Promise.resolve(0) : queryNotCompanies(env),
 	]);
 
 	const html = renderPage({
@@ -861,6 +877,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		register,
 		products,
 		tracked: coverage.total_companies,
+		notCompanies,
 		oneTrace,
 		discoveredThisWeek,
 		sector,
@@ -917,6 +934,7 @@ const CSV_COLUMNS = [
 	'website',
 	'website_identity',
 	'website_looked_for',
+	'entity_type',
 	'city',
 	'state',
 	'rdi_sector',
@@ -962,6 +980,7 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			c.website,
 			c.website_identity,
 			c.website_checked ? 'yes' : 'no',
+			c.entity_type,
 			c.city,
 			c.state,
 			c.sector_id,
