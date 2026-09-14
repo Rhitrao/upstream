@@ -752,16 +752,15 @@ Written so far:
 4. `004-private-notes.md` — why the notebook is behind Cloudflare Access with a verified
    token rather than a shared secret, and why it 404s until it is configured.
 
-Still to write:
-
 5. `005-rdi-taxonomy.md` — why the government's 44 sub-sectors and not our own list.
-6. `006-ingestion-on-github.md` — why not scheduled Workers.
-7. `007-no-linkedin.md` — Proxycurl shut down in 2025; scraping breaches their terms;
-   we accept the coverage gap.
-8. `008-two-call-classification.md` — why sector then sub-sector, not one shot over 44.
+6. `006-no-linkedin.md` — a constraint chosen, not hit: every claim must link to a page
+   anyone can open, and LinkedIn is the network this list is meant to get ahead of.
+7. `007-ingestion-on-github.md` — why not scheduled Workers.
+8. `008-two-call-classification.md` — sector then sub-sector, stopping where the evidence
+   stops, under a dollar ceiling.
 9. `009-homepage-product-read.md` — why what a company says it builds is quoted and
-   attributed rather than treated as a fact, and why every way the read failed is stored
-   under its own name.
+   attributed, read only from a site shown to be theirs, and why every failed read is
+   stored under its own name.
 
 Numbers 002 and 003 went to decisions that came up while building Part 10, and 004 to
 one that came up building the notebook, so the planned ones keep shifting down.
