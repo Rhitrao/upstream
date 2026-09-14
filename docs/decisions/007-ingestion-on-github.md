@@ -14,9 +14,9 @@ model answers (`ingest/cache/classify.json`, `products.json`) back to the reposi
 **Scheduled Workers.** One platform, one deploy, one set of secrets. But a run fetches
 roughly 350 pages with a one-second pause between requests, parses HTML
 with BeautifulSoup and makes a few hundred model calls; run #3 took 8 minutes 40
-seconds. That is long past a scheduled Worker's CPU budget, and the scrapers would have
-to be rewritten in TypeScript against an HTML parser that is not the one they were
-debugged with.
+seconds. On the Workers free plan one invocation may make 50 subrequests, so the run
+would have to be cut into a queue of small jobs, and the scrapers rewritten in
+TypeScript against an HTML parser that is not the one they were debugged with.
 
 **A small server with cron.** Always on, and paid for every hour it is not scraping.
 It would also be a machine to patch for a job that runs for nine minutes a day.
