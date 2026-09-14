@@ -82,5 +82,35 @@ class WithholdingAGuess(unittest.TestCase):
         self.assertTrue(results["described"].on_map)
 
 
+class SweepingRowsTheRunDidNotSend(unittest.TestCase):
+    def row(self, cid: str, description: str, subsector_id: str, basis: str = "register-label") -> dict:
+        return {"id": cid, "name": cid.upper(), "description": description, "sector_id": subsector_id.split(".")[0],
+                "subsector_id": subsector_id, "classify_basis": basis}
+
+    def test_a_row_out_of_the_scrape_window_is_judged_by_the_same_table(self):
+        # ZELBYX was placed in 3.2 on 14 September 2026 and had left the register's window
+        # by that night, so the rule that withdrew 154 others never saw it.
+        rows = [
+            self.row("zelbyx-technology", label("AI", ["NLP"]), "3.2"),
+            self.row("kailash-cosmos", label("Aeronautics Aerospace & Defence", ["Space Technology"]), "2.5"),
+        ]
+        gaps = run.stale_label_guesses(rows, sent=set())
+        self.assertEqual([g["company_id"] for g in gaps], ["zelbyx-technology"])
+        self.assertEqual(gaps[0]["missing"], NO_GAP_NAMED)
+        self.assertIn("do not name 3.2 AI in Healthcare", gaps[0]["note"])
+
+    def test_a_row_this_run_sent_was_already_judged(self):
+        rows = [self.row("zelbyx-technology", label("AI", ["NLP"]), "3.2")]
+        self.assertEqual(run.stale_label_guesses(rows, sent={"zelbyx-technology"}), [])
+
+    def test_a_described_row_is_left_alone(self):
+        # Rechargion: in the register, and described by Venture Center.
+        rows = [
+            self.row("rechargion-energy", "Rechargeable batteries based on sodium ion.", "1.4"),
+            self.row("described", label("AI", ["NLP"]), "3.2", basis="description"),
+        ]
+        self.assertEqual(run.stale_label_guesses(rows, sent=set()), [])
+
+
 if __name__ == "__main__":
     unittest.main()

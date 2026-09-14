@@ -781,8 +781,17 @@ async function applyIngest(
 	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
 
 	// A row that has just been deleted has no ranking to recompute.
+	//
+	// Every A and B row as well, touched or not. A tier is stored, and a row no source
+	// sends any more — a DPIIT company scrolled out of the register's recent window —
+	// kept whatever tier it had on its last visit: past its 90 days, and past a rule
+	// written after it. On 14 September 2026 nine register-label rows sat in Tier A
+	// that way. Nothing climbs into A or B by standing still, so C rows can wait.
+	const ranked = await env.DB.prepare("SELECT id FROM companies WHERE tier IN ('A', 'B')").all<{ id: string }>();
 	const removed = new Set(unplaced);
-	const touched = [...new Set([...payloadIds, ...accepted.map((s) => s.company_id)])].filter((id) => !removed.has(id));
+	const touched = [...new Set([...payloadIds, ...accepted.map((s) => s.company_id), ...ranked.results.map((r) => r.id)])].filter(
+		(id) => !removed.has(id),
+	);
 	await recomputeRanking(env, touched, nowIso, now);
 
 	return {

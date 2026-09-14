@@ -15,6 +15,8 @@ import argparse
 import dataclasses
 import traceback
 
+import requests
+
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
@@ -24,7 +26,7 @@ from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
 from ingest.sources import base
 from ingest.sources.base import Company, Signal
-from ingest.upload import PRODUCTION, upload
+from ingest.upload import PRODUCTION, TIMEOUT_SECONDS, upload
 
 # Order decides which source's description a shared company keeps, and the
 # grants CSV goes last on purpose: "BIG awardee, category: Diagnostics" is a
@@ -111,6 +113,72 @@ def withhold_label_guesses(results: dict, label_only: dict[str, Company]) -> int
         )
         withheld += 1
     return withheld
+
+
+def stale_label_guesses(rows: list[dict], sent: set[str]) -> list[dict]:
+    """The same rule, for rows already on the page that this run did not send.
+
+    withhold_label_guesses judges only what the scrape returned, and the register's API
+    returns its most recent recognitions: a company that has scrolled out of that window
+    is never sent again, so a placement made before the rule existed is never judged by
+    it. On 14 September 2026 the nightly withdrew 154 placements and left 18 more
+    standing for that reason, fourteen of them in Tier A or B — ZELBYX and CAFIYN still
+    in AI in Healthcare on the strength of "NLP".
+
+    `rows` are the Worker's own copies, as /api/companies returns them. Each unsupported
+    one comes back as the gap the rule would have filed, which the Worker turns into a
+    removal. Costs nothing: no classification, just the table.
+    """
+    out = []
+    for row in rows:
+        if row["id"] in sent or row.get("classify_basis") != "register-label":
+            continue
+        # Label-only, as the run means it: a row whose stored description is prose came
+        # from a source that says what the company does, and the label is not all we know.
+        if not register_labels.labels(row.get("description")):
+            continue
+        if register_labels.supports(row.get("description"), row.get("subsector_id")):
+            continue
+        out.append(
+            {
+                "company_id": row["id"],
+                "name": row["name"],
+                "description": row.get("description"),
+                "sector_id": row.get("sector_id"),
+                "missing": gap_labels.NO_GAP_NAMED,
+                "note": register_labels.unsupported_note(
+                    row.get("description"), row.get("subsector_id") or "", SUBSECTOR_NAMES.get(row.get("subsector_id"), "")
+                ),
+            }
+        )
+    return out
+
+
+def register_rows(base_url: str) -> list[dict] | None:
+    """Every row the register put on the page, or None if that cannot be read completely."""
+    rows: dict[str, dict] = {}
+    sectors = sorted({s["subsector_id"].split(".")[0] for s in SUBSECTORS})
+    try:
+        for sector in sectors:
+            for undated in ("0", "1"):
+                response = requests.get(
+                    f"{base_url.rstrip('/')}/api/companies",
+                    params={"source": dpiit.SOURCE, "sector": sector, "undated": undated, "tier": "all", "age": "all", "limit": "500"},
+                    timeout=TIMEOUT_SECONDS,
+                )
+                response.raise_for_status()
+                data = response.json()
+                # At the cap the answer may be cut short, and a sweep that silently
+                # misses rows is the failure it exists to fix.
+                if data["count"] >= data["limit"]:
+                    print(f"  sector {sector} returned {data['count']} register rows, the API's cap: not sweeping")
+                    return None
+                for row in data["companies"]:
+                    rows[row["id"]] = row
+    except (requests.RequestException, ValueError, KeyError, TypeError) as error:
+        print(f"  could not read the register's rows ({error}): not sweeping")
+        return None
+    return list(rows.values())
 
 
 def gap(company: Company, result) -> dict:
@@ -337,6 +405,17 @@ def main() -> int:
         uploaded += len(keep)
         recorded += len(gaps)
 
+    # After the uploads, so everything this run re-sent has already been judged above.
+    swept: int | None = None
+    rows = register_rows(args.base_url)
+    if rows is not None:
+        stale = stale_label_guesses(rows, sent)
+        swept = len(stale)
+        print(f"  {swept} register rows this run did not send are placed where their label names nothing: withdrawn")
+        if stale and not args.dry_run:
+            upload(dpiit.SOURCE, [], [], stale, base_url=args.base_url, mode=args.mode)
+            recorded += swept
+
     print("\nSummary")
     # Failures first, before anything that looks like an achievement. A count
     # buried under four lines of progress is a count nobody reads, and the whole
@@ -350,6 +429,8 @@ def main() -> int:
     print(f"  sources: {len(by_source)} ok, {len(unhealthy)} set aside{' — ' + ', '.join(v.source for v in unhealthy) if unhealthy else ''}")
     print(f"  companies: {len(unique)} seen, {len(placed)} placed, {dropped} dropped")
     print(f"  classification: {usage}")
+    if swept is None:
+        print("  REGISTER SWEEP SKIPPED — older label-only placements were not re-judged this run")
     print(f"  uploaded: {uploaded} companies, {recorded} gaps" if not args.dry_run else "  uploaded: nothing (dry run)")
     # Per-company failures are tolerated, reported and survivable: one company
     # whose answer would not parse is one row missing, not a broken pipeline.

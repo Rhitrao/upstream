@@ -214,6 +214,18 @@ describe('POST /upstream/api/ingest', () => {
 		]);
 	});
 
+	it('re-ranks an A or B row that no source sends any more', async () => {
+		// Ranked before the register-label rule, then out of the register's window: no
+		// upload names it again, and its stored tier must not outlive the rule.
+		await post({ source: 'dpiit-startup-india', mode: 'live', companies: [{ id: 'stale', name: 'Stale Co', sector_id: '3', subsector_id: '3.2' }] });
+		await env.DB.prepare("UPDATE companies SET classify_basis = 'register-label', tier = 'A' WHERE id = 'stale'").run();
+
+		await post({ source: 'sine-iitb', companies: [{ id: 'other', name: 'Other Co' }] });
+
+		const row = await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('stale').first<any>();
+		expect(row).toEqual({ tier: 'C' });
+	});
+
 	it('treats a whole first day as a backfill, however many requests it takes', async () => {
 		// One sweep, three chunks, because 500 companies do not fit in one payload.
 		for (const chunk of [
