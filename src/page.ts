@@ -333,14 +333,21 @@ function freshness(view: PageView): string {
  */
 function geography(view: PageView): string {
 	const p = view.places;
-	if (p.total === 0 || p.located === 0) return '';
+	if (p.total === 0) return '';
 
 	const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 	const unknown = p.total - p.located;
+	// The same cell as the coverage map, so the two read as one kind of thing: a count
+	// in the corner, a name under it, a link that filters the list. Unknown is a cell
+	// too, dashed like an empty one, because it is the largest single place on the list.
 	const tile = (state: string, n: number, label = state) => {
 		const on = view.state === state;
 		const href = `${query(viewParams(view, { state: on ? null : state }))}#list`;
-		return `<a class="place${on ? ' on' : ''}${state === 'unknown' ? ' unknown' : ''}" href="${esc(href)}"><span class="place-n">${n}</span> ${esc(label)}</a>`;
+		const classes = ['cell', state === 'unknown' ? 'empty unknown-place' : 'filled', on ? 'active' : ''].filter(Boolean).join(' ');
+		return `<a class="${classes}" href="${esc(href)}" title="${esc(label)}: ${n}"${on ? ' aria-current="true"' : ''}>
+        <span class="cell-head"><span class="cell-id">${state === 'unknown' ? '?' : ''}</span><span class="cell-n">${n}</span></span>
+        <span class="cell-name">${esc(label)}</span>
+      </a>`;
 	};
 
 	const underHalf = p.located * 2 < p.total || p.rankedLocated * 2 < p.rankedTotal;
@@ -352,14 +359,20 @@ function geography(view: PageView): string {
 		: '';
 
 	return `
-<section class="places" aria-labelledby="places-h">
-  <h2 id="places-h">Where they are</h2>
-  <p class="note">${p.located} of ${p.total} records (${pct(p.located, p.total)}%) have a state. On the ranked list it is
-    ${p.rankedLocated} of ${p.rankedTotal} (${pct(p.rankedLocated, p.rankedTotal)}%).${caveat}</p>
-  <div class="place-tiles">
-    ${p.states.map((s) => tile(s.state, s.n)).join('\n    ')}
-    ${tile('unknown', unknown, 'location unknown')}
-  </div>
+<section class="places" id="places" aria-labelledby="places-h">
+  <details class="map-fold"${view.state ? ' open' : ''}>
+    <summary>
+      <h2 id="places-h">Where they are</h2>
+      <span class="map-fold-meta">${p.located} of ${p.total} located &middot; ${unknown} location unknown</span>
+    </summary>
+    <p class="note"><strong>${unknown} of ${p.total} records (${pct(unknown, p.total)}%) have no location</strong> in any source.
+      ${p.located} of ${p.total} records (${pct(p.located, p.total)}%) have a state. On the ranked list it is
+      ${p.rankedLocated} of ${p.rankedTotal} (${pct(p.rankedLocated, p.rankedTotal)}%).${caveat} Pick a tile to filter the list.</p>
+    <div class="grid place-grid">
+      ${tile('unknown', unknown, 'location unknown')}
+      ${p.states.map((s) => tile(s.state, s.n)).join('\n      ')}
+    </div>
+  </details>
 </section>`;
 }
 
@@ -2145,6 +2158,12 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
 .result-summary { color: var(--muted); }
 .place-tiles { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; }
+.place-grid { margin-top: var(--s3); grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.place-grid .cell-name { overflow-wrap: normal; word-break: normal; hyphens: auto; }
+.place-grid .cell-name { -webkit-line-clamp: 2; line-clamp: 2; }
+.cell.unknown-place { border-width: 1.5px; }
+.cell.unknown-place .cell-n { opacity: 1; font-weight: 500; color: var(--ink); }
+.note strong { color: var(--ink); font-weight: 500; }
 .place { border: 1px solid var(--rule); padding: 2px var(--s1); color: var(--ink); text-decoration: none; font-size: var(--t-xs); white-space: nowrap; }
 .place:hover { border-color: var(--rule-strong); }
 .place.on { border-color: var(--ink); background: var(--raise); }
@@ -2155,7 +2174,15 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .entity-tag { color: var(--muted); font-size: 0.8em; font-weight: normal; white-space: nowrap; }
 .result-summary strong { color: var(--ink); }
 .basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
-.basis-tag.weak { color: var(--ink); background: linear-gradient(to top, var(--mark) 0%, var(--mark) 45%, transparent 45%); }
+/* A warning, not a find, so it does not get the yellow: that means "nobody has noticed
+   this company yet", and a register label is a fact about the evidence instead. */
+.basis-tag.weak {
+  color: var(--ink);
+  font-size: var(--t-micro);
+  border: 1px dashed var(--rule-strong);
+  border-radius: 999px;
+  padding: 0 var(--s0h);
+}
 .reasoning summary { cursor: pointer; color: var(--muted); }
 .seen { font-size: var(--t-xs); color: var(--muted); margin: 0; }
 .empty { color: var(--muted); }
@@ -2347,6 +2374,7 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 @media (min-width: 46rem) {
   .wrap { padding: var(--s7) var(--s6) calc(var(--s7) * 1.5); }
   .grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .place-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   .company { padding-inline: var(--s4); margin-inline: calc(var(--s4) * -1); }
 }
 

@@ -761,7 +761,8 @@ describe('GET /upstream (the page)', () => {
 			companies: [{ id: 'verve', name: 'Verve', sector_id: '2', subsector_id: '2.5' }],
 		});
 		const html = await page();
-		const cells = html.match(/class="cell [^"]*"/g) ?? [];
+		const map = html.slice(html.indexOf('id="coverage"'), html.indexOf('</section>', html.indexOf('id="coverage"')));
+		const cells = map.match(/class="cell [^"]*"/g) ?? [];
 		expect(cells).toHaveLength(44);
 		expect(cells.filter((c) => c.includes('filled'))).toHaveLength(1);
 	});
@@ -1630,11 +1631,15 @@ describe('where they are', () => {
 		await seed();
 		const html = await text('?tier=all');
 		const section = html.slice(html.indexOf('<section class="places"'), html.indexOf('</section>', html.indexOf('<section class="places"')));
-		expect(section).toContain('4 of 7 records (57%) have a state. On the ranked list it is\n    1 of 4 (25%).');
+		// The unknown is said first, in words, and is a tile of its own.
+		expect(section).toContain('<strong>3 of 7 records (43%) have no location</strong>');
+		expect(section).toContain('3 location unknown');
+		expect(section).toMatch(/4 of 7 records \(57%\) have a state\. On the ranked list it is\s+1 of 4 \(25%\)\./);
 		expect(section).toContain('under half of the ranked list');
 		expect(section).toContain('3 of the 4 located records have a state because the DPIIT register');
-		expect(section).toContain('<span class="place-n">2</span> Maharashtra');
-		expect(section).toContain('<span class="place-n">3</span> location unknown');
+		// Tiles in the coverage map's cell, count then name.
+		expect(section).toMatch(/<span class="cell-n">2<\/span><\/span>\s*<span class="cell-name">Maharashtra<\/span>/);
+		expect(section).toMatch(/class="cell empty unknown-place"[\s\S]*?<span class="cell-n">3<\/span><\/span>\s*<span class="cell-name">location unknown<\/span>/);
 	});
 
 	it('filters the list, the counts and the file by a tile, unknown included', async () => {
