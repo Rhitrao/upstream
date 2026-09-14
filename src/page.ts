@@ -1933,6 +1933,8 @@ select:hover { border-color: var(--rule-strong); }
   margin-inline: calc(var(--s3) * -1);
   border-bottom: 1px solid var(--rule);
 }
+/* The notebook's rows are the older shape, stacked rather than main-and-side. */
+.company:not(:has(> .row-main)) { display: block; padding-block: var(--s4); }
 /* Clear of the sticky bar when a link or "back to results" lands on a row. */
 li.company { scroll-margin-top: 10rem; }
 .row-main { flex: 1 1 auto; min-width: 0; }
