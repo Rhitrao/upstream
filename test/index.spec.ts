@@ -977,7 +977,7 @@ describe('GET /upstream (the page)', () => {
 		const html = await page('?tier=all&age=all');
 		const start = html.indexOf('id="c-probird"');
 		const row = html.slice(start, html.indexOf('</li>', start));
-		expect(row).toContain('DPIIT recognised Aug 2023');
+		expect(row).toContain('on DPIIT register Aug 2023');
 		expect(row).toContain('added to Upstream today');
 		expect(row.indexOf('Aug 2023')).toBeLessThan(row.indexOf('added to Upstream'));
 		expect(html).toContain('2 companies turned up in the last seven days in a source we were already watching.');
@@ -1442,7 +1442,8 @@ describe('searching and one company at a time', () => {
 		expect(brief).not.toContain('Where it is based');
 		expect(brief).toContain('- What kind of product it is, within 4.2');
 		expect(brief).toContain('- Its company registration: no CIN on record');
-		expect(brief).toContain('- Founders, funding and revenue: Upstream collects none of these');
+		expect(brief).toContain('- Founders: no source this page reads names them');
+		expect(brief).toContain('- Funding and revenue: Upstream collects neither');
 		// Evidence with the real link, or saying there is none.
 		expect(brief).toContain('https://sineiitb.org/portfolio/');
 		expect(brief).toContain('no link published');
@@ -2112,5 +2113,108 @@ describe('lists that only one file is allowed to own', () => {
 		for (const company of demoCompanies()) {
 			if (company.subsector_id) expect(valid).toContain(company.subsector_id);
 		}
+	});
+});
+
+describe('who they are: founders, the register, contact, domain and papers', () => {
+	const page = async (id: string) => (await SELF.fetch(`${ORIGIN}/upstream/c/${id}`)).text();
+	const registerRow = (status: string | null, label: string) => ({
+		source: 'dpiit-startup-india',
+		companies: [
+			{
+				id: 'tatva-core',
+				name: 'Tatva Core',
+				description: 'DPIIT-recognised startup. Industry: Robotics. Stage: Prototype.',
+				sector_id: '2',
+				subsector_id: '2.7',
+				classify_basis: 'register-label',
+				dpiit_status: status,
+				dpiit_stage: 'Prototype',
+				entity_type: 'unverified',
+				entity_note: 'a project or brand name, with no registered entity on record',
+			},
+		],
+		signals: [{ company_id: 'tatva-core', type: 'dpiit', label, date: '2026-09-01', url: 'https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup&query=' }],
+	});
+
+	it('says a Startup India profile is not a recognition, and keeps one evidence line as the status changes', async () => {
+		expect((await post(registerRow('profile', 'Startup India profile, not DPIIT recognised'))).status).toBe(200);
+		let html = await page('tatva-core');
+		expect(html).toContain('<dt>DPIIT</dt><dd>Startup India profile, not DPIIT recognised; stage on its profile: Prototype</dd>');
+		// The stored label keeps its classifier-cache wording; the page prints what the record says.
+		expect(html).toContain('Startup India profile, not DPIIT recognised. Industry: Robotics. Stage: Prototype.');
+		expect(html).not.toContain('DPIIT-recognised startup.');
+		expect(html).toContain('DPIIT register record 2026-09-01');
+
+		// Recognised later: the old line goes, rather than sitting beside the new one.
+		await post(registerRow('recognised', 'DPIIT recognised (DIPP777)'));
+		html = await page('tatva-core');
+		expect(html).toContain('DPIIT recognised (DIPP777)');
+		expect(html).not.toContain('Startup India profile, not DPIIT recognised');
+		const { results } = await env.DB.prepare("SELECT label FROM signals WHERE company_id = 'tatva-core'").all<{ label: string }>();
+		expect(results.map((r) => r.label)).toEqual(['DPIIT recognised (DIPP777)']);
+	});
+
+	it('refuses a register status it has no sentence for, and contact details from an unconfirmed site', async () => {
+		const bad = registerRow('maybe', 'x');
+		expect((await post(bad)).status).toBe(400);
+		const unconfirmed = {
+			source: 'sine-iitb',
+			companies: [{ id: 'x-co', name: 'X Co', website: 'https://x.example', website_identity: 'associated', contact_email: 'info@x.example' }],
+		};
+		const res = await post(unconfirmed);
+		expect(res.status).toBe(400);
+		expect(await res.text()).toContain("contact_email needs website_identity 'verified'");
+	});
+
+	it('shows founders with their source, contact and domain age from a verified site, and papers outside the trace count', async () => {
+		const papers = {
+			count: 2,
+			works: [{ title: 'Graphene membranes for desalination', year: 2025, url: 'https://doi.org/10.1000/xyz' }],
+			query_url: 'https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kadamb%20Biolabs%22',
+		};
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{
+					id: 'kadamb-biolabs',
+					name: 'Kadamb Biolabs Pvt Ltd',
+					description: 'Benchtop assay kits for district hospitals.',
+					sector_id: '4',
+					subsector_id: '4.2',
+					website: 'https://kadamb.example',
+					website_identity: 'verified',
+					website_identity_note: 'name in the domain',
+					founders: 'Prof. A Rao, B Shah',
+					founders_source: 'sine-iitb',
+					contact_email: 'hello@kadamb.example',
+					contact_page: 'https://kadamb.example/contact',
+					domain_registered: '2016-03-02',
+					papers,
+				},
+			],
+			signals: [{ company_id: 'kadamb-biolabs', type: 'incubator', label: 'SINE IIT Bombay incubatee, 2025-2026', url: 'https://sineiitb.org/portfolio/' }],
+		});
+		const html = await page('kadamb-biolabs');
+		expect(html).toContain('<dt>Founders</dt><dd>Prof. A Rao, B Shah</dd><dd class="why">as SINE IIT Bombay lists them</dd>');
+		expect(html).toContain('<a href="mailto:hello@kadamb.example" rel="noopener nofollow">hello@kadamb.example</a>');
+		expect(html).toContain('<dt>Domain registered</dt><dd>2 Mar 2016</dd>');
+		expect(html).toContain('the domain’s age, not the company’s');
+		expect(html).toContain('2 works list this company as an author affiliation, in OpenAlex');
+		expect(html).toContain('Graphene membranes for desalination');
+		expect(html).not.toContain('Founders: no source this page reads names them');
+		expect(html).toContain('1 public trace');
+
+		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
+		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
+		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","papers_found"');
+		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2"');
+
+		// An address later found not to be theirs takes what was read off it with it.
+		await post({ source: 'sine-iitb', companies: [{ id: 'kadamb-biolabs', name: 'Kadamb Biolabs Pvt Ltd', website: 'https://kadamb.example', website_identity: 'discovered' }] });
+		const after = await page('kadamb-biolabs');
+		expect(after).not.toContain('hello@kadamb.example');
+		expect(after).not.toContain('Domain registered');
+		expect(after).toContain('Prof. A Rao, B Shah');
 	});
 });

@@ -21,9 +21,10 @@ filter cuts the register down to the ones this page is about. So we read the
 final few pages of each deep-tech industry and leave the other 470,000 alone.
 
 What the endpoint does NOT give: no incorporation date, no description, no
-website. Only the name, where they are, their industry and sector, and how far
-along they say they are. `registeredOn` is the DPIIT recognition date, not the
-date the company was founded — see _record_year.
+website. Only the name, where they are, their industry and sector, how far along
+they say they are, and whether DPIIT has recognised them — which not every record
+on the register has. `registeredOn` dates the register's record, not the founding
+and not necessarily a recognition — see _record_year and recognition.
 
     python3 -m ingest.sources.dpiit
 """
@@ -37,7 +38,14 @@ from ingest.sources.base import Company, Signal, clean, fetch_json, preview, slu
 
 SOURCE = "dpiit-startup-india"
 URL = "https://api.startupindia.gov.in/sih/api/noauth/search/profiles"
-PROFILE = "https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup&query="
+SEARCH = "https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup&query="
+
+# dippRecognitionStatus, as the register writes it, to what the page says. Counted
+# across the 966 register records cached on 14 September 2026: 598 RECOGNISED with a
+# DIPP number, 345 with no status and no number, 15 EXPIRED, 6 PENDING, 1 CANCELLED,
+# 1 NA. Every one of them used to be labelled "DPIIT recognised".
+RECOGNITION = {"RECOGNISED": "recognised", "EXPIRED": "expired", "CANCELLED": "cancelled", "PENDING": "pending"}
+PROFILE_ONLY = "profile"
 
 # The register's own industry ids. Names are not accepted by the filter, only
 # these; they come from the facet block the search returns alongside results.
@@ -85,7 +93,10 @@ def scrape(pages: int = PAGES) -> tuple[list[Company], list[Signal]]:
                         type="dpiit",
                         label=_label(record),
                         date=_date(record.get("registeredOn")),
-                        url=PROFILE,
+                        # The register's public search page. Not a search for the name:
+                        # the public search endpoint returns nothing for an exact name
+                        # (tried 14 September 2026), and the profile page asks for a login.
+                        url=SEARCH,
                         source=SOURCE,
                     )
                 )
@@ -113,6 +124,8 @@ def _company(record: dict, industry: str) -> Company | None:
         website_checked=False,
         city=clean(record.get("city")),
         state=clean(record.get("state")),
+        dpiit_status=recognition(record),
+        dpiit_stage=next((s for s in (record.get("stages") or []) if clean(s)), None),
         # record_year, never origin_year. The register says when it recognised the
         # company, not when the company started, and writing a recognition year
         # into the founding field is the exact lie this split exists to prevent.
@@ -139,15 +152,37 @@ def _description(record: dict, industry: str) -> str:
     return " ".join(parts)
 
 
+def recognition(record: dict) -> str:
+    """What the register says about recognition, which is not the same as being on it.
+
+    Anyone can make a Startup India profile. Recognition is DPIIT assessing it and
+    issuing a DIPP number, and a record with neither a status nor a number has not
+    been through that, whatever the search page lists it under.
+    """
+    status = (clean(record.get("dippRecognitionStatus")) or "").upper()
+    return RECOGNITION.get(status, PROFILE_ONLY)
+
+
 def _label(record: dict) -> str:
+    """The evidence line, saying what the record says and no more.
+
+    No year: registeredOn is on records that were never recognised too, so it dates the
+    record, and printing it beside "recognised" would claim it dates a recognition.
+    """
     number = clean(record.get("dippNumber"))
-    year = _record_year(record)
-    recognised = f"DPIIT recognised {year}" if year else "DPIIT recognised"
-    return f"{recognised} ({number})" if number else recognised
+    suffix = f" ({number})" if number else ""
+    status = recognition(record)
+    if status == "recognised":
+        return f"DPIIT recognised{suffix}"
+    if status in ("expired", "cancelled"):
+        return f"DPIIT recognition {status}{suffix}"
+    if status == "pending":
+        return "Startup India profile, DPIIT recognition pending"
+    return "Startup India profile, not DPIIT recognised"
 
 
 def _record_year(record: dict) -> int | None:
-    """The year DPIIT recognised them, which dates the record and nothing else.
+    """The year of the register's record, which dates the record and nothing else.
 
     Checked three ways before settling for it: the search endpoint publishes 30
     fields and no incorporation date, the CIN lookup wants a CIN this endpoint

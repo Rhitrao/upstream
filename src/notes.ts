@@ -19,6 +19,7 @@ import { STYLES, BASE_PATH, esc } from './page';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import type { Note, NoteWithCompany } from './db';
 import type { Company } from './db';
+import { registerText } from './db';
 
 /** The only headers a notes response is allowed to go out with. */
 export const PRIVATE_HEADERS = {
@@ -99,7 +100,7 @@ export function renderNoteEditor(company: Company | null, companyId: string, not
 		? `<p class="provenance">${
 				company.product
 					? `${esc(company.product)} <span class="says">in their own words</span>`
-					: esc(company.description ?? 'No description held.')
+					: esc(registerText(company.description, company.dpiit_status) ?? 'No description held.')
 			}</p>
     <p class="provenance"><a href="${esc(`${BASE_PATH}/c/${companyId}`)}">Everything we hold about them &rarr;</a></p>`
 		: `<p class="provenance">No company with this slug is on the list. A note can still be kept against it.</p>`;

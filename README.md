@@ -83,8 +83,17 @@ Measured, not guessed.
 - **Five sources.** Three incubators (SINE IIT Bombay, IIT Madras RTBI, Venture Center), two grant
   programmes typed up by hand, and the newest pages of the DPIIT register. No patents, no MCA
   incorporations, no other incubators. Tidy portfolio pages are over-represented.
-- **No founders, funding, revenue or registration numbers.** `cin` is empty on every row, so nothing
-  joins to MCA filings, and the grant lists publish no amounts.
+- **Founders only where an incubator names them; no funding, revenue or registration numbers.** 298
+  of 607 rows carry the founder names SINE IIT Bombay, Venture Center or IITM RTBI print, attributed
+  to that card. `cin` is empty on every row, so nothing joins to MCA filings, and the grant lists
+  publish no amounts.
+- **Being on the DPIIT register is not being recognised.** Of the 191 register rows with a cached
+  record on 14 September, 130 were recognised, 58 had a Startup India profile DPIIT never
+  recognised, and 3 had lapsed. Each row now says which; until then all of them read "DPIIT recognised".
+- **Contact and domain age only from a website checked to be theirs.** An address on the company's
+  own domain or a contact page, from 143 of 190 readable verified homepages, and the domain's RDAP
+  registration date for 208 of 220 domains. A domain's age is not the company's. .co and .io have no
+  public RDAP service, so those domains have no date.
 - **Most rows cannot say what the company builds.** Only a homepage checked to be theirs is read, and
   what it says is quoted as their words. 115 of 607 rows have such a sentence; 252 publish a website
   at all. ([009](docs/decisions/009-homepage-product-read.md))

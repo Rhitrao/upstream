@@ -7,7 +7,8 @@ protein", and the headline counted her. Nothing on record says a company exists.
 
     company            a registered entity: a legal suffix, or a DPIIT recognition,
                        which is only granted to incorporated companies, LLPs and
-                       registered partnerships
+                       registered partnerships. A Startup India profile that DPIIT has
+                       not recognised is not one: anyone can make a profile.
     researcher-project a person's name standing for a funded project
     lab                a university or institute laboratory (in the vocabulary; no
                        current source lists one)
@@ -48,6 +49,7 @@ LAB_NAME = re.compile(r"\b(?:laboratory|lab of|department of|centre for|center f
 
 # DPIIT's own eligibility rule, quoted where the classification rests on it.
 DPIIT_NOTE = "DPIIT recognises only incorporated companies, LLPs and registered partnerships"
+PROFILE_NOTE = "a Startup India profile DPIIT has not recognised, and no registered entity on record"
 
 
 def looks_like_a_person(name: str) -> bool:
@@ -68,16 +70,26 @@ def looks_like_a_person(name: str) -> bool:
     return True
 
 
-def assess(name: str, sources) -> tuple[str, str]:
+# Register statuses that mean DPIIT recognised the company at some point.
+WAS_RECOGNISED = frozenset({"recognised", "expired", "cancelled"})
+
+
+def assess(name: str, sources, dpiit_status: str | None = None) -> tuple[str, str]:
     """The entity type for one record, and the reason in a phrase.
 
-    `sources` is every source that listed it: a DPIIT recognition makes a company a
-    company whichever source happened to reach it first.
+    `sources` is every source that listed it, and `dpiit_status` what the register's
+    record says: a DPIIT recognition makes a company a company whichever source
+    happened to reach it first, and a profile on the register without one does not.
     """
     if LEGAL_SUFFIX.search(name):
         return COMPANY, "a source lists it with a legal suffix"
     if "dpiit-startup-india" in set(sources or ()):
-        return COMPANY, DPIIT_NOTE
+        if dpiit_status in WAS_RECOGNISED:
+            return COMPANY, DPIIT_NOTE
+        # Someone made a Startup India profile under this name. That is a startup
+        # saying it exists, not a researcher's project, and not a registration either.
+        if not LAB_NAME.search(name):
+            return UNVERIFIED, PROFILE_NOTE
     if LAB_NAME.search(name):
         return LAB, "the name is a laboratory or department's"
     if looks_like_a_person(name):

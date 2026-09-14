@@ -108,7 +108,14 @@ def _company(name: str, records: list[dict]) -> Company:
         description=_first(records, "description", clean),
         website=_first(records, "website", website),
         origin_year=_origin_year(records),
+        founders=_founders(_first(records, "founder_name", clean)),
+        founders_source=SOURCE if _first(records, "founder_name", clean) else None,
     )
+
+
+def _founders(value: str | None) -> str | None:
+    """The founder line as SINE prints it, less the full stop some entries end on."""
+    return value.rstrip(" .") or None if value else None
 
 
 def _origin_year(records: list[dict]) -> int | None:
@@ -144,6 +151,8 @@ def _merge(kept: Company, repeat: Company) -> Company:
         name=kept.name,
         description=kept.description or repeat.description,
         website=kept.website or repeat.website,
+        founders=kept.founders or repeat.founders,
+        founders_source=kept.founders_source or repeat.founders_source,
         # The earliest claim wins: a company is no younger than the first list it
         # appeared on.
         origin_year=min(years) if years else None,

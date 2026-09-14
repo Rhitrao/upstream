@@ -182,3 +182,8 @@ ingest/cache/*
 # learned, every morning, and never converges.
 !ingest/cache/classify.json
 !ingest/cache/products.json
+# ...and the free lookups that take time to repeat: contact lines, domain registration
+# dates and papers, refreshed monthly rather than asked again every night.
+!ingest/cache/contacts.json
+!ingest/cache/rdap.json
+!ingest/cache/papers.json

@@ -76,13 +76,31 @@ def _card(card) -> Company | None:
         year = _plausible(int(match.group(1)))
 
     summary = card.select_one("p.summary")
+    founders = _founders(card)
     return Company.named(
         raw,
         description=clean(summary.get_text(" ")) if summary else None,
+        founders=founders,
+        founders_source=SOURCE if founders else None,
         website=_website(card),
         source_year=year,
         source_year_type=YEAR_TYPE_UNKNOWN if year is not None else None,
     )
+
+
+def _founders(card) -> str | None:
+    """The names in the card's "Founded by" line, as text. Each name is its own link to
+    a LinkedIn profile; the name is what the card says, and the profile is not followed
+    or kept (decision 006)."""
+    line = card.select_one("p.founded-by")
+    if line is None:
+        return None
+    names = [clean(a.get_text(" ")) for a in line.find_all("a")]
+    names = [n.rstrip(" .,") for n in names if n]
+    if not names:
+        text = clean(re.sub(r"^\s*Founded\s+by\s*:?", "", line.get_text(" "), flags=re.IGNORECASE))
+        names = [text.rstrip(" .,")] if text else []
+    return ", ".join(n for n in names if n) or None
 
 
 def _website(card) -> str | None:

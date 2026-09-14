@@ -22,9 +22,18 @@ class WhatARecordIs(unittest.TestCase):
 
     def test_a_legal_suffix_or_a_dpiit_recognition_makes_a_company(self):
         self.assertEqual(entity.assess("Planys Technologies Private Limited", {"rtbi-iitm"})[0], entity.COMPANY)
-        self.assertEqual(entity.assess("Tavisha Robotics", {"dpiit-startup-india"})[0], entity.COMPANY)
+        self.assertEqual(entity.assess("Tavisha Robotics", {"dpiit-startup-india"}, "recognised")[0], entity.COMPANY)
         # Whichever source got there first: a SINE listing does not undo a recognition.
-        self.assertEqual(entity.assess("Still Up", {"sine-iitb", "dpiit-startup-india"})[0], entity.COMPANY)
+        self.assertEqual(entity.assess("Still Up", {"sine-iitb", "dpiit-startup-india"}, "recognised")[0], entity.COMPANY)
+        # A lapsed recognition was still granted, so the company was incorporated.
+        self.assertEqual(entity.assess("Tavisha Robotics", {"dpiit-startup-india"}, "expired")[0], entity.COMPANY)
+
+    def test_a_startup_india_profile_without_a_recognition_is_not_proof_of_a_company(self):
+        self.assertEqual(entity.assess("TATVA CORE", {"dpiit-startup-india"}, "profile")[0], entity.UNVERIFIED)
+        self.assertEqual(entity.assess("TATVA CORE", {"dpiit-startup-india"}, "pending")[0], entity.UNVERIFIED)
+        self.assertEqual(entity.assess("TATVA CORE", {"dpiit-startup-india"})[0], entity.UNVERIFIED)
+        # A profile under a name that reads like a person's is still a startup's profile.
+        self.assertEqual(entity.assess("Delta Nanoventions", {"dpiit-startup-india"}, "profile"), (entity.UNVERIFIED, entity.PROFILE_NOTE))
 
     def test_a_business_word_is_never_read_as_a_surname(self):
         self.assertFalse(entity.looks_like_a_person("Exovian Robotics"))

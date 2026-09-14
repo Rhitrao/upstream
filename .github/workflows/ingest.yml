@@ -92,6 +92,9 @@ jobs:
           path: |
             ingest/cache/classify.json
             ingest/cache/products.json
+            ingest/cache/contacts.json
+            ingest/cache/rdap.json
+            ingest/cache/papers.json
             run.log
           retention-days: 30
           if-no-files-found: error
@@ -143,6 +146,10 @@ jobs:
           # on the map, product descriptions say what it builds, and both were paid
           # for in dollars. Leaving either behind means re-buying it tomorrow.
           paid="ingest/cache/classify.json ingest/cache/products.json"
+          # And three that cost no dollars but real time: a contact line, a domain's
+          # registration date and a company's papers, each looked up once and refreshed
+          # monthly. Not committed, every night would ask every registry again.
+          paid="$paid ingest/cache/contacts.json ingest/cache/rdap.json ingest/cache/papers.json"
 
           if git diff --quiet -- $paid; then
             echo "No new answers this run; nothing to commit."

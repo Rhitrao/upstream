@@ -90,6 +90,20 @@ class Company:
     # for the same reason the classification fields are classify.py's.
     product: str | None = None
     product_status: str | None = None
+    # The people a source names as founders, in the source's own words and nothing
+    # more: no titles looked up, no profiles followed (decision 006).
+    founders: str | None = None
+    founders_source: str | None = None
+    # What the DPIIT register's own record says, not what being on it implies. A
+    # profile on Startup India is not a recognition: 345 of 966 register records we
+    # hold carry no DIPP number and no status. See dpiit.recognition.
+    dpiit_status: str | None = None
+    dpiit_stage: str | None = None
+    # Read off a verified homepage and a public registry, never inferred.
+    contact_email: str | None = None
+    contact_page: str | None = None
+    domain_registered: str | None = None
+    papers: dict | None = None
     city: str | None = None
     state: str | None = None
     cin: str | None = None

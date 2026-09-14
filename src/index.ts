@@ -43,6 +43,8 @@ import {
 	queryNotCompanies,
 	queryRegisterOutcomes,
 	type Filters,
+	papersOf,
+	registerText,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { accessConfig, identify } from './access';
@@ -306,6 +308,16 @@ interface CompanyInput {
 	/** company, researcher-project, lab or unverified — see ENTITY_TYPES. */
 	entity_type?: string | null;
 	entity_note?: string | null;
+	founders?: string | null;
+	founders_source?: string | null;
+	/** What the register's record says about recognition — see DPIIT_STATUSES. */
+	dpiit_status?: string | null;
+	dpiit_stage?: string | null;
+	contact_email?: string | null;
+	contact_page?: string | null;
+	domain_registered?: string | null;
+	/** {count, works, query_url}; stored as JSON. */
+	papers?: unknown;
 }
 
 /**
@@ -325,6 +337,13 @@ const WEBSITE_IDENTITIES = new Set(['discovered', 'associated', 'verified']);
 
 /** What a record is. Only 'company' is counted as one — migration 0012. */
 const ENTITY_TYPES = new Set(['company', 'researcher-project', 'lab', 'unverified']);
+
+/**
+ * What the DPIIT register's record says, and nothing it implies. 'profile' is a
+ * Startup India profile DPIIT never recognised — 345 of 966 records on 14 September
+ * 2026, every one of which the page used to call "DPIIT recognised". Migration 0018.
+ */
+export const DPIIT_STATUSES = new Set(['recognised', 'expired', 'cancelled', 'pending', 'profile']);
 
 /**
  * A company the classifier placed in a sector but in none of its sub-sectors.
@@ -370,8 +389,10 @@ INSERT INTO companies (
   id, name, description, website, website_checked, city, state, cin, founded_year, origin_year,
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
   website_identity, website_identity_note, entity_type, entity_note, source_year, source_year_type,
+  founders, founders_source, dpiit_status, dpiit_stage, contact_email, contact_page, domain_registered, papers,
   first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
-) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?14, ?15, ?16, 0, 'C', ?17)
+) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28,
+  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   description   = COALESCE(excluded.description,   companies.description),
@@ -384,6 +405,20 @@ ON CONFLICT(id) DO UPDATE SET
   source_year      = COALESCE(excluded.source_year,      companies.source_year),
   source_year_type = COALESCE(excluded.source_year_type, companies.source_year_type),
   entity_note   = COALESCE(excluded.entity_note,   companies.entity_note),
+  founders        = CASE WHEN excluded.founders IS NOT NULL THEN excluded.founders ELSE companies.founders END,
+  founders_source = CASE WHEN excluded.founders IS NOT NULL THEN excluded.founders_source ELSE companies.founders_source END,
+  -- The register's latest word: a recognition can lapse, and a profile can be recognised.
+  dpiit_status  = COALESCE(excluded.dpiit_status,  companies.dpiit_status),
+  dpiit_stage   = COALESCE(excluded.dpiit_stage,   companies.dpiit_stage),
+  -- Like the product line: read off a homepage, so gone once the address is checked
+  -- and found not to be theirs, whatever an earlier run learned from it.
+  contact_email     = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
+                           ELSE COALESCE(excluded.contact_email, companies.contact_email) END,
+  contact_page      = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
+                           ELSE COALESCE(excluded.contact_page, companies.contact_page) END,
+  domain_registered = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
+                           ELSE COALESCE(excluded.domain_registered, companies.domain_registered) END,
+  papers        = COALESCE(excluded.papers,        companies.papers),
   website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
   website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
   -- One source that publishes websites is enough to have looked.
@@ -438,6 +473,8 @@ ON CONFLICT(company_id) DO UPDATE SET
  * would leave its old holes on the page forever.
  */
 const DELETE_GAP_SQL = 'DELETE FROM gaps WHERE company_id = ?1';
+
+const DELETE_STALE_REGISTER_SIGNAL_SQL = "DELETE FROM signals WHERE company_id = ?1 AND type = 'dpiit' AND label <> ?2";
 
 /**
  * The other direction, and the one that was missing: a company the classifier can
@@ -561,6 +598,23 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const identity = str(c.website_identity);
 		if (identity !== null && !WEBSITE_IDENTITIES.has(identity)) {
 			return json({ error: `companies[${i}].website_identity must be one of ${[...WEBSITE_IDENTITIES].join(', ')}` }, 400);
+		}
+		const dpiitStatus = str(c.dpiit_status);
+		if (dpiitStatus !== null && !DPIIT_STATUSES.has(dpiitStatus)) {
+			return json({ error: `companies[${i}].dpiit_status must be one of ${[...DPIIT_STATUSES].join(', ')}` }, 400);
+		}
+		// Read off a homepage, so held to the product line's gate: an address whose
+		// identity was not confirmed cannot give a reader someone else's inbox.
+		for (const field of ['contact_email', 'contact_page', 'domain_registered'] as const) {
+			if (str(c[field]) !== null && identity !== 'verified') {
+				return json({ error: `companies[${i}].${field} needs website_identity 'verified'` }, 400);
+			}
+		}
+		if (str(c.domain_registered) !== null && !/^\d{4}-\d{2}-\d{2}$/.test(str(c.domain_registered)!)) {
+			return json({ error: `companies[${i}].domain_registered must be a YYYY-MM-DD date` }, 400);
+		}
+		if (c.papers !== undefined && c.papers !== null && (typeof c.papers !== 'object' || Array.isArray(c.papers) || typeof (c.papers as { count?: unknown }).count !== 'number')) {
+			return json({ error: `companies[${i}].papers must be an object with a count` }, 400);
 		}
 		// A description with no outcome attached is a sentence with no provenance, and
 		// a 'described' with nothing in it is a promise the row cannot keep.
@@ -766,6 +820,14 @@ async function applyIngest(
 			str(c.entity_note),
 			int(c.source_year),
 			str(c.source_year_type),
+			str(c.founders),
+			str(c.founders) ? str(c.founders_source) : null,
+			str(c.dpiit_status),
+			str(c.dpiit_stage),
+			str(c.contact_email),
+			str(c.contact_page),
+			str(c.domain_registered),
+			c.papers ? JSON.stringify(c.papers) : null,
 		);
 	});
 
@@ -822,6 +884,12 @@ async function applyIngest(
 		if (str(c.product_status) === 'unreachable' || str(c.website_identity) === 'discovered') {
 			gapWrites.push(env.DB.prepare(DELETE_WEBSITE_TRACE_SQL).bind(c.id));
 		}
+	}
+	// The register says one thing about a company at a time. Its evidence line is keyed by
+	// label, so a recognition that lapses, or a profile that is recognised, would otherwise
+	// sit beside the line it replaces and read as both.
+	for (const s of accepted) {
+		if (s.type === 'dpiit') gapWrites.push(env.DB.prepare(DELETE_STALE_REGISTER_SIGNAL_SQL).bind(s.company_id, s.label));
 	}
 	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
 
@@ -1119,6 +1187,14 @@ const CSV_COLUMNS = [
 	'website_identity',
 	'website_looked_for',
 	'entity_type',
+	'founders',
+	'founders_source',
+	'dpiit_status',
+	'dpiit_stage',
+	'contact_email',
+	'contact_page',
+	'domain_registered',
+	'papers_found',
 	'city',
 	'state',
 	'rdi_sector',
@@ -1160,11 +1236,20 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			// the thing the page refuses to print. Plain text, not an HTML entity: this
 			// is a spreadsheet, and &apos; in a cell is just wrong.
 			c.product ? "the company's own homepage" : '',
-			c.description,
+			registerText(c.description, c.dpiit_status),
 			c.website,
 			c.website_identity,
 			c.website_checked ? 'yes' : 'no',
 			c.entity_type,
+			c.founders,
+			c.founders ? c.founders_source : '',
+			c.dpiit_status,
+			c.dpiit_stage,
+			// The same gate as the page: nothing read off an address that is not theirs.
+			c.website_identity === 'verified' ? c.contact_email : '',
+			c.website_identity === 'verified' ? c.contact_page : '',
+			c.website_identity === 'verified' ? c.domain_registered : '',
+			papersOf(c.papers)?.count ?? '',
 			c.city,
 			c.state,
 			c.sector_id,

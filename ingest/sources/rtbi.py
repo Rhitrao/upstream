@@ -56,10 +56,13 @@ def scrape() -> tuple[list[Company], list[Signal]]:
         if not name:
             continue
 
+        founders = _founders(textbox.get_text(" "))
         company = Company.named(
             name,
             description=_pitch(textbox.get_text(" ")),
             website=_website(textbox, name),
+            founders=founders,
+            founders_source=SOURCE if founders else None,
         )
         if company.id in companies:
             continue
@@ -68,6 +71,15 @@ def scrape() -> tuple[list[Company], list[Signal]]:
         signals.append(Signal(company_id=company.id, type="incubator", label=LABEL, url=URL, source=SOURCE))
 
     return list(companies.values()), signals
+
+
+FOUNDERS = re.compile(r"Founders?\s*:\s*(.+?)(?=@|\bDomains?\s*:|What it offers|$)", re.IGNORECASE | re.DOTALL)
+
+
+def _founders(text: str) -> str | None:
+    """The "Founder:" line, stopped before the handles and headings that follow it."""
+    match = FOUNDERS.search(clean(text) or "")
+    return clean(match.group(1).rstrip(" ,;|")) if match else None
 
 
 def _pitch(text: str) -> str | None:

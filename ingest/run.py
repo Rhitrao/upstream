@@ -20,7 +20,7 @@ import requests
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import duplicates, entity, health, identity, names, places
+from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
@@ -280,7 +280,15 @@ def main() -> int:
                 owner[company.id] = source
                 unique.append(company)
                 first[company.id] = company
-            elif not first[company.id].website and company.website:
+                continue
+            kept = first[company.id]
+            # What only one source publishes still belongs to the row, whichever source
+            # owns it: founders from an incubator card, recognition from the register.
+            if not kept.founders and company.founders:
+                kept.founders, kept.founders_source = company.founders, company.founders_source
+            if not kept.dpiit_status and company.dpiit_status:
+                kept.dpiit_status, kept.dpiit_stage = company.dpiit_status, company.dpiit_stage
+            if not first[company.id].website and company.website:
                 # The owning source may publish no website field at all (the DPIIT
                 # register does not). The address another source gives is still the
                 # one to check, and checking it once means one answer for both copies.
@@ -297,7 +305,7 @@ def main() -> int:
     # Before classification, because the classifier is told when a record is a
     # person's project: otherwise it writes "the company" about Aishwarya Dasare.
     for company in unique:
-        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id])
+        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id], company.dpiit_status)
 
     print(f"\nClassifying {len(unique)} companies")
     try:
@@ -361,6 +369,32 @@ def main() -> int:
         signals_by_source[owner[trace.company_id]].append(trace)
     print(f"  {len(websites)} homepages answered and count as a trace")
 
+    # Free, and only for the companies placement kept, for the same reason as the
+    # product line: a company off the map has nowhere to show an address. Each one is
+    # cached in the repo, so a night only asks about what is new or a month old.
+    contacts = contact.lookup(on_map, max_seconds=300)
+    registered = rdap.lookup(on_map, max_seconds=300)
+    # By the name the page prints, which is the name the cache was filled with: a
+    # capitalised register name reads differently to the rule that skips people's names.
+    found_papers = papers.lookup([dataclasses.replace(c, name=names.display(c.name)) for c in on_map], max_seconds=600)
+    for company in on_map:
+        found = contacts.get(company.id)
+        if found is not None:
+            company.contact_email, company.contact_page = found.email, found.page
+        company.domain_registered = registered.get(company.id)
+        paper = found_papers.get(company.id)
+        if paper is not None:
+            company.papers = {
+                "count": paper.count,
+                "works": [{"title": w.title, "year": w.year, "url": w.url} for w in paper.works],
+                "query_url": paper.query_url,
+            }
+    print(
+        f"  {sum(1 for c in contacts.values() if c.email or c.page)} verified sites give a contact route; "
+        f"{len(registered)} domains have a registration date; "
+        f"{sum(1 for p in found_papers.values() if p.count)} companies are named as an author affiliation"
+    )
+
     enriched = {company.id: company for company in unique}
 
     print("\nUploading" if not args.dry_run else "\nDry run: nothing uploaded")
@@ -419,6 +453,16 @@ def main() -> int:
                         "website_identity_note": enriched.get(company.id, company).website_identity_note,
                         "entity_type": enriched.get(company.id, company).entity_type,
                         "entity_note": enriched.get(company.id, company).entity_note,
+                        # Every copy carries what the merged row knows, so the order the
+                        # sources upload in cannot decide whether a row has founders.
+                        "founders": enriched.get(company.id, company).founders,
+                        "founders_source": enriched.get(company.id, company).founders_source,
+                        "dpiit_status": enriched.get(company.id, company).dpiit_status,
+                        "dpiit_stage": enriched.get(company.id, company).dpiit_stage,
+                        "contact_email": enriched.get(company.id, company).contact_email,
+                        "contact_page": enriched.get(company.id, company).contact_page,
+                        "domain_registered": enriched.get(company.id, company).domain_registered,
+                        "papers": enriched.get(company.id, company).papers,
                     }
                 )
             )

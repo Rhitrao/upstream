@@ -28,6 +28,9 @@ import {
 	REGISTER_LABEL_PREFIX,
 	TRACE_BUCKETS,
 	DESCRIBED_STATES,
+	DPIIT_STATUS_PHRASES,
+	papersOf,
+	registerText,
 } from './db';
 
 /**
@@ -143,7 +146,7 @@ function query(params: Record<string, string | null | undefined>): string {
 
 /** What each kind of evidence is called when its date is the one on the row. */
 const EVENT_NAMES: Record<string, string> = {
-	dpiit: 'DPIIT recognition',
+	dpiit: 'DPIIT register record',
 	incubator: 'incubator listing',
 	grant: 'grant award',
 	press: 'press mention',
@@ -161,7 +164,7 @@ function shortDate(iso: string): string {
 }
 
 /**
- * The oldest dated thing a source says about the company, named: "DPIIT recognition
+ * The oldest dated thing a source says about the company, named: "DPIIT register record
  * 25 Aug 2023". Null when no source dates anything.
  */
 function sourceEvent(company: Company): { label: string; date: string } | null {
@@ -902,7 +905,7 @@ const EVIDENCE_NAMES: Record<string, string> = {
 
 /** What the source's own date says happened, in the words a row has room for. */
 const EVENT_VERBS: Record<string, string> = {
-	dpiit: 'DPIIT recognised',
+	dpiit: 'on DPIIT register',
 	incubator: 'incubator listing',
 	grant: 'grant awarded',
 	press: 'press mention',
@@ -949,7 +952,7 @@ function buildsLine(company: Company): { html: string; described: boolean } {
 }
 
 /**
- * The source's date for a row, named for what happened: "DPIIT recognised Aug 2023".
+ * The source's date for a row, named for what happened: "on DPIIT register Aug 2023".
  * Null when no source dates anything.
  */
 function eventPhrase(company: Company): string | null {
@@ -1083,7 +1086,7 @@ function unknownAge(view: PageView): string {
 	if (n === 0) return '';
 
 	return `<p class="note">${n} of these ${n === 1 ? 'is dated' : 'are dated'} by a public register rather than by a
-    founding year &mdash; DPIIT publishes when it recognised a company, not when the company started. The
+    founding year &mdash; the DPIIT register dates its own record of a company, not when the company started. The
     ${MAX_AGE_YEARS}-year filter cannot be applied to ${n === 1 ? 'it' : 'them'}, and ${n === 1 ? 'its row says' : 'their rows say'} so.</p>`;
 }
 
@@ -1257,7 +1260,7 @@ function registerSplit(view: PageView): string {
 			? ''
 			: `
   <p><strong>${register.undescribed}</strong> are unplaced because
-    <a href="#undescribed">the register never said what they do</a>. DPIIT recognition publishes a company name and
+    <a href="#undescribed">the register never said what they do</a>. The DPIIT register publishes a company name and
     an industry the founder picked from a dropdown, and for these ${register.undescribed} that is the entire public
     record. Enough to know they exist; nothing like enough to say what they build. They are left unplaced rather than
     guessed at.</p>
@@ -1307,7 +1310,7 @@ function productNote(view: PageView): string {
 
 	const rest = failures.length
 		? ` The rest did not work, and how they did not work is worth saying: ${failures.join(', ')}.
-    A DPIIT-recognised startup whose domain has stopped resolving is a finding, not a missing cell.`
+    A startup on the DPIIT register whose domain has stopped resolving is a finding, not a missing cell.`
 		: '';
 
 	const none =
@@ -1349,7 +1352,7 @@ function methodology(view: PageView): string {
   <h3>How the tiers are decided</h3>
   <p>There is no score. A number between 0 and 100 would pretend to a precision we do not have. Two facts decide the tier:
     how recently we first saw the company, and how many public traces it already has &mdash; today that means an
-    incubator listing, a grant award, a DPIIT recognition and a website that answered when we fetched it. A domain that
+    incubator listing, a grant award, a DPIIT register record and a website that answered when we fetched it. A domain that
     no longer resolves is not a trace, and stops being one the night it stops answering. A press mention ought to count
     as well; nothing collects it yet, so for now it does not, and the trace counts on this page are lower than they
     would be.</p>
@@ -1434,7 +1437,8 @@ export function unknowns(company: Company): string[] {
 	else if (site && company.website_identity !== 'verified') out.push(`Whether ${host} is its website: not confirmed as theirs`);
 	else if (!site && !company.website_checked) out.push('Whether it has a website: no source that publishes websites lists it');
 	if (!company.cin) out.push('Its company registration: no CIN on record, so no MCA filing is joined');
-	out.push('Founders, funding and revenue: Upstream collects none of these');
+	if (!company.founders) out.push('Founders: no source this page reads names them');
+	out.push('Funding and revenue: Upstream collects neither');
 	return out;
 }
 
@@ -1446,6 +1450,80 @@ export function unknowns(company: Company): string[] {
  */
 function undatedWord(label: string): string {
 	return /\b(19|20)\d\d\b/.test(label) ? 'no exact date' : 'not dated';
+}
+
+/** Where each source's founder line comes from, for the attribution beside it. */
+function sourceName(source: string | null): string {
+	return (source && SOURCE_LABELS[source]) || 'a source';
+}
+
+/**
+ * Who they are and how to reach them, as lines with their provenance. Shared by the page
+ * and the brief. A line is only here when the column behind it holds something: what is
+ * missing is said once, under What is not known.
+ */
+function whoLines(company: Company): { label: string; text: string; note: string | null; href?: string }[] {
+	const out: { label: string; text: string; note: string | null; href?: string }[] = [];
+	if (company.founders) out.push({ label: 'Founders', text: company.founders, note: `as ${sourceName(company.founders_source)} lists them` });
+	if (company.dpiit_status) {
+		out.push({
+			label: 'DPIIT',
+			text: `${DPIIT_STATUS_PHRASES[company.dpiit_status] ?? company.dpiit_status}${company.dpiit_stage ? `; stage on its profile: ${company.dpiit_stage}` : ''}`,
+			note: company.dpiit_status === 'profile' ? 'anyone can make a Startup India profile; recognition is DPIIT assessing it and issuing a number' : 'as the register’s record says',
+		});
+	}
+	const verified = company.website_identity === 'verified';
+	if (verified && company.contact_email) out.push({ label: 'Email', text: company.contact_email, note: 'on their own domain, from their homepage', href: `mailto:${company.contact_email}` });
+	const page = verified ? safeUrl(company.contact_page) : null;
+	if (page) out.push({ label: 'Contact page', text: page, note: 'linked from their homepage', href: page });
+	if (verified && company.domain_registered) {
+		out.push({
+			label: 'Domain registered',
+			text: shortDate(company.domain_registered),
+			note: 'from the domain registry (RDAP); the domain’s age, not the company’s — a domain can be bought years earlier, or second-hand',
+		});
+	}
+	return out;
+}
+
+function whoSection(company: Company): string {
+	const lines = whoLines(company);
+	if (!lines.length) return '';
+	return `<section>
+    <h2>Who they are</h2>
+    <dl class="who">${lines
+			.map(
+				(l) =>
+					`<div><dt>${esc(l.label)}</dt><dd>${l.href ? `<a href="${esc(l.href)}" rel="noopener nofollow">${esc(l.text)}</a>` : esc(l.text)}</dd>${
+						l.note ? `<dd class="why">${esc(l.note)}</dd>` : ''
+					}</div>`,
+			)
+			.join('')}</dl>
+  </section>`;
+}
+
+/**
+ * Works whose author affiliation names the company. Under the evidence and not in it: a
+ * paper is somebody writing about their science, not somebody noticing the company, so
+ * it does not count as a trace or move the row.
+ */
+function papersBlock(company: Company): string {
+	const papers = papersOf(company.papers);
+	if (!papers || papers.count === 0) return '';
+	const query = safeUrl(papers.query_url);
+	return `<div class="papers">
+      <h3 class="mini">Research papers</h3>
+      <p class="provenance">${papers.count} ${papers.count === 1 ? 'work lists' : 'works list'} this company as an author affiliation, in OpenAlex${
+				query ? ` (<a href="${esc(query)}" rel="noopener nofollow">see them</a>)` : ''
+			}. Not counted as a public trace.</p>
+      <ul class="paper-list">${papers.works
+				.map((w) => {
+					const href = safeUrl(w.url);
+					const title = esc(w.title);
+					return `<li>${href ? `<a href="${esc(href)}" rel="noopener nofollow">${title}</a>` : title}${w.year ? ` <span class="mono">${esc(w.year)}</span>` : ''}</li>`;
+				})
+				.join('')}</ul>
+    </div>`;
 }
 
 function siteLine(company: Company): string | null {
@@ -1479,7 +1557,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 		lines.push(`**What it builds:** ${company.description} _(as a source described it)_`);
 	} else {
 		lines.push('**What it builds:** Unknown. No source describes it.');
-		if (company.description) lines.push(`The only published line is a register label: ${company.description}`);
+		if (company.description) lines.push(`The only published line is a register label: ${registerText(company.description, company.dpiit_status)}`);
 	}
 	if (company.product && site && describedBySource(company)) {
 		lines.push(`**As a source described it:** ${company.description}`);
@@ -1488,6 +1566,9 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	const located = [company.city, company.state].filter(Boolean).join(', ');
 	lines.push(
 		`**Started:** ${ageKnown(company) ? String(company.origin_year ?? company.founded_year) : 'unknown'} · **Based:** ${located || 'unknown'} · **Public traces:** ${company.trace_count}`,
+	);
+	for (const line of whoLines(company)) lines.push(`**${line.label}:** ${line.text}${line.note ? ` _(${line.note})_` : ''}`);
+	lines.push(
 		'',
 		'## Unknown',
 		...unknowns(company).map((u) => `- ${u}`),
@@ -1500,6 +1581,11 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	}
 	const siteSaid = siteLine(company);
 	if (siteSaid) lines.push(`- Website: ${siteSaid}`);
+	const papers = papersOf(company.papers);
+	if (papers && papers.count > 0) {
+		lines.push(`- Papers: ${papers.count} ${papers.count === 1 ? 'work lists' : 'works list'} it as an author affiliation (OpenAlex, not counted as a trace): ${papers.query_url}`);
+		for (const work of papers.works) lines.push(`  - ${work.title}${work.year ? ` (${work.year})` : ''}: ${work.url}`);
+	}
 
 	lines.push('', '## Placement');
 	if (sub) {
@@ -1587,7 +1673,7 @@ function productStatusDetail(company: Company, link: string, site: string | null
 			return `<p class="provenance">${link || 'Their site'} answered, but nothing on it confirmed the address is
         theirs, so it was not read. A sentence from someone else's homepage is worse than none.</p>`;
 		case 'unreachable':
-			return `<p class="provenance">They publish${link}, and it does not answer. A recognised startup whose
+			return `<p class="provenance">They publish${link}, and it does not answer. A listed startup whose
         own domain has stopped resolving is worth knowing about.</p>`;
 		case 'refused':
 			return `<p class="provenance">${link || 'Their site'} refused an automated reader, which is its right. What
@@ -1635,7 +1721,7 @@ export function renderCompanyPage(view: CompanyView): string {
 		: `<p class="unknown-value">Unknown</p>${productDetail(company)}`;
 	const excerpt = company.description
 		? !describedBySource(company)
-			? `<p class="desc">${esc(company.description)}</p><p class="provenance">A register&rsquo;s dropdown choices, not a description. Nothing here says what the company makes.</p>`
+			? `<p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">A register&rsquo;s dropdown choices, not a description. Nothing here says what the company makes.</p>`
 			: `<p class="desc">${esc(company.description)}<span class="says">as the source described it</span></p>`
 		: '<p class="unknown-value">Unknown</p><p class="provenance">No source published a description.</p>';
 
@@ -1686,7 +1772,7 @@ export function renderCompanyPage(view: CompanyView): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(company.name)} &mdash; Upstream</title>
-<meta name="description" content="${esc(company.product ?? company.description ?? company.name)}">
+<meta name="description" content="${esc(company.product ?? registerText(company.description, company.dpiit_status) ?? company.name)}">
 <meta name="color-scheme" content="light dark">
 <link rel="canonical" href="${esc(`${BASE_PATH}/c/${company.id}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1729,6 +1815,8 @@ export function renderCompanyPage(view: CompanyView): string {
     </div>
   </section>
 
+  ${whoSection(company)}
+
   <section class="unknowns">
     <h2>What is not known</h2>
     <ul class="unknown-list">${unknownItems}</ul>
@@ -1738,6 +1826,7 @@ export function renderCompanyPage(view: CompanyView): string {
     <h2>Evidence</h2>
     <p class="provenance">Everything that put this company on the list, with the page it came from.</p>
     ${evidence}
+    ${papersBlock(company)}
   </section>
 
   <section>
@@ -2409,6 +2498,15 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .more-places > summary { cursor: pointer; font-size: var(--t-xs); color: var(--muted); }
 .more-places > .grid { margin-top: var(--s1); }
 .districts { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
+.who { margin: 0; display: grid; gap: var(--s3); }
+.who > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 var(--s4); }
+@media (min-width: 46rem) { .who > div { grid-template-columns: 11rem minmax(0, 1fr); } .who .why { grid-column: 2; } }
+.who dt { font-size: var(--t-xs); color: var(--muted); }
+.who dd { margin: 0; overflow-wrap: anywhere; }
+.who dd.why { font-size: var(--t-xs); color: var(--muted); }
+.papers { margin-top: var(--s4); }
+.paper-list { margin: var(--s2) 0 0; padding-left: var(--s4); font-size: var(--t-sm); }
+.paper-list li { margin-bottom: var(--s1); }
 .districts .n { font-family: var(--mono); color: var(--ink); }
 /* the question box */
 .ask { margin: 0 0 var(--s5); }

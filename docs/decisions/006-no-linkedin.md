@@ -42,9 +42,17 @@ visible to every associate at every fund with a Sales Navigator seat.
 
 The earliest signal for a large share of companies, and all stealth companies. If a
 company has not appeared in an incubator portfolio, a grant list or the DPIIT register,
-this page cannot see it and does not pretend to. No founders, no team size, and no
-"left a job to start this" — the fields a partner asks about first. The brief says so
-under Unknown, every time.
+this page cannot see it and does not pretend to. No team size, and no "left a job to
+start this" — the fields a partner asks about first. The brief says so under Unknown,
+every time.
+
+**Amended 2026-09-14.** Founders' names are shown where a source this page already reads
+prints them: SINE IIT Bombay, Venture Center and IITM RTBI put them on each card (298 of
+607 rows). The name is taken as the card writes it and attributed to that source; the
+LinkedIn link Venture Center wraps it in is still not followed, not stored and not shown.
+This was always what the decision allowed — a name on a public portfolio page meets the
+standard above — and "no founders" had been a side effect of the scraper skipping the
+links, not a choice about the names.
 
 ## What would change our mind
 

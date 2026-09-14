@@ -56,6 +56,23 @@ export interface Company {
 	/** company, researcher-project, lab or unverified; NULL is read as company. */
 	entity_type: string | null;
 	entity_note: string | null;
+	/** The founders a source names, in its words, and which source. Migration 0018. */
+	founders: string | null;
+	founders_source: string | null;
+	/**
+	 * What the DPIIT register's record says: 'recognised', 'expired', 'cancelled',
+	 * 'pending', or 'profile' (on Startup India, never recognised). NULL: not on it.
+	 */
+	dpiit_status: string | null;
+	/** The stage the company chose on its register profile ("Prototype"). */
+	dpiit_stage: string | null;
+	/** From a verified homepage only: an address on its own domain, a contact page. */
+	contact_email: string | null;
+	contact_page: string | null;
+	/** The website domain's RDAP registration date. The domain's age, not the company's. */
+	domain_registered: string | null;
+	/** JSON: {count, works: [{title, year, url}], query_url} from OpenAlex affiliations. */
+	papers: string | null;
 	first_seen: string | null;
 	first_seen_basis: Basis | null;
 	discovered: string;
@@ -139,6 +156,44 @@ const TRACE_SQL: Record<TraceBucket, string> = {
 export const DESCRIBED_STATES = ['own', 'source', 'label', 'none'] as const;
 export type DescribedState = (typeof DESCRIBED_STATES)[number];
 export const REGISTER_LABEL_PREFIX = 'DPIIT-recognised startup. Industry:';
+
+/**
+ * What the register's record says about recognition, in a phrase. The stored label
+ * starts "DPIIT-recognised startup." for every register record, because that string is
+ * what the classifier's cache is keyed on; this is what the page prints in its place.
+ * NULL is a row written before the status was stored, and claims nothing either way.
+ */
+export const DPIIT_STATUS_PHRASES: Record<string, string> = {
+	recognised: 'DPIIT recognised',
+	expired: 'DPIIT recognition expired',
+	cancelled: 'DPIIT recognition cancelled',
+	pending: 'Startup India profile, DPIIT recognition pending',
+	profile: 'Startup India profile, not DPIIT recognised',
+};
+
+/** A register label with its first sentence saying what the record actually says. */
+export function registerText(description: string | null, status: string | null): string | null {
+	if (!description || !description.startsWith(REGISTER_LABEL_PREFIX)) return description;
+	const phrase = status ? DPIIT_STATUS_PHRASES[status] : null;
+	return description.replace(/^DPIIT-recognised startup\./, phrase ? `${phrase}.` : 'On the DPIIT Startup India register.');
+}
+
+export interface PapersFound {
+	count: number;
+	works: { title: string; year: number | null; url: string }[];
+	query_url: string;
+}
+
+/** The stored papers JSON, or null when it is missing or not the shape ingest writes. */
+export function papersOf(raw: string | null): PapersFound | null {
+	if (!raw) return null;
+	try {
+		const parsed = JSON.parse(raw) as PapersFound;
+		return typeof parsed?.count === 'number' && Array.isArray(parsed.works) ? parsed : null;
+	} catch {
+		return null;
+	}
+}
 const DESCRIBED_SQL = `CASE
   WHEN COALESCE(c.product, '') <> '' AND c.website_identity = 'verified' THEN 'own'
   WHEN COALESCE(c.description, '') <> '' AND substr(c.description, 1, ${REGISTER_LABEL_PREFIX.length}) <> '${REGISTER_LABEL_PREFIX}' THEN 'source'

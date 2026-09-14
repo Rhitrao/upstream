@@ -1,0 +1,5283 @@
+{
+ "109-nano-composite-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 4,
+  "needle": "109 Nano Composite Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22109%20Nano%20Composite%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Influence of Ultrasonic Vibration towards the Microstructure Refinement and Particulate Distribution of AA7150-B4C Nanocomposites",
+    "url": "https://doi.org/10.3390/coatings12030365",
+    "year": 2022
+   },
+   {
+    "title": "Recent biotechnological developments in reshaping the microalgal genome: A signal for green recovery in biorefinery practices",
+    "url": "https://doi.org/10.1016/j.chemosphere.2022.133513",
+    "year": 2022
+   },
+   {
+    "title": "Strategies in the direction of scaling-up aspects of microbial electrolysis cells",
+    "url": "https://doi.org/10.1016/b978-0-323-90765-1.00019-8",
+    "year": 2022
+   }
+  ]
+ },
+ "2d-matx": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "2D Matx",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%222D%20Matx%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "a3-remote-monitoring-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 3,
+  "needle": "A3 Remote Monitoring Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22A3%20Remote%20Monitoring%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Dimensions influencing business intelligence and analytics maturity: a critical analysis",
+    "url": "https://doi.org/10.1504/ijbis.2021.115375",
+    "year": 2021
+   },
+   {
+    "title": "Emerging trends and impact of business intelligence & analytics in organizations: Case studies from India",
+    "url": "https://doi.org/10.1177/0266382120969265",
+    "year": 2020
+   },
+   {
+    "title": "Improved Technique to Remove ECG Baseline Wander – Application to Pan & Tompkins QRS Detection Algorithm",
+    "url": "https://doi.org/10.1007/978-3-642-36321-4_47",
+    "year": 2013
+   }
+  ]
+ },
+ "aakhash-advanced-materials": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Aakhash Advanced Materials",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aakhash%20Advanced%20Materials%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aayushi-solar-energy-opc": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Aayushi Solar Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aayushi%20Solar%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "abee-research-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Abee Research Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Abee%20Research%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "abyom-spacetech-and-defence": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Abyom Spacetech and Defence",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Abyom%20Spacetech%20and%20Defence%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "accelerd-sciences": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Accelerd Sciences",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Accelerd%20Sciences%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "acceleron-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Acceleron Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Acceleron%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "accensible-solutions": {
+  "checked": "2026-09-14T16:39:43+00:00",
+  "count": 0,
+  "needle": "Accensible Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Accensible%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "acells-imprint": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Acells Imprint",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Acells%20Imprint%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "acuradyne-medical-systems": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Acuradyne Medical Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Acuradyne%20Medical%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "addauto-technology": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Addauto Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Addauto%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "adiuvo-diagnostics": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 10,
+  "needle": "Adiuvo Diagnostics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Adiuvo%20Diagnostics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Illuminate-OxyView: a handheld point-of-care device for imaging tissue oxygen saturation in diabetic foot ulcers using a skin-tone-specific machine learning approach",
+    "url": "https://doi.org/10.1117/12.3042493",
+    "year": 2025
+   },
+   {
+    "title": "An accurate and rapid method (<10 min) to detect biofilms in wounds using a combination of wound blotting, white light imaging, and machine learning",
+    "url": "https://doi.org/10.1117/12.3003622",
+    "year": 2024
+   },
+   {
+    "title": "Deep-learning aided multispectral autofluorescence imaging for rapid bioburden detection and gram-type classification on diabetic foot ulcers",
+    "url": "https://doi.org/10.1117/12.3003591",
+    "year": 2024
+   }
+  ]
+ },
+ "advanced-renewable-tandem-photovoltaics-india": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 1,
+  "needle": "Advanced Renewable Tandem Photovoltaics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Advanced%20Renewable%20Tandem%20Photovoltaics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Controlled Templated Growth of Low-Dimensional Perovskite for Improved Interfacial Electronic Coupling and Passivation in Wide Bandgap Perovskite Solar Cells",
+    "url": "https://doi.org/10.1021/acsami.5c23217",
+    "year": 2026
+   }
+  ]
+ },
+ "advantech-mi-systems": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Advantech MI Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Advantech%20MI%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aerodel-technology-innovations": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Aerodel Technology Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aerodel%20Technology%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aerogravity": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Aerogravity",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aerogravity%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aerolith-technology": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Aerolith Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aerolith%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aerovity-advanced-system": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Aerovity Advanced System",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aerovity%20Advanced%20System%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "affinity-automation-controls": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Affinity Automation Controls",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Affinity%20Automation%20Controls%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "agam-agritech": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Agam Agritech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Agam%20Agritech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "agautomate": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 3,
+  "needle": "AgAutomate",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22AgAutomate%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Historical Indian Sugarcane Ecosystem Dataset (2010–2025)",
+    "url": "https://doi.org/10.7910/dvn/msej4d",
+    "year": 2026
+   },
+   {
+    "title": "Optimizing Quadcopter Chassis Through Generative Design: A Novel Approach",
+    "url": "https://doi.org/10.1007/978-981-97-6176-0_8",
+    "year": 2025
+   },
+   {
+    "title": "Data-Driven Aircraft Engine Prognostics Using Probabilistic Machine Learning on NASA C–MAPSS Dataset: An Industry 4.0 Standpoint",
+    "url": "https://doi.org/10.1007/978-981-97-6176-0_6",
+    "year": 2025
+   }
+  ]
+ },
+ "agnikul-cosmos": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 6,
+  "needle": "Agnikul Cosmos",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Agnikul%20Cosmos%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Vibration-Based Methods for Non-Destructive Prediction of Buckling Loads",
+    "url": "https://doi.org/10.4271/2026-26-0737",
+    "year": 2026
+   },
+   {
+    "title": "Computational Study of Aero-acoustic Feedback in Supersonic Cavity Flow",
+    "url": "https://doi.org/10.1007/978-981-19-2378-4_20",
+    "year": 2022
+   },
+   {
+    "title": "Numerical Investigation of Blockage of Scramjet Strut Injector Model in a Supersonic Wind Tunnel",
+    "url": "https://doi.org/10.1007/978-981-19-2378-4_21",
+    "year": 2022
+   }
+  ]
+ },
+ "agniva-aerospace": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Agniva Aerospace",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Agniva%20Aerospace%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ai-ezer-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "ai ezer Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ai%20ezer%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aibono-smart-farming": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Aibono Smart Farming",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aibono%20Smart%20Farming%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aicheng-innovation-and-research": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Aicheng Innovation and Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aicheng%20Innovation%20and%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aiva-healthcare-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Aiva Healthcare Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aiva%20Healthcare%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ajithaprodrug-india": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Ajithaprodrug",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ajithaprodrug%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "akshaisarathi-health-care-solutions": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Akshaisarathi Health Care Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Akshaisarathi%20Health%20Care%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "albatross-energetics": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Albatross Energetics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Albatross%20Energetics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "algodelta-solutions": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Algodelta Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Algodelta%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "algosurg-inc": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 3,
+  "needle": "Algosurg",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Algosurg%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Evaluating axial alignment and knee phenotypes in a young Indian population, using X-rays converted to three-dimensional bone models, and their relevance in total knee arthroplasty",
+    "url": "https://doi.org/10.1016/j.knee.2024.04.002",
+    "year": 2024
+   },
+   {
+    "title": "A Study of Surgical Accuracy with X-Ray-Based Patient-Specific Instrument (X3DPSI®) vs Conventional Instrument in Total Knee Arthroplasty Surgeries",
+    "url": "https://doi.org/10.1007/s43465-022-00623-6",
+    "year": 2022
+   },
+   {
+    "title": "CT-Based 3D Reconstruction of Lower Limb Versus X-Ray-Based 3D Reconstruction: A Comparative Analysis and Application for a Safe and Cost-Effective Modality in TKA",
+    "url": "https://doi.org/10.1007/s43465-021-00456-9",
+    "year": 2021
+   }
+  ]
+ },
+ "alpha-feeder-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Alpha Feeder Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Alpha%20Feeder%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "altravia-global": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Altravia Global",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Altravia%20Global%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "amaterasu-lifesciences": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 1,
+  "needle": "Amaterasu Lifesciences",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Amaterasu%20Lifesciences%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Facile Technology for Extemporaneous Preparation of Long-Acting Injectable Microparticulate Suspensions at the Patient Side",
+    "url": "https://doi.org/10.1208/s12249-023-02519-6",
+    "year": 2023
+   }
+  ]
+ },
+ "ambiator": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Ambiator",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ambiator%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "amdus-technologies": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Amdus Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Amdus%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ameliorate-biotech": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Ameliorate Biotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ameliorate%20Biotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ammsemi": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Ammsemi",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ammsemi%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "amsh-endeavours": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 2,
+  "needle": "Amsh Endeavours",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Amsh%20Endeavours%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Thermal control of pore architecture using biomass based carbon nanoparticles for effective water remediation",
+    "url": "https://doi.org/10.1007/s13399-026-07241-4",
+    "year": 2026
+   },
+   {
+    "title": "Green synthesis of carbon quantum dots: Sustainable strategies, property tuning, and emerging applications",
+    "url": "https://doi.org/10.1016/j.jallcom.2026.188389",
+    "year": 2026
+   }
+  ]
+ },
+ "amyscan-healthcare": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Amyscan Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Amyscan%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "analyticsplus-india": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "AnalyticsPlus",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22AnalyticsPlus%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "annoviant-healthcare": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Annoviant Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Annoviant%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "anuna-nanotech": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Anuna Nanotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Anuna%20Nanotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "anvi-robotics": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Anvi Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Anvi%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "appliedc6-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Appliedc6 Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Appliedc6%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aquaforge-robotics": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Aquaforge Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aquaforge%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aradhya-skytron": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Aradhya Skytron",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aradhya%20Skytron%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "arishti-cybertech": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Arishti CyberTech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Arishti%20CyberTech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "arkashine-innovations": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "ArkaShine Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ArkaShine%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "arkle-energy-solutions": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "ARKLE Energy Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ARKLE%20Energy%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "asat-automation": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Asat Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Asat%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ashva-wearable-technologies": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 4,
+  "needle": "Ashva Wearable Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ashva%20Wearable%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Wireless Motion Sensors for Spatiotemporal Gait Analysis Using Fitknees: A Validity and Test-Retest Reliability Study",
+    "url": "https://doi.org/10.15621/ijphy/2026/v13i1/2063",
+    "year": 2026
+   },
+   {
+    "title": "Assessing POT Syndrome with Wearable Sensors and AI: A Case Study",
+    "url": "https://doi.org/10.37506/w925t204",
+    "year": 2024
+   },
+   {
+    "title": "Progress Monitoring Tool for Patient Suffering From OA Knee: Fitknees- Wearbale Sensor and Fitmust (Hand-Held Dynamometer): A Case Study",
+    "url": "https://doi.org/10.37506/wgtdbm03",
+    "year": 2024
+   }
+  ]
+ },
+ "astrome-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 3,
+  "needle": "Astrome Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Astrome%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "PyFR v2.0.3: Towards industrial adoption of scale-resolving simulations",
+    "url": "https://doi.org/10.1016/j.cpc.2025.109567",
+    "year": 2025
+   },
+   {
+    "title": "Implementation and Validation of Shadow Dynamics Algorithm for Satellites",
+    "url": "https://doi.org/10.1109/aero53065.2022.9843225",
+    "year": 2022
+   },
+   {
+    "title": "A constrained optimization perspective on actor–critic algorithms and application to network routing",
+    "url": "https://doi.org/10.1016/j.sysconle.2016.02.020",
+    "year": 2016
+   }
+  ]
+ },
+ "ateon-labs": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Ateon Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ateon%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "atlast-motogen": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "ATLAST Motogen",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ATLAST%20Motogen%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "atmospheric-flight-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Atmospheric Flight Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Atmospheric%20Flight%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "atre-healthtech": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Atre Healthtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Atre%20Healthtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "atreya-innovations": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 8,
+  "needle": "Atreya Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Atreya%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Non-invasive blood glucose estimation using a novel white-box model: An interpretable machine learning approach",
+    "url": "https://doi.org/10.1016/j.bspc.2025.107520",
+    "year": 2025
+   },
+   {
+    "title": "STUDY OF JATHARAGNI (DIGESTIVE FIRE) COMPUTED THROUGH NADI PARIKSHAN USING NADI TARANGINI AS PER RUTUS (SEASONS) QUOTED IN THE AYURVEDA TEXTS: AN OBSERVATIONAL STUDY",
+    "url": "https://openalex.org/W2918349479",
+    "year": 2019
+   },
+   {
+    "title": "Significance of arterial stiffness in Tridosha analysis: A pilot study",
+    "url": "https://doi.org/10.1016/j.jaim.2017.02.012",
+    "year": 2017
+   }
+  ]
+ },
+ "aubotz-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Aubotz Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aubotz%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "audo-sens-diagnostics": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "AUDO Sens Diagnostics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22AUDO%20Sens%20Diagnostics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "auflows-cardiotech": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 2,
+  "needle": "Auflows CardioTech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Auflows%20CardioTech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "PIV visualization of flow pattern in left heart ventricle model with double valve replacement",
+    "url": "https://doi.org/10.21203/rs.3.rs-1996035/v1",
+    "year": 2022
+   },
+   {
+    "title": "Peak Flow in Model Aorta Through Bi-Leaflet Mechanical Heart Valve with Varying Orientation",
+    "url": "https://doi.org/10.1097/mat.0000000000001319",
+    "year": 2020
+   }
+  ]
+ },
+ "augle-a-i": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Augle A I",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Augle%20A%20I%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "aursys-dynamics": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Aursys Dynamics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aursys%20Dynamics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "autosegra-solution": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Autosegra Solution",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Autosegra%20Solution%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "avinya-neurotech": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Avinya NeuroTech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Avinya%20NeuroTech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ayati-devices": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 1,
+  "needle": "Ayati Devices",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ayati%20Devices%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Normative Reference Values for Vibration, Warm and Cold Perception Thresholds in an Indian Population Using the Vibrasense + T Device",
+    "url": "https://doi.org/10.1177/09727531261466876",
+    "year": 2026
+   }
+  ]
+ },
+ "baas-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "BAAS Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22BAAS%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "backstage-dynamics": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Backstage Dynamics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Backstage%20Dynamics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bariflo-cybernetics": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Bariflo Cybernetics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bariflo%20Cybernetics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "barox-oxytec": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Barox Oxytec",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Barox%20Oxytec%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "baud-resources": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Baud Resources",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Baud%20Resources%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bellatrix-aerospace": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 4,
+  "needle": "Bellatrix Aerospace",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bellatrix%20Aerospace%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Mitigating Thermal Discomfort in Multiple Occupancy Work Spaces: Frugal Approaches Unite",
+    "url": "https://doi.org/10.1145/3679240.3734611",
+    "year": 2025
+   },
+   {
+    "title": "An Enhanced Grid-Tied Off-Board Electric Vehicle Charger With Improved Power Quality Using Unified Control Approach",
+    "url": "https://doi.org/10.1109/tpel.2025.3546125",
+    "year": 2025
+   },
+   {
+    "title": "Observation of Kolmogorov turbulence due to multiscale vortices in dusty plasma experiments",
+    "url": "https://doi.org/10.1063/5.0231076",
+    "year": 2024
+   }
+  ]
+ },
+ "bigdipper-exploration-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "BigDipper Exploration Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22BigDipper%20Exploration%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bike-spa-international": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Bike Spa International",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bike%20Spa%20International%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "biodimension-technology": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "BioDimension Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22BioDimension%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bioinnovatiq-lifescience": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Bioinnovatiq Lifescience",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bioinnovatiq%20Lifescience%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "biolockey-healthworks": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Biolockey Healthworks",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Biolockey%20Healthworks%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "biomarkiq-scientific-technologies": {
+  "checked": "2026-09-14T16:39:43+00:00",
+  "count": 0,
+  "needle": "BioMarkIQ Scientific Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22BioMarkIQ%20Scientific%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bionano-integra-healthcare-opc": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Bionano Integra Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bionano%20Integra%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bionic-hope": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 1,
+  "needle": "Bionic Hope",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bionic%20Hope%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Vibrotactile Sensory Feedback System for Prosthetic devices",
+    "url": "https://doi.org/10.1109/tencon.2019.8929504",
+    "year": 2019
+   }
+  ]
+ },
+ "bioprobe-lab": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Bioprobe Lab",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bioprobe%20Lab%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bit-mapper-integration-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 1,
+  "needle": "Bit Mapper Integration technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bit%20Mapper%20Integration%20technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Multi-core Image processing system using Network on Chip interconnect",
+    "url": "https://doi.org/10.1109/mwscas.2007.4488781",
+    "year": 2007
+   }
+  ]
+ },
+ "bleetech-innovations": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "BleeTech Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22BleeTech%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "blurgs-innovations": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Blurgs Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Blurgs%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bodhiverse": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Bodhiverse",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bodhiverse%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "boltzmann-labs": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Boltzmann Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Boltzmann%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bombay-bijlee": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Bombay Bijlee",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bombay%20Bijlee%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bonarep-materials": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Bonarep Materials",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bonarep%20Materials%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "boviedge-research": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Boviedge Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Boviedge%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "brainbuds-healthcare": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Brainbuds Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Brainbuds%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "brainwaves-neurorehab-solutions": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Brainwaves Neurorehab Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Brainwaves%20Neurorehab%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bramhansh-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Bramhansh Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bramhansh%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "buzzworthy-ventures": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Buzzworthy Ventures",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Buzzworthy%20Ventures%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "bylin-medtech": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Bylin Medtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bylin%20Medtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "byline-medtch": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Byline Medtch",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Byline%20Medtch%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "cafiyn-innovations": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Cafiyn Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cafiyn%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "caldor-health-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 5,
+  "needle": "Caldor Health Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Caldor%20Health%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Novel Endotracheal Tube-Based Electrode for Noninvasive Treatment of Tracheal Stenosis",
+    "url": "https://doi.org/10.1115/1.4069908",
+    "year": 2025
+   },
+   {
+    "title": "India’s First Non-contact Low-Cost Facial Nerve Monitor for Micro Ear Surgery: A Step Toward Affordable Healthcare Solutions",
+    "url": "https://doi.org/10.1007/s12070-025-05498-1",
+    "year": 2025
+   },
+   {
+    "title": "Electromechanical Reshaping of Face, Neck and Auricular Cartilages: A Scoping Review",
+    "url": "https://doi.org/10.1007/s12070-024-05207-4",
+    "year": 2025
+   }
+  ]
+ },
+ "call-x-ringers": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Call X Ringers",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Call%20X%20Ringers%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "callx-ringers": {
+  "checked": "2026-09-14T16:39:43+00:00",
+  "count": 0,
+  "needle": "CallX Ringers",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22CallX%20Ringers%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "caloreon-technologies": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Caloreon Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Caloreon%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "canary-biosensors": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Canary Biosensors",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Canary%20Biosensors%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "cancrie": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 1,
+  "needle": "Cancrie",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cancrie%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Optimizing lithium-ion battery manufacturing with digitalization and AI-driven frameworks",
+    "url": "https://doi.org/10.1007/s00170-025-17129-8",
+    "year": 2025
+   }
+  ]
+ },
+ "cancrie-inc": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 1,
+  "needle": "Cancrie",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cancrie%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Optimizing lithium-ion battery manufacturing with digitalization and AI-driven frameworks",
+    "url": "https://doi.org/10.1007/s00170-025-17129-8",
+    "year": 2025
+   }
+  ]
+ },
+ "careflex-health": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Careflex Health",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Careflex%20Health%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "careflex-healthcare": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Careflex Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Careflex%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "caregenix-diagnotech": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Caregenix Diagnotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Caregenix%20Diagnotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "carimo-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Carimo Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Carimo%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "cellom-biologicals": {
+  "checked": "2026-09-14T16:39:43+00:00",
+  "count": 1,
+  "needle": "Cellom Biologicals",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cellom%20Biologicals%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Dialysis and lyophilization of the mesenchymal stromal cell secretome for wound healing",
+    "url": "https://doi.org/10.1016/j.jcyt.2024.12.013",
+    "year": 2025
+   }
+  ]
+ },
+ "chaitanya-nanotechnology": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Chaitanya Nanotechnology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Chaitanya%20Nanotechnology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "chemgreen-innovations": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Chemgreen Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Chemgreen%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "cheminpharma-products": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Cheminpharma Products",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cheminpharma%20Products%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "chimertech": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 10,
+  "needle": "Chimertech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Chimertech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Is AMR in Dairy Products a Threat to Human Health? An Updated Review on the Origin, Prevention, Treatment, and Economic Impacts of Subclinical Mastitis",
+    "url": "https://doi.org/10.2147/idr.s384776",
+    "year": 2023
+   },
+   {
+    "title": "Virotherapy",
+    "url": "https://doi.org/10.1016/b978-0-323-91814-5.00030-1",
+    "year": 2022
+   },
+   {
+    "title": "Potential Bioactive Compounds from Marine Streptomyces sp. and Their In Vitro Antibiofilm and Antibacterial Activities Against Antimicrobial-Resistant Clinical Pathogens",
+    "url": "https://doi.org/10.1007/s12010-022-04072-7",
+    "year": 2022
+   }
+  ]
+ },
+ "circular-ecotech": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Circular Ecotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Circular%20Ecotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "clairvoyance-mindware": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Clairvoyance Mindware",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Clairvoyance%20Mindware%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "clarity-bio-systems-india": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 20,
+  "needle": "Clarity Bio Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Clarity%20Bio%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Emzing: A deep learning-enabled software suite for end-to-end analysis of high-resolution LC-MS metabolomics data",
+    "url": "https://doi.org/10.26434/chemrxiv-2025-g03kr/v4",
+    "year": 2026
+   },
+   {
+    "title": "Ontology-guided harmonization enables unified discovery of public metabolomics studies within and across repositories",
+    "url": "https://doi.org/10.64898/2026.07.23.740366",
+    "year": 2026
+   },
+   {
+    "title": "MERIT-ML: A Machine-Learning-Readiness Framework for Tabular Public Metabolomics Data",
+    "url": "https://doi.org/10.26434/chemrxiv.15004429/v2",
+    "year": 2026
+   }
+  ]
+ },
+ "collcraft-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Collcraft Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Collcraft%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "colmed-health-tech": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Colmed Health Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Colmed%20Health%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "cology-biosciences": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Cology Biosciences",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cology%20Biosciences%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "constrobots-robotics": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Constrobots Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Constrobots%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "corr-robotics": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Corr Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Corr%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "crisprbits": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 5,
+  "needle": "CrisprBits",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22CrisprBits%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "cfDNA concentration as an independent determinant of multi-cancer early detection sensitivity: evidence from a large Indian case-control cohort",
+    "url": "https://doi.org/10.64898/2026.07.03.26355665",
+    "year": 2026
+   },
+   {
+    "title": "Intent to Cure: The Need for a Rare Disease Platform in India and Across the Global South",
+    "url": "https://doi.org/10.1089/crispr.2025.0046",
+    "year": 2025
+   },
+   {
+    "title": "PathCrisp: an innovative molecular diagnostic tool for early detection of NDM-resistant infections",
+    "url": "https://doi.org/10.1038/s41598-024-84832-z",
+    "year": 2025
+   }
+  ]
+ },
+ "curexel-technologies": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Curexel Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Curexel%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "cyclops-medtech": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 3,
+  "needle": "Cyclops Medtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cyclops%20Medtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Epidemiology of benign paroxysomal positional vertigo (BPPV) and risk factors for secondary BPPV: a population-based study",
+    "url": "https://doi.org/10.1186/s43163-023-00456-6",
+    "year": 2023
+   },
+   {
+    "title": "Benign paroxysmal vertigo of childhood: A case report",
+    "url": "https://doi.org/10.5281/zenodo.7919506",
+    "year": 2023
+   },
+   {
+    "title": "Virtual Reality (VR) for Vestibular Rehabilitation: A Pilot Study Comparing VR with Conventional Rehabilitation with Conventional Rehabilitation Alone",
+    "url": "https://doi.org/10.31080/asol.2020.02.0109",
+    "year": 2020
+   }
+  ]
+ },
+ "cygni-energy": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 3,
+  "needle": "Cygni Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cygni%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Enhanced Power Quality Optimization in Grid-Connected SPV Systems Using Hopfield Neural Network-Based Harmonic Detection Algorithm",
+    "url": "https://doi.org/10.1109/sefet65155.2025.11255603",
+    "year": 2025
+   },
+   {
+    "title": "Bringing Uninterrupted DC power to Indian homes: The Sasaram experience",
+    "url": "https://doi.org/10.1109/sgbc.2016.7936064",
+    "year": 2016
+   },
+   {
+    "title": "Economic analysis of deployment of DC power and appliances along with solar in urban multi-storied buildings",
+    "url": "https://doi.org/10.1109/icdcm.2015.7152005",
+    "year": 2015
+   }
+  ]
+ },
+ "d-rube-labs-and-research": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "D Rube Labs and Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22D%20Rube%20Labs%20and%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dartforge-autonomous-systems": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Dartforge Autonomous Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dartforge%20Autonomous%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "darukaa-esg-technology": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Darukaa ESG Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Darukaa%20ESG%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "darwin-digitech": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Darwin Digitech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Darwin%20Digitech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "declutter-solutions": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Declutter Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Declutter%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "delta-nanoventions": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Delta Nanoventions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Delta%20Nanoventions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "denika-lab-tech-solutions": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Denika Lab Tech Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Denika%20Lab%20Tech%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "denovo-bioinnovations": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Denovo Bioinnovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Denovo%20Bioinnovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "desintox-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Desintox Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Desintox%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "devadros-automata": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Devadros Automata",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Devadros%20Automata%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dhanya-nanotech": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Dhanya Nanotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dhanya%20Nanotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dharmayukta": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Dharmayukta",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dharmayukta%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dhenoo-tech-solutions": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Dhenoo Tech Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dhenoo%20Tech%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dhi-sathi-robotics": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Dhi Sathi Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dhi%20Sathi%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dhruv-electro": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Dhruv Electro",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dhruv%20Electro%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "diagopreutic": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Diagopreutic",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Diagopreutic%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "docsapp-phasorz-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 1,
+  "needle": "Phasorz Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Phasorz%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A framework for clinical effectiveness in ensuring good clinical outcomes and enhanced patient experience in surgery care patients using a digital approach",
+    "url": "https://doi.org/10.1093/ijcoms/lyag016",
+    "year": 2026
+   }
+  ]
+ },
+ "docswallet-tharakan-web-innovations": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Tharakan Web Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tharakan%20Web%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "doto-health": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 1,
+  "needle": "Doto Health",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Doto%20Health%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Comprehensive Device for Labor, Birthing, and Postpartum Monitoring: A Way Forward in Maternal—Fetal Care",
+    "url": "https://doi.org/10.1007/s13224-025-02329-9",
+    "year": 2026
+   }
+  ]
+ },
+ "dr-pashu-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Dr Pashu Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dr%20Pashu%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "driblet": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Driblet",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Driblet%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "drona-aviation": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Drona Aviation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Drona%20Aviation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dronelab-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Dronelab Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dronelab%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dronesarthi": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Dronesarthi",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dronesarthi%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "droplets-innovative-incinerators": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Droplets Innovative Incinerators",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Droplets%20Innovative%20Incinerators%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "drpashu-ai-technologies": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "DrPashu AI Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22DrPashu%20AI%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dtown-robotics": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "DTOWN Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22DTOWN%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "durjeya-solutions": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Durjeya Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Durjeya%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "dverse-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Dverse Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Dverse%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "earthtech-innovations": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Earthtech Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Earthtech%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "easescan-medtech": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 1,
+  "needle": "Easescan Medtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Easescan%20Medtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Automated ABR and MMN extraction using a customized headband for hearing screening",
+    "url": "https://doi.org/10.1016/j.bspc.2024.106264",
+    "year": 2024
+   }
+  ]
+ },
+ "ecoet-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Ecoet Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ecoet%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "edhaa-innovations": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 2,
+  "needle": "Edhaa Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Edhaa%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "STERI-FREEZ: A Nonelectric Sterilization Device with a “Cool” Green Biocide",
+    "url": "https://doi.org/10.1007/978-981-92-0990-3_2",
+    "year": 2026
+   },
+   {
+    "title": "Advanced drug delivery systems for glioblastoma",
+    "url": "https://doi.org/10.1016/b978-0-323-85503-7.00025-0",
+    "year": 2021
+   }
+  ]
+ },
+ "edsix-brain-lab": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Edsix Brain Lab",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Edsix%20Brain%20Lab%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "edutor-technologies-india": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Edutor Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Edutor%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "effecmed": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "EffecMed",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22EffecMed%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "elamani-tech": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Elamani Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Elamani%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "electrine-ingenum-solutions": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Electrine Ingenum Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Electrine%20Ingenum%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "electronlab": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Electronlab",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Electronlab%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "elemio-materials": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Elemio Materials",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Elemio%20Materials%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "elevenrobotics": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Elevenrobotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Elevenrobotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "elmentoz-research": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 2,
+  "needle": "Elmentoz Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Elmentoz%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Unraveling the genomic blueprint of the Indian black soldier fly: From genome assembly to evolutionary insights",
+    "url": "https://doi.org/10.1016/j.ygeno.2026.111312",
+    "year": 2026
+   },
+   {
+    "title": "Machine learning approach for vaccine development-fundamentals",
+    "url": "https://doi.org/10.1016/b978-0-443-13395-4.00025-3",
+    "year": 2024
+   }
+  ]
+ },
+ "elvitron-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Elvitron Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Elvitron%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "embright-infotech": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 2,
+  "needle": "Embright Infotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Embright%20Infotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "The on-task Attention of Individuals with Autism Spectrum Disorder-An Eye Tracker Study Using Auticare",
+    "url": "https://doi.org/10.31782/ijcrr.2022.141905",
+    "year": 2022
+   },
+   {
+    "title": "Use of XR Based Assistive Technology in Occupational Therapy",
+    "url": "https://doi.org/10.1016/j.apmr.2021.01.056",
+    "year": 2021
+   }
+  ]
+ },
+ "emertech-innovations": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "EmerTech Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22EmerTech%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "emflux-motors": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Emflux Motors",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Emflux%20Motors%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "endimension-technology": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 10,
+  "needle": "EnDimension Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22EnDimension%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Novel Deep Learning-Based (3D U-Net Model) Automated Pulmonary Nodule Detection Tool for CT Imaging",
+    "url": "https://doi.org/10.3390/curroncol32020095",
+    "year": 2025
+   },
+   {
+    "title": "Deep Learning-Based Pulmonary Nodule Screening: A Narrative Review",
+    "url": "https://doi.org/10.1055/s-0044-1791954",
+    "year": 2024
+   },
+   {
+    "title": "Deep learning based clinico-radiological model for paediatric brain tumor detection and subtype prediction",
+    "url": "https://doi.org/10.37349/etat.2023.00159",
+    "year": 2023
+   }
+  ]
+ },
+ "energybae": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Energybae",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Energybae%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "enervanta-electronics": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Enervanta Electronics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Enervanta%20Electronics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "epocare": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Epocare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Epocare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "esres-tech": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Esres Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Esres%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ethereal-exploration-guild": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Ethereal Exploration Guild",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ethereal%20Exploration%20Guild%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "euphotic-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Euphotic Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Euphotic%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "excelios-tissue-products": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Excelios Tissue Products",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Excelios%20Tissue%20Products%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "exinovous-healthcare-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Exinovous Healthcare Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Exinovous%20Healthcare%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "exovian-robotics": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Exovian Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Exovian%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "exquinz-life-sciences": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Exquinz Life Sciences",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Exquinz%20Life%20Sciences%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fabheads-automation": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Fabheads Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fabheads%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "feetwings": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "FeetWings",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22FeetWings%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "felis-leo-widgets": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Felis leo widgets",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Felis%20leo%20widgets%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "femacare": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Femacare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Femacare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fibsol-life-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "FIBSOL Life Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22FIBSOL%20Life%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fins-and-tails-agritech": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Fins and Tails Agritech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fins%20and%20Tails%20Agritech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "flash-cryogenics": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 1,
+  "needle": "Flash Cryogenics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Flash%20Cryogenics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Mixed Refrigerant Joule-Thomson (MRJT) cryocooler for medical applications",
+    "url": "https://doi.org/10.5958/2349-2120.2025.00006.x",
+    "year": 2025
+   }
+  ]
+ },
+ "flavinlabs": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 1,
+  "needle": "FlavinLabs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22FlavinLabs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Technical review on different metal nanoparticles and their formulations on growth, agronomic and economic traits of crop plants",
+    "url": "https://doi.org/10.3389/fnano.2025.1576582",
+    "year": 2025
+   }
+  ]
+ },
+ "flexmotion-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Flexmotion Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Flexmotion%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "florafarad-energy": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "FloraFarad Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22FloraFarad%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "flourishing-panckosha": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Flourishing Panckosha",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Flourishing%20Panckosha%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fluoresight-bioprobes": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 2,
+  "needle": "Fluoresight Bioprobes",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fluoresight%20Bioprobes%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Exploring Photophysical Characterization and Bioimaging Applications of Benzomorpholino, Benzopiperazinyl, and Quinoxalino‐Based Amino Terephthalonitriles",
+    "url": "https://doi.org/10.1002/slct.202504519",
+    "year": 2025
+   },
+   {
+    "title": "Conversion of amino-terephthalonitriles to multi-substituted single benzene fluorophores with utility in bioimaging",
+    "url": "https://doi.org/10.1039/d3ob01761c",
+    "year": 2023
+   }
+  ]
+ },
+ "focalpreneur-technologies-services": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Focalpreneur Technologies Services",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Focalpreneur%20Technologies%20Services%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "footryx-healthcare": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 2,
+  "needle": "FOOTRYX Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22FOOTRYX%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Current Trends in Effectiveness of Robotic Assisted Gait Training (RAGT) for Gait Recovery in Neuro Rehabilitation - An Evidence-Based Scoping Review",
+    "url": "https://doi.org/10.16965/ijpr.2024.116",
+    "year": 2024
+   },
+   {
+    "title": "Influence of Photobiomodulation Therapy on Altered Plantar Pressure Distribution and Ankle Biomechanics in Individuals With Diabetic Foot Syndrome",
+    "url": "https://doi.org/10.32598/irj.22.2.2001.1",
+    "year": 2024
+   }
+  ]
+ },
+ "forschmedx": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "ForschMedX",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ForschMedX%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "freeman-robots": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Freeman Robots",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Freeman%20Robots%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fubotics": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Fubotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fubotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fuma-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Fuma Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fuma%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fuselage-innovations": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Fuselage Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fuselage%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "galanto-innovations": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 1,
+  "needle": "Galanto Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Galanto%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Glove-Based Virtual Hand Rehabilitation System for Patients With Post-Traumatic Hand Injuries",
+    "url": "https://doi.org/10.1109/tbme.2024.3360888",
+    "year": 2024
+   }
+  ]
+ },
+ "gamasusco": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Gamasusco",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gamasusco%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gaucello": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Gaucello",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gaucello%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gbact-solutions": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Gbact Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gbact%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "genrobotic-innovations": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 1,
+  "needle": "Genrobotic Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Genrobotic%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Optimizing Prosthetic Wrist Movement: A Model Predictive Control Approach",
+    "url": "https://doi.org/10.1007/978-981-95-2382-5_17",
+    "year": 2025
+   }
+  ]
+ },
+ "genz-materials": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "GenZ Materials",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22GenZ%20Materials%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "geospekter-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Geospekter Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Geospekter%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gigamind-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Gigamind Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gigamind%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gigaton-research": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Gigaton Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gigaton%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gloport-photonix-innovations": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Gloport Photonix Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gloport%20Photonix%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "glorious-enviro-and-space-soft-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Glorious Enviro and Space Soft Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Glorious%20Enviro%20and%20Space%20Soft%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "glovatrix": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Glovatrix",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Glovatrix%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gnl-neuro-think-soft-solution": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "GNL Neuro Think Soft Solution",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22GNL%20Neuro%20Think%20Soft%20Solution%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gohemp-agroventures": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Gohemp Agroventures",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gohemp%20Agroventures%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "greenathon-technologies": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Greenathon Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Greenathon%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "greenjams-buildtech": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 1,
+  "needle": "GreenJams BuildTech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22GreenJams%20BuildTech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Current Trends in Applications of Cannabis/Hemp in Construction",
+    "url": "https://doi.org/10.1007/978-981-16-8778-5_8",
+    "year": 2022
+   }
+  ]
+ },
+ "greenshift-energy": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Greenshift Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Greenshift%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "greyeast-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Greyeast Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Greyeast%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "grinntech-motors-services": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Grinntech Motors Services",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Grinntech%20Motors%20Services%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gritly-analytics": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Gritly Analytics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gritly%20Analytics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gudlyf-mobility": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 3,
+  "needle": "Gudlyf Mobility",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gudlyf%20Mobility%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "3D-printed PEEK/BN nanocomposites with enhanced thermal and mechanical performance for advanced chip packaging",
+    "url": "https://doi.org/10.1007/s00289-026-06643-8",
+    "year": 2026
+   },
+   {
+    "title": "Design and Development of a Lightweight Aluminium Cascade System for Type IV COPVs for Stationary and Mobile Applications",
+    "url": "https://doi.org/10.4271/2026-26-0485",
+    "year": 2026
+   },
+   {
+    "title": "Sustainable Storage & Transition from CNG to Hydrogen",
+    "url": "https://doi.org/10.4271/2024-28-0128",
+    "year": 2024
+   }
+  ]
+ },
+ "gurutva-systems": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Gurutva Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gurutva%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gut-buddy-healthcare-services": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Gut Buddy Healthcare Services",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gut%20Buddy%20Healthcare%20Services%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gwolts-transformers": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Gwolts Transformers",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gwolts%20Transformers%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "gyrotronix-robots": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Gyrotronix Robots",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Gyrotronix%20Robots%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "hab-biomass": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Hab Biomass",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Hab%20Biomass%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "harmonix-research": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Harmonix Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Harmonix%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "harvtech": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Harvtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Harvtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "haystack-analytics": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 5,
+  "needle": "Haystack Analytics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Haystack%20Analytics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Identification of the Genomic Etiology of Unexplained Congenital Problems in Pediatric Patients: First Reported Case With Coffin–Siris Syndrome and Sialuria From India",
+    "url": "https://doi.org/10.1002/ccr3.73083",
+    "year": 2026
+   },
+   {
+    "title": "Clinical Importance of Whole-genome Sequencing for a Timely Diagnosis and Management of Drug-resistant Tuberculosis (DR-TB): Two Case Reports from Pune City, India",
+    "url": "https://doi.org/10.4103/mjdrdypu.mjdrdypu_527_25",
+    "year": 2025
+   },
+   {
+    "title": "Awareness of management of pulmonary multidrug-resistant tuberculosis (MDR-TB) among private practitioners in suburban areas of Pune city, India: Input for developing an educational tool",
+    "url": "https://doi.org/10.1371/journal.pgph.0004617",
+    "year": 2025
+   }
+  ]
+ },
+ "holo-abdul-inventions": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "HOLO ABDUL INVENTIONS",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22HOLO%20ABDUL%20INVENTIONS%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "hughen-tech": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Hughen Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Hughen%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "hycosys": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Hycosys",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Hycosys%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "hyper-stealth-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Hyper Stealth Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Hyper%20Stealth%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "hyperonic-engineering": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Hyperonic Engineering",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Hyperonic%20Engineering%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "hyperspawn": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Hyperspawn",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Hyperspawn%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "idam-agrobiotech": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Idam Agrobiotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Idam%20Agrobiotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ignomagine": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Ignomagine",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ignomagine%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "igrenenergi-services": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 8,
+  "needle": "igrenEnergi Services",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22igrenEnergi%20Services%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Multiport Charging Station Based on Parallel Hybrid Converters with Grid and Load Unbalance Compensation",
+    "url": "https://doi.org/10.1109/stpec66316.2025.11490709",
+    "year": 2025
+   },
+   {
+    "title": "Cascaded H Bridge Converter for STATCOM and Multiport EV Charging Applications and Its Capacitor Voltage Balance Technique During Uneven Loading Conditions",
+    "url": "https://doi.org/10.1109/stpec66316.2025.11490420",
+    "year": 2025
+   },
+   {
+    "title": "Zero Sequence Voltage Control for Handling Unbalances in Multiport Charging Station Based Transformerless Series Hybrid Converter and DAB",
+    "url": "https://doi.org/10.1109/stpec66316.2025.11490773",
+    "year": 2025
+   }
+  ]
+ },
+ "ikesia-biologics": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Ikesia Biologics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ikesia%20Biologics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ikuber-financial-services-imf": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Ikuber Financial Services IMF",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ikuber%20Financial%20Services%20IMF%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "immunitasbio": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "ImmunitasBio",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ImmunitasBio%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "immunitoai": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 1,
+  "needle": "ImmunitoAI",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ImmunitoAI%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Digital health initiatives can take better cognizance of marginalized communities in India",
+    "url": "https://doi.org/10.7189/jogh.12.03069",
+    "year": 2022
+   }
+  ]
+ },
+ "immunoadoptive-cell-therapy": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 14,
+  "needle": "ImmunoAdoptive Cell Therapy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ImmunoAdoptive%20Cell%20Therapy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "CT-1231: Impact of Loss of B-Cell Aplasia on Clinical Outcomes Following Talicabtagene Autoleucel in Patients With Relapsed/Refractory B-Cell Malignancies: A Single-Center Real-World Experience",
+    "url": "https://doi.org/10.1016/s2152-2650(26)03214-3",
+    "year": 2026
+   },
+   {
+    "title": "CT-761: Efficacy of Talicabtagene Autoleucel in Relapsed/Refractory B-NHL in Complete Response at the Time of Infusion: A Single-Center Study",
+    "url": "https://doi.org/10.1016/s2152-2650(26)03182-4",
+    "year": 2026
+   },
+   {
+    "title": "Enabling access to talicabtagene autoleucel in relapsed/refractory B-cell malignancies; multicenter real-world evidence on delivery, efficacy and safety",
+    "url": "https://doi.org/10.1038/s41408-026-01569-w",
+    "year": 2026
+   }
+  ]
+ },
+ "imrobonix": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Imrobonix",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Imrobonix%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "imumbai-semiconductor": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "iMumbai Semiconductor",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22iMumbai%20Semiconductor%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "inav-agrp-mech": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Inav Agrp Mech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Inav%20Agrp%20Mech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "incartis-therapeutics": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "InCartis Therapeutics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22InCartis%20Therapeutics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "indent-designs": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Indent Designs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Indent%20Designs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "indrarjun-ai-automation-and-robotics": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Indrarjun AI Automation and Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Indrarjun%20AI%20Automation%20and%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "indrobotix-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Indrobotix Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Indrobotix%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "indrones-solutions": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 2,
+  "needle": "Indrones Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Indrones%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Development of Image Change Detection Methodology for the Applications in Civil Work Management",
+    "url": "https://doi.org/10.1109/icnte66387.2026.11437486",
+    "year": 2026
+   },
+   {
+    "title": "Automatic urban feature extraction using rule-based object-oriented classification: a case study of parts of Pune city, Maharashtra, India",
+    "url": "https://doi.org/10.1007/s12518-023-00527-6",
+    "year": 2023
+   }
+  ]
+ },
+ "industron-technical-services": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 1,
+  "needle": "Industron Technical Services",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Industron%20Technical%20Services%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Microstructural, Micromechanical and Corrosion Studies of Anodic Coating on AA2014 and AA6351 Aluminum Alloy for Spacecraft Applications",
+    "url": "https://doi.org/10.1002/maco.70237",
+    "year": 2026
+   }
+  ]
+ },
+ "infixen-energy": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Infixen Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Infixen%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "infyu-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "InfyU Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22InfyU%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "inger-therapeutics": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Inger Therapeutics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Inger%20Therapeutics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "innaumation-medical-devices": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Innaumation Medical Devices",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Innaumation%20Medical%20Devices%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "inopen-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "InOpen Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22InOpen%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "inovaugmet-research": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 2,
+  "needle": "Inovaugmet Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Inovaugmet%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Histone deacetylase (HDACs) inhibitors: Clinical applications",
+    "url": "https://doi.org/10.1016/bs.pmbts.2023.02.011",
+    "year": 2023
+   },
+   {
+    "title": "Endocytosis of LXRs: Signaling in liver and disease",
+    "url": "https://doi.org/10.1016/bs.pmbts.2022.07.008",
+    "year": 2022
+   }
+  ]
+ },
+ "inphase-energy": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Inphase Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Inphase%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "inspecity-space-laboratories": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Inspecity Space Laboratories",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Inspecity%20Space%20Laboratories%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "inte-elabs": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Inte Elabs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Inte%20Elabs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "integri-robotics-and-automation": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Integri Robotics and Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Integri%20Robotics%20and%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "intellizon-energy": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Intellizon Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Intellizon%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "intisen-technology": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Intisen Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Intisen%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "invention-labs-engineering-products": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Invention Labs Engineering Products",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Invention%20Labs%20Engineering%20Products%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "invoviron-industries-trading": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Invoviron Industries Trading",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Invoviron%20Industries%20Trading%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ionbridge-tech": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Ionbridge Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ionbridge%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "iowit-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Iowit Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Iowit%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "iqsoft-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "IQSOFT Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22IQSOFT%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "irov-eyerov-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Irov Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Irov%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ishitva-robotic-systems": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Ishitva Robotic Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ishitva%20Robotic%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ismo-bio-photonics": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 2,
+  "needle": "Ismo Bio Photonics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ismo%20Bio%20Photonics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Simple Magnetic-aided Microfluidic Screening Approach for Rabies Virus via Rolling Circle Amplification",
+    "url": "https://doi.org/10.1016/j.microc.2024.112345",
+    "year": 2024
+   },
+   {
+    "title": "Electronically Controlled Frequency Agile Beam Scanning Reflectarray Antenna with Integrated Control Unit",
+    "url": "https://doi.org/10.58399/wxej1376",
+    "year": 2023
+   }
+  ]
+ },
+ "ixar-robotic-solutions": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Ixar Robotic Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ixar%20Robotic%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "jagaddhatri-data-analytics-and-engineering": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Jagaddhatri Data Analytics and Engineering",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Jagaddhatri%20Data%20Analytics%20and%20Engineering%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "jalviks": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Jalviks",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Jalviks%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "jatayu-healthcare-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Jatayu Healthcare Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Jatayu%20Healthcare%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "jeevatva-biosciences": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Jeevatva Biosciences",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Jeevatva%20Biosciences%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "jnps-oxyjoy": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 3,
+  "needle": "Jnps Oxyjoy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Jnps%20Oxyjoy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "An energy and time-saving task scheduling algorithm for UAV-IoT collaborative system",
+    "url": "https://doi.org/10.1016/j.micpro.2023.104875",
+    "year": 2023
+   },
+   {
+    "title": "Automatic Shopping Cart System using ZigBee Technology and RFID Module",
+    "url": "https://doi.org/10.1109/tribes52498.2021.9751668",
+    "year": 2021
+   },
+   {
+    "title": "DSSAM: digitally signed secure acknowledgement method for mobile ad hoc network",
+    "url": "https://doi.org/10.1186/s13638-021-01894-7",
+    "year": 2021
+   }
+  ]
+ },
+ "joyponic-farms": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Joyponic Farms",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Joyponic%20Farms%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "jyosh-ai-solutions": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "JyoSH AI Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22JyoSH%20AI%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kailash-cosmos-aerospace-systems": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Kailash Cosmos Aerospace Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kailash%20Cosmos%20Aerospace%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kalki-robotics-opc": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Kalki Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kalki%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kamireddy-agro-foods": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Kamireddy Agro Foods",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kamireddy%20Agro%20Foods%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kaundinya-automation": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Kaundinya Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kaundinya%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kavirise-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "KaviRISE Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22KaviRISE%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "keshava-elite-projects": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 1,
+  "needle": "Keshava Elite Projects",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Keshava%20Elite%20Projects%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Human Factors for Holistic Safety in CASE of Autonomous Vehicles",
+    "url": "https://doi.org/10.5281/zenodo.7825363",
+    "year": 2023
+   }
+  ]
+ },
+ "khojiq-tech": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Khojiq Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Khojiq%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kidyfit-care": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "KIDYFIT CARE",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22KIDYFIT%20CARE%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kissanconnect": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Kissanconnect",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kissanconnect%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "klonec-automation-systems": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Klonec Automation Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Klonec%20Automation%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kore-additive-manufacturing-and-medical-reconstruction": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 1,
+  "needle": "Kore Additive Manufacturing And Medical Reconstruction",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kore%20Additive%20Manufacturing%20And%20Medical%20Reconstruction%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "In vivo subcutaneous biocompatibility evaluation of decellularized tilapia fish skin in a rat model",
+    "url": "https://doi.org/10.1038/s41598-025-21808-7",
+    "year": 2025
+   }
+  ]
+ },
+ "kreator-3d-printer-and-solutions": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Kreator 3d printer and solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kreator%203d%20printer%20and%20solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "krishiboot-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Krishiboot Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Krishiboot%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "kritsnam-technologies": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 5,
+  "needle": "Kritsnam Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Kritsnam%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Focus on Downstream: A Sociohydrological Approach to Improve Policy Adaptation for Farmers",
+    "url": "https://doi.org/10.5194/egusphere-egu25-16687",
+    "year": 2025
+   },
+   {
+    "title": "Influence of phosphorus fertilization on mung bean growth, yield, and soil physico-chemical attributes in inceptisols",
+    "url": "https://doi.org/10.36953/ecj.29352945",
+    "year": 2025
+   },
+   {
+    "title": "Agricultural Advisory Diagnostics Using a Data-Based Approach: Test Case in an Intensively Managed Rural Landscape in the Ganga River Basin, India",
+    "url": "https://doi.org/10.3389/frwa.2021.798241",
+    "year": 2022
+   }
+  ]
+ },
+ "krypton-automation": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Krypton Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Krypton%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "languify": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Languify",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Languify%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "leofelis-instruments": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Leofelis Instruments",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Leofelis%20Instruments%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "lifeseed-reproductive-healthcare": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "LifeSeed Reproductive Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22LifeSeed%20Reproductive%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "lifespark-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 4,
+  "needle": "Lifespark Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Lifespark%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Impact of Vibration-based Neuromodulation on Freezing of Gait in Parkinson’s Disease: A Pilot Study",
+    "url": "https://doi.org/10.4103/neurol-india.neurol-india-d-26-00015",
+    "year": 2026
+   },
+   {
+    "title": "Wearable Vibration Neuromodulation for Freezing of Gait: A Randomised Controlled Trial",
+    "url": "https://doi.org/10.64898/2026.05.14.26352486",
+    "year": 2026
+   },
+   {
+    "title": "Scalable multicast hybrid broadband-crossbar wavelength selective switch: proposal and analysis",
+    "url": "https://doi.org/10.1364/ol.412242",
+    "year": 2020
+   }
+  ]
+ },
+ "logicboots": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Logicboots",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Logicboots%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "m-defense-technologies": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "M Defense Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22M%20Defense%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "mabgenex": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 3,
+  "needle": "Mabgenex",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Mabgenex%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Zein decorated rifaximin nanosuspension: approach for sustained release and anti-bacterial efficacy enhancement",
+    "url": "https://doi.org/10.1080/20415990.2024.2418799",
+    "year": 2024
+   },
+   {
+    "title": "Assessing Machine Learning for Diagnostic Classification of Hypertension Types Identified by Ambulatory Blood Pressure Monitoring",
+    "url": "https://doi.org/10.1016/j.cjco.2024.03.005",
+    "year": 2024
+   },
+   {
+    "title": "COMBINING NATURAL LANGUAGE PROCESSING METHOD AND MENDELIAN RANDOMIZATION TO ESTABLISH CAUSAL EFFECT OF BLOOD PRESSURE ON OUTCOMES",
+    "url": "https://doi.org/10.1097/01.hjh.0000835948.10184.1a",
+    "year": 2022
+   }
+  ]
+ },
+ "magnimous-info-tech": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Magnimous Info Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Magnimous%20Info%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "manastik-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Manastik Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Manastik%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "mani-aerospace": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "MANI Aerospace",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22MANI%20Aerospace%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "marche-healthcare": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 2,
+  "needle": "Marche Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Marche%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Influence of polymer network structure on the elastic and fracture properties of polyacrylamide hydrogel",
+    "url": "https://doi.org/10.1039/d5sm00425j",
+    "year": 2025
+   },
+   {
+    "title": "Cone cracks in tissue-mimicking hydrogels during hypodermic needle insertion: the role of water content",
+    "url": "https://doi.org/10.1039/d2sm00257d",
+    "year": 2022
+   }
+  ]
+ },
+ "matsolvion": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Matsolvion",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Matsolvion%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "matterak-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Matterak Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Matterak%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "matterwave-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Matterwave Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Matterwave%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "mechanoweb": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Mechanoweb",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Mechanoweb%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "med-inno-tech": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Med Inno Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Med%20Inno%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "medblue-innovations": {
+  "checked": "2026-09-14T16:39:43+00:00",
+  "count": 0,
+  "needle": "Medblue Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Medblue%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "medprime-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 2,
+  "needle": "MedPrime Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22MedPrime%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Differential sensitivity to hypoxia enables shape‐based classification of sickle cell disease and trait blood samples at point of care",
+    "url": "https://doi.org/10.1002/btm2.10643",
+    "year": 2023
+   },
+   {
+    "title": "Differential sensitivity to hypoxia enables shape-based classification of sickle cell disease and trait blood samples",
+    "url": "https://doi.org/10.1101/2020.10.28.20221358",
+    "year": 2020
+   }
+  ]
+ },
+ "medtrion-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "MedTrion Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22MedTrion%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "meerkats-innovative-technotools": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 2,
+  "needle": "Meerkats Innovative Technotools",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Meerkats%20Innovative%20Technotools%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Renewable and Sustainable Thermal Interface Materials for Energy-Efficient Electronics: Metallic Nanostructure–PCM Hybrid Architectures and the CV22** Paradigm",
+    "url": "https://doi.org/10.21203/rs.3.rs-9809919/v1",
+    "year": 2026
+   },
+   {
+    "title": "Thermal interface materials for thermal management of microelectronic devices: a review",
+    "url": "https://doi.org/10.1007/s10973-025-14255-z",
+    "year": 2025
+   }
+  ]
+ },
+ "meerkats-nanotherm-innovations": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Meerkats Nanotherm Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Meerkats%20Nanotherm%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "meine-electric-automotive": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Meine Electric Automotive",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Meine%20Electric%20Automotive%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "metalumina": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Metalumina",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Metalumina%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "moldoc-biotech": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 8,
+  "needle": "Moldoc Biotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Moldoc%20Biotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "PGP-miner: An AI and machine learning tool in cancer drug development and immunotherapy",
+    "url": "https://doi.org/10.1016/b978-0-443-44415-9.00019-3",
+    "year": 2026
+   },
+   {
+    "title": "Virtual screening and high-throughput docking: Finding inhibitors against P-gp transporter for treating hepatocellular carcinoma",
+    "url": "https://doi.org/10.1016/b978-0-443-49253-2.00018-0",
+    "year": 2026
+   },
+   {
+    "title": "Bioactive compounds and cancer prevention: a nutritional approach",
+    "url": "https://doi.org/10.1016/b978-0-443-28862-3.00013-3",
+    "year": 2025
+   }
+  ]
+ },
+ "mrobotics": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Mrobotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Mrobotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanoapthi": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Nanoapthi",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanoapthi%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanoharvestx-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Nanoharvestx Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanoharvestx%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanokem-innovations": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Nanokem Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanokem%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanomika-solutionz": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Nanomika Solutionz",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanomika%20Solutionz%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanoqom-research-and-development": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Nanoqom Research and Development",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanoqom%20Research%20and%20Development%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanosapience": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Nanosapience",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanosapience%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanosniff-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 7,
+  "needle": "NanoSniff Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22NanoSniff%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Design and fabrication of new microfluidic experimental platform for ultrasensitive heavy metal ions (HMIs) sensing",
+    "url": "https://doi.org/10.1016/b978-0-12-820783-3.00014-2",
+    "year": 2021
+   },
+   {
+    "title": "Ultrasensitive detection of cadmium ions using a microcantilever-based piezoresistive sensor for groundwater",
+    "url": "https://doi.org/10.3762/bjnano.11.108",
+    "year": 2020
+   },
+   {
+    "title": "Highly selective piezoresistive sensor for mercury (Hg2+) ions detection using mercaptosuccinic acid-functionalized microcantilevers with cross-linked pyridinedicarboxylic acid",
+    "url": "https://doi.org/10.1108/sr-05-2020-0125",
+    "year": 2020
+   }
+  ]
+ },
+ "nanospin-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Nanospin Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanospin%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanotherapx-innovations": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "NanotherapX Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22NanotherapX%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanothink-spectrum-opc": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Nanothink Spectrum",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanothink%20Spectrum%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nanovistar": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Nanovistar",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nanovistar%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "naturex-technologies": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Naturex Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Naturex%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nava-design-innovation": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Nava Design Innovation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nava%20Design%20Innovation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neevaram": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Neevaram",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Neevaram%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neo-avishkars": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Neo Avishkars",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Neo%20Avishkars%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neodrive-technologies": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Neodrive Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Neodrive%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neomavericks-ai": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "NeoMavericks AI",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22NeoMavericks%20AI%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neroex-innovations": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Neroex Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Neroex%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neuaurelius": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Neuaurelius",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Neuaurelius%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "neurostellar": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 2,
+  "needle": "Neurostellar",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Neurostellar%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "From Signal Purity to Analytical Robustness: Advancing Real-World Mental State Assessment with Consumer-Grade Wearables",
+    "url": "https://doi.org/10.32388/hdmeq5.2",
+    "year": 2026
+   },
+   {
+    "title": "Evaluating Neurostellar’s Wearable Device Along with Its Robust Multimodal Approach for Real-Time Mental State Assessment: A Validation Study",
+    "url": "https://doi.org/10.32388/hdmeq5",
+    "year": 2025
+   }
+  ]
+ },
+ "newspace-research-technologies": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 1,
+  "needle": "NewSpace Research Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22NewSpace%20Research%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Vision-based Lane Detection in Scaled-Down Testbed: A Comprehensive Pipeline with Experimental Insights",
+    "url": "https://doi.org/10.1016/j.ifacol.2025.12.307",
+    "year": 2025
+   }
+  ]
+ },
+ "nextgen-ems": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Nextgen EMS",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nextgen%20EMS%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nilico-green-technologies": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Nilico Green Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nilico%20Green%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nitya-innovations": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 1,
+  "needle": "Nitya Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nitya%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "EV Lithium-Ion Battery SOH Estimation Based on LightGBM Model",
+    "url": "https://doi.org/10.1007/978-981-97-8160-7_6",
+    "year": 2025
+   }
+  ]
+ },
+ "njyme-solutions": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Njyme Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Njyme%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nkure-therapeutics": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 3,
+  "needle": "NKure Therapeutics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22NKure%20Therapeutics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A SCALABLE FEEDER-FREE PLATFORM FOR OFF-THE-SHELF ALLOGENEIC NATURAL KILLER (NK) CELL IMMUNOTHERAPY",
+    "url": "https://doi.org/10.1016/j.jcyt.2026.102594",
+    "year": 2026
+   },
+   {
+    "title": "Altered Mitochondrial Bioenergetics and Calcium Kinetics in Young‐Onset PLA2G6 Parkinson's Disease iPSCs",
+    "url": "https://doi.org/10.1111/jnc.70059",
+    "year": 2025
+   },
+   {
+    "title": "Generation of a human induced pluripotent stem cell (iPSC) line ERPLi004-A from an Alpha-1 antitrypsin deficiency (AATD) patient with SERPINA1 mutation",
+    "url": "https://doi.org/10.1016/j.scr.2025.103664",
+    "year": 2025
+   }
+  ]
+ },
+ "nocomat": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Nocomat",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nocomat%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "norsta-unmanned-systems": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Norsta Unmanned Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Norsta%20Unmanned%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "norththerm-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Norththerm Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Norththerm%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nova-dynamix": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Nova Dynamix",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nova%20Dynamix%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nptech-green": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Nptech Green",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nptech%20Green%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nubiogenx": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 2,
+  "needle": "Nubiogenx",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nubiogenx%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "The versatility of klotho protein: insights into its multifaceted functions in health and disease",
+    "url": "https://doi.org/10.37022/wjcmpr.v6i2.328",
+    "year": 2024
+   },
+   {
+    "title": "Pretreatment of lignocellulosic biomass for bioethanol production",
+    "url": "https://doi.org/10.37022/tjmdr.v4i2.582",
+    "year": 2024
+   }
+  ]
+ },
+ "numelo-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 2,
+  "needle": "Numelo Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Numelo%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Study on Sensitivity Performance of CMOS-MEMS Pressure Sensors utilizing Split Channel MOSFET Structures",
+    "url": "https://doi.org/10.56042/jsir.v85i3.13210",
+    "year": 2026
+   },
+   {
+    "title": "An Idea of Implementing MOSFET-Based Resistive Load Differential Amplifier Circuit on Pressure Transducer",
+    "url": "https://doi.org/10.1007/978-981-92-0217-1_60",
+    "year": 2026
+   }
+  ]
+ },
+ "nutricape": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Nutricape",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nutricape%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nutrigenetics-life-science": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Nutrigenetics Life Science",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nutrigenetics%20Life%20Science%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "nuvelle-approche": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Nuvelle Approche",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nuvelle%20Approche%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "offgrid-energy-labs": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Offgrid Energy Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Offgrid%20Energy%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "oko-icare-solutions": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Oko Icare Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Oko%20Icare%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "oneomics": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 13,
+  "needle": "Oneomics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Oneomics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Urban wastewater microbiomes reveal distinct taxonomic and functional variation across seasons and locations in Aizawl, Mizoram",
+    "url": "https://doi.org/10.1016/j.meegid.2026.106020",
+    "year": 2026
+   },
+   {
+    "title": "Exploring the biomethane potential of methanogenic microbes from coal mine site and its metabolic pathways",
+    "url": "https://doi.org/10.1016/j.jics.2026.103043",
+    "year": 2026
+   },
+   {
+    "title": "Comparative microbiome profiling of plant- and animal-derived traditional fermented foods from Mizoram, India using full-length 16S rRNA sequencing",
+    "url": "https://doi.org/10.1007/s10482-026-02387-7",
+    "year": 2026
+   }
+  ]
+ },
+ "onestop-wellness": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Onestop Wellness",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Onestop%20Wellness%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "open-medlabs": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Open Medlabs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Open%20Medlabs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "openhorizon-labs": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "OpenHorizon Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22OpenHorizon%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "optify-industrial-solution": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Optify Industrial Solution",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Optify%20Industrial%20Solution%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "origo-dynamics": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Origo Dynamics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Origo%20Dynamics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "orthocrafts-innovations": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Orthocrafts Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Orthocrafts%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ossus-biorenewables": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Ossus Biorenewables",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ossus%20Biorenewables%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ostic-pharma": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Ostic Pharma",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ostic%20Pharma%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "oxobot-robotics": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Oxobot Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Oxobot%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "pacify-medical-technologies": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 1,
+  "needle": "Pacify Medical Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Pacify%20Medical%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Comparison of Various Skin Graft Expansion Models: Beyond Coverage and Toward Improved Healing",
+    "url": "https://doi.org/10.1093/jbcr/irag043",
+    "year": 2026
+   }
+  ]
+ },
+ "papyrus-diagnostics": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Papyrus Diagnostics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Papyrus%20Diagnostics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "pasidi-panta": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Pasidi Panta",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Pasidi%20Panta%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "pecsa-robotics": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Pecsa Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Pecsa%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "photom-technologies": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Photom Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Photom%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "picraft-technology": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Picraft Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Picraft%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "plabs-solutions": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Plabs Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Plabs%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "planys-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 10,
+  "needle": "Planys Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Planys%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Uplink Rate Splitting Multiple Access Based Multi-AUV Data Transmission Strategy for Advanced Underwater Acoustic Communication",
+    "url": "https://doi.org/10.1109/iccce66530.2025.11474185",
+    "year": 2025
+   },
+   {
+    "title": "Machine Learning-Based Prediction of Distributed Solar Adoption",
+    "url": "https://doi.org/10.1109/ne-iecce64154.2025.11183205",
+    "year": 2025
+   },
+   {
+    "title": "Remotely Operated Robotic Drones for Inspection of Submerged Concrete Structures",
+    "url": "https://doi.org/10.1007/978-981-97-1036-2_1",
+    "year": 2024
+   }
+  ]
+ },
+ "plasmo-sense": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Plasmo Sense",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Plasmo%20Sense%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "plotnew-bio-innovations": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Plotnew Bio Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Plotnew%20Bio%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "polyorbit": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Polyorbit",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Polyorbit%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "powai-labs-technologies": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Powai Labs Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Powai%20Labs%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "precisurg": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "PRECISURG",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22PRECISURG%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "pro-virtual-technology-automations": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Pro Virtual Technology Automations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Pro%20Virtual%20Technology%20Automations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "probird": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Probird",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Probird%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "profprenuer-innovations": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Profprenuer Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Profprenuer%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "proleri-technologies": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Proleri Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Proleri%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "promecens": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Promecens",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Promecens%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "prosical-language-technologies": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Prosical Language Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Prosical%20Language%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "proteomica-international": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Proteomica International",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Proteomica%20International%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "protobots": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Protobots",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Protobots%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "proxi-farma": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Proxi Farma",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Proxi%20Farma%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "proximal-soilsens-technologies": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 2,
+  "needle": "Proximal Soilsens Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Proximal%20Soilsens%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Understanding the toxicity, exposure pathways, and health risks of emerging contaminants",
+    "url": "https://doi.org/10.1016/b978-0-443-34270-7.00022-5",
+    "year": 2025
+   },
+   {
+    "title": "Biosensors for detection of emerging contaminants",
+    "url": "https://doi.org/10.1016/b978-0-443-34270-7.00015-8",
+    "year": 2025
+   }
+  ]
+ },
+ "qawach-bio": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Qawach Bio",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Qawach%20Bio%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "qualivon-technologies": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Qualivon Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Qualivon%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "quan2d-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 1,
+  "needle": "Quan2D Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Quan2D%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Challenges in Graphene-Based Biosensing: Exploring Critical Limitations and Strategies",
+    "url": "https://doi.org/10.1021/acssensors.5c02459",
+    "year": 2025
+   }
+  ]
+ },
+ "queliz-lifetech": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Queliz Lifetech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Queliz%20Lifetech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "qunu-labs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 21,
+  "needle": "QuNu Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22QuNu%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Performance analysis of FSO links under turbulence-induced fading using robust beam engineering [Invited]",
+    "url": "https://doi.org/10.1364/josab.590185",
+    "year": 2026
+   },
+   {
+    "title": "Quantum-inspired temporal modeling with WavLM for audio spoofing detection",
+    "url": "https://doi.org/10.1007/s11042-026-21448-7",
+    "year": 2026
+   },
+   {
+    "title": "Enhancing Digital Security: A Novel Dual-Paradigm Approach for Robust Deepfake Detection Using Pre and Post Quantum-Trained Neural Networks",
+    "url": "https://doi.org/10.1145/3794846",
+    "year": 2026
+   }
+  ]
+ },
+ "rana-semiconductors": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Rana Semiconductors",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rana%20Semiconductors%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rar-makaraa-technologies": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "RAR Makaraa Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22RAR%20Makaraa%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "raycura-medical-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Raycura Medical Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Raycura%20Medical%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rechargion-energy": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 10,
+  "needle": "Rechargion Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rechargion%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Introductory Chapter: Raman Spectroscopy – Advances and Research Frontiers",
+    "url": "https://doi.org/10.5772/intechopen.1013444",
+    "year": 2025
+   },
+   {
+    "title": "Raman Spectroscopy",
+    "url": "https://openalex.org/W7204063125",
+    "year": 2025
+   },
+   {
+    "title": "Wide temperature enhanced sodium storage in tailored, sustainable sodiophilic biphasic N-doped carbon",
+    "url": "https://doi.org/10.1016/j.mtchem.2024.101978",
+    "year": 2024
+   }
+  ]
+ },
+ "relsym-solutions": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Relsym Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Relsym%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "renkube": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 4,
+  "needle": "Renkube",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Renkube%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Agrivoltaics Underneath Semi-Transparent Panels",
+    "url": "https://doi.org/10.52825/agripv.v4i.2820",
+    "year": 2026
+   },
+   {
+    "title": "Thermal Modelling of a Renkube Panel",
+    "url": "https://doi.org/10.1109/pvsc48320.2023.10359536",
+    "year": 2023
+   },
+   {
+    "title": "Experimental Study on Improvement of Power Generation in Building Integrated PV",
+    "url": "https://doi.org/10.1007/978-981-16-8727-3_23",
+    "year": 2022
+   }
+  ]
+ },
+ "renu-medtech": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Renu MedTech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Renu%20MedTech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rephresh-green-solutions": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Rephresh Green Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rephresh%20Green%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "reseapro-labs": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 1,
+  "needle": "Reseapro Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Reseapro%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Microwave‐Assisted MXene– Ziziphus jujuba Fruit Mucilage–PVA Superporous Hydrogel: Comprehensive Physicochemical Characterization and In Vitro/In Vivo Studies",
+    "url": "https://doi.org/10.1002/slct.74479",
+    "year": 2026
+   }
+  ]
+ },
+ "roberon-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Roberon Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Roberon%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "robosquad-innovators": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Robosquad Innovators",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Robosquad%20Innovators%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "robotoai-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Robotoai Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Robotoai%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "robotutor-tech": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Robotutor Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Robotutor%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "roha-precision-systems-development": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Roha Precision Systems Development",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Roha%20Precision%20Systems%20Development%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "roha369-biotech": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Roha369 Biotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Roha369%20Biotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rosa-technology": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Rosa Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rosa%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rp-agro-climatic-solutions": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "RP Agro Climatic Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22RP%20Agro%20Climatic%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rrs-projectx-cloud-technologies": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "RRS ProjectX Cloud Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22RRS%20ProjectX%20Cloud%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rygen-dynamics": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Rygen Dynamics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rygen%20Dynamics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rymo-technologies": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Rymo Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rymo%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "samaritan-ai": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Samaritan AI",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Samaritan%20AI%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "saraaga-agri-robo-tech": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Saraaga Agri Robo Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Saraaga%20Agri%20Robo%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "sarbit-innovations": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Sarbit Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Sarbit%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "sarvottam-ai": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Sarvottam AI",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Sarvottam%20AI%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "satavic-innovations": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Satavic Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Satavic%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "scitechesy-research-and-technology": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 11,
+  "needle": "Scitechesy Research and Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Scitechesy%20Research%20and%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Analysis of shielding effectiveness of quaternary SeTeSnSb glasses",
+    "url": "https://doi.org/10.1016/j.radphyschem.2025.113004",
+    "year": 2025
+   },
+   {
+    "title": "A comprehensive study of radiation shielding parameters of chalcogens-rich quaternary alloys for nuclear waste management",
+    "url": "https://doi.org/10.1016/j.optmat.2024.116253",
+    "year": 2024
+   },
+   {
+    "title": "Performance Benchmarking of Different Convolutional Neural Network Architectures on Covid-19 Dataset",
+    "url": "https://doi.org/10.2174/9789815238846124010013",
+    "year": 2024
+   }
+  ]
+ },
+ "sedemac-mechatronics": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 2,
+  "needle": "Sedemac Mechatronics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Sedemac%20Mechatronics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "A Generalized Procedure to Develop DC Switchyard for MTDC Grids",
+    "url": "https://doi.org/10.1109/epec48502.2020.9320124",
+    "year": 2020
+   },
+   {
+    "title": "Robust attitude control of quadrotor using sliding mode",
+    "url": "https://doi.org/10.1109/icacdot.2016.7877592",
+    "year": 2016
+   }
+  ]
+ },
+ "senseqube-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Senseqube Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Senseqube%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "serocode-biolabs": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Serocode Biolabs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Serocode%20Biolabs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "shasunmed-lifesciences": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Shasunmed Lifesciences",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shasunmed%20Lifesciences%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "shieldnex-aerospace-india": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Shieldnex Aerospace",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shieldnex%20Aerospace%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "shodhsens-diagnostics": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Shodhsens Diagnostics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shodhsens%20Diagnostics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "shree-veerabhadreshwara-solutions": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Shree Veerabhadreshwara Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shree%20Veerabhadreshwara%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "shrikant-nanomaterials-research": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 2,
+  "needle": "Shrikant Nanomaterials Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shrikant%20Nanomaterials%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Comment on “Investigation of significantly high barrier height in Cu/GaN Schottky diode” [AIP Adv. 6, 015206 (2016)]",
+    "url": "https://doi.org/10.1063/5.0334873",
+    "year": 2026
+   },
+   {
+    "title": "Phase-field crystal modeling of graphene/hexagonal boron nitride interfaces",
+    "url": "https://doi.org/10.1039/d3cp05265f",
+    "year": 2024
+   }
+  ]
+ },
+ "shuvoneel-ras-system": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Shuvoneel RAS System",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shuvoneel%20RAS%20System%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "silicocean": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Silicocean",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Silicocean%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "silifarm-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Silifarm Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Silifarm%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "skincurate-research": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "SkinCurate Research",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22SkinCurate%20Research%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "skylark-drones": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 3,
+  "needle": "Skylark Drones",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Skylark%20Drones%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Review on Reliability and Energy-Efficiency Issues in Cloud Computing",
+    "url": "https://doi.org/10.4018/978-1-7998-9220-5.ch045",
+    "year": 2023
+   },
+   {
+    "title": "Standardization of the Shape of Ground Control Point (GCP) and the Methodology for Its Detection in Images for UAV-Based Mapping Applications",
+    "url": "https://doi.org/10.1007/978-3-030-17795-9_34",
+    "year": 2019
+   },
+   {
+    "title": "UAV PHOTOGRAMMETRY FOR FEATURE EXTRACTION AND MAPPING OF CORRUGATED INDUSTRIAL ROOFTOPS",
+    "url": "https://doi.org/10.5194/isprs-archives-xlii-4-129-2018",
+    "year": 2018
+   }
+  ]
+ },
+ "soilo-agricultural-solutions": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Soilo Agricultural Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Soilo%20Agricultural%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "solinas-integrity": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 1,
+  "needle": "Solinas Integrity",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Solinas%20Integrity%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Color Sensor-Based Object Sorting Robotic Arm",
+    "url": "https://doi.org/10.1007/978-981-15-2369-4_16",
+    "year": 2020
+   }
+  ]
+ },
+ "sorting-swans-ecosocial": {
+  "checked": "2026-09-14T16:39:43+00:00",
+  "count": 0,
+  "needle": "Sorting Swans Ecosocial",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Sorting%20Swans%20Ecosocial%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "soulsense-innovations": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Soulsense Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Soulsense%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "spacefields": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Spacefields",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Spacefields%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "spaceock-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Spaceock Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Spaceock%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "sparshmind-innovations": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "SparshMind Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22SparshMind%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "spenca-global-services": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Spenca Global Services",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Spenca%20Global%20Services%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "spotdot-bioinnovations": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "Spotdot Bioinnovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Spotdot%20Bioinnovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "sristan-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Sristan Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Sristan%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ssky-aerospace-industries": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "SSKY Aerospace Industries",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22SSKY%20Aerospace%20Industries%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "stealthtech-research-labs": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Stealthtech Research Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Stealthtech%20Research%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "stellapps-technologies": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 1,
+  "needle": "Stellapps Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Stellapps%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Tinyos based WSN design for monitoring of cold storage warehouses using internet of things",
+    "url": "https://doi.org/10.1109/icmdcs.2017.8211553",
+    "year": 2017
+   }
+  ]
+ },
+ "strider-robotics": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Strider Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Strider%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "subtlebotic": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Subtlebotic",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Subtlebotic%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "sumaitra-innovations": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Sumaitra Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Sumaitra%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "sunqulp-tech": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "SunQulp Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22SunQulp%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "swiftwing-robotics": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Swiftwing Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Swiftwing%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "synersense": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 1,
+  "needle": "Synersense",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Synersense%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Validation of wearable inertial sensor-based gait analysis system for measurement of spatiotemporal parameters and lower extremity joint kinematics in sagittal plane",
+    "url": "https://doi.org/10.1177/09544119211072971",
+    "year": 2022
+   }
+  ]
+ },
+ "synova-advanced-surfaces": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Synova Advanced Surfaces",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Synova%20Advanced%20Surfaces%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tactopus-learning-solutions": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Tactopus Learning Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tactopus%20Learning%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "taurmed-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 4,
+  "needle": "Taurmed Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Taurmed%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Exploring the Function of Predicted T‐Cell Epitopes in Enhancing Influenza Virus Vaccine Efficacy",
+    "url": "https://doi.org/10.1002/masy.202300116",
+    "year": 2024
+   },
+   {
+    "title": "Resilience and Mitigation Strategies of Cyanobacteria under Ultraviolet Radiation Stress",
+    "url": "https://doi.org/10.3390/ijms241512381",
+    "year": 2023
+   },
+   {
+    "title": "Nanoparticles as illuminating allies: Advancing diagnostic frontiers in COVID-19- A review",
+    "url": "https://doi.org/10.58414/scientifictemper.2023.14.3.56",
+    "year": 2023
+   }
+  ]
+ },
+ "tavisha-robotics": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Tavisha Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tavisha%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tealaa-innovations": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Tealaa Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tealaa%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "techinvention-lifecare": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 17,
+  "needle": "Techinvention Lifecare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Techinvention%20Lifecare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Computational Screening of Natural Products Identifies Potential PqsR Inhibitors Targeting Pseudomonas aeruginosa Quorum Sensing",
+    "url": "https://doi.org/10.1002/slct.74336",
+    "year": 2026
+   },
+   {
+    "title": "Current 3D Printing Technologies and their Potential Applications in Drug Delivery, Personalized Medicine & Pharmaceutical Sciences",
+    "url": "https://doi.org/10.2174/0115701638392138250722112310",
+    "year": 2025
+   },
+   {
+    "title": "PqsR-specific quorum sensing inhibitors targeting Pseudomonas aeruginosa : current advances and future directions",
+    "url": "https://doi.org/10.1080/1120009x.2025.2510093",
+    "year": 2025
+   }
+  ]
+ },
+ "technext-lab": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Technext Lab",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Technext%20Lab%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tenxer-technologies": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "TenXer Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22TenXer%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "terrastack-technologies": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Terrastack Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Terrastack%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tervis-medical-systems": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Tervis Medical Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tervis%20Medical%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tetrel-innovations": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Tetrel Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tetrel%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "texabyte-opc": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Texabyte",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Texabyte%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tharam-thiran-green-energy-flow": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 1,
+  "needle": "Tharam Thiran Green Energy Flow",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tharam%20Thiran%20Green%20Energy%20Flow%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Surface enhancement for boiling heat transfer through micro holes for electronic cooling applications",
+    "url": "https://doi.org/10.1007/s12046-023-02251-8",
+    "year": 2023
+   }
+  ]
+ },
+ "theranautilus": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 5,
+  "needle": "Theranautilus",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Theranautilus%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Magnetic Nanostructures Inside Cells: A Versatile Platform for Cellular Sensing, Manipulation, and Fabrication",
+    "url": "https://doi.org/10.1002/smll.202512144",
+    "year": 2026
+   },
+   {
+    "title": "Scale-Dependent Semantic Dynamics Revealed by Allan Deviation",
+    "url": "https://openalex.org/W7126281824",
+    "year": 2026
+   },
+   {
+    "title": "Directed Self‐Assembly of Magnetic Bioceramic Deep Inside Dentinal Tubules May Alleviate Dental Hypersensitivity",
+    "url": "https://doi.org/10.1002/advs.202507664",
+    "year": 2025
+   }
+  ]
+ },
+ "thrustworks-dynetics": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Thrustworks Dynetics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Thrustworks%20Dynetics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tishyas-medical-device-development-solutions": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Tishyas Medical Device Development Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tishyas%20Medical%20Device%20Development%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "transfinity-spacetech": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Transfinity Spacetech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Transfinity%20Spacetech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "transformer-neural-scan-quest-ai": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Transformer Neural Scan Quest AI",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Transformer%20Neural%20Scan%20Quest%20AI%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "transpact-enterprises": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Transpact Enterprises",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Transpact%20Enterprises%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "trestle-labs": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 1,
+  "needle": "Trestle Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trestle%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Humanizing Technology for Inclusive Education and Employment",
+    "url": "https://doi.org/10.1007/978-981-95-5624-3_4",
+    "year": 2026
+   }
+  ]
+ },
+ "trident-laser": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Trident Laser",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trident%20Laser%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "trinano-technologies": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Trinano Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trinano%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "trinnovate-synergy-technologies": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Trinnovate Synergy Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trinnovate%20Synergy%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "triraksha-robotics": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Triraksha Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Triraksha%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "trizlabz": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Trizlabz",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trizlabz%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "tvaster-genkalp": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 1,
+  "needle": "Tvaster Genkalp",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Tvaster%20Genkalp%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Validation of a Multiplex Hypermethylation-based Blood Test to Detect Hepatocellular Carcinoma: A Prospective Case-control Study",
+    "url": "https://doi.org/10.1016/j.jceh.2025.102578",
+    "year": 2025
+   }
+  ]
+ },
+ "umagine-hydrogen": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Umagine Hydrogen",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Umagine%20Hydrogen%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "umarobotics-technology": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Umarobotics Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Umarobotics%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "unibose-engineering-india": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "Unibose Engineering",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Unibose%20Engineering%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "unicas-biotech": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 1,
+  "needle": "Unicas Biotech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Unicas%20Biotech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Potential One-Time Lipid Nanoparticle-Driven Gene Editing Therapy to Address ADPKD Caused by PKD1 Mutations",
+    "url": "https://doi.org/10.1681/asn.20257fv1bytr",
+    "year": 2025
+   }
+  ]
+ },
+ "unino-healthcare": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Unino Healthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Unino%20Healthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "univigor-innovative": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Univigor Innovative",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Univigor%20Innovative%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "uoc-graphene-solutions": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "UOC Graphene Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22UOC%20Graphene%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "urjanovac": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 8,
+  "needle": "UrjanovaC",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22UrjanovaC%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Chemical and microalgal conversion of carbon dioxide into fuels and materials: a review",
+    "url": "https://doi.org/10.1007/s10311-025-01855-2",
+    "year": 2025
+   },
+   {
+    "title": "Bio-inspired catalyst-driven efficient CO2 capture and subsequent mineralization in aqueous media under practical conditions",
+    "url": "https://doi.org/10.1016/j.ccst.2025.100417",
+    "year": 2025
+   },
+   {
+    "title": "Designed Metalloprotein-Driven Electrolyzer Operational in Seawater",
+    "url": "https://doi.org/10.1021/acscatal.4c05775",
+    "year": 2025
+   }
+  ]
+ },
+ "utopic-tech": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Utopic Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Utopic%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "valcories-industries": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Valcories Industries",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Valcories%20Industries%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vasishth-genomics-research-lab": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 6,
+  "needle": "Vasishth Genomics Research Lab",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vasishth%20Genomics%20Research%20Lab%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Deep Learning-Based Image Analysis for the Prediction of Autism Spectrum Disorder",
+    "url": "https://doi.org/10.1142/s0218001426570156",
+    "year": 2026
+   },
+   {
+    "title": "A Biotechnological Outlook on Stem Cell Therapy for Neuropsychiatric Disorders",
+    "url": "https://doi.org/10.54536/jmhwb.v1i1.5173",
+    "year": 2025
+   },
+   {
+    "title": "A Comparative Review on Lung Detox from Smoking-Induced Lung damage",
+    "url": "https://doi.org/10.32553/jbpr.v14i2.1257",
+    "year": 2025
+   }
+  ]
+ },
+ "vasundharaa-geo-technologies": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 1,
+  "needle": "Vasundharaa Geo Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vasundharaa%20Geo%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Classification of Lung Nodule Using Hybridized Deep Feature Technique",
+    "url": "https://doi.org/10.22059/jitm.2020.79369",
+    "year": 2020
+   }
+  ]
+ },
+ "vaultionix-energy": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Vaultionix Energy",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vaultionix%20Energy%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vaxigen-international-research-centre": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "Vaxigen International Research Centre",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vaxigen%20International%20Research%20Centre%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vaxineer": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Vaxineer",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vaxineer%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vctr-labs": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "VCTR Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22VCTR%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vegen-labs": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 0,
+  "needle": "VeGen Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22VeGen%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vendit-automation": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Vendit Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vendit%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vexon-automation": {
+  "checked": "2026-09-14T16:39:30+00:00",
+  "count": 0,
+  "needle": "Vexon Automation",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vexon%20Automation%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "via-energicals": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "VIA Energicals",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22VIA%20Energicals%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vigyanllm": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Vigyanllm",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vigyanllm%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "viridian-ingni-propulsion": {
+  "checked": "2026-09-14T16:39:42+00:00",
+  "count": 0,
+  "needle": "Viridian Ingni Propulsion",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Viridian%20Ingni%20Propulsion%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "virtualsphere-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Virtualsphere Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Virtualsphere%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vision-earthcare": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Vision Earthcare",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vision%20Earthcare%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vitacrop-technologies": {
+  "checked": "2026-09-14T16:39:31+00:00",
+  "count": 0,
+  "needle": "Vitacrop Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vitacrop%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "voltrez-tech": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Voltrez Tech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Voltrez%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vytal-healthtech": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Vytal Healthtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vytal%20Healthtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "vyuti-systems": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Vyuti Systems",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Vyuti%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "weathercast-solutions": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Weathercast Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Weathercast%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "webaroo-technology-india": {
+  "checked": "2026-09-14T16:39:39+00:00",
+  "count": 0,
+  "needle": "Webaroo Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Webaroo%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "whistl-healthtech": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Whistl Healthtech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Whistl%20Healthtech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "whiteowl-health-care": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Whiteowl Health Care",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Whiteowl%20Health%20Care%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "whiterabbit-ai-technologies": {
+  "checked": "2026-09-14T16:39:38+00:00",
+  "count": 0,
+  "needle": "Whiterabbit ai technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Whiterabbit%20ai%20technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "wingrow-agritech-innovations": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 0,
+  "needle": "Wingrow Agritech Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Wingrow%20Agritech%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "wissenkraft-labs": {
+  "checked": "2026-09-14T16:39:41+00:00",
+  "count": 1,
+  "needle": "Wissenkraft Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Wissenkraft%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Effect of cobalt layer thickness and temperature on Co/Au bilayer",
+    "url": "https://doi.org/10.1007/s10854-024-13039-9",
+    "year": 2024
+   }
+  ]
+ },
+ "wonderlend-hubs": {
+  "checked": "2026-09-14T16:39:37+00:00",
+  "count": 0,
+  "needle": "WonderLend Hubs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22WonderLend%20Hubs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "xact-diagnotek": {
+  "checked": "2026-09-14T16:39:35+00:00",
+  "count": 1,
+  "needle": "Xact Diagnotek",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Xact%20Diagnotek%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Unique fibrinogen-binding motifs in the nucleocapsid phosphoprotein of SARS CoV-2: Potential implications in host-pathogen interactions",
+    "url": "https://doi.org/10.1016/j.mehy.2020.110030",
+    "year": 2020
+   }
+  ]
+ },
+ "xanvora": {
+  "checked": "2026-09-14T16:39:29+00:00",
+  "count": 0,
+  "needle": "Xanvora",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Xanvora%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "xpredict-automation-solutions": {
+  "checked": "2026-09-14T16:39:36+00:00",
+  "count": 0,
+  "needle": "Xpredict Automation Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Xpredict%20Automation%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "xysma-recyclotech-solutions": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Xysma Recyclotech Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Xysma%20Recyclotech%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "ylectric-technology": {
+  "checked": "2026-09-14T16:39:32+00:00",
+  "count": 0,
+  "needle": "Ylectric Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ylectric%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "zedbee-technologies": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 1,
+  "needle": "Zedbee Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Zedbee%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "LoRa Based Wireless Sensor Network for Environmental Monitoring",
+    "url": "https://doi.org/10.1007/978-3-031-68908-6_5",
+    "year": 2024
+   }
+  ]
+ },
+ "zelbyx-technology": {
+  "checked": "2026-09-14T16:39:27+00:00",
+  "count": 0,
+  "needle": "Zelbyx Technology",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Zelbyx%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "zeroearth": {
+  "checked": "2026-09-14T16:39:33+00:00",
+  "count": 0,
+  "needle": "ZeroEarth",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ZeroEarth%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ }
+}
