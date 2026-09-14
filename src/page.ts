@@ -2122,6 +2122,10 @@ a.ev:hover { border-color: var(--ink); }
   padding: var(--s0) var(--s2);
 }
 a.rdi:hover { border-color: var(--rule-strong); color: var(--ink); }
+/* The longest sub-sector names are wider than a phone. A pill that cannot wrap pushed the
+   whole page sideways at 390px. */
+.meta > .meta-rdi { max-width: 100%; }
+.meta .rdi { white-space: normal; border-radius: 0.9em; }
 .rdi.unclassified { font-style: italic; border-style: dashed; }
 .from-label {
   margin-left: var(--s2);
