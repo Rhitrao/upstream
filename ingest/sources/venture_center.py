@@ -33,7 +33,7 @@ import re
 from bs4 import BeautifulSoup
 
 from ingest.identity import is_profile
-from ingest.sources.base import Company, Signal, clean, fetch, preview
+from ingest.sources.base import Company, Signal, clean, fetch, founder_line, preview
 
 SOURCE = "venture-center"
 URL = "https://www.venturecenter.co.in/startups-and-success-stories/startups"
@@ -95,11 +95,11 @@ def _founders(card) -> str | None:
     line = card.select_one("p.founded-by")
     if line is None:
         return None
-    names = [clean(a.get_text(" ")) for a in line.find_all("a")]
-    names = [n.rstrip(" .,") for n in names if n]
+    names = [founder_line(a.get_text(" ")) for a in line.find_all("a")]
+    names = [n for n in names if n]
     if not names:
         text = clean(re.sub(r"^\s*Founded\s+by\s*:?", "", line.get_text(" "), flags=re.IGNORECASE))
-        names = [text.rstrip(" .,")] if text else []
+        names = [founder_line(text)] if text else []
     return ", ".join(n for n in names if n) or None
 
 

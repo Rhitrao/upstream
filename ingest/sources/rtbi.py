@@ -20,7 +20,7 @@ import re
 from bs4 import BeautifulSoup
 
 from ingest.identity import names_company
-from ingest.sources.base import Company, Signal, clean, fetch, preview
+from ingest.sources.base import Company, Signal, clean, fetch, founder_line, preview
 
 SOURCE = "rtbi-iitm"
 URL = "https://rtbi.in/incubationiitm/portfolio.html"
@@ -79,7 +79,7 @@ FOUNDERS = re.compile(r"Founders?\s*:\s*(.+?)(?=@|\bDomains?\s*:|What it offers|
 def _founders(text: str) -> str | None:
     """The "Founder:" line, stopped before the handles and headings that follow it."""
     match = FOUNDERS.search(clean(text) or "")
-    return clean(match.group(1).rstrip(" ,;|")) if match else None
+    return founder_line(match.group(1).rstrip(" ,;|")) if match else None
 
 
 def _pitch(text: str) -> str | None:

@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import re
 
-from ingest.sources.base import Company, Signal, clean, fetch, preview, website
+from ingest.sources.base import Company, Signal, clean, fetch, founder_line, preview, website
 
 SOURCE = "sine-iitb"
 URL = "https://www.sineiitb.org/portfolio/"
@@ -108,14 +108,24 @@ def _company(name: str, records: list[dict]) -> Company:
         description=_first(records, "description", clean),
         website=_first(records, "website", website),
         origin_year=_origin_year(records),
-        founders=_founders(_first(records, "founder_name", clean)),
-        founders_source=SOURCE if _first(records, "founder_name", clean) else None,
+        founders=_founders(records),
+        founders_source=SOURCE if _founders(records) else None,
     )
 
 
-def _founders(value: str | None) -> str | None:
-    """The founder line as SINE prints it, less the full stop some entries end on."""
-    return value.rstrip(" .") or None if value else None
+def _founders(records: list[dict]) -> str | None:
+    """The founder line as SINE prints it, less the full stop some entries end on.
+
+    A company listed in two programmes can carry the line twice, once with its commas
+    and once without — "Nisha Yadav, Saugandha Das" and "Nisha Yadav Saugandha Das" —
+    and the second reads as one person with four names. The one that separates the
+    most names wins; otherwise the first.
+    """
+    lines = [v for v in (founder_line(r.get("founder_name")) for r in records) if v]
+    if not lines:
+        return None
+    separated = lambda line: len(re.findall(r",|&|;|\band\b", line))
+    return max(lines, key=separated)
 
 
 def _origin_year(records: list[dict]) -> int | None:
@@ -151,7 +161,7 @@ def _merge(kept: Company, repeat: Company) -> Company:
         name=kept.name,
         description=kept.description or repeat.description,
         website=kept.website or repeat.website,
-        founders=kept.founders or repeat.founders,
+        founders=max((f for f in (kept.founders, repeat.founders) if f), key=lambda f: len(re.findall(r",|&|;|\band\b", f)), default=None),
         founders_source=kept.founders_source or repeat.founders_source,
         # The earliest claim wins: a company is no younger than the first list it
         # appeared on.

@@ -26,3 +26,26 @@ class WhatTheRegisterSays(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FoundersAsSinePrintsThem(unittest.TestCase):
+    def test_the_line_that_separates_the_names_wins(self):
+        from ingest.sources import sine
+
+        records = [{"founder_name": "Nisha Yadav Saugandha Das"}, {"founder_name": "Nisha Yadav, Saugandha Das."}]
+        self.assertEqual(sine._founders(records), "Nisha Yadav, Saugandha Das")
+        self.assertEqual(sine._founders([{"founder_name": "Prof. A Rao."}]), "Prof. A Rao")
+        self.assertIsNone(sine._founders([{"founder_name": "  "}]))
+
+    def test_names_are_told_apart_and_otherwise_left_as_written(self):
+        from ingest.sources.base import founder_line
+
+        self.assertEqual(founder_line("Rohan M Despande/Ayush S Gaikwadi"), "Rohan M Despande, Ayush S Gaikwadi")
+        self.assertEqual(founder_line("Prof. Udayan Ganguly Prof. Swaroop Ganguly"), "Prof. Udayan Ganguly, Prof. Swaroop Ganguly")
+        self.assertEqual(founder_line("DHINESH R KANAGARAJ (IITM alumnus) /fabheads-automation/"), "DHINESH R KANAGARAJ (IITM alumnus)")
+        self.assertEqual(founder_line("Prof.U.B.Desai, Dr.Srikanth Parikh."), "Prof.U.B.Desai, Dr.Srikanth Parikh")
+        self.assertEqual(founder_line("Mr.Suhas Khalkar"), "Mr.Suhas Khalkar")
+        self.assertEqual(founder_line("Prof. Dr. Dhwanil Shukla, Prof. Dr. Omkar Halbe"), "Prof. Dr. Dhwanil Shukla, Prof. Dr. Omkar Halbe")
+        self.assertEqual(founder_line("Kunal Khanna, Prof. Jayesh Bellare and Prof. Rohit Srivastava"), "Kunal Khanna, Prof. Jayesh Bellare and Prof. Rohit Srivastava")
+        self.assertEqual(founder_line("Dr KAVITHA and Dr ANANT RAHEJA (IITM alumni)"), "Dr KAVITHA and Dr ANANT RAHEJA (IITM alumni)")
+        self.assertEqual(founder_line("Prof. Padma Devarajan Mrs. Maharukh Rustomjee"), "Prof. Padma Devarajan, Mrs. Maharukh Rustomjee")

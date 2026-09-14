@@ -376,3 +376,31 @@ def _read_cache(path: pathlib.Path) -> str | None:
     if (_now() - fetched_at).total_seconds() > CACHE_TTL_SECONDS:
         return None
     return entry["response"]
+
+
+TITLE = r"(?:Dr|Prof|Mr|Ms|Mrs)\.?"
+# A space before a title that starts a second name: not after another title ("Prof. Dr.")
+# and not after a word that already joins two names ("and Prof.").
+HONORIFIC = re.compile(rf"(?<=[A-Za-z.)])(?<!\band)(?<!\bAND)\s+(?=(?i:{TITLE})\s)")
+JUST_A_TITLE = re.compile(rf"(?i:{TITLE})$")
+TRAILING_HANDLE = re.compile(r"\s*/[\w-]+/?\s*$")
+
+
+def founder_line(text: str | None) -> str | None:
+    """A source's founder line with its names told apart, and nothing else changed.
+
+    Sources separate names with commas, slashes or nothing at all: "Rohan M Despande/Ayush
+    S Gaikwadi", "Prof. Udayan Ganguly Prof. Swaroop Ganguly". A slash, or a title that
+    starts a second name, becomes a comma; a trailing "/fabheads-automation/" handle goes.
+    Names are never reordered, recased or looked up.
+    """
+    line = clean(text)
+    if not line:
+        return None
+    line = TRAILING_HANDLE.sub("", line)
+    line = re.sub(r"\s*/\s*", ", ", line)
+    parts = HONORIFIC.split(line)
+    line = parts[0]
+    for part in parts[1:]:
+        line += (" " if JUST_A_TITLE.search(line.split()[-1]) else ", ") + part
+    return line.strip(" .,;") or None
