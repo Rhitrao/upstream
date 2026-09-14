@@ -223,10 +223,24 @@
   "prompt_version": 1,
   "status": "described"
  },
+ "denovo-bioinnovations": {
+  "hash": "f9ec33d7da030cb2",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
+ },
  "desintox-technologies": {
   "hash": "e2132be6b1267ec4",
   "model": "claude-haiku-4-5",
   "product": "Electric wheelchairs and patient transfer devices for people with mobility challenges.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "diagopreutic": {
+  "hash": "86198016b2590bf3",
+  "model": "claude-haiku-4-5",
+  "product": "Rapid diagnostic tests that identify the specific pathogen and antibiotic resistance in urinary tract infections and water contamination, for doctors and laboratories.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -406,9 +420,9 @@
   "status": "described"
  },
  "grinntech-motors-services": {
-  "hash": "3c973b258fec8654",
+  "hash": "6c95a68ba7fe50de",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered identity verification and KYC software that uses face authentication, liveness detection, and document analysis for financial services and government onboarding.",
+  "product": "Lithium-ion batteries and battery packs for electric vehicles.",
   "prompt_version": 1,
   "status": "described"
  },
