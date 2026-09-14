@@ -6,6 +6,7 @@
  * The only JavaScript on the page submits the filter form on change. Everything works
  * without it: the filters are a GET form and every coverage cell is a link.
  */
+import { INDIA_MAP_HEIGHT, INDIA_MAP_WIDTH, INDIA_STATES } from './india-map';
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID, SUNRISE_SECTORS } from './taxonomy';
 import { daysSince, earliestEvent, MAX_AGE_YEARS, type Tier } from './rank';
 import {
@@ -334,6 +335,39 @@ function freshness(view: PageView): string {
 }
 
 /**
+ * India by state, each state shaded by how many of the records in view it holds and
+ * linked to the view filtered to it.
+ *
+ * Ink, thinned, not a colour: a stronger shade holds more (lighter, in the dark theme),
+ * and the yellow stays spent on what nobody has noticed. The shade goes by the square
+ * root of the count, so Karnataka's 37 does not wash every state with one or two
+ * companies out to the paper.
+ *
+ * A picture of the tiles beside it, not a second control: hidden from screen readers and
+ * out of the tab order, since each state is already a tile with its count written on it.
+ * The records with no location are not on it anywhere, which is why the unknown tile
+ * stays first beside the map and the header says how many there are.
+ */
+function indiaMap(states: { state: string; n: number }[], chosen: string | null, href: (state: string, on: boolean) => string): string {
+	const counts = new Map(states.map((s) => [s.state, s.n]));
+	const max = Math.max(0, ...states.map((s) => s.n));
+	const shapes = Object.entries(INDIA_STATES).map(([name, d]) => {
+		const n = counts.get(name) ?? 0;
+		if (n === 0 || max === 0) return `<path class="state none" d="${d}"><title>${esc(name)}: none in view</title></path>`;
+		const ink = Math.round(14 + 66 * Math.sqrt(n / max));
+		const on = chosen === name;
+		return `<a href="${esc(href(name, on))}" tabindex="-1" class="state-link${on ? ' active' : ''}"><path class="state" style="--ink-share:${ink}%" d="${d}"><title>${esc(name)}: ${n}</title></path></a>`;
+	});
+	// The chosen state is drawn again on top, so its outline is not hidden under a neighbour's edge.
+	const outline =
+		chosen && INDIA_STATES[chosen] ? `<path class="state-halo" d="${INDIA_STATES[chosen]}"/><path class="state-outline" d="${INDIA_STATES[chosen]}"/>` : '';
+	return `<figure class="india-map">
+      <svg viewBox="0 0 ${INDIA_MAP_WIDTH} ${INDIA_MAP_HEIGHT}" aria-hidden="true" focusable="false">${shapes.join('')}${outline}</svg>
+      <figcaption>The stronger the shade, the more companies${max ? `, up to ${max}` : ''}. Boundaries: <a href="https://github.com/datameet/maps">DataMeet</a>, CC BY 4.0.</figcaption>
+    </figure>`;
+}
+
+/**
  * The widget row: the records in view, five ways, each segment a filter.
  *
  * Under the masthead and above the controls, so the page reads as one instrument: every
@@ -386,6 +420,9 @@ function widgets(view: PageView): string {
 	const places = `
   <div class="widget widget-places" aria-labelledby="w-places">
     ${head('w-places', 'Where they are', placesMeta)}
+    <div class="places-body">
+    ${indiaMap(p.states, view.state ?? null, (state, on) => link('state', state, on))}
+    <div class="places-tiles">
     <div class="grid seg-grid place-grid">
       ${cell({ key: 'state', value: 'unknown', n: p.unknown, of: t.places, name: 'location unknown', id: '?', classes: ['unknown-place'] })}
       ${first.map(stateCell).join('\n      ')}
@@ -401,6 +438,8 @@ function widgets(view: PageView): string {
 				? `<p class="districts">In ${esc(chosen.state)}, as the sources write it: ${chosen.districts.map((d) => `${esc(d.name)} <span class="n">${d.n}</span>`).join(' &middot; ')}</p>`
 				: ''
 		}
+    </div>
+    </div>
   </div>`;
 
 	// RDI sunrise sector.
@@ -2343,6 +2382,20 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .cell.weak-seg { border-style: dashed; }
 .cell-when { font-size: var(--t-nano); color: var(--muted); line-height: 1.2; margin-top: var(--s0); }
 .cell-when .failing { color: var(--ink); font-weight: 500; }
+/* The map beside the tiles on a wide screen, above them on a phone. Capped, so a state is
+   big enough to hit and the list is not pushed a screen down to make room for Kashmir. */
+.places-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s3) var(--s5); align-items: start; }
+@media (min-width: 46rem) { .places-body { grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); } }
+.places-tiles { min-width: 0; }
+.india-map { margin: 0 auto; width: 100%; max-width: 20rem; }
+.india-map svg { display: block; width: 100%; height: auto; }
+.india-map .state { fill: color-mix(in srgb, var(--ink) var(--ink-share), var(--paper)); stroke: var(--paper); stroke-width: 1; stroke-linejoin: round; }
+.india-map .state.none { fill: var(--raise); stroke: var(--rule-strong); }
+.india-map .state-link:hover .state { stroke: var(--ink); stroke-width: 1.5; }
+.india-map .state-halo { fill: none; stroke: var(--paper); stroke-width: 5; stroke-linejoin: round; pointer-events: none; }
+.india-map .state-outline { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; pointer-events: none; }
+.india-map figcaption { font-size: var(--t-nano); color: var(--muted); margin-top: var(--s1); }
+.india-map figcaption a { color: inherit; }
 .more-places { margin-top: var(--s1); }
 .more-places > summary { cursor: pointer; font-size: var(--t-xs); color: var(--muted); }
 .more-places > .grid { margin-top: var(--s1); }

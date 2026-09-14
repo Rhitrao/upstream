@@ -1703,6 +1703,25 @@ describe('where they are', () => {
 		expect(html).not.toMatch(/vs\.? (previous|last)|since yesterday|[+−-]\d+%/);
 	});
 
+	it('draws India with each state shaded by its count and linked to its view', async () => {
+		await seed();
+		const places = widget(await text('?tier=all&age=all&state=Maharashtra'), 'w-places');
+		const map = places.slice(places.indexOf('<figure class="india-map">'), places.indexOf('</figure>'));
+		expect(map).toContain('aria-hidden="true"');
+		// Every state and union territory is drawn, the ones with nothing in view too.
+		expect(map.match(/<path class="state[ "]/g)).toHaveLength(36);
+		expect(map).toContain('<title>Ladakh: none in view</title>');
+		// The most gets the most ink; a state with half as many gets less.
+		expect(map).toMatch(/style="--ink-share:80%" d="[^"]+"><title>Maharashtra: 2<\/title>/);
+		expect(map).toMatch(/style="--ink-share:61%" d="[^"]+"><title>Gujarat: 1<\/title>/);
+		// Out of the tab order: the tiles beside it are the control.
+		expect(map).toMatch(/<a href="\/upstream\?age=all#widgets" tabindex="-1" class="state-link active">/);
+		expect(map).toContain('<path class="state-outline"');
+		expect(map).toContain('CC BY 4.0');
+		// The unknown tile still comes before any state.
+		expect(places.indexOf('location unknown')).toBeLessThan(places.indexOf('<span class="cell-name">Maharashtra</span>'));
+	});
+
 	it('filters the list, the counts and the file by a tile, unknown included', async () => {
 		await seed();
 		const maharashtra = await text('?tier=all&age=all&state=Maharashtra');
