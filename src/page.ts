@@ -731,6 +731,21 @@ function monthYear(iso: string): string {
 }
 
 /**
+ * Whether a source says what the company does, as opposed to a register's dropdown.
+ *
+ * classify_basis is not enough by itself. A company the register shares with an incubator
+ * whose listing has no sentence is classified as the incubator's row, so its basis reads
+ * 'description', while the only text stored is the register's "DPIIT-recognised startup.
+ * Industry: Nanotechnology. Stage: Prototype." — RELSYM, AGNIKUL and three more on 14
+ * September 2026. The shape is the one ingest/sources/dpiit.py writes.
+ */
+function describedBySource(company: Company): boolean {
+	return Boolean(
+		company.description && company.classify_basis !== 'register-label' && !company.description.startsWith('DPIIT-recognised startup. Industry:'),
+	);
+}
+
+/**
  * What a row can say the company builds, and on whose word.
  *
  * Three states, and a reader has to tell them apart without reading: the company's own
@@ -742,7 +757,7 @@ function buildsLine(company: Company): { html: string; described: boolean } {
 	if (company.product && company.website_identity === 'verified') {
 		return { html: `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>`, described: true };
 	}
-	if (company.description && company.classify_basis !== 'register-label') {
+	if (describedBySource(company)) {
 		return { html: `<p class="builds from-source">${esc(company.description)}</p>`, described: true };
 	}
 	return { html: '<p class="builds none">No description published</p>', described: false };
@@ -1218,7 +1233,7 @@ export function unknowns(company: Company): string[] {
 	const site = safeUrl(company.website);
 	const host = site ? new URL(site).hostname : null;
 	const productKnown = Boolean(company.product && company.website_identity === 'verified');
-	const described = productKnown || Boolean(company.description && company.classify_basis !== 'register-label');
+	const described = productKnown || describedBySource(company);
 
 	if (company.entity_type === 'unverified') out.push('Whether a company exists behind this name: nothing on record shows one');
 	if (company.entity_type === 'researcher-project') out.push('Whether a company has been formed: the record is a researcher’s project');
@@ -1266,13 +1281,13 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 
 	if (company.product && site) {
 		lines.push(`**What it builds:** ${company.product} _(in their own words, from ${new URL(site).hostname})_`);
-	} else if (company.description && company.classify_basis !== 'register-label') {
+	} else if (describedBySource(company)) {
 		lines.push(`**What it builds:** ${company.description} _(as a source described it)_`);
 	} else {
 		lines.push('**What it builds:** Unknown. No source describes it.');
 		if (company.description) lines.push(`The only published line is a register label: ${company.description}`);
 	}
-	if (company.product && site && company.description && company.classify_basis !== 'register-label') {
+	if (company.product && site && describedBySource(company)) {
 		lines.push(`**As a source described it:** ${company.description}`);
 	}
 
@@ -1425,7 +1440,7 @@ export function renderCompanyPage(view: CompanyView): string {
 		? productDetail(company)
 		: `<p class="unknown-value">Unknown</p>${productDetail(company)}`;
 	const excerpt = company.description
-		? company.classify_basis === 'register-label'
+		? !describedBySource(company)
 			? `<p class="desc">${esc(company.description)}</p><p class="provenance">A register&rsquo;s dropdown choices, not a description. Nothing here says what the company makes.</p>`
 			: `<p class="desc">${esc(company.description)}<span class="says">as the source described it</span></p>`
 		: '<p class="unknown-value">Unknown</p><p class="provenance">No source published a description.</p>';

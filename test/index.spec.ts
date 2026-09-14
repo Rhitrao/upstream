@@ -863,6 +863,19 @@ describe('GET /upstream (the page)', () => {
 		expect(await detail('probird')).toContain('Project type: unknown');
 	});
 
+	it('never prints a register label as what a company builds, whatever its basis says', async () => {
+		// RELSYM: owned by a SINE listing with no sentence, so classified as 'description',
+		// with the register's label as the only text stored.
+		const label = 'DPIIT-recognised startup. Industry: Nanotechnology. Stage: Prototype.';
+		await post({ source: 'sine-iitb', companies: [{ id: 'relsym', name: 'Relsym', sector_id: '2', subsector_id: '2.2', description: label }] });
+
+		const list = await page('?tier=all&age=all&dates=both');
+		const row = list.slice(list.indexOf('id="c-relsym"'), list.indexOf('</li>', list.indexOf('id="c-relsym"')));
+		expect(row).toContain('No description published');
+		expect(row).not.toContain('Industry: Nanotechnology');
+		expect(await detail('relsym')).toContain('not a description');
+	});
+
 	it('refuses a classify_basis nobody defined', async () => {
 		const res = await post({ source: 'test', companies: [{ id: 'a', name: 'A', classify_basis: 'vibes' }] });
 		expect(res.status).toBe(400);
