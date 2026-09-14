@@ -41,7 +41,7 @@ Left to the classifier, where the two have a near-twin companies place almost au
 Vision", 7 of 83 for "AI". That is a finding about two filing systems as one model reads one-line
 labels, not a reviewed crosswalk. It also showed the risk: "AI / NLP" had put five companies in AI in
 Healthcare. Since 14 September a register label places a company only where it names the sub-sector
-outright, which withdrew those and 147 other placements. ([008](docs/decisions/008-two-call-classification.md))
+outright, which withdrew 157 placements in the replay below, those five among them. ([008](docs/decisions/008-two-call-classification.md))
 
 ## The funnel, one run, every number accounted for
 
