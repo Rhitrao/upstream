@@ -32,6 +32,24 @@ function post(body: unknown, key: string | null = KEY) {
 	});
 }
 
+
+/**
+ * Every record, described or not, company or not. The page opens on the companies a
+ * sentence describes; tests about something else ask for all of them, so their seeds
+ * need not carry descriptions to be seen.
+ */
+function every(qs = ''): string {
+	const all = 'described=all&kind=all';
+	if (!qs) return `?${all}`;
+	if (qs.startsWith('/')) return qs.includes('?') ? `${qs}&${all}` : `${qs}?${all}`;
+	return qs.startsWith('?') ? `${qs}&${all}` : `?${qs}&${all}`;
+}
+
+/** A page as a reader sees it: the briefs rows carry for copying are inert until copied. */
+function visible(html: string): string {
+	return html.replace(/<template class="brief">[\s\S]*?<\/template>/g, '');
+}
+
 beforeEach(clearDb);
 
 describe('routing', () => {
@@ -647,7 +665,7 @@ describe('what a company builds', () => {
 				{ id: 'edsix', name: 'Edsix Brain Lab', website: 'http://skillangels.com/', sector_id: '5', subsector_id: '5.1', origin_year: THIS_YEAR, product_status: 'unverified', website_identity: 'associated', website_identity_note: 'given in the company\'s own source record, but the homepage does not name the company' },
 			],
 		});
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all&described=all&kind=all`)).text();
 		const start = html.indexOf('id="c-edsix"');
 		const row = html.slice(start, html.indexOf('</li>', start));
 		expect(row).toContain('href="http://skillangels.com/"');
@@ -679,7 +697,7 @@ describe('what a company builds', () => {
 		expect(html).toMatch(/Benchtop assay kits for district hospitals\.\s*<span class="says">in their own words<\/span>/);
 		// One line per row: the homepage sentence wins it, and the source's description
 		// still stands on the company's own page.
-		expect(html).not.toContain('Diagnostics company.');
+		expect(visible(html)).not.toContain('Diagnostics company.');
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/kadamb`)).text()).toContain('Diagnostics company.');
 	});
 
@@ -707,7 +725,7 @@ describe('what a company builds', () => {
 		// The dropdown line is gone. It was never a description of the company — it
 		// was an industry the founder picked from a list — and printing it under a
 		// sentence about what they actually make costs the row its clarity.
-		expect(html).not.toContain('Industry: Nanotechnology');
+		expect(visible(html)).not.toContain('Industry: Nanotechnology');
 	});
 
 	it('does not let a scraper that knows nothing about websites erase what reading one cost', async () => {
@@ -773,7 +791,7 @@ describe('what a company builds', () => {
 
 describe('GET /upstream (the page)', () => {
 	async function page(qs = '') {
-		const res = await SELF.fetch(`${ORIGIN}/upstream${qs}`);
+		const res = await SELF.fetch(`${ORIGIN}/upstream${every(qs)}`);
 		expect(res.status).toBe(200);
 		return res.text();
 	}
@@ -794,7 +812,7 @@ describe('GET /upstream (the page)', () => {
 		// The stat counts the empty squares, not the covered ones: an RDI priority with
 		// nothing in it is the finding, and on an empty database all 44 are that.
 		expect(html).toContain('Sub-sectors still empty');
-		expect(html).toContain('>44<span class="of">/44</span>');
+		expect(html).toContain('<a href="#coverage">44</a><span class="of">/44</span>');
 	});
 
 	it('fills a cell once a company lands in it, and keeps the other 43', async () => {
@@ -902,7 +920,7 @@ describe('GET /upstream (the page)', () => {
 		const list = await page('?tier=all&age=all&dates=both');
 		const row = list.slice(list.indexOf('id="c-relsym"'), list.indexOf('</li>', list.indexOf('id="c-relsym"')));
 		expect(row).toContain('No description published');
-		expect(row).not.toContain('Industry: Nanotechnology');
+		expect(visible(row)).not.toContain('Industry: Nanotechnology');
 		expect(await detail('relsym')).toContain('not a description');
 	});
 
@@ -1104,17 +1122,17 @@ describe('GET /upstream (the page)', () => {
 		const html = await page();
 		// A+B would be empty by construction here, so the default widens.
 		expect(html).toContain('<option value="all" selected>');
-		expect(html).toContain('Nothing qualifies for Tier A or B today');
+		expect(html).toContain('Too few companies here qualify for Tier A or B today');
 		expect(html).toContain('Backfilled Co');
 
 		// The explanation belongs to the state, not the toggle: it stands on A too.
-		expect(await page('?tier=a')).toContain('Nothing qualifies for Tier A or B today');
+		expect(await page('?tier=a')).toContain('Too few companies here qualify for Tier A or B today');
 
 		// One live discovery and the default narrows again, with nothing left to explain.
 		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'found', name: 'Found Co' }] });
 		const after = await page();
 		expect(after).toContain('<option value="ab" selected>');
-		expect(after).not.toContain('Nothing qualifies for Tier A or B today');
+		expect(after).not.toContain('Too few companies here qualify for Tier A or B today');
 		expect(after).toContain('Found Co');
 		expect(after).not.toContain('Backfilled Co');
 	});
@@ -1136,7 +1154,7 @@ describe('GET /upstream (the page)', () => {
 		// A live find, so the headline still counts it; nothing ranked, so the default widens.
 		const html = await page();
 		expect(html).toContain('<option value="all" selected>');
-		expect(html).toContain('Nothing qualifies for Tier A or B today');
+		expect(html).toContain('Too few companies here qualify for Tier A or B today');
 		expect(html).toContain('Spaceock');
 		expect(await detail('spaceock')).toContain("is a register's dropdown label");
 
@@ -1156,7 +1174,7 @@ describe('GET /upstream (the page)', () => {
 
 		const html = await page();
 		expect(html).toContain('<option value="all" selected>');
-		expect(html).toContain('Nothing qualifies for Tier A or B today');
+		expect(html).toContain('Too few companies here qualify for Tier A or B today');
 	});
 
 	it('states the whole funnel, under the map rather than above the proposition', async () => {
@@ -1198,15 +1216,18 @@ describe('GET /upstream (the page)', () => {
 		expect(html).not.toContain('Placed on the map');
 	});
 
-	it('opens with the proposition and three numbers that back it up', async () => {
+	it('opens on the companies a sentence describes, and counts the rest beside the headline', async () => {
 		await post({
 			source: 'test',
 			companies: [
-				// One trace apiece for two of them, three for the third: the headline
-				// counts the quiet ones, which is the claim the page is making.
-				{ id: 'quiet-one', name: 'Quiet One', sector_id: '5', subsector_id: '5.1' },
-				{ id: 'quiet-two', name: 'Quiet Two', sector_id: '5', subsector_id: '5.1' },
-				{ id: 'noticed', name: 'Noticed Co', sector_id: '5', subsector_id: '5.2' },
+				// Two described companies with one trace apiece, one with three: the headline
+				// counts the described ones, and the quiet ones among them.
+				{ id: 'quiet-one', name: 'Quiet One', description: 'Solid-state battery cells.', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'quiet-two', name: 'Quiet Two', description: 'Satellite radar payloads.', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'noticed', name: 'Noticed Co', description: 'Drone autopilots.', sector_id: '5', subsector_id: '5.2' },
+				// Not in the headline: a name and a register label, and a described project.
+				{ id: 'label-only', name: 'Label Only', description: 'DPIIT-recognised startup. Industry: AI. Stage: Prototype.', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'a-project', name: 'A Project', description: 'Protein from oil cake.', sector_id: '5', subsector_id: '5.1', entity_type: 'researcher-project' },
 			],
 			signals: [
 				{ company_id: 'quiet-one', type: 'incubator', label: 'One cohort' },
@@ -1214,37 +1235,97 @@ describe('GET /upstream (the page)', () => {
 				{ company_id: 'noticed', type: 'incubator', label: 'One cohort' },
 				{ company_id: 'noticed', type: 'website', label: 'Has a site' },
 				{ company_id: 'noticed', type: 'press', label: 'Written about' },
+				{ company_id: 'label-only', type: 'dpiit', label: 'Startup India profile, not DPIIT recognised' },
+				{ company_id: 'a-project', type: 'incubator', label: 'One cohort' },
 			],
 		});
 
-		const html = await page('');
-		// The name is not the proposition. It is there, and it is not the headline.
+		const res = await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all`);
+		const html = await res.text();
 		expect(html).toContain('<p class="eyebrow">Upstream</p>');
-		expect(html).toMatch(/<h1>3 Indian deep-tech companies, sorted by obscurity\.<\/h1>/);
-		// The argument, with the repeatable half emphasised.
+		// Substance, not coverage: three companies say what they build; five rows exist.
+		expect(html).toMatch(/<h1>3 Indian deep-tech companies that say what they build, sorted by obscurity\.<\/h1>/);
 		expect(html).toMatch(/which is why <strong>every fund\s+keeps finding the same twenty names<\/strong>/);
 
-		// The proof arrives last, and only after the rule that gives it meaning. A
-		// reader who meets "2 have left one public trace or none" before being told
-		// what a trace is has been shown the best number on the page at the one moment
-		// it cannot mean anything.
 		const lede = html.slice(html.indexOf('class="hook"'), html.indexOf('</p>', html.indexOf('class="hook"')));
 		expect(lede).toMatch(/one incubator listing and no\s+website beats a known name and a press cycle\./);
 		expect(lede.indexOf('incubator listing')).toBeLessThan(lede.indexOf('one public trace or none'));
-		expect(lede).toMatch(/Of the 3 here, 2 have left one public trace or none\./);
-
-		// And the headline owns "obscurity" — the lede under it has to do different
-		// work than repeat the word.
+		expect(lede).toMatch(/Of those 3, 2 have left one public trace or none\./);
 		expect(lede).not.toContain('obscurity');
 
-		expect(html).toContain('<dt>Companies</dt><dd>3</dd>');
-		expect(html).toContain('<dt>One public trace at most</dt><dd>2</dd>');
-		// 44 sub-sectors, two of them now occupied.
-		expect(html).toContain('<dt>Sub-sectors still empty</dt><dd>42<span class="of">/44</span>');
+		expect(html).toContain('<dt>Say what they build</dt><dd>3</dd>');
+		expect(html).toMatch(/<dt>One public trace at most<\/dt><dd><a href="[^"]*traces=1[^"]*">2<\/a><\/dd>/);
+		expect(html).toContain('<dt>Sub-sectors still empty</dt><dd><a href="#coverage">42</a><span class="of">/44</span>');
 
-		// Nothing was discovered live, so the liveness line is absent rather than
-		// reporting a zero that reads as a broken pipeline.
+		// The rest are counted under the headline, each a link to its rows.
+		const aside = html.slice(html.indexOf('class="set-aside"'), html.indexOf('</p>', html.indexOf('class="set-aside"')));
+		expect(aside).toMatch(/href="\/upstream\?described=unsaid&amp;kind=all#list"><strong>1<\/strong> known only from the DPIIT register<\/a>/);
+		expect(aside).toMatch(/href="\/upstream\?kind=other#list"><strong>1<\/strong> research projects and unverified names<\/a>/);
+
+		// The list is the headline's three, and the line under it says where the other two are.
+		const rows = [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
+		expect(rows).toEqual(['noticed', 'quiet-one', 'quiet-two']);
+		const line = html.slice(html.indexOf('<p class="result-line"'), html.indexOf('</p>', html.indexOf('<p class="result-line"')));
+		// All three are undated backfill rows, so they sit in the undated section; still out of 3.
+		expect(line).toContain('in the list of 3');
+		expect(line).toContain('>3 undated</a>');
+		expect(line).toMatch(/>2 outside this view<\/a>/);
+		expect(line).not.toContain('hidden by filters');
+
+		// One link away, and the file follows the view.
+		const register = await (await SELF.fetch(`${ORIGIN}/upstream?described=unsaid&kind=all&tier=all&age=all`)).text();
+		expect([...register.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1])).toEqual(['label-only']);
+		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
+		expect(csv).toContain('Quiet One');
+		expect(csv).not.toContain('Label Only');
+		expect(csv).not.toContain('A Project');
+
 		expect(html).not.toContain('discovered in the last seven days');
+	});
+
+	it('puts the findings under the masthead, each number a link to what proves it', async () => {
+		await post({
+			source: 'dpiit-startup-india',
+			companies: [
+				{ id: 'profile-co', name: 'Profile Co', description: 'DPIIT-recognised startup. Industry: AI.', sector_id: '2', subsector_id: '2.7', dpiit_status: 'profile' },
+				{ id: 'recognised-co', name: 'Recognised Co', description: 'DPIIT-recognised startup. Industry: Robotics.', sector_id: '2', subsector_id: '2.7', dpiit_status: 'recognised' },
+			],
+			signals: [
+				{ company_id: 'profile-co', type: 'dpiit', label: 'Startup India profile, not DPIIT recognised' },
+				{ company_id: 'recognised-co', type: 'dpiit', label: 'DPIIT recognised (DIPP1)' },
+			],
+			gaps: [{ company_id: 'thin-co', name: 'Thin Co', missing: 'no gap named', note: 'n', description: 'DPIIT-recognised startup. Industry: AI.' }],
+		});
+		await post({
+			source: 'sine-iitb',
+			companies: [{ id: 'described-co', name: 'Described Co', description: 'Graphene membranes.', sector_id: '1', subsector_id: '1.4' }],
+			gaps: [{ company_id: 'ev-co', name: 'EV Co', missing: 'electric vehicle infrastructure', note: 'n', description: 'Charging for e-rickshaws.' }],
+		});
+
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const at = html.indexOf('<section class="findings"');
+		expect(at).toBeGreaterThan(html.indexOf('</header>'));
+		expect(at).toBeLessThan(html.indexOf('id="widgets"'));
+		const findings = html.slice(at, html.indexOf('</section>', at));
+
+		// Three register records read, none described anywhere.
+		expect(findings).toContain('Of the\n      3 newest deep-tech entries');
+		expect(findings).toContain('<a href="#register">3 (100%)</a>');
+		expect(html).toContain('id="register"');
+		// The crosswalk, dated, with its anchor.
+		expect(findings).toContain('<a href="#crosswalk">79 of 80 (99%)</a>');
+		expect(findings).toContain('7 of 83 under &ldquo;AI&rdquo; (8%)');
+		expect(html).toContain('id="crosswalk"');
+		// Two described records, one of which fits no sub-sector.
+		expect(findings).toContain('<a href="#off-map">1 of 2 described records (50%)</a>');
+		expect(findings).toContain('&ldquo;electric vehicle infrastructure&rdquo; leads');
+		expect(findings).toMatch(/<a href="#coverage">42 sub-sectors<\/a>, including modular nuclear reactors, nuclear fusion R&amp;D and photonics &amp; optoelectronics,/);
+		// Recognition, linked to the rows that show it.
+		expect(findings).toContain('1 of the 2 register entries on this list (50%)</a>');
+		expect(findings).toMatch(/href="\/upstream\?tier=all&amp;age=all&amp;dpiit=profile&amp;described=all&amp;kind=all#list"/);
+		const profile = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&dpiit=profile&described=all&kind=all`)).text();
+		expect([...profile.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1])).toEqual(['profile-co']);
+		expect(profile).toContain('DPIIT: Startup India profile, not DPIIT recognised');
 	});
 
 	it("splits the register's unplaced companies into the two things they actually are", async () => {
@@ -1435,8 +1516,8 @@ describe('searching and one company at a time', () => {
 		expect(brief.startsWith('# Kadamb Biolabs')).toBe(true);
 		expect(brief).toContain('**What it builds:** Benchtop assay kits for district hospitals.');
 		// Unknown is a section of the same rank as Evidence, and comes first.
-		expect(brief.indexOf('## Unknown')).toBeGreaterThan(0);
-		expect(brief.indexOf('## Unknown')).toBeLessThan(brief.indexOf('## Evidence'));
+		expect(brief.indexOf('## Open questions')).toBeGreaterThan(0);
+		expect(brief.indexOf('## Open questions')).toBeLessThan(brief.indexOf('## Evidence'));
 		// Only what is actually empty: the founding year and the city are known here.
 		expect(brief).not.toContain('When it was founded');
 		expect(brief).not.toContain('Where it is based');
@@ -1448,7 +1529,19 @@ describe('searching and one company at a time', () => {
 		expect(brief).toContain('https://sineiitb.org/portfolio/');
 		expect(brief).toContain('no link published');
 		expect(brief).toContain('- no url for this one — press, not dated:');
-		expect(brief).toContain(`Upstream: ${ORIGIN}/upstream/c/kadamb-biolabs`);
+		expect(brief).toContain(`Upstream record: ${ORIGIN}/upstream/c/kadamb-biolabs`);
+		// The critique's template: why it is here, what not to lean on, and where to go next.
+		expect(brief).toMatch(/\*\*Why it is here:\*\* \d+ public traces?, which is what the list sorts by\. Tier [ABC]: /);
+		expect(brief.indexOf('## Evidence')).toBeLessThan(brief.indexOf('## Limits of the evidence'));
+		expect(brief).toContain('- The placement is automated and nobody has reviewed it');
+		expect(brief).toMatch(/## Next step\n- (Ask |Write to |Their |No public contact route)/);
+		expect(brief).toMatch(/Last checked: \d{1,2} [A-Z][a-z]{2} \d{4}, the last run that read a source listing it/);
+
+		// And the same brief rides on the company's row, for copying without opening it.
+		const list = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&described=all&kind=all`)).text();
+		const row = list.slice(list.indexOf('id="c-kadamb-biolabs"'), list.indexOf('</li>', list.indexOf('id="c-kadamb-biolabs"')));
+		expect(row).toContain('<button type="button" class="copy-row" hidden>Copy brief</button>');
+		expect(row).toMatch(/<template class="brief"># Kadamb Biolabs\n/);
 
 		// The page lists the same unknowns, and the actions are there for the script.
 		expect(html).toContain('<h2>What is not known</h2>');
@@ -1539,7 +1632,7 @@ describe('searching and one company at a time', () => {
 		expect(row).not.toContain('first seen');
 		// And the tier badge is gone from the row: every company is Tier C today, so
 		// it was a column of identical labels that read as a bug.
-		expect(row).not.toContain('Tier C');
+		expect(visible(row)).not.toContain('Tier C');
 	});
 });
 
@@ -1563,10 +1656,10 @@ describe('people and projects are not companies', () => {
 			],
 		});
 
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all`)).text();
-		expect(html).toContain('1 Indian deep-tech companies and 1 research projects, sorted by obscurity.');
-		expect(html).toContain('<div><dt>Companies</dt><dd>1</dd></div>');
-		expect(html).toContain('<div><dt>Projects, not companies</dt><dd>1</dd></div>');
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&kind=all&described=all`)).text();
+		// Planys has no description, so the headline's number is the described companies: none.
+		expect(html).toContain('0 Indian deep-tech companies that say what they build, sorted by obscurity.');
+		expect(html).toContain('<strong>1</strong> research projects and unverified names</a> that do describe their work');
 		const start = html.indexOf('id="c-aishwarya-dasare"');
 		expect(html.slice(start, html.indexOf('</li>', start))).toContain('a researcher&rsquo;s project, not a company');
 
@@ -1693,7 +1786,7 @@ describe('where they are', () => {
 			],
 		});
 	}
-	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${every(qs)}`)).text();
 	const rows = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 
 	const widget = (html: string, id: string) => {
@@ -1729,7 +1822,7 @@ describe('where they are', () => {
 		expect(map).toMatch(/style="--ink-share:80%" d="[^"]+"><title>Maharashtra: 2<\/title>/);
 		expect(map).toMatch(/style="--ink-share:61%" d="[^"]+"><title>Gujarat: 1<\/title>/);
 		// Out of the tab order: the tiles beside it are the control.
-		expect(map).toMatch(/<a href="\/upstream\?age=all#widgets" tabindex="-1" class="state-link active">/);
+		expect(map).toMatch(/<a href="\/upstream\?described=all&amp;kind=all&amp;age=all#widgets" tabindex="-1" class="state-link active">/);
 		expect(map).toContain('<path class="state-outline"');
 		expect(map).toContain('CC BY 4.0');
 		// The unknown tile still comes before any state.
@@ -1764,7 +1857,7 @@ describe('where they are', () => {
 		// The places widget still shows every state, so a reader can move to another.
 		expect(widget(html, 'w-places')).toMatch(/<span class="cell-n">1<\/span><\/span>\s*<span class="cell-name">Gujarat<\/span>/);
 		// And the chosen tile is marked, and links back to no location filter.
-		expect(widget(html, 'w-places')).toMatch(/class="cell seg filled active" href="\/upstream\?age=all#widgets"/);
+		expect(widget(html, 'w-places')).toMatch(/class="cell seg filled active" href="\/upstream\?described=all&amp;kind=all&amp;age=all#widgets"/);
 	});
 });
 
@@ -1787,7 +1880,7 @@ describe('what they build, and how many traces', () => {
 			],
 		});
 	}
-	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${every(qs)}`)).text();
 	const rows = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 
 	it('filters by whose words say what a company builds, and says how many have none', async () => {
@@ -1831,7 +1924,7 @@ describe('counts that reconcile', () => {
 			],
 		});
 	}
-	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${every(qs)}`)).text();
 	const rows = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 
 	it('accounts for every company a coverage cell counts, and offers all of them', async () => {
@@ -1979,7 +2072,7 @@ describe('slicing the list', () => {
 
 	it('carries every filter into every link, so none of them is silently dropped', async () => {
 		await seed();
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream?q=bare&source=sine-iitb&site=none&sort=name&tier=all&age=all`)).text();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?q=bare&source=sine-iitb&site=none&sort=name&tier=all&age=all&described=all&kind=all`)).text();
 
 		// A coverage cell keeps the search, the source, the website state and the sort.
 		const cell = html.slice(html.indexOf('class="cell '), html.indexOf('</a>', html.indexOf('class="cell ')));
@@ -1988,16 +2081,16 @@ describe('slicing the list', () => {
 		}
 
 		// The CSV button offers the view on screen, not the whole database.
-		expect(html).toMatch(/href="\/upstream\/export\.csv\?q=bare&amp;source=sine-iitb&amp;site=none&amp;sort=name[^"]*"/);
+		expect(html).toMatch(/href="\/upstream\/export\.csv\?q=bare&amp;source=sine-iitb&amp;site=none&amp;described=all&amp;kind=all&amp;sort=name[^"]*"/);
 		// Every filter is its own chip, and each chip's link removes that filter and no other.
 		const chipsHtml = html.slice(html.indexOf('id="chips"'), html.indexOf('</ul>', html.indexOf('id="chips"')));
-		for (const label of ['Search: “bare”', 'Found by: SINE IIT Bombay', 'Website: no website', 'Tier: Everything', 'Started: every year']) {
+		for (const label of ['Search: “bare”', 'Found by: SINE IIT Bombay', 'Website: no website', 'Tier: Everything', 'Started: every year', 'What it builds: described or not', 'Showing: companies, projects and unverified names']) {
 			expect(chipsHtml).toContain(label);
 		}
 		const searchChip = chipsHtml.match(/<a class="chip filter-chip" href="([^"]+)" aria-label="Remove Search/)![1].replace(/&amp;/g, '&');
 		expect(searchChip).not.toContain('q=');
-		for (const part of ['source=sine-iitb', 'site=none', 'sort=name', 'tier=all', 'age=all']) expect(searchChip).toContain(part);
-		expect(chipsHtml).toContain('Remove all 5');
+		for (const part of ['source=sine-iitb', 'site=none', 'sort=name', 'tier=all', 'age=all', 'described=all', 'kind=all']) expect(searchChip).toContain(part);
+		expect(chipsHtml).toContain('Remove all 7');
 	});
 
 	it('states one spelling of the view as canonical', async () => {
@@ -2011,18 +2104,18 @@ describe('slicing the list', () => {
 		await post({ source: 'test', mode: 'live', companies: [{ id: 'dated', name: 'Dated Co', origin_year: THIS_YEAR }] });
 		await post({ source: 'test', companies: [{ id: 'no-date', name: 'Undated Co' }] });
 
-		const dated = await (await SELF.fetch(`${ORIGIN}/upstream?dates=dated&tier=all&age=all`)).text();
+		const dated = await (await SELF.fetch(`${ORIGIN}/upstream?dates=dated&tier=all&age=all&described=all&kind=all`)).text();
 		expect(dated).toContain('Dated Co');
 		expect(dated).not.toContain('Undated Co');
 
-		const undated = await (await SELF.fetch(`${ORIGIN}/upstream?dates=undated&tier=all&age=all`)).text();
+		const undated = await (await SELF.fetch(`${ORIGIN}/upstream?dates=undated&tier=all&age=all&described=all&kind=all`)).text();
 		expect(undated).toContain('Undated Co');
 		expect(undated).not.toContain('Dated Co');
 	});
 
 	it('exports the view on screen as a spreadsheet that cannot run formulas', async () => {
 		await seed();
-		const res = await SELF.fetch(`${ORIGIN}/upstream/export.csv?source=sine-iitb&site=has&age=all&tier=all`);
+		const res = await SELF.fetch(`${ORIGIN}/upstream/export.csv?source=sine-iitb&site=has&age=all&tier=all&described=all&kind=all`);
 		expect(res.status).toBe(200);
 		expect(res.headers.get('content-type')).toContain('text/csv');
 		expect(res.headers.get('content-disposition')).toMatch(/attachment; filename="upstream-\d{4}-\d{2}-\d{2}\.csv"/);
@@ -2052,16 +2145,16 @@ describe('slicing the list', () => {
 
 		// The page is two lists. A file that claims to be this view and silently drops
 		// the second one is the quiet gap this whole project refuses to leave.
-		const both = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
+		const both = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&described=all&kind=all`)).text();
 		expect(both).toContain('Dated Co');
 		expect(both).toContain('Undated Co');
 
 		// And asking for one section gives one section.
-		const onlyDated = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&dates=dated`)).text();
+		const onlyDated = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&dates=dated&described=all&kind=all`)).text();
 		expect(onlyDated).toContain('Dated Co');
 		expect(onlyDated).not.toContain('Undated Co');
 
-		const onlyUndated = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&dates=undated`)).text();
+		const onlyUndated = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&dates=undated&described=all&kind=all`)).text();
 		expect(onlyUndated).toContain('Undated Co');
 		expect(onlyUndated).not.toContain('Dated Co');
 	});
@@ -2216,5 +2309,16 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 		expect(after).not.toContain('hello@kadamb.example');
 		expect(after).not.toContain('Domain registered');
 		expect(after).toContain('Prof. A Rao, B Shah');
+	});
+});
+
+describe('how many ranked rows it takes to open on them', () => {
+	it('waits for five by default, and reads a positive whole number from the environment', async () => {
+		const { minRankedToOpen, MIN_RANKED_TO_OPEN } = await import('../src/db');
+		expect(MIN_RANKED_TO_OPEN).toBe(5);
+		expect(minRankedToOpen({} as Env)).toBe(5);
+		expect(minRankedToOpen({ MIN_RANKED_TO_OPEN: '1' } as Env)).toBe(1);
+		expect(minRankedToOpen({ MIN_RANKED_TO_OPEN: 'zero' } as Env)).toBe(5);
+		expect(minRankedToOpen({ MIN_RANKED_TO_OPEN: '0' } as Env)).toBe(5);
 	});
 });

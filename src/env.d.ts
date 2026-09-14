@@ -26,5 +26,11 @@ interface Env {
 	 * ANTHROPIC_API_KEY (a secret) is also set; without the key it rests.
 	 */
 	ASK_ENABLED?: string;
+	/**
+	 * Fewer Tier A and B rows than this in the half being shown and the list opens on every
+	 * tier. Unset means MIN_RANKED_TO_OPEN (5); the tests set 1, to exercise the narrowing
+	 * with one seeded discovery.
+	 */
+	MIN_RANKED_TO_OPEN?: string;
 	ANTHROPIC_API_KEY?: string;
 }

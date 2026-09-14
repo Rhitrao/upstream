@@ -43,6 +43,11 @@ import {
 	queryNotCompanies,
 	queryRegisterOutcomes,
 	type Filters,
+	DESCRIBED_CHOICES,
+	type DescribedChoice,
+	type KindChoice,
+	querySubstance,
+	queryFindings,
 	papersOf,
 	registerText,
 } from './db';
@@ -150,6 +155,26 @@ function parseTraces(raw: string | null): TraceBucket | null {
 
 function parseDescribed(raw: string | null): DescribedState | null {
 	return raw && (DESCRIBED_STATES as readonly string[]).includes(raw) ? (raw as DescribedState) : null;
+}
+
+/**
+ * The page's own reading of `described`: absent means the default half, the records a
+ * sentence describes; 'all' lifts it. The JSON API keeps parseDescribed and no default,
+ * because a caller asking for companies has not asked for this page's argument.
+ */
+function parseDescribedChoice(raw: string | null): DescribedChoice | null {
+	if (raw === 'all') return null;
+	return raw && (DESCRIBED_CHOICES as readonly string[]).includes(raw) ? (raw as DescribedChoice) : 'said';
+}
+
+/** Companies by default; 'other' for research projects and unverified names; 'all' for both. */
+function parseKind(raw: string | null): KindChoice | null {
+	if (raw === 'all') return null;
+	return raw === 'other' ? 'other' : 'company';
+}
+
+function parseDpiit(raw: string | null): string | null {
+	return raw && DPIIT_STATUSES.has(raw) ? raw : null;
 }
 
 function parseSort(raw: string | null): SortChoice {
@@ -1039,7 +1064,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	// an empty list would read as a broken page, so the default widens to everything and
 	// the list says why. It narrows again on its own the moment something qualifies. The
 	// sample data has both tiers already.
-	const hasRanked = demo || (await queryHasRanked(env, minOriginYear(now)));
+	const half = { described: parseDescribedChoice(url.searchParams.get('described')), kind: parseKind(url.searchParams.get('kind')) };
+	const hasRanked = demo || (await queryHasRanked(env, minOriginYear(now), half));
 	const defaultTier: TierChoice = hasRanked ? 'ab' : 'all';
 	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
 	const age = parseAgeChoice(url.searchParams.get('age'));
@@ -1054,7 +1080,9 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		source: parseSource(url.searchParams.get('source')),
 		site: parseSite(url.searchParams.get('site')),
 		traces: parseTraces(url.searchParams.get('traces')),
-		described: parseDescribed(url.searchParams.get('described')),
+		described: parseDescribedChoice(url.searchParams.get('described')),
+		kind: parseKind(url.searchParams.get('kind')),
+		dpiit: parseDpiit(url.searchParams.get('dpiit')),
 		// Bound as a value, never spliced, so any string is safe; one that names no
 		// state simply matches nothing and the list says so.
 		state: (url.searchParams.get('state') || '').trim().slice(0, 60) || null,
@@ -1081,7 +1109,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, widgets] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, widgets, substance, findings, category] = await Promise.all([
 		queryCoverage(env),
 		dates === 'undated'
 			? Promise.resolve([])
@@ -1108,6 +1136,12 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// The sample rows are not in the database, and widgets counting the database over
 		// them would describe a different page. The demo has none.
 		demo ? Promise.resolve(null) : queryWidgets(env, ranked),
+		querySubstance(env),
+		demo ? Promise.resolve(null) : queryFindings(env),
+		// The chosen half on its own, so the result line counts out of it.
+		demo
+			? Promise.resolve(null)
+			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null }),
 	]);
 	const ask = askMode(env);
 
@@ -1130,6 +1164,12 @@ async function page(url: URL, env: Env): Promise<Response> {
 		state: ranked.state ?? null,
 		traces: ranked.traces ?? null,
 		described: ranked.described ?? null,
+		kind: ranked.kind ?? null,
+		dpiit: ranked.dpiit ?? null,
+		substance,
+		findings,
+		origin: url.origin,
+		category: category?.total ?? coverage.total_companies,
 		oneTrace,
 		discoveredThisWeek,
 		sector,

@@ -32,6 +32,8 @@ export default defineConfig({
 					TEST_MIGRATIONS: migrations,
 					// The real INGEST_KEY is a secret set in Part 8; tests use their own.
 					INGEST_KEY: 'test-ingest-key',
+					// One seeded discovery is enough to narrow the list here; production waits for five.
+					MIN_RANKED_TO_OPEN: '1',
 					// The notebook is off unless both of these are set, which is the
 					// shipped state and has its own test. Here they are set, so the
 					// tests that matter — a forged token, a wrong audience, an expired

@@ -107,8 +107,15 @@ export interface Filters {
 	state?: string | null;
 	/** How many public traces: one or none, two, three or more. null for any. */
 	traces?: TraceBucket | null;
-	/** Whose words say what the company builds, if anyone's. null for any. */
-	described?: DescribedState | null;
+	/**
+	 * Whose words say what the company builds, if anyone's: one state, 'said' for own or
+	 * source, 'unsaid' for label or none. null for any. The page defaults to 'said'.
+	 */
+	described?: DescribedChoice | null;
+	/** 'company' for companies, 'other' for research projects and unverified names. null for both. */
+	kind?: KindChoice | null;
+	/** What the DPIIT register's record says — see DPIIT_STATUS_PHRASES. null for any. */
+	dpiit?: string | null;
 	/** How the list is ordered. See SORTS. */
 	sort: SortChoice;
 	limit: number;
@@ -155,6 +162,17 @@ const TRACE_SQL: Record<TraceBucket, string> = {
  */
 export const DESCRIBED_STATES = ['own', 'source', 'label', 'none'] as const;
 export type DescribedState = (typeof DESCRIBED_STATES)[number];
+
+/**
+ * The two halves the page is split into. 'said' — a sentence, from their homepage or a
+ * source, says what they build — is what the list shows by default; 'unsaid' is the
+ * rest, counted and one link away. A name and a dropdown industry is a record, not a lead.
+ */
+export const DESCRIBED_CHOICES = [...DESCRIBED_STATES, 'said', 'unsaid'] as const;
+export type DescribedChoice = (typeof DESCRIBED_CHOICES)[number];
+
+export const KIND_CHOICES = ['company', 'other'] as const;
+export type KindChoice = (typeof KIND_CHOICES)[number];
 export const REGISTER_LABEL_PREFIX = 'DPIIT-recognised startup. Industry:';
 
 /**
@@ -375,9 +393,17 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 	}
 
 	if (filters.traces && filters.traces in TRACE_SQL) clauses.push(TRACE_SQL[filters.traces]);
-	if (filters.described) {
+	if (filters.described === 'said') clauses.push(`${DESCRIBED_SQL} IN ('own', 'source')`);
+	else if (filters.described === 'unsaid') clauses.push(`${DESCRIBED_SQL} IN ('label', 'none')`);
+	else if (filters.described) {
 		clauses.push(`${DESCRIBED_SQL} = ?`);
 		binds.push(filters.described);
+	}
+	if (filters.kind === 'company') clauses.push("COALESCE(c.entity_type, 'company') = 'company'");
+	if (filters.kind === 'other') clauses.push("COALESCE(c.entity_type, 'company') <> 'company'");
+	if (filters.dpiit) {
+		clauses.push('c.dpiit_status = ?');
+		binds.push(filters.dpiit);
 	}
 
 	if (filters.site === 'has') clauses.push("c.website IS NOT NULL AND c.website <> ''");
@@ -753,15 +779,31 @@ export async function queryRegisterOutcomes(env: Env): Promise<RegisterOutcomes>
  * Tier B row whose origin year is past the gate is a row the default list will not show,
  * and counting it here would open the page on an empty list after all.
  */
-export async function queryHasRanked(env: Env, minYear: number): Promise<boolean> {
+/**
+ * Fewer Tier A and B rows than this in the half being shown, and the list opens on every
+ * tier instead. One row under a headline of hundreds reads as a broken page, the same way
+ * an empty one did; the note above the list says why it widened.
+ */
+export const MIN_RANKED_TO_OPEN = 5;
+
+export function minRankedToOpen(env: Env): number {
+	const n = Number(env.MIN_RANKED_TO_OPEN);
+	return Number.isInteger(n) && n > 0 ? n : MIN_RANKED_TO_OPEN;
+}
+
+export async function queryHasRanked(env: Env, minYear: number, half: Pick<Filters, 'described' | 'kind'> = {}): Promise<boolean> {
+	const { clauses, binds } = conditions({
+		sector: null, subsector: null, search: null, source: null, site: null, tiers: null, dated: null, minOriginYear: null,
+		sort: 'obscurity', limit: 0, described: half.described ?? null, kind: half.kind ?? null,
+	});
 	const row = await env.DB.prepare(
-		`SELECT 1 AS found FROM companies c
-		 WHERE c.tier IN ('A', 'B') AND c.first_seen IS NOT NULL AND (${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?1)
-		 LIMIT 1`,
+		`SELECT COUNT(*) AS n FROM companies c
+		 WHERE c.tier IN ('A', 'B') AND c.first_seen IS NOT NULL AND (${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?)
+		 ${clauses.length ? `AND ${clauses.join(' AND ')}` : ''}`,
 	)
-		.bind(minYear)
-		.first<{ found: number }>();
-	return row !== null;
+		.bind(minYear, ...binds)
+		.first<{ n: number }>();
+	return (row?.n ?? 0) >= minRankedToOpen(env);
 }
 
 /**
@@ -1016,4 +1058,94 @@ export async function queryDiscoveredSince(env: Env, since: string): Promise<num
 		.bind(since)
 		.first<{ n: number }>();
 	return row?.n ?? 0;
+}
+
+
+/**
+ * The page's two halves, counted over the whole database: companies a sentence
+ * describes, and how many of those have left one public trace or none; research
+ * projects and unverified names that are described; and every record nothing describes.
+ * The three add up to every row, so the masthead can account for all of them.
+ */
+export interface Substance {
+	total: number;
+	companies: number;
+	companiesQuiet: number;
+	others: number;
+	unsaid: number;
+}
+
+export async function querySubstance(env: Env): Promise<Substance> {
+	const said = `${DESCRIBED_SQL} IN ('own', 'source')`;
+	const company = "COALESCE(c.entity_type, 'company') = 'company'";
+	const row = await env.DB.prepare(
+		`SELECT COUNT(*) AS total,
+		   SUM(${said} AND ${company}) AS companies,
+		   SUM(${said} AND ${company} AND c.trace_count <= 1) AS quiet,
+		   SUM(${said} AND NOT ${company}) AS others,
+		   SUM(NOT ${said}) AS unsaid
+		 FROM companies c`,
+	).first<Record<string, number | null>>();
+	return {
+		total: Number(row?.total ?? 0),
+		companies: Number(row?.companies ?? 0),
+		companiesQuiet: Number(row?.quiet ?? 0),
+		others: Number(row?.others ?? 0),
+		unsaid: Number(row?.unsaid ?? 0),
+	};
+}
+
+/**
+ * The numbers behind the findings under the masthead, each counted from the tables the
+ * rest of the page is drawn from, so a finding and the section it links to cannot
+ * disagree.
+ *
+ *   register     every record read from the DPIIT register — placed rows and gaps — and
+ *                how many have a sentence anywhere, on the row or in the gap
+ *   described    every record with a sentence saying what it builds, and how many of
+ *                those fit no sub-sector; the largest named holes among them
+ *   recognition  register rows on the list whose record we hold, and how many are a
+ *                profile DPIIT never recognised
+ */
+export interface Findings {
+	register: { total: number; described: number };
+	described: { total: number; unmapped: number; holes: { missing: string; n: number }[] };
+	recognition: { withStatus: number; profile: number };
+}
+
+/** The gap group for companies the classifier put outside the RDI scheme altogether. */
+export const OUTSIDE_TAXONOMY = 'outside this taxonomy';
+
+export async function queryFindings(env: Env): Promise<Findings> {
+	const saidRow = `${DESCRIBED_SQL} IN ('own', 'source')`;
+	const saidGap = `COALESCE(g.description, '') <> '' AND substr(g.description, 1, ${REGISTER_LABEL_PREFIX.length}) <> '${REGISTER_LABEL_PREFIX}'`;
+	const [row, holes] = await Promise.all([
+		env.DB.prepare(
+			`SELECT
+			   (SELECT COUNT(DISTINCT s.company_id) FROM signals s WHERE s.source = ?1) AS register_rows,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.source = ?1)) AS register_rows_said,
+			   (SELECT COUNT(*) FROM gaps g WHERE g.source = ?1) AS register_gaps,
+			   (SELECT COUNT(*) FROM gaps g WHERE g.source = ?1 AND ${saidGap}) AS register_gaps_said,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow}) AS rows_said,
+			   (SELECT COUNT(*) FROM gaps g WHERE ${saidGap}) AS gaps_said,
+			   (SELECT COUNT(*) FROM gaps g WHERE ${saidGap} AND g.missing <> ?2) AS gaps_said_unmapped,
+			   (SELECT COUNT(*) FROM companies WHERE dpiit_status IS NOT NULL) AS with_status,
+			   (SELECT COUNT(*) FROM companies WHERE dpiit_status = 'profile') AS profile`,
+		)
+			.bind(REGISTER_SOURCE, NO_GAP_NAMED)
+			.first<Record<string, number | null>>(),
+		env.DB.prepare(
+			`SELECT g.missing, COUNT(*) AS n FROM gaps g
+			 WHERE ${saidGap} AND g.missing NOT IN (?1, ?2)
+			 GROUP BY g.missing ORDER BY n DESC, g.missing LIMIT 3`,
+		)
+			.bind(NO_GAP_NAMED, OUTSIDE_TAXONOMY)
+			.all<{ missing: string; n: number }>(),
+	]);
+	const n = (k: string) => Number(row?.[k] ?? 0);
+	return {
+		register: { total: n('register_rows') + n('register_gaps'), described: n('register_rows_said') + n('register_gaps_said') },
+		described: { total: n('rows_said') + n('gaps_said'), unmapped: n('gaps_said_unmapped'), holes: holes.results },
+		recognition: { withStatus: n('with_status'), profile: n('profile') },
+	};
 }

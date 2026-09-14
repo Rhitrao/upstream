@@ -31,6 +31,7 @@ import {
 	type Filters,
 	type TraceBucket,
 	type ViewSummary,
+	type DescribedChoice,
 } from './db';
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID, SUNRISE_SUBSECTORS } from './taxonomy';
 import { BASE_PATH, esc } from './page';
@@ -165,7 +166,9 @@ export function viewUrl(f: Filters): string {
 }
 
 const TRACE_WORDS: Record<TraceBucket, string> = { '1': 'one public trace or none', '2': 'two public traces', '3+': 'three or more public traces' };
-const DESCRIBED_WORDS: Record<DescribedState, string> = {
+const DESCRIBED_WORDS: Record<DescribedChoice, string> = {
+	said: 'with a sentence saying what they build',
+	unsaid: 'with no sentence saying what they build',
 	own: 'with a sentence from their own homepage',
 	source: "with a source's description",
 	label: 'with only a register label',

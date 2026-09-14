@@ -31,6 +31,11 @@ import {
 	DPIIT_STATUS_PHRASES,
 	papersOf,
 	registerText,
+	type DescribedChoice,
+	type KindChoice,
+	type Substance,
+	type Findings,
+	OUTSIDE_TAXONOMY,
 } from './db';
 
 /**
@@ -70,7 +75,20 @@ export interface PageView {
 	/** The state the list is filtered to, 'unknown', or null. */
 	state: string | null;
 	traces: TraceBucket | null;
-	described: DescribedState | null;
+	/** 'said' by default: the list shows what a sentence describes. null is every record. */
+	described: DescribedChoice | null;
+	/** 'company' by default; 'other' for projects and unverified names; null for both. */
+	kind: KindChoice | null;
+	/** A register status the list is filtered to, or null. */
+	dpiit: string | null;
+	/** The page's two halves, counted over every record. */
+	substance: Substance;
+	/** The numbers behind the findings under the masthead. null for the sample data. */
+	findings: Findings | null;
+	/** This site's origin, for the absolute links a copied brief carries. */
+	origin: string;
+	/** Records in the chosen half (described, kind, register status) before any other filter. */
+	category: number;
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -200,11 +218,14 @@ function ageKnown(company: Company): boolean {
  * Every count is interpolated for the same reason every other number on this page is:
  * a hand-typed 684 is true until tomorrow morning's run.
  */
-function proposition(tracked: number, notCompanies = 0): string {
-	// Aishwarya Dasare is a researcher with a funded project, not a company, and the
-	// headline counted her as one. The ones that are not companies are named as such.
-	if (notCompanies === 0) return `${tracked} Indian deep-tech companies, sorted by obscurity.`;
-	return `${tracked - notCompanies} Indian deep-tech companies and ${notCompanies} research projects, sorted by obscurity.`;
+/**
+ * The headline counts substance, not coverage: companies a published sentence says the
+ * work of. It used to count every row, 761 of them on 13 September, most of which were a
+ * name and a dropdown industry. A smaller number that is all leads says more than a
+ * larger one that is mostly names; the rest are counted beside it, not dropped.
+ */
+function proposition(companies: number): string {
+	return `${companies} Indian deep-tech ${companies === 1 ? 'company that says' : 'companies that say'} what they build, sorted by obscurity.`;
 }
 
 /**
@@ -236,7 +257,7 @@ function hook(tracked: number, oneTrace: number): string {
 	// "or none" rather than "a single trace", because the count is companies with at
 	// most one, and a company found through an incorporation filing alone has left no
 	// trace at all. That one is less known, not more, and belongs in this number.
-	return `${argument} Of the ${tracked} here, ${oneTrace} have left one public trace or none.`;
+	return `${argument} Of those ${tracked}, ${oneTrace} have left one public trace or none.`;
 }
 
 /**
@@ -552,6 +573,99 @@ function askBox(view: PageView): string {
 }
 
 /**
+ * Placements of register companies by their DPIIT industry, from one classifier run.
+ * Dated, and kept here once, because the run is not repeated nightly: the label rule
+ * written the same day stopped label-only guesses, so these counts can only be read
+ * off that run's log, not recounted from today's rows.
+ */
+const CROSSWALK = { run: '14 September 2026', robotics: [79, 80], ai: [7, 83], vision: [3, 87] } as const;
+
+/**
+ * Recognition across every register record read, which the database does not keep for
+ * the records that never reached a row. Counted from the cached register pages.
+ */
+const REGISTER_READ = { through: '14 September', profile: 345, read: 966 } as const;
+
+/** Where a finding sends a reader: every tier and age, so the rows behind the number are on screen. */
+function everyRow(params: Record<string, string | null>): string {
+	return `${BASE_PATH}${query({ tier: 'all', age: 'all', ...params })}#list`;
+}
+
+const PREFERRED_EMPTY = ['1.7', '1.15', '2.4'];
+
+function pct(n: number, of: number): number {
+	return of ? Math.round((n / of) * 100) : 0;
+}
+
+/** A gap group's name as a reader would write it: "enterprise ai" is "enterprise AI". */
+function holeName(missing: string): string {
+	return missing.replace(/\bai\b/g, 'AI').replace(/\biot\b/g, 'IoT').replace(/\bev\b/g, 'EV');
+}
+
+/**
+ * What the records show about Indian deep-tech sourcing, with the number and the link
+ * that proves each one. Written as findings about the sources, not caveats about this
+ * page: that the register describes almost no one is true of the register, and it is
+ * the reason a list like this one has to be built at all.
+ *
+ * Every number but the crosswalk is counted live from the same tables as the sections it
+ * links to. A finding whose count has fallen to nothing is left out rather than printed
+ * as "0 of 0".
+ */
+function findingsSection(view: PageView): string {
+	const f = view.findings;
+	if (!f) return '';
+	const items: string[] = [];
+
+	const silent = f.register.total - f.register.described;
+	if (f.register.total > 0) {
+		items.push(`<li><strong>The register that sees Indian startups first describes almost none of them.</strong> Of the
+      ${f.register.total} newest deep-tech entries we read from DPIIT&rsquo;s Startup India register,
+      <a href="#register">${silent} (${pct(silent, f.register.total)}%)</a> have no sentence anywhere public about what the
+      company builds &mdash; a name, a city and a dropdown industry is the whole record.</li>`);
+	}
+
+	const [rn, rd] = CROSSWALK.robotics;
+	items.push(`<li><strong>India&rsquo;s two official deep-tech vocabularies barely meet.</strong> Of the startups DPIIT files
+      under &ldquo;Robotics&rdquo;, <a href="#crosswalk">${rn} of ${rd} (${pct(rn, rd)}%)</a> found a matching RDI sub-sector
+      &mdash; but only ${CROSSWALK.ai[0]} of ${CROSSWALK.ai[1]} under &ldquo;AI&rdquo; (${pct(CROSSWALK.ai[0], CROSSWALK.ai[1])}%) and
+      ${CROSSWALK.vision[0]} of ${CROSSWALK.vision[1]} under &ldquo;Computer Vision&rdquo; (${pct(CROSSWALK.vision[0], CROSSWALK.vision[1])}%), as one classifier maps the labels.</li>`);
+
+	const emptyCells = view.coverage.sectors.flatMap((g) => g.subsectors).filter((c) => c.n === 0);
+	const named = [
+		...PREFERRED_EMPTY.map((id) => emptyCells.find((c) => c.subsector_id === id)).filter((c): c is (typeof emptyCells)[number] => Boolean(c)),
+		...emptyCells.filter((c) => !PREFERRED_EMPTY.includes(c.subsector_id)),
+	].slice(0, 3);
+	if (f.described.unmapped > 0) {
+		const holes = f.described.holes.map((h) => `&ldquo;${esc(holeName(h.missing))}&rdquo;`);
+		const lead = holes.length > 1 ? `${holes.slice(0, -1).join(', ')} and ${holes[holes.length - 1]} lead` : holes.length ? `${holes[0]} leads` : '';
+		const cells = named.map((c) => esc(c.subsector.toLowerCase()).replace(/ r&amp;d$/, ' R&amp;D'));
+		items.push(`<li><strong>Where startups do describe themselves, the RDI scheme often has no place for them.</strong>
+      <a href="#off-map">${f.described.unmapped} of ${f.described.total} described records (${pct(f.described.unmapped, f.described.total)}%)</a>
+      fit none of its ${view.coverage.subsector_count} sub-sectors${lead ? ` &mdash; ${lead} &mdash;` : ''}${
+				emptyCells.length
+					? ` while <a href="#coverage">${emptyCells.length} sub-sectors</a>${cells.length ? `, including ${cells.length > 1 ? `${cells.slice(0, -1).join(', ')} and ${cells[cells.length - 1]}` : cells[0]},` : ''} have no company at all`
+					: ''
+			}.</li>`);
+	}
+
+	if (f.recognition.withStatus > 0) {
+		items.push(`<li><strong>Being on the register is not being recognised.</strong>
+      <a href="${esc(everyRow({ dpiit: 'profile', described: 'all', kind: 'all' }))}">${f.recognition.profile} of the ${f.recognition.withStatus} register entries on this list (${pct(f.recognition.profile, f.recognition.withStatus)}%)</a>
+      have a Startup India profile but no DPIIT recognition number &mdash; and ${REGISTER_READ.profile} of the ${REGISTER_READ.read}
+      entries read by ${REGISTER_READ.through} (${pct(REGISTER_READ.profile, REGISTER_READ.read)}%).</li>`);
+	}
+
+	return `
+<section class="findings" aria-labelledby="findings-h">
+  <h2 id="findings-h">What the records show</h2>
+  <ol class="finding-list">
+    ${items.join('\n    ')}
+  </ol>
+</section>`;
+}
+
+/**
  * The top of the page. Three things and nothing else: who this is, what it claims, and
  * three numbers that back the claim up.
  *
@@ -566,26 +680,34 @@ function askBox(view: PageView): string {
  * covered ones: a national priority with nothing in it is the interesting square.
  */
 function header(view: PageView): string {
-	const { coverage, tracked, oneTrace, discoveredThisWeek } = view;
+	const { coverage, discoveredThisWeek, substance } = view;
 	const empty = coverage.subsector_count - coverage.covered;
+	const link = (params: Record<string, string | null>) => `${BASE_PATH}${query(params)}#list`;
 	return `
 <header class="masthead">
   <p class="eyebrow">Upstream</p>
-  <h1>${esc(proposition(tracked, view.notCompanies))}</h1>
-  <p class="hook">${hook(tracked, oneTrace)}</p>
+  <h1>${esc(proposition(substance.companies))}</h1>
+  <p class="hook">${hook(substance.companies, substance.companiesQuiet)}</p>
   <dl class="stats">
-    <div><dt>Companies</dt><dd>${tracked - view.notCompanies}</dd></div>
-    ${view.notCompanies > 0 ? `<div><dt>Projects, not companies</dt><dd>${view.notCompanies}</dd></div>` : ''}
-    <div><dt>One public trace at most</dt><dd>${oneTrace}</dd></div>
-    <div><dt>Sub-sectors still empty</dt><dd>${empty}<span class="of">/${coverage.subsector_count}</span></dd></div>
+    <div><dt>Say what they build</dt><dd>${substance.companies}</dd></div>
+    <div><dt>One public trace at most</dt><dd><a href="${esc(link({ traces: '1' }))}">${substance.companiesQuiet}</a></dd></div>
+    <div><dt>Sub-sectors still empty</dt><dd><a href="#coverage">${empty}</a><span class="of">/${coverage.subsector_count}</span></dd></div>
   </dl>
   ${
-		// Only when there is something to report. A liveness line that reads "0
-		// discovered in the last seven days" every day until the first discovery lands
-		// says the machine is broken, which is not what it means.
-		//
-		// Not "added to Upstream": each company page uses that for the day its row was
-		// written, and a new source's first read writes dozens of rows that are not finds.
+		substance.unsaid + substance.others > 0
+			? `<p class="set-aside">Not in that number, and one click away: ${[
+					substance.unsaid
+						? `<a href="${esc(link({ described: 'unsaid', kind: 'all' }))}"><strong>${substance.unsaid}</strong> known only from the DPIIT register</a> &mdash; a name, a place and an industry picked from a dropdown`
+						: '',
+					substance.others
+						? `<a href="${esc(link({ kind: 'other' }))}"><strong>${substance.others}</strong> research projects and unverified names</a> that do describe their work`
+						: '',
+				]
+					.filter(Boolean)
+					.join('; ')}.</p>`
+			: ''
+	}
+  ${
 		discoveredThisWeek > 0
 			? `<p class="fresh">${discoveredThisWeek} ${discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in a source we were already watching. A new source's first read is not counted here.</p>`
 			: ''
@@ -661,7 +783,10 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		site: view.site,
 		state: view.state,
 		traces: view.traces,
-		described: view.described,
+		// Written only when they leave the default, so the default view has one spelling.
+		described: view.described === 'said' ? null : (view.described ?? 'all'),
+		kind: view.kind === 'company' ? null : (view.kind ?? 'all'),
+		dpiit: view.dpiit,
 		sort: view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -691,12 +816,15 @@ const DATES_LABELS: Record<PageView['dates'], string> = { both: 'Dated and undat
 const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website' };
 const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Every year' };
 const TRACE_LABELS: Record<TraceBucket, string> = { '1': 'One or none', '2': 'Two', '3+': 'Three or more' };
-const DESCRIBED_LABELS: Record<DescribedState, string> = {
+const DESCRIBED_LABELS: Record<DescribedChoice, string> = {
+	said: 'Says what it builds',
+	unsaid: 'Says nothing about what it builds',
 	own: 'Their own homepage says',
 	source: 'A source describes it',
 	label: 'Register label only',
 	none: 'Nothing at all',
 };
+const KIND_LABELS: Record<KindChoice, string> = { company: 'Companies', other: 'Research projects and unverified names' };
 
 /**
  * Every filter that is not at its default, as the chip that names it and the link that
@@ -718,7 +846,12 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		['site', view.site ? `Website: ${SITE_LABELS[view.site].toLowerCase()}` : null],
 		['state', view.state ? `Location: ${view.state === 'unknown' ? 'unknown' : view.state}` : null],
 		['traces', view.traces ? `Public traces: ${TRACE_LABELS[view.traces].toLowerCase()}` : null],
-		['described', view.described ? `What it builds: ${DESCRIBED_LABELS[view.described].toLowerCase()}` : null],
+		[
+			'described',
+			view.described === 'said' ? null : `What it builds: ${view.described ? DESCRIBED_LABELS[view.described].toLowerCase() : 'described or not'}`,
+		],
+		['kind', view.kind === 'company' ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
+		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
 		['age', view.age !== 'recent' ? `Started: ${AGE_LABELS[view.age].toLowerCase()}` : null],
 	];
 	return named
@@ -751,14 +884,19 @@ function chips(view: PageView): string {
 function resultLine(view: PageView): string {
 	const b = view.buckets;
 	// The demo rows are not the database, so they account for themselves.
-	const universe = view.demo ? b.total : Math.max(view.tracked, b.total);
+	// Out of the half being shown — by default the companies a sentence describes — not
+	// out of every row: the rest are counted in the masthead and linked at the end here,
+	// not "hidden by filters" the reader never chose.
+	const universe = view.demo ? b.total : Math.max(view.category, b.total);
+	const outside = view.demo ? 0 : view.tracked - universe;
 	const shown = view.dates === 'undated' ? b.undated : b.ranked;
 	const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 	const parts: string[] = [];
 
 	const byFilters = universe - b.total;
 	if (byFilters > 0) {
-		const cleared = `${BASE_PATH}${query({ sort: view.sort === 'obscurity' ? null : view.sort, tier: view.tier === view.defaultTier ? null : view.tier, age: view.age === 'recent' ? null : view.age })}#list`;
+		const keep = viewParams(view);
+		const cleared = `${BASE_PATH}${query({ sort: keep.sort, tier: keep.tier, age: keep.age, described: keep.described, kind: keep.kind, dpiit: keep.dpiit })}#list`;
 		parts.push(
 			`<a href="${esc(cleared)}" title="Records the search, sector, sub-sector, source, website or location filters leave out. Follow to remove those filters.">${byFilters} hidden by filters</a>`,
 		);
@@ -781,6 +919,13 @@ function resultLine(view: PageView): string {
 		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#undated`)}" title="Records no source dates. Follow to list them below the map.">${b.undated} undated, hidden</a>`);
 	} else if (view.dates !== 'undated' && b.undated > 0) {
 		parts.push(`<a href="#undated" title="Records no source dates, so no tier can be claimed for them. Listed below the coverage map.">${b.undated} undated</a>`);
+	}
+
+	if (outside > 0) {
+		const everything = `${BASE_PATH}${query(viewParams(view, { described: 'all', kind: 'all', dpiit: null }))}#list`;
+		parts.push(
+			`<a href="${esc(everything)}" title="Records outside this view: by default, those nothing describes and the research projects and unverified names. Follow to include them.">${outside} outside this view</a>`,
+		);
 	}
 
 	const what = view.dates === 'undated' ? 'undated' : 'in the list';
@@ -815,7 +960,11 @@ function controls(view: PageView): string {
 	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
 	const sortOptions = (Object.keys(SORTS) as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
 	const traceOptions = [option('', 'Any number', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
-	const describedOptions = [option('', 'Any', view.described ?? '')].concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], view.described ?? ''))).join('');
+	const describedNow = view.described === 'said' ? '' : (view.described ?? 'all');
+	const describedOptions = [option('', DESCRIBED_LABELS.said, describedNow)]
+		.concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], describedNow)))
+		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'Described or not', describedNow)])
+		.join('');
 	const count = activeFilters(view).filter((f) => f.key !== 'q').length;
 
 	const field = (id: string, label: string, options: string) =>
@@ -842,6 +991,8 @@ function controls(view: PageView): string {
         ${field('traces', 'Public traces', traceOptions)}
         ${field('described', 'What it builds', describedOptions)}
         <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
+        <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
+        <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
         <button type="submit" class="apply">Apply</button>
       </div>
     </details>
@@ -970,7 +1121,7 @@ function eventPhrase(company: Company): string | null {
  * click are carried by how the row looks as well as by what it says: described or not,
  * dated or not, a website confirmed as theirs or not.
  */
-function companyRow(company: Company, now: Date): string {
+function companyRow(company: Company, now: Date, origin: string): string {
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	const builds = buildsLine(company);
 	const dated = company.first_seen !== null;
@@ -1047,6 +1198,8 @@ function companyRow(company: Company, now: Date): string {
         <button type="button" class="mark" data-mark="shortlist" aria-pressed="false">Shortlist</button>
         <button type="button" class="mark" data-mark="seen" aria-pressed="false">Seen</button>
       </span>
+      <button type="button" class="copy-row" hidden>Copy brief</button>
+      <template class="brief">${esc(briefMarkdown(company, `${origin}${BASE_PATH}/c/${company.id}`, now))}</template>
     </div>
   </li>`;
 }
@@ -1069,7 +1222,7 @@ function backfillNote(view: PageView): string {
 	// On an empty database it is vacuously true and reads as an excuse. Nothing to
 	// explain until there is something to explain.
 	if (!view.backfillOnly || view.tracked === 0) return '';
-	return `<p class="note">Nothing qualifies for Tier A or B today, so the list is showing everything. Those tiers take a
+	return `<p class="note">Too few companies here qualify for Tier A or B today, so the list is showing every tier. Those tiers take a
     company we watched arrive, recently, in a source we were already reading, with few public traces &mdash; and with
     more than a register&rsquo;s dropdown label to say what it does. A new source&rsquo;s first read never qualifies.</p>`;
 }
@@ -1132,7 +1285,7 @@ function list(view: PageView): string {
   ${unknownAge(view)}
   ${truncated(companies.length, listed(view))}
   <ol class="companies">
-${companies.map((company) => companyRow(company, now)).join('\n')}
+${companies.map((company) => companyRow(company, now, view.origin)).join('\n')}
   </ol>
 </section>`;
 }
@@ -1156,7 +1309,7 @@ function undatedList(view: PageView): string {
     tiers rather than shown as if they were new.</p>
   ${truncated(undated.length, n)}
   <ol class="companies">
-${undated.map((company) => companyRow(company, now)).join('\n')}
+${undated.map((company) => companyRow(company, now, view.origin)).join('\n')}
   </ol>
 </section>`;
 }
@@ -1271,7 +1424,7 @@ function registerSplit(view: PageView): string {
     how the rest are described.</p>`;
 
 	return `
-  <p>Of the ${register.total} companies read from the register, ${register.placed} reached a sub-sector and
+  <p id="register">Of the ${register.total} companies read from the register, ${register.placed} reached a sub-sector and
     ${unplaced} did not. Reported whole, that second number says two different things at once, so it is split here.</p>${taxonomy}${undescribed}`;
 }
 
@@ -1375,15 +1528,15 @@ function methodology(view: PageView): string {
     counted in the coverage map, and one link away &mdash; they are history rather than a find, and putting them in the
     same list would be flattering the wrong thing.</p>
 
-  <h3>Two official classifications that do not meet</h3>
+  <h3 id="crosswalk">Two official classifications that do not meet</h3>
   <p>DPIIT's recognition register files every startup under its own industry vocabulary &mdash; 56 industries, chosen
     by the founder from a list when they applied. The RDI scheme has 44 sub-sectors, written by a different department
     for a different purpose. Neither was drawn up with the other in mind, and putting the same companies through both
     shows how little they overlap.</p>
   <p>Where the two vocabularies happen to have a near-twin, a company places almost automatically: left to the
-    classifier on the run of 14 September 2026, DPIIT's &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent
-    Systems &amp; Robotics&rdquo; placed 79 of 80. Where they have none, almost nothing placed: 3 of 87 for &ldquo;Computer
-    Vision&rdquo;, 7 of 83 for &ldquo;AI&rdquo;. Same companies, same government, two filing systems that, as this
+    classifier on the run of ${CROSSWALK.run}, DPIIT's &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent
+    Systems &amp; Robotics&rdquo; placed ${CROSSWALK.robotics[0]} of ${CROSSWALK.robotics[1]}. Where they have none, almost nothing placed: ${CROSSWALK.vision[0]} of ${CROSSWALK.vision[1]} for &ldquo;Computer
+    Vision&rdquo;, ${CROSSWALK.ai[0]} of ${CROSSWALK.ai[1]} for &ldquo;AI&rdquo;. Same companies, same government, two filing systems that, as this
     classifier maps them, do not meet. That is a finding about the two vocabularies as read by one model from one-line
     labels, not a fault in either, and not a reviewed crosswalk.</p>
   <p>Those few placements were also where the classifier guessed: five &ldquo;AI / NLP&rdquo; records had gone into AI in
@@ -1534,6 +1687,53 @@ function siteLine(company: Company): string | null {
 	return `${site} (not confirmed as theirs${company.website_identity_note ? `: ${company.website_identity_note}` : ''})`;
 }
 
+/** Why the company is on this list and where the ranking puts it, in one line. */
+function whyHere(company: Company): string {
+	const traces = `${company.trace_count} public ${company.trace_count === 1 ? 'trace' : 'traces'}`;
+	let reason: string;
+	if (company.tier === 'A') reason = 'found by a run under 90 days ago, with at most two public traces and nothing older on record';
+	else if (company.tier === 'B') reason = 'on record under 180 days, with at most five public traces';
+	else if (company.first_seen === null) reason = 'no source dates it, so it cannot be called an early find';
+	else if (company.classify_basis === 'register-label') reason = 'only a register label says what it does, so it is listed, not promoted';
+	else if (company.first_seen_basis === 'cohort') reason = 'dated from a year its source published, not found by a run of ours';
+	else reason = 'on record for more than 180 days, or with more than five public traces';
+	return `${traces}, which is what the list sorts by. Tier ${company.tier}: ${reason}.`;
+}
+
+/**
+ * What a reader should not lean on, said before they forward it. Each line comes from a
+ * column, like the unknowns: nothing here is a judgement about the company.
+ */
+function evidenceLimits(company: Company): string[] {
+	const out: string[] = [];
+	const site = safeUrl(company.website);
+	const productKnown = Boolean(company.product && company.website_identity === 'verified');
+	if (productKnown) out.push('What it builds is quoted from its own homepage; the name on the site was checked, the claims on it were not');
+	else if (describedBySource(company)) out.push('What it builds is a source’s description of it, not checked against the company');
+	else out.push('Nothing published says what it builds; only a register’s dropdown label exists');
+	if (company.classify_basis === 'register-label') out.push('Its sub-sector rests on a register label alone, which supports nothing narrower');
+	if (site && company.website_identity !== 'verified') out.push('Its website is not confirmed as theirs, so nothing on it is used');
+	if (company.entity_type && company.entity_type !== 'company') out.push(`Not shown to be a company: ${company.entity_note ?? 'nothing on record shows one'}`);
+	if (company.dpiit_status === 'profile' || company.dpiit_status === 'pending') out.push('On Startup India with a profile DPIIT has not recognised');
+	if (company.dpiit_status === 'expired' || company.dpiit_status === 'cancelled') out.push(`Its DPIIT recognition is ${company.dpiit_status}`);
+	if (!company.signals.some((s) => s.date && s.date.length >= 10)) out.push('No source gives a date for anything it lists');
+	out.push('The placement is automated and nobody has reviewed it');
+	return out;
+}
+
+/** Where to go next, from the most direct public route on record to the least. */
+function nextStep(company: Company): string {
+	const verified = company.website_identity === 'verified';
+	const page = verified ? safeUrl(company.contact_page) : null;
+	if (verified && company.contact_email) return `Write to ${company.contact_email} (on their own domain, from their homepage)${page ? `, or use ${page}` : ''}. A public route, not an introduction.`;
+	if (page) return `Their contact page: ${page}. A public route, not an introduction.`;
+	const site = verified ? safeUrl(company.website) : null;
+	if (site) return `Their website, ${site}, which gives no contact route on its homepage.`;
+	const listing = company.signals.find((s) => (s.type === 'incubator' || s.type === 'grant') && safeUrl(s.url));
+	if (listing) return `Ask ${SOURCE_LABELS[listing.source ?? ''] ?? 'the source'}, whose page lists them: ${safeUrl(listing.url)}.`;
+	return 'No public contact route is on record; start from the evidence above.';
+}
+
 /**
  * The brief a reader can forward, as markdown, from a template.
  *
@@ -1565,12 +1765,13 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 
 	const located = [company.city, company.state].filter(Boolean).join(', ');
 	lines.push(
+		`**Why it is here:** ${whyHere(company)}`,
 		`**Started:** ${ageKnown(company) ? String(company.origin_year ?? company.founded_year) : 'unknown'} · **Based:** ${located || 'unknown'} · **Public traces:** ${company.trace_count}`,
 	);
 	for (const line of whoLines(company)) lines.push(`**${line.label}:** ${line.text}${line.note ? ` _(${line.note})_` : ''}`);
 	lines.push(
 		'',
-		'## Unknown',
+		'## Open questions',
 		...unknowns(company).map((u) => `- ${u}`),
 		'',
 		'## Evidence',
@@ -1587,6 +1788,8 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 		for (const work of papers.works) lines.push(`  - ${work.title}${work.year ? ` (${work.year})` : ''}: ${work.url}`);
 	}
 
+	lines.push('', '## Limits of the evidence', ...evidenceLimits(company).map((l) => `- ${l}`));
+	lines.push('', '## Next step', `- ${nextStep(company)}`);
 	lines.push('', '## Placement');
 	if (sub) {
 		lines.push(
@@ -1597,7 +1800,13 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	} else {
 		lines.push('- Not placed in any RDI sub-sector');
 	}
-	lines.push(`- Tier ${company.tier}`, '', `Upstream: ${pageUrl}`, `_Assembled from public records on ${shortDate(now.toISOString())} by a template. No person has checked it, and the placement is automated._`);
+	lines.push(
+		`- Tier ${company.tier}`,
+		'',
+		`Upstream record: ${pageUrl}`,
+		`Last checked: ${shortDate(company.updated_at)}, the last run that read a source listing it`,
+		`_Assembled from public records on ${shortDate(now.toISOString())} by a template. No person has checked it, and the placement is automated._`,
+	);
 	return lines.join('\n');
 }
 
@@ -2029,6 +2238,21 @@ h1, h2, h3, .hook, .note { text-wrap: pretty; }
   line-height: 1.1;
 }
 .stats .of { color: var(--muted); font-size: var(--t-sm); letter-spacing: 0; }
+/* A stat that is also a way in: the number is the link, and looks like the number. */
+.stats dd a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule-strong); text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.stats dd a:hover { text-decoration-color: currentColor; }
+/* What the headline leaves out, said directly under it rather than in a footnote. */
+.set-aside { font-size: var(--t-sm); color: var(--muted); max-width: 60ch; margin: var(--s4) 0 0; }
+.set-aside a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.set-aside strong { font-family: var(--mono); font-weight: 500; }
+/* The findings: the page's argument, numbered, each number a link to its proof. */
+.findings { margin: 0 0 var(--s6); }
+.finding-list { margin: 0; padding: 0; list-style: none; counter-reset: finding; display: grid; gap: var(--s4); max-width: 68ch; }
+.finding-list li { counter-increment: finding; position: relative; padding-left: var(--s6); line-height: 1.55; }
+.finding-list li::before { content: counter(finding); position: absolute; left: 0; top: 0.1em; font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); }
+.finding-list strong { font-weight: 600; }
+.finding-list a { color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.finding-list a:hover { text-decoration-color: currentColor; }
 /* Only rendered when it is not zero, so this is always news. */
 .fresh { font-size: var(--t-xs); color: var(--muted); margin: var(--s4) 0 0; }
 .funnel-note { color: var(--muted); font-size: var(--t-xs); max-width: 46ch; margin: var(--s5) 0 0; }
@@ -2680,6 +2904,8 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
 }
 .action:hover { border-color: var(--ink); }
 .action.copy-brief { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.copy-row { font: inherit; font-size: var(--t-xs); color: var(--ink); background: none; border: 1px solid var(--rule-strong); border-radius: 999px; padding: var(--s0) var(--s2); cursor: pointer; white-space: nowrap; }
+.copy-row:hover { border-color: var(--ink); }
 .action[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .brief-fold { margin-top: var(--s2); font-size: var(--t-xs); color: var(--muted); }
 .brief-fold summary { cursor: pointer; }
@@ -2808,6 +3034,27 @@ export const MARKS_SCRIPT = `
  */
 export const LIST_SCRIPT = `
 (function () {
+  // --- one thing that leaves the page: a row's brief, copied ---
+  // Before anything that can bail out, so a browser without fetch still gets it.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    var reveal = function () {
+      var buttons = document.querySelectorAll('button.copy-row[hidden]');
+      for (var i = 0; i < buttons.length; i++) buttons[i].hidden = false;
+    };
+    reveal();
+    new MutationObserver(reveal).observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('click', function (event) {
+      var button = event.target.closest ? event.target.closest('button.copy-row') : null;
+      if (!button) return;
+      var tpl = button.parentNode.querySelector('template.brief');
+      if (!tpl) return;
+      navigator.clipboard.writeText(tpl.content.textContent).then(function () {
+        button.textContent = 'Copied';
+        setTimeout(function () { button.textContent = 'Copy brief'; }, 1600);
+      }, function () { button.textContent = 'Copy failed'; });
+    });
+  }
+
   var form = document.getElementById('controls');
   if (!form || !window.fetch || !window.DOMParser || !window.URLSearchParams) return;
   var marks = window.upstreamMarks;
@@ -3098,6 +3345,7 @@ export function renderPage(view: PageView): string {
 <body>
 <div class="wrap">
 ${header(view)}
+${findingsSection(view)}
 ${widgets(view)}
 ${askBox(view)}
 <main class="tool">

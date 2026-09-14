@@ -14,6 +14,13 @@ and how few public traces it has left. No score, no pedigree, nothing about the 
 the investor. It will sometimes put a company nobody has heard of above a famous one. That is the
 point. ([001](docs/decisions/001-rank-by-obscurity.md))
 
+The page counts substance, not coverage. It opens on the **387 companies a published sentence
+describes** — 166 of them with one public trace or none — and counts the rest beside that number
+rather than inside it: 191 records the DPIIT register knows only by name and dropdown industry, and 29
+research projects and unverified names (14 September 2026). Under the headline, four findings about
+Indian deep-tech sourcing, each number a link to the rows that prove it. Every row carries a brief to
+copy: what it builds, why it is here, the open questions, the evidence, its limits and a next step.
+
 It only works if the page is honest about what it does not know, so it names its gaps instead of
 filling them: "No description published", "founding year unknown", "website not confirmed as
 theirs". The company page has a section called *What is not known*, and the brief you can copy from
