@@ -20,7 +20,7 @@ import requests
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import entity, health, identity, places
+from ingest import duplicates, entity, health, identity, places
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
@@ -259,6 +259,13 @@ def main() -> int:
             print(f"  {verdict.source}: {verdict.status} — {verdict.reason}")
         return 1
 
+    # Before the dedupe below, so a company listed under two spellings is one id from
+    # here on and the dedupe treats it like any company two sources share.
+    merge_map = duplicates.merges([c for companies in by_source.values() for c in companies])
+    duplicates.apply(by_source, signals_by_source, merge_map)
+    print(f"\n{len(merge_map)} duplicate spellings folded into the row that stays: "
+          + ", ".join(f"{a} -> {b}" for a, b in sorted(merge_map.items())))
+
     # One company can appear in two portfolios. The first source to mention it
     # owns the row; the other's signals still attach, because a signal is keyed
     # by company id and both sources genuinely saw it.
@@ -424,6 +431,14 @@ def main() -> int:
         upload(source, keep, traces, gaps, base_url=args.base_url, mode=args.mode)
         uploaded += len(keep)
         recorded += len(gaps)
+
+    # Only into a row this run sent: a duplicate whose surviving row was not placed is
+    # left for the run that places it, rather than folded into nothing.
+    folds = [{"from": a, "into": b} for a, b in sorted(merge_map.items()) if b in sent]
+    if folds and not args.dry_run:
+        upload(owner[folds[0]["into"]], [], [], [], base_url=args.base_url, mode=args.mode, merged=folds)
+    unfolded = sorted(a for a, b in merge_map.items() if b not in sent)
+    print(f"  {len(folds)} of {len(merge_map)} duplicates folded" + (f"; not placed this run, left as they are: {', '.join(unfolded)}" if unfolded else ""))
 
     # After the uploads, so everything this run re-sent has already been judged above.
     swept: int | None = None

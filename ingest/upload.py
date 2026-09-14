@@ -77,6 +77,7 @@ def upload(
     key: str | None = None,
     mode: str | None = None,
     size: int = BATCH,
+    merged: list[dict] | None = None,
 ) -> list[dict]:
     """Post everything, one batch at a time. Returns what the server said to each."""
     url = f"{base_url.rstrip('/')}/api/ingest"
@@ -95,6 +96,9 @@ def upload(
         # case that inference cannot cover, which is re-seeding a wiped history.
         if mode is not None:
             body["mode"] = mode
+        # Once, with the first batch: {from, into} pairs the Worker folds together.
+        if merged:
+            body["merged"], merged = merged, None
 
         response = requests.post(url, headers=headers, data=json.dumps(body), timeout=TIMEOUT_SECONDS)
         if response.status_code != 200:

@@ -1,0 +1,22 @@
+{
+ "audo-sens-diagnostics": {
+  "into": "shodhsens-diagnostics",
+  "why": "Shodhsens's website is audosens.com and its SINE description says \"AUDOSens is developing\"; AUDO Sens is the product, Shodhsens the company"
+ },
+ "byline-medtch": {
+  "into": "bylin-medtech",
+  "why": "one-letter typos in a SINE cohort list; both rows give www.bylinmedtech.com"
+ },
+ "careflex-healthcare": {
+  "into": "careflex-health",
+  "why": "two SINE lists; same name one word shorter, both biomedical supports and splints"
+ },
+ "dr-pashu-technologies": {
+  "into": "drpashu-ai-technologies",
+  "why": "BIRAC BIG 21 and SINE BIG cohort 7; same name, one extra word; drpashu.com"
+ },
+ "eyerov-technologies": {
+  "into": "irov-eyerov-technologies",
+  "why": "Venture Center lists EyeROV; the NIDHI-PRAYAS row is Irov (EyeRov) Technologies with www.eyerov.com"
+ }
+}

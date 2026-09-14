@@ -375,8 +375,13 @@ def enrich(
             results[company.id] = Product(status=SOURCE_DESCRIBED, source="identity")
             continue
 
+        # By hash as well as by id, for the reason classify.classify gives: a merged
+        # company's page may have been read under its other spelling.
+        fingerprint = _fingerprint(company, text)
         entry = cache.get(company.id)
-        if entry and entry.get("hash") == _fingerprint(company, text):
+        if not (entry and entry.get("hash") == fingerprint):
+            entry = next((e for e in cache.values() if isinstance(e, dict) and e.get("hash") == fingerprint), None)
+        if entry:
             results[company.id] = Product(status=entry["status"], product=entry.get("product"), source="cache")
             usage.cached += 1
             continue

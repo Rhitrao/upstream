@@ -488,6 +488,11 @@ def classify(
     usage = Usage()
     results: dict[str, Classification] = {}
     todo: list[Company] = []
+    # The cache is filed by id, but what it answered is the hash. A company listed under
+    # two spellings is one id from ingest/duplicates.py on, and the copy classified under
+    # that id may be the one whose answer was filed under the other spelling: the same
+    # question, already paid for. Found by what was asked, not by where it was filed.
+    by_hash = {entry["hash"]: entry for entry in cache.values() if isinstance(entry, dict) and entry.get("hash")}
 
     for company in companies:
         if company.id in overrides:
@@ -497,6 +502,11 @@ def classify(
         entry = cache.get(company.id)
         if entry and not force and (entry.get("hash") == _fingerprint(company) or _answered_before_entity_types(company, entry)):
             results[company.id] = _from_cache(entry)
+            usage.cached += 1
+            continue
+        filed_elsewhere = by_hash.get(_fingerprint(company))
+        if filed_elsewhere and not force:
+            results[company.id] = _from_cache(filed_elsewhere)
             usage.cached += 1
             continue
         todo.append(company)

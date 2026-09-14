@@ -226,6 +226,36 @@ describe('POST /upstream/api/ingest', () => {
 		expect(row).toEqual({ tier: 'C' });
 	});
 
+	it('folds a company listed twice into one row, keeping the earlier date and the note', async () => {
+		await post({ source: 'grants-csv', mode: 'backfill', companies: [{ id: 'cancrie', name: 'Cancrie Private Limited', origin_year: 2023 }] });
+		await post({
+			source: 'venture-center',
+			mode: 'backfill',
+			companies: [{ id: 'cancrie-inc', name: 'Cancrie Inc.', origin_year: 2021 }],
+			signals: [{ company_id: 'cancrie-inc', type: 'incubator', label: 'Venture Center portfolio' }],
+		});
+		await env.DB.prepare("INSERT INTO notes (company_id, body, author, created_at, updated_at) VALUES ('cancrie-inc', 'call them', 'me', 'x', 'x')").run();
+
+		// The next run sends Venture Center's copy under the surviving id, and says so.
+		const res = await post({
+			source: 'venture-center',
+			companies: [{ id: 'cancrie', name: 'Cancrie Inc.' }],
+			signals: [{ company_id: 'cancrie', type: 'incubator', label: 'Venture Center portfolio' }],
+			merged: [
+				{ from: 'cancrie-inc', into: 'cancrie' },
+				{ from: 'orphan', into: 'never-arrived' },
+			],
+		});
+		expect((await res.json<any>()).merged).toBe(1);
+
+		const rows = await env.DB.prepare('SELECT id, first_seen, trace_count FROM companies ORDER BY id').all<any>();
+		expect(rows.results).toEqual([{ id: 'cancrie', first_seen: '2021-01-01', trace_count: 1 }]);
+		expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM signals WHERE company_id = 'cancrie-inc'").first<any>()).toEqual({ n: 0 });
+		expect(await env.DB.prepare('SELECT company_id FROM notes').first<any>()).toEqual({ company_id: 'cancrie' });
+
+		expect((await post({ source: 'x', merged: [{ from: 'a', into: 'a' }] })).status).toBe(400);
+	});
+
 	it('treats a whole first day as a backfill, however many requests it takes', async () => {
 		// One sweep, three chunks, because 500 companies do not fit in one payload.
 		for (const chunk of [

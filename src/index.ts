@@ -306,6 +306,12 @@ const ENTITY_TYPES = new Set(['company', 'researcher-project', 'lab', 'unverifie
  * A company the classifier placed in a sector but in none of its sub-sectors.
  * It is not a company row: it is the evidence that the taxonomy has a hole.
  */
+/** One company listed twice: `from` is the duplicate row, `into` the one that stays. */
+interface MergeInput {
+	from: string;
+	into: string;
+}
+
 interface GapInput {
 	company_id: string;
 	name: string;
@@ -601,8 +607,21 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		gaps.push({ ...(g as object), company_id: companyId, name, missing, note } as GapInput);
 	}
 
+	if (payload.merged !== undefined && !Array.isArray(payload.merged)) {
+		return json({ error: 'merged must be an array' }, 400);
+	}
+	const merged: MergeInput[] = [];
+	for (const [i, raw] of ((payload.merged ?? []) as unknown[]).entries()) {
+		const m = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
+		const from = str(m.from);
+		const into = str(m.into);
+		if (!from || !into || from === into) return json({ error: `merged[${i}] needs two different ids, from and into` }, 400);
+		merged.push({ from, into });
+	}
+
 	try {
 		const result = await applyIngest(env, source, companies, signals, gaps, now, mode);
+		result.merged = await applyMerges(env, merged, now);
 		await env.DB.prepare(INSERT_RUN_SQL).bind(startedAt, source, 'ok', companies.length, null).run();
 		return json(result);
 	} catch (error) {
@@ -623,6 +642,8 @@ interface IngestResult {
 	signals_added: number;
 	signals_skipped: number;
 	gaps_recorded: number;
+	/** Duplicate rows folded into the row that stays. */
+	merged?: number;
 	/** Said out loud in the response, because it decides what every date in it means. */
 	backfill: boolean;
 }
@@ -802,6 +823,46 @@ async function applyIngest(
 		gaps_recorded: gaps.length,
 		backfill,
 	};
+}
+
+/**
+ * Fold a company listed twice into one row.
+ *
+ * The ids are slugs of names, so "Call X Ringers" and "CallX Ringers" were two rows and
+ * two sets of traces. The ingest decides which spellings are one company
+ * (ingest/duplicates.py) and from then on sends every copy under `into`, which brings
+ * the traces across; what is left here is the old row. It goes, and takes nothing with
+ * it that should stay: the earlier of the two dates is kept on `into`, because a merge
+ * must not make a company look newer than either listing said, and a private note
+ * moves with the company.
+ *
+ * Only where `into` exists. A duplicate whose surviving row never arrived is left
+ * standing rather than deleted into nothing.
+ */
+async function applyMerges(env: Env, merges: MergeInput[], now: Date): Promise<number> {
+	if (merges.length === 0) return 0;
+	const present = await selectExistingIds(env, [...new Set(merges.map((m) => m.into))]);
+	const doable = merges.filter((m) => present.has(m.into));
+	const writes: D1PreparedStatement[] = [];
+	for (const { from, into } of doable) {
+		writes.push(
+			env.DB.prepare(
+				`UPDATE companies SET
+				   first_seen       = (SELECT f.first_seen FROM companies f WHERE f.id = ?1),
+				   first_seen_basis = (SELECT f.first_seen_basis FROM companies f WHERE f.id = ?1)
+				 WHERE id = ?2 AND EXISTS (
+				   SELECT 1 FROM companies f WHERE f.id = ?1 AND f.first_seen IS NOT NULL
+				     AND (companies.first_seen IS NULL OR f.first_seen < companies.first_seen))`,
+			).bind(from, into),
+			env.DB.prepare('UPDATE OR IGNORE notes SET company_id = ?2 WHERE company_id = ?1').bind(from, into),
+			env.DB.prepare(DELETE_COMPANY_SIGNALS_SQL).bind(from),
+			env.DB.prepare(DELETE_COMPANY_SQL).bind(from),
+			env.DB.prepare(DELETE_GAP_SQL).bind(from),
+		);
+	}
+	if (writes.length > 0) await env.DB.batch(writes);
+	await recomputeRanking(env, [...new Set(doable.map((m) => m.into))], now.toISOString(), now);
+	return doable.length;
 }
 
 async function selectExistingIds(env: Env, ids: string[]): Promise<Set<string>> {
