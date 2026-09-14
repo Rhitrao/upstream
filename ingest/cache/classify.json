@@ -33,6 +33,18 @@
   "sector_id": "2",
   "subsector_id": "2.6"
  },
+ "30m-genomics": {
+  "classified_at": "2026-09-14T18:11:57+00:00",
+  "hash": "01716834b25b4b70",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "30M Genomics",
+  "note": "The project develops portable DNA extraction and PCR technologies for rapid genetic testing, matching the point-of-care diagnostic kit category.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
  "3cousinlabs": {
   "classified_at": "2026-09-12T12:02:26+00:00",
   "hash": "d0195f78ae8aa11a",
@@ -53,6 +65,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "3p-labs": {
+  "classified_at": "2026-09-14T18:11:34+00:00",
+  "hash": "7b48d9bd773b1ab0",
+  "missing": "company technical details",
+  "model": "claude-haiku-4-5",
+  "name": "3P LABS PRIVATE LIMITED",
+  "note": "3P Labs' specific focus area and technical application cannot be determined from the information provided; the company name and stage alone are insufficient to map to a concrete project type within the taxonomy.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "42apeironanta-technologies": {
@@ -164,6 +188,18 @@
   "note": "Aarivix is a computer vision company without sufficient information to confirm application to agriculture, health, education, or the enabling technologies listed; the taxonomy requires domain-specific application to Indian problems, not computer vision capability alone.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "aashish-electricals": {
+  "classified_at": "2026-09-14T18:11:42+00:00",
+  "hash": "d3b25eca3c33509b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AASHISH ELECTRICALS PRIVATE LIMITED",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "aavrtti-technologies": {
@@ -476,6 +512,18 @@
   "note": "AEKAM AI is described only as an AI/Machine Learning company at scaling stage with no details about application domain, making it impossible to determine if their work applies to agriculture, health, education, or cross-domain enabling technologies as required by sector 3.",
   "project_type": null,
   "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "aereka-airtech": {
+  "classified_at": "2026-09-14T18:11:25+00:00",
+  "hash": "71cfa79deae77f4f",
+  "missing": "air quality and emissions control",
+  "model": "claude-haiku-4-5",
+  "name": "AEREKA AIRTECH PRIVATE LIMITED",
+  "note": "Company name and sector description (Aereka Airtech, green technology, clean tech) suggest focus on air quality, emissions reduction, or atmospheric technologies, but specific technical details about their solution are not provided to map against the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
@@ -834,6 +882,18 @@
   "sector_id": "3",
   "subsector_id": "3.2"
  },
+ "ai5labs-research-opc": {
+  "classified_at": "2026-09-14T18:11:35+00:00",
+  "hash": "35bd65eb0787e968",
+  "missing": "foundational machine learning research",
+  "model": "claude-haiku-4-5",
+  "name": "AI5LABS RESEARCH (OPC) PRIVATE LIMITED",
+  "note": "AI5LABS RESEARCH is a general machine learning research startup at prototype stage with no specified application domain tied to agriculture, healthcare, education, or cross-domain problems listed in the taxonomy.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "aibono-smart-farming": {
   "classified_at": "2026-09-12T10:56:45+00:00",
   "hash": "632cc6e7436ac746",
@@ -946,6 +1006,30 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "aivora-ai": {
+  "classified_at": "2026-09-14T18:11:35+00:00",
+  "hash": "97492e4946b7c9f4",
+  "missing": "company application domain",
+  "model": "claude-haiku-4-5",
+  "name": "AIVORA AI PRIVATE LIMITED",
+  "note": "AIVORA AI is described only as a Machine Learning stage company with no information about specific applications to agriculture, healthcare, education, or cross-domain problems that the taxonomy covers.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "aizent": {
+  "classified_at": "2026-09-14T18:11:36+00:00",
+  "hash": "1dc019fea52cc6db",
+  "missing": "insufficient company information",
+  "model": "claude-haiku-4-5",
+  "name": "AIZENT PRIVATE LIMITED",
+  "note": "AIZENT's core work and specific applications within AI are not publicly detailed enough to map to any of the four sub-sectors, which focus on agriculture, healthcare, education, or cross-domain enabling technologies.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "ajithaprodrug-india": {
   "classified_at": "2026-09-12T11:31:12+00:00",
   "hash": "43bcbb9dff982761",
@@ -1001,6 +1085,18 @@
   "project_type": "Pre-clinical and clinical pharmaceutical R&D",
   "sector_id": "4",
   "subsector_id": "4.4"
+ },
+ "akulapalli-jairam-industries": {
+  "classified_at": "2026-09-14T18:11:38+00:00",
+  "hash": "50131d09dd55e3d7",
+  "missing": "application domain specification",
+  "model": "claude-haiku-4-5",
+  "name": "AKULAPALLI JAIRAM INDUSTRIES PRIVATE LIMITED",
+  "note": "The company description provides only industry classification (AI, Machine Learning) and validation stage, with no information about specific application domain, problem statement, or use case that would map to agriculture, health, education, or cross-domain enabling technologies.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "akupaad-marketing": {
   "classified_at": "2026-09-12T12:06:35+00:00",
@@ -1079,6 +1175,18 @@
   "project_type": "Modular robotic platforms",
   "sector_id": "2",
   "subsector_id": "2.7"
+ },
+ "algoryg-tech-solutions": {
+  "classified_at": "2026-09-14T18:11:32+00:00",
+  "hash": "948e03dcb14305a8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ALGORYG TECH SOLUTIONS PRIVATE LIMITED",
+  "note": "ALGORYG TECH's NLP expertise aligns with processing and extracting insights from electronic health records, a core healthcare AI application.",
+  "project_type": "Natural language processing for electronic health records",
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": "3.2"
  },
  "algosurg-inc": {
   "classified_at": "2026-09-12T12:35:09+00:00",
@@ -1349,6 +1457,18 @@
   "sector_id": "4",
   "subsector_id": "4.1"
  },
+ "anatomech": {
+  "classified_at": "2026-09-14T18:11:56+00:00",
+  "hash": "84043d032a636c9f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Anatomech",
+  "note": "The project develops wearable compression technology for post-injury rehabilitation and therapy, which aligns with smart rehabilitation devices and therapeutic wearables.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
  "angelbot-ai": {
   "classified_at": "2026-09-12T12:06:36+00:00",
   "hash": "64343c69896ed385",
@@ -1359,6 +1479,18 @@
   "project_type": null,
   "sector_id": "3",
   "subsector_id": null
+ },
+ "angirus": {
+  "classified_at": "2026-09-14T18:11:55+00:00",
+  "hash": "04cf0602c0f35bfc",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Angirus",
+  "note": "The project develops sustainable building materials from recycled plastic and industrial waste, aligning with net-zero materials innovation under comprehensive climate action.",
+  "project_type": "Net-zero / low-carbon materials (cement with >=90% lower emissions, fibre-based composites, passive thermal management)",
+  "sector_id": "1",
+  "source": "venture-center",
+  "subsector_id": "1.16"
  },
  "aniket-kenge": {
   "classified_at": "2026-09-14T07:03:48+00:00",
@@ -1473,6 +1605,18 @@
   "sector_id": "2",
   "subsector_id": "2.6"
  },
+ "anvay-innolabs": {
+  "classified_at": "2026-09-14T18:11:32+00:00",
+  "hash": "3f7fa2be6ead0a26",
+  "missing": "company focus description",
+  "model": "claude-haiku-4-5",
+  "name": "ANVAY INNOLABS LLP",
+  "note": "ANVAY INNOLABS LLP's specific focus area is not provided in the available information, making it impossible to classify them against these project types with confidence.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "anvi-robotics": {
   "classified_at": "2026-09-12T12:03:51+00:00",
   "hash": "ed919e4676466090",
@@ -1540,6 +1684,30 @@
   "project_type": "Advanced automation / control systems for manufacturing assembly lines",
   "sector_id": "2",
   "subsector_id": "2.3"
+ },
+ "aptech-green-energies": {
+  "classified_at": "2026-09-14T18:11:26+00:00",
+  "hash": "21a039da9ab6b31e",
+  "missing": "renewable energy company profile detail",
+  "model": "claude-haiku-4-5",
+  "name": "APTECH GREEN ENERGIES PRIVATE LIMITED",
+  "note": "APTECH Green Energies lacks sufficient specificity in available information to map to a project type. The company is only identified as working in renewable energy solutions at prototype stage without technical details on which specific renewable technology, innovation focus, or application they are developing.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "aquadef-autochem": {
+  "classified_at": "2026-09-14T18:11:26+00:00",
+  "hash": "83b23de1fd3883d4",
+  "missing": "water treatment and desalination",
+  "model": "claude-haiku-4-5",
+  "name": "AQUADEF AUTOCHEM LLP",
+  "note": "AQUADEF AUTOCHEM's core focus on water treatment and purification (inferred from the company name and clean tech positioning) does not map to the energy security and transition taxonomy provided, which concentrates on renewable energy generation, storage, nuclear systems, and industrial decarbonization.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "aquaforge-robotics": {
   "classified_at": "2026-09-12T12:03:47+00:00",
@@ -2167,6 +2335,30 @@
   "sector_id": "2",
   "subsector_id": "2.6"
  },
+ "aurtrix": {
+  "classified_at": "2026-09-14T18:11:37+00:00",
+  "hash": "7868bd88422127fb",
+  "missing": "company application details",
+  "model": "claude-haiku-4-5",
+  "name": "AURTRIX PRIVATE LIMITED",
+  "note": "AURTRIX is described only as an AI/Machine Learning startup in validation stage with no information about which problem domain it addresses\u2014agriculture, health, education, or cross-domain enabling technologies.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "auto-data-catalog": {
+  "classified_at": "2026-09-14T18:11:29+00:00",
+  "hash": "68c14829e7ad5228",
+  "missing": "data infrastructure and management",
+  "model": "claude-haiku-4-5",
+  "name": "Auto Data Catalog Pvt Ltd",
+  "note": "Auto Data Catalog is a data management and cataloging platform for enterprises, which is infrastructure-level tooling for AI/ML workflows rather than an application of AI to solve Indian problems in agriculture, health, education, or cross-domain sectors.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "autosegra-solution": {
   "classified_at": "2026-09-12T12:03:29+00:00",
   "hash": "d6c69f482682dfc1",
@@ -2187,6 +2379,18 @@
   "note": "Avdhut Infotech is a computer vision company without specified application domain; the taxonomy requires AI solutions targeted at agriculture, health, education, or cross-domain enabling technologies, but the company description does not indicate which problem area they address.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "avenzos": {
+  "classified_at": "2026-09-14T18:11:28+00:00",
+  "hash": "628e6a038b4c1a04",
+  "missing": "company technology specification",
+  "model": "claude-haiku-4-5",
+  "name": "AVENZOS PRIVATE LIMITED",
+  "note": "AVENZOS PRIVATE LIMITED's specific renewable energy technology or focus area is not detailed in the provided information, making it impossible to match against specific project types within the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "avinya-leather": {
@@ -2458,6 +2662,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": "1.2"
  },
+ "banofi-leather": {
+  "classified_at": "2026-09-14T18:11:49+00:00",
+  "hash": "4c90a8bb9a196f49",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Banofi Leather",
+  "note": "The project transforms banana crop waste into plant-based leather through bioprocessing, directly matching the sub-sector's focus on sustainable bioprocesses utilizing agricultural waste.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.2"
+ },
  "bariflo-cybernetics": {
   "classified_at": "2026-09-12T12:03:33+00:00",
   "hash": "c73883dd1fbc16a8",
@@ -2514,6 +2730,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "beejnetra-automation": {
+  "classified_at": "2026-09-14T18:11:41+00:00",
+  "hash": "c48f92c331a6643f",
+  "missing": "AI infrastructure and tools for enterprise automation",
+  "model": "claude-haiku-4-5",
+  "name": "BEEJNETRA AUTOMATION PRIVATE LIMITED",
+  "note": "BEEJNETRA AUTOMATION PRIVATE LIMITED's core work in machine learning and automation for MSMEs is too broad and foundational to map to a specific project type; the company appears to provide ML infrastructure or tools rather than domain-specific solutions in agriculture, health, education, or the cross-domain categories listed.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "bellatrix-aerospace": {
   "classified_at": "2026-09-12T11:59:50+00:00",
   "hash": "ee1b0581f8d6d9cd",
@@ -2545,6 +2773,18 @@
   "note": "BEYLESYS TECHNOLOGIES is a general machine learning startup at validation stage with no disclosed application to agriculture, health, education, disaster management, or enabling technologies for Indian problems.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "bfair-innovation-labs": {
+  "classified_at": "2026-09-14T18:11:26+00:00",
+  "hash": "6695cc469064434d",
+  "missing": "company technical description",
+  "model": "claude-haiku-4-5",
+  "name": "BFAIR INNOVATION LABS",
+  "note": "BFAIR INNOVATION LABS is described only as a 'Green Technology' startup in 'Clean Tech' at validation stage, with no specific technical details about what technology they develop or which energy/climate problem they address.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "bharat-atomic-labs": {
@@ -4003,6 +4243,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "craste": {
+  "classified_at": "2026-09-14T18:11:59+00:00",
+  "hash": "620285cae97aef89",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "CRASTE",
+  "note": "The project develops engineered green boards from crop waste for furniture and sustainable packaging, which qualifies as a net-zero/low-carbon material innovation that diverts agricultural residue from waste streams.",
+  "project_type": "Net-zero / low-carbon materials (cement with >=90% lower emissions, fibre-based composites, passive thermal management)",
+  "sector_id": "1",
+  "source": "venture-center",
+  "subsector_id": "1.16"
+ },
  "cre-aid-labs": {
   "classified_at": "2026-09-12T11:59:57+00:00",
   "hash": "fed28b23c9d02fab",
@@ -4300,6 +4552,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "datavonix": {
+  "classified_at": "2026-09-14T18:11:37+00:00",
+  "hash": "4630ff1853ad55fd",
+  "missing": "natural language processing infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "DATAVONIX PRIVATE LIMITED",
+  "note": "DATAVONIX is an NLP-focused AI company, but the taxonomy only includes NLP as a tool within specific applied domains (health records, education, agriculture). It lacks a dedicated NLP or language technology sub-sector for general-purpose NLP solutions.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "db-potential": {
   "classified_at": "2026-09-12T10:55:28+00:00",
   "hash": "ab66ccb376167d4d",
@@ -4455,6 +4719,18 @@
   "project_type": "Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "delva-labs": {
+  "classified_at": "2026-09-14T18:11:41+00:00",
+  "hash": "91eb1482cdf52918",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "DELVA LABS PRIVATE LIMITED",
+  "note": "DELVA Labs' NLP expertise aligns with healthcare applications, specifically natural language processing for electronic health records which is a direct project type under AI in Healthcare.",
+  "project_type": "Natural language processing for electronic health records",
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": "3.2"
  },
  "delving-research-and-development": {
   "classified_at": "2026-09-12T11:59:57+00:00",
@@ -5307,6 +5583,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "eigenaxis-ai": {
+  "classified_at": "2026-09-14T18:11:44+00:00",
+  "hash": "67f8466275eef1ce",
+  "missing": "domain-agnostic machine learning infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "EIGENAXIS.AI LLP",
+  "note": "EIGENAXIS.AI is a general machine learning platform company without specified application to agriculture, healthcare, education, or the enabling technologies listed in subsector 3.4.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "eigenaxis-innovation-labs": {
   "classified_at": "2026-09-12T12:06:35+00:00",
   "hash": "992f9d3355a3d7e1",
@@ -5328,6 +5616,18 @@
   "project_type": null,
   "sector_id": "5",
   "subsector_id": null
+ },
+ "ekosight-technologies": {
+  "classified_at": "2026-09-14T18:11:51+00:00",
+  "hash": "53f7bdc06acec730",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ekosight Technologies",
+  "note": "The project's Soil Doctor product performs rapid soil testing of organic carbon, pH, and nutrients, directly matching the advanced soil sensing capability for monitoring soil health parameters.",
+  "project_type": "Advanced soil carbon sensing (in-situ sensors, IoT probes, remote sensing)",
+  "sector_id": "5",
+  "source": "venture-center",
+  "subsector_id": "5.3"
  },
  "el-auto-wash": {
   "classified_at": "2026-09-12T12:05:29+00:00",
@@ -5685,6 +5985,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "energy-crater": {
+  "classified_at": "2026-09-14T18:11:27+00:00",
+  "hash": "8cb9d7982bc1add5",
+  "missing": "company technology focus",
+  "model": "claude-haiku-4-5",
+  "name": "ENERGY CRATER PRIVATE LIMITED",
+  "note": "Energy Crater's specific renewable energy focus cannot be determined from the information provided; the company name and stage alone do not clarify whether they work on wind, solar, storage, hydrogen, or another energy technology.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "energybae": {
   "classified_at": "2026-09-12T10:55:34+00:00",
   "hash": "c9c392b446f16c46",
@@ -5817,6 +6129,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "epzion-innovations": {
+  "classified_at": "2026-09-14T18:11:46+00:00",
+  "hash": "060bf3b818c14785",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "EPZION INNOVATIONS PRIVATE LIMITED",
+  "note": "EPZION's embedded technology hardware focus aligns with edge AI accelerators, specialized computing systems designed to run AI inference at the edge rather than in data centres.",
+  "project_type": "Edge AI accelerators",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.8"
+ },
  "erentals-hnd": {
   "classified_at": "2026-09-12T10:55:34+00:00",
   "hash": "b175794127a2fd64",
@@ -5826,6 +6150,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "escon-lifts": {
+  "classified_at": "2026-09-14T18:11:49+00:00",
+  "hash": "5eea906b19c8f03e",
+  "missing": "elevator and vertical transport systems",
+  "model": "claude-haiku-4-5",
+  "name": "ESCON LIFTS LLP",
+  "note": "ESCON LIFTS LLP appears to be a traditional elevator/lift manufacturing company, which falls under conventional industrial equipment and infrastructure rather than deep technology.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "eshma-technologies": {
@@ -5893,6 +6229,18 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "eternis-space": {
+  "classified_at": "2026-09-14T18:11:43+00:00",
+  "hash": "93c2b966765f8e65",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ETERNIS SPACE PRIVATE LIMITED",
+  "note": "ETERNIS SPACE's focus on AI applications in the space domain aligns with the space technologies sub-sector's call for AI-based solutions for space traffic monitoring and debris management.",
+  "project_type": "AI-based space traffic monitoring, active debris removal, on-orbit servicing / refuelling / life-extension",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.5"
  },
  "ethereal-exploration-guild": {
   "classified_at": "2026-09-12T12:04:20+00:00",
@@ -6171,6 +6519,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "fastsense-innovations": {
+  "classified_at": "2026-09-14T18:12:01+00:00",
+  "hash": "c30661e55eafc3d1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Fastsense Innovations",
+  "note": "The project develops rapid point-of-care diagnostic systems with real-time AI-ML analysis for sepsis prediction, directly matching the indigenous diagnostic kits category focused on rapid, point-of-care solutions.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
  "faucet-labs": {
   "classified_at": "2026-09-12T10:55:36+00:00",
   "hash": "b33b042b15178541",
@@ -6448,6 +6808,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "fontierz": {
+  "classified_at": "2026-09-14T18:11:50+00:00",
+  "hash": "c36c86b67a2921e4",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Fontierz",
+  "note": "The project develops motorized medical devices for arthroscopic, laparoscopic, and other surgical procedures including robotic hand tools, which directly aligns with image-guided and robotic surgical systems.",
+  "project_type": "Image-guided and robotic surgical systems",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
  "footryx-healthcare": {
   "classified_at": "2026-09-12T11:31:06+00:00",
   "hash": "800b8ba476de509f",
@@ -6491,6 +6863,18 @@
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "fortavora": {
+  "classified_at": "2026-09-14T18:11:44+00:00",
+  "hash": "0cb32107a46e0212",
+  "missing": "company technical details",
+  "model": "claude-haiku-4-5",
+  "name": "FORTAVORA PRIVATE LIMITED",
+  "note": "FORTAVORA's specific focus area and core technology application are not publicly documented in sufficient detail to map confidently to any listed project type.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "fraggingmonk-technologies": {
   "classified_at": "2026-09-12T12:00:02+00:00",
@@ -6602,6 +6986,18 @@
   "sector_id": "1",
   "subsector_id": "1.13"
  },
+ "gagan-drones": {
+  "classified_at": "2026-09-14T18:11:22+00:00",
+  "hash": "de33200af872ea84",
+  "missing": "autonomous aerial vehicles and drone systems",
+  "model": "claude-haiku-4-5",
+  "name": "GAGAN DRONES PRIVATE LIMITED",
+  "note": "Gagan Drones develops commercial drone systems for aeronautical applications, which falls under general aerospace manufacturing and defence equipment rather than the deep-technology categories covered by Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "galanto-innovations": {
   "classified_at": "2026-09-12T11:31:18+00:00",
   "hash": "7b46c46729f00e5b",
@@ -6644,6 +7040,18 @@
   "note": "GARUDA Business Consulting is a business consulting firm in the aviation and aerospace sector, not a deep-technology developer of quantum systems, semiconductors, robotics, photonics, space hardware, advanced materials, intelligent systems, or neuromorphic computing.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "garudalytics": {
+  "classified_at": "2026-09-14T18:11:31+00:00",
+  "hash": "18f3fd32e420e806",
+  "missing": "geospatial analytics and satellite imagery processing",
+  "model": "claude-haiku-4-5",
+  "name": "GARUDALYTICS PRIVATE LIMITED",
+  "note": "GARUDALYTICS's core work in geospatial analytics and satellite imagery processing does not align with the specific application domains (agriculture, health, education) or enabling technologies listed in Sector 3's sub-sectors.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "gateway-green-resources": {
@@ -6878,6 +7286,18 @@
   "sector_id": "1",
   "subsector_id": "1.4"
  },
+ "giyana-industries": {
+  "classified_at": "2026-09-14T18:11:47+00:00",
+  "hash": "f048bf90e0c5d326",
+  "missing": "hardware manufacturing details",
+  "model": "claude-haiku-4-5",
+  "name": "GIYANA INDUSTRIES PRIVATE LIMITED",
+  "note": "GIYANA INDUSTRIES is described only as a technology hardware manufacturing startup at prototype stage, with no information about their specific application area, technology focus, or deep-tech capabilities.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "global-talent-manufacturing": {
   "classified_at": "2026-09-12T10:54:45+00:00",
   "hash": "2bd66932dbdb205b",
@@ -6955,6 +7375,18 @@
   "sector_id": "1",
   "subsector_id": "1.16"
  },
+ "godaam-innovations": {
+  "classified_at": "2026-09-14T18:11:56+00:00",
+  "hash": "cc71ac1c27c817df",
+  "missing": "post-harvest storage technology",
+  "model": "claude-haiku-4-5",
+  "name": "Godaam Innovations",
+  "note": "The project addresses post-harvest storage optimization and crop preservation, which falls outside the taxonomy's coverage of digital agriculture, which focuses on farm operations, soil health, and farm-to-market logistics rather than storage infrastructure and warehouse management.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "venture-center",
+  "subsector_id": null
+ },
  "gofloat-technologies": {
   "classified_at": "2026-09-12T10:55:37+00:00",
   "hash": "5758d9a003a0afb9",
@@ -6999,6 +7431,18 @@
   "project_type": "Advanced surface coating and additive manufacturing for aerospace, defence, chemical, oil & gas and biomedical",
   "sector_id": "1",
   "subsector_id": "1.13"
+ },
+ "gpc-lifesciences": {
+  "classified_at": "2026-09-14T18:11:55+00:00",
+  "hash": "faec99e35bc00ea1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "GPC Lifesciences",
+  "note": "The project develops cost-effective and environment-friendly green chemistry technologies specifically for manufacturing Active Pharmaceutical Ingredients, intermediates, and key starting materials.",
+  "project_type": "Development of active pharmaceutical ingredients (APIs) and biosimilars",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.4"
  },
  "green-cycle-sentinel": {
   "classified_at": "2026-09-14T07:04:04+00:00",
@@ -7413,6 +7857,18 @@
   "sector_id": "4",
   "subsector_id": "4.1"
  },
+ "hbs-lifesciences": {
+  "classified_at": "2026-09-14T18:12:00+00:00",
+  "hash": "756c5f8dc548ca72",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "HBS Lifesciences",
+  "note": "The project develops cost-effective manufacturing processes for pharmaceutical starting materials and intermediates using bioengineering approaches, which aligns with biomanufacturing through cell factories for chemical synthesis.",
+  "project_type": "Microbial, plant and mammalian cell factories for biosynthesis",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.2"
+ },
  "headroom-ai": {
   "classified_at": "2026-09-12T12:07:07+00:00",
   "hash": "0ce8e5207b2d8cb1",
@@ -7590,6 +8046,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "hrimtron-energy-systems": {
+  "classified_at": "2026-09-14T18:11:50+00:00",
+  "hash": "aa6e0ba8a645abf1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Hrimtron Energy Systems",
+  "note": "The project recovers industrial waste heat and converts it to electricity, directly matching the waste-to-energy innovation category under comprehensive climate action.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "source": "venture-center",
+  "subsector_id": "1.16"
+ },
  "hughen-tech": {
   "classified_at": "2026-09-12T12:03:49+00:00",
   "hash": "b448a4b1ac3f1f99",
@@ -7620,6 +8088,18 @@
   "model": "claude-haiku-4-5",
   "name": "Hycosys Pvt Ltd",
   "note": "Hycosys's hydrogen-fueled micro-gas turbines directly convert hydrogen into mechanical energy through internal combustion, fitting the hydrogen energy conversion category within the hydrogen economy sub-sector.",
+  "project_type": "Hydrogen conversion into energy (fuel cells, ICE)",
+  "sector_id": "1",
+  "source": "venture-center",
+  "subsector_id": "1.5"
+ },
+ "hydrovert-energy": {
+  "classified_at": "2026-09-14T18:11:52+00:00",
+  "hash": "66506a56f81ef31a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Hydrovert Energy",
+  "note": "The project develops a hydrogen fuel cell powered drivetrain for mobility and stationary power, which directly matches hydrogen conversion into energy applications via fuel cells.",
   "project_type": "Hydrogen conversion into energy (fuel cells, ICE)",
   "sector_id": "1",
   "source": "venture-center",
@@ -7890,6 +8370,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "imaginext-innovations": {
+  "classified_at": "2026-09-14T18:11:37+00:00",
+  "hash": "4218f13557691cc5",
+  "missing": "problem domain specification",
+  "model": "claude-haiku-4-5",
+  "name": "IMAGINEXT INNOVATIONS PRIVATE LIMITED",
+  "note": "IMAGINEXT INNOVATIONS is described only as an AI/Machine Learning startup at validation stage with no indication of which problem domain (agriculture, health, education, or disaster management) their work addresses.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "imboss-technology": {
   "classified_at": "2026-09-12T12:00:03+00:00",
   "hash": "e3722bf59eb5643b",
@@ -7999,6 +8491,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "incubrix": {
+  "classified_at": "2026-09-14T18:11:35+00:00",
+  "hash": "c48a8e6f90ec1a21",
+  "missing": "company application details",
+  "model": "claude-haiku-4-5",
+  "name": "INCUBRIX PRIVATE LIMITED",
+  "note": "INCUBRIX PRIVATE LIMITED's specific focus and application domain cannot be determined from the information provided (only that it is a DPIIT-recognised AI startup at early traction stage).",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "indent-designs": {
@@ -8166,6 +8670,18 @@
   "project_type": "Innovations for last-mile energy access",
   "sector_id": "1",
   "subsector_id": "1.9"
+ },
+ "inflection-org": {
+  "classified_at": "2026-09-14T18:11:22+00:00",
+  "hash": "fda92dabb2b283fb",
+  "missing": "internet of things and edge connectivity",
+  "model": "claude-haiku-4-5",
+  "name": "INFLECTION ORG PRIVATE LIMITED",
+  "note": "INFLECTION ORG's work in Internet of Things does not align with the deep-technology focus of Sector 2, which targets quantum computing, robotics, space, advanced materials, photonics, semiconductors, and neuromorphic systems rather than general IoT applications.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "infyu-labs": {
   "classified_at": "2026-09-12T11:31:36+00:00",
@@ -8376,6 +8892,18 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "intignus-bio": {
+  "classified_at": "2026-09-14T18:12:02+00:00",
+  "hash": "9e54d0c517d6c678",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Intignus Bio",
+  "note": "The project develops an accessible, point-of-care screening test using a specific biomarker to detect preeclampsia during pregnancy, fitting the diagnostic kit category for maternal health applications.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
  },
  "intisen-technology": {
   "classified_at": "2026-09-12T11:30:58+00:00",
@@ -8664,6 +9192,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "ive-ventures": {
+  "classified_at": "2026-09-14T18:11:31+00:00",
+  "hash": "87adb7451fee07b0",
+  "missing": "company application focus",
+  "model": "claude-haiku-4-5",
+  "name": "IVE VENTURES LLP",
+  "note": "IVE VENTURES is described only as an AI/Machine Learning startup at scaling stage with no detail about application domain (agriculture, health, education, or enabling technologies), making it impossible to assign to a specific sub-sector or project type within Sector 3.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "ixar-robotic-solutions": {
   "classified_at": "2026-09-12T10:55:45+00:00",
   "hash": "8152e37064611091",
@@ -8729,6 +9269,18 @@
   "project_type": "Chip design and advanced node fabrication",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "jalsax-ai": {
+  "classified_at": "2026-09-14T18:11:31+00:00",
+  "hash": "60d9a6b952a987b6",
+  "missing": "water resource management",
+  "model": "claude-haiku-4-5",
+  "name": "JALSAX AI PRIVATE LIMITED",
+  "note": "JALSAX AI's focus on water management and optimization does not align with the three sectoral domains (agriculture, health, education) or the cross-domain enabling technologies covered in Sector 3.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "jalviks": {
   "classified_at": "2026-09-12T10:54:49+00:00",
@@ -8961,6 +9513,18 @@
   "sector_id": "1",
   "subsector_id": "1.2"
  },
+ "k-a-g-hydrovolt-energy": {
+  "classified_at": "2026-09-14T18:11:29+00:00",
+  "hash": "3379b30c3c81068c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "K A G HYDROVOLT ENERGY LLP",
+  "note": "K A G Hydrovolt Energy's focus on hydropower solutions aligns with decentralized and off-grid energy systems, particularly micro-hydro technology for extending energy access to underserved regions.",
+  "project_type": "Innovations for last-mile energy access",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.9"
+ },
  "kaaenaat": {
   "classified_at": "2026-09-12T12:00:05+00:00",
   "hash": "fc00c5c5479cbdf8",
@@ -9150,6 +9714,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "kavachrix": {
+  "classified_at": "2026-09-14T18:11:49+00:00",
+  "hash": "d14b87e0b1617e56",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "KAVACHRIX PRIVATE LIMITED",
+  "note": "KAVACHRIX is a semiconductor technology hardware startup at validation stage, which aligns with chip design and advanced node fabrication under the Semiconductors & Electronics sub-sector.",
+  "project_type": "Chip design and advanced node fabrication",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.2"
+ },
  "kavirise-technologies": {
   "classified_at": "2026-09-12T11:59:27+00:00",
   "hash": "42b37e1ec4105ee8",
@@ -9171,6 +9747,18 @@
   "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
   "sector_id": "1",
   "subsector_id": "1.16"
+ },
+ "kbcols-sciences": {
+  "classified_at": "2026-09-14T18:12:00+00:00",
+  "hash": "3dbc2e2a06b925e1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "KBCols Sciences",
+  "note": "The project develops bioengineered pigments and bioactive compounds as sustainable alternatives to synthetic colourants through biological synthesis, directly aligning with synthetic biology applications for replacing harmful chemical materials.",
+  "project_type": "Synthetic biology solutions for sustainable fuels, chemicals and materials",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.3"
  },
  "kec-agritech": {
   "classified_at": "2026-09-12T12:06:35+00:00",
@@ -9248,6 +9836,18 @@
   "note": "KEYTOP TECH SOLUTIONS is a general computer vision company without disclosed focus on agriculture, health, education, or cross-domain AI; the sector requires application to Indian problems in these specific domains.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "kgp-roar": {
+  "classified_at": "2026-09-14T18:11:25+00:00",
+  "hash": "dc76d1702141c133",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "KGP ROAR PRIVATE LIMITED",
+  "note": "Insufficient information about KGP ROAR's specific technology or solution focus to place within the energy security taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "khawahish-creations": {
@@ -9338,6 +9938,18 @@
   "project_type": "Digital farm-to-market value chains (logistics, traceability, e-mandis)",
   "sector_id": "5",
   "subsector_id": "5.2"
+ },
+ "kkh-energy": {
+  "classified_at": "2026-09-14T18:11:25+00:00",
+  "hash": "0e7448daab7ab2e8",
+  "missing": "company-specific technology focus",
+  "model": "claude-haiku-4-5",
+  "name": "KKH ENERGY PRIVATE LIMITED",
+  "note": "KKH Energy's specific renewable energy solutions are not detailed enough to map to a particular sub-sector; the company name and stage indicate general renewable energy work without clarity on whether it focuses on wind, solar, hybrid systems, storage, hydrogen, or another specialized area covered by the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "klincara-group": {
   "classified_at": "2026-09-12T12:06:35+00:00",
@@ -9604,6 +10216,30 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "lamark-biotech": {
+  "classified_at": "2026-09-14T18:11:59+00:00",
+  "hash": "8fa5138f346f3829",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Lamark Biotech",
+  "note": "The project's room temperature insulin and thermostable biologics for diabetes, ophalmology, and cancer represent pharmaceutical APIs with enhanced formulation properties and cost-effectiveness.",
+  "project_type": "Development of active pharmaceutical ingredients (APIs) and biosimilars",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.4"
+ },
+ "lambdapoint-innovation": {
+  "classified_at": "2026-09-14T18:12:00+00:00",
+  "hash": "cfb2b35cafa3a49d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Lambdapoint Innovation",
+  "note": "The project applies AI/ML to optimize workflow management and production efficiency in bio-industries, which aligns with improving bioprocess operations including fermentation and downstream processing.",
+  "project_type": "Advanced fermentation technologies and downstream processing",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.2"
+ },
  "landsentinel": {
   "classified_at": "2026-09-12T12:03:06+00:00",
   "hash": "b05e6393dbeec804",
@@ -9670,6 +10306,18 @@
   "project_type": "Genomics, genome editing and next-generation sequencing",
   "sector_id": "4",
   "subsector_id": "4.1"
+ },
+ "leaksonic": {
+  "classified_at": "2026-09-14T18:11:49+00:00",
+  "hash": "50e00a0d1bc32f77",
+  "missing": "infrastructure monitoring and diagnostics",
+  "model": "claude-haiku-4-5",
+  "name": "LEAKSONIC PRIVATE LIMITED",
+  "note": "LEAKSONIC is a leak detection company using acoustic/sonic technology for infrastructure monitoring, which does not align with any of the deep-tech project types in Sector 2 (quantum, semiconductors, robotics, photonics, space, advanced materials, or neuromorphic computing).",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "leapfoundry-technologies": {
   "classified_at": "2026-09-12T12:07:12+00:00",
@@ -9801,6 +10449,18 @@
   "note": "Linkeddots' contactless Continuous Presence Management is an enterprise IoT/occupancy management solution that does not fit the taxonomy's focus on sectoral deep-tech (digital agriculture, fintech, health, governance, education, data platforms) or core digital infrastructure.",
   "project_type": null,
   "sector_id": "5",
+  "subsector_id": null
+ },
+ "liquitac-technologies": {
+  "classified_at": "2026-09-14T18:11:45+00:00",
+  "hash": "886643bbcaa184ad",
+  "missing": "general hardware manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "LIQUITAC TECHNOLOGIES PRIVATE LIMITED",
+  "note": "LIQUITAC Technologies is a hardware manufacturing company, but without specific information about their product focus (quantum, semiconductors, robotics, photonics, space, materials, or neuromorphic systems), they cannot be reliably mapped to any of the deep-tech sub-sectors listed.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "lisha-awasthi": {
@@ -10093,6 +10753,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "magtide-energy": {
+  "classified_at": "2026-09-14T18:11:29+00:00",
+  "hash": "dfc2cf57d7a5dce8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "MAGTIDE ENERGY PRIVATE LIMITED",
+  "note": "MAGTIDE Energy's name and renewable energy focus in machinery manufacturing suggests tidal or marine energy systems, which aligns with offshore turbine innovation for advanced wind-like energy extraction.",
+  "project_type": "Offshore and vertical-axis turbine innovation",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.1"
+ },
  "magveh-energy-recovery-systems": {
   "classified_at": "2026-09-12T12:00:09+00:00",
   "hash": "a187396a7f198f5c",
@@ -10135,6 +10807,18 @@
   "note": "Mahaveer It Solution is a computer vision company without disclosed application focus to agriculture, healthcare, education, or cross-domain enabling technologies listed in the taxonomy.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "maini-renewables": {
+  "classified_at": "2026-09-14T18:11:52+00:00",
+  "hash": "50f30541c330e694",
+  "missing": "hydrokinetic and tidal energy systems",
+  "model": "claude-haiku-4-5",
+  "name": "Maini Renewables",
+  "note": "The project develops hydrokinetic turbines for low-flow water sources (canals, tidal, ocean currents), which is a distinct renewable energy technology not covered by the taxonomy's focus on wind, solar, hybrid systems, or other listed technologies.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "venture-center",
   "subsector_id": null
  },
  "manastik-technologies": {
@@ -10314,6 +10998,18 @@
   "project_type": "Chip design and advanced node fabrication",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "mauli-power-tools": {
+  "classified_at": "2026-09-14T18:11:47+00:00",
+  "hash": "14d72b860756780a",
+  "missing": "power tools manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "MAULI POWER TOOLS",
+  "note": "The project is named for power tools, suggesting consumer or industrial hand tools or equipment, which falls outside the deep-technology categories in Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "maximl-labs": {
   "classified_at": "2026-09-12T10:56:38+00:00",
@@ -10539,6 +11235,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": "3.2"
  },
+ "metahumans": {
+  "classified_at": "2026-09-14T18:11:30+00:00",
+  "hash": "e4e008538e37e389",
+  "missing": "company application domain",
+  "model": "claude-haiku-4-5",
+  "name": "METAHUMANS PRIVATE LIMITED",
+  "note": "METAHUMANS PRIVATE LIMITED is a general machine learning AI startup at the validation stage with no disclosed focus on agriculture, healthcare, education, or cross-domain enabling technologies specific to Indian problems.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "metalumina": {
   "classified_at": "2026-09-12T12:01:40+00:00",
   "hash": "36c69ed2d2384dbc",
@@ -10603,6 +11311,18 @@
   "note": "Micob's 3D concrete printing for construction falls outside the deep-technology focus of Sector 2; it is an application of additive manufacturing to civil construction rather than next-gen materials development or advanced manufacturing systems.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "micro-logic-engineering-solutions": {
+  "classified_at": "2026-09-14T18:11:45+00:00",
+  "hash": "9218fd508593df01",
+  "missing": "conventional electronics manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "MICRO-LOGIC ENGINEERING SOLUTIONS PRIVATE LIMITED",
+  "note": "Micro-Logic Engineering Solutions' work in Technology Hardware manufacturing does not align with the specified deep-tech categories; the company appears to focus on conventional hardware manufacturing rather than quantum, semiconductors, advanced manufacturing for next-gen components, photonics, space, advanced materials, robotics, or neuromorphic systems.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "mindmetrix-techno": {
@@ -11148,6 +11868,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "navii-gps-india-opc": {
+  "classified_at": "2026-09-14T18:11:23+00:00",
+  "hash": "a39d63cc3e17cfd4",
+  "missing": "positioning and location services",
+  "model": "claude-haiku-4-5",
+  "name": "NAVII GPS INDIA (OPC) PRIVATE LIMITED",
+  "note": "NAVII GPS India appears to be a general IoT/GPS positioning company, which is a commercial application rather than deep-technology R&D in the defined sense.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "navnirmiti-composites": {
   "classified_at": "2026-09-12T10:55:55+00:00",
   "hash": "57ec4669a932a5aa",
@@ -11357,6 +12089,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "neuranics-lab": {
+  "classified_at": "2026-09-14T18:11:50+00:00",
+  "hash": "84a79b221ef86fad",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Neuranics Lab Pvt Ltd",
+  "note": "Neuranics develops AI-powered diagnostic devices for rapid and affordable disease detection, directly matching the sub-sector's focus on advanced diagnostic technologies and AI/ML applications in medical devices.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
  "neuro-insideout": {
   "classified_at": "2026-09-12T12:03:13+00:00",
   "hash": "2fc6007f9a36c13d",
@@ -11411,6 +12155,18 @@
   "project_type": "Satellite systems (miniaturized CubeSats, NanoSats, MicroSats)",
   "sector_id": "2",
   "subsector_id": "2.5"
+ },
+ "nexovo-tech-services": {
+  "classified_at": "2026-09-14T18:11:39+00:00",
+  "hash": "34bb40c278a1579c",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "NEXOVO TECH SERVICES PRIVATE LIMITED",
+  "note": "NEXOVO TECH SERVICES lacks publicly available information about their specific AI application area\u2014whether they focus on agriculture, health, education, or cross-domain enabling technologies\u2014making it impossible to assign them to a matching sub-sector.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "nextgen-ems": {
   "classified_at": "2026-09-12T12:02:06+00:00",
@@ -11512,6 +12268,18 @@
   "sector_id": "1",
   "source": "sine-iitb",
   "subsector_id": "1.9"
+ },
+ "nitya-aerospace": {
+  "classified_at": "2026-09-14T18:11:24+00:00",
+  "hash": "fdb9de398c129a13",
+  "missing": "autonomous aerial systems and drone technology",
+  "model": "claude-haiku-4-5",
+  "name": "NITYA AEROSPACE PRIVATE LIMITED",
+  "note": "NITYA Aerospace develops drones, which are autonomous aerial vehicles that do not fit distinctly into any listed deep-tech sub-sector; while drones may incorporate robotics or autonomous navigation, the taxonomy focuses on specific robotics domains (modular platforms, swarm, HRI) and space systems (satellites, launch vehicles) rather than general drone development.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "nitya-innovations": {
   "classified_at": "2026-09-12T12:07:16+00:00",
@@ -11710,6 +12478,18 @@
   "project_type": "Platform technologies for infectious disease detection and management",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "nucleus-tech-works": {
+  "classified_at": "2026-09-14T18:11:45+00:00",
+  "hash": "75a9ff37f9c2aa90",
+  "missing": "company application domain or problem statement",
+  "model": "claude-haiku-4-5",
+  "name": "NUCLEUS TECH WORKS",
+  "note": "NUCLEUS TECH WORKS is a DPIIT-recognised AI startup at validation stage, but without information about their specific application domain (agriculture, health, education, or enabling technology), no subsector can be confidently assigned.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "numelo-technologies": {
   "classified_at": "2026-09-12T11:59:32+00:00",
@@ -12033,6 +12813,18 @@
   "sector_id": "2",
   "subsector_id": "2.4"
  },
+ "orb-sentinel-ai-labs": {
+  "classified_at": "2026-09-14T18:11:35+00:00",
+  "hash": "89fc1116ffede6ac",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ORB SENTINEL AI LABS PRIVATE LIMITED",
+  "note": "NLP-focused AI startup can apply natural language processing capabilities to extract and process medical information from electronic health records, a key healthcare application.",
+  "project_type": "Natural language processing for electronic health records",
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": "3.2"
+ },
  "orhin": {
   "classified_at": "2026-09-12T12:01:29+00:00",
   "hash": "f15de9a22f29f5df",
@@ -12166,6 +12958,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "padcare-labs": {
+  "classified_at": "2026-09-14T18:12:02+00:00",
+  "hash": "974cd0007211e99b",
+  "missing": "waste valorization and circular materials recovery",
+  "model": "claude-haiku-4-5",
+  "name": "Padcare Labs",
+  "note": "The project operates a smokeless thermal disposal and material recovery system for menstrual waste, converting recovered polymers and cellulose into feedstock chemicals for packaging and construction\u2014this is a circular economy waste-to-materials solution that does not involve biotechnology, biomanufacturing, pharmaceuticals, medical devices, or any life sciences application.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": null
+ },
  "padmasini-biologicals": {
   "classified_at": "2026-09-12T12:02:42+00:00",
   "hash": "e50e10dfb417bcfa",
@@ -12176,6 +12980,18 @@
   "project_type": "Biomanufacturing of diagnostics, vaccines and therapeutic proteins",
   "sector_id": "4",
   "subsector_id": "4.2"
+ },
+ "pankhtech-india": {
+  "classified_at": "2026-09-14T18:11:55+00:00",
+  "hash": "859ffdfc326baaf3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Pankhtech India",
+  "note": "The project develops a wearable EEG headband for non-invasive brain activity monitoring at home, directly matching the wearable health monitors category under medical devices and diagnostics.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
  },
  "panthera-cleantech": {
   "classified_at": "2026-09-14T07:04:41+00:00",
@@ -12744,6 +13560,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "pragmatech-healthcare": {
+  "classified_at": "2026-09-14T18:11:54+00:00",
+  "hash": "a84ade3cc0329f0e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Pragmatech Healthcare",
+  "note": "The project develops a self-sampling diagnostic kit for rapid, point-of-care detection of cervical lesions, directly matching indigenous diagnostic kits designed for early detection.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
  "prameela-life-sciences": {
   "classified_at": "2026-09-12T12:00:10+00:00",
   "hash": "44a95490b04bfec3",
@@ -12777,6 +13605,18 @@
   "sector_id": "1",
   "source": "venture-center",
   "subsector_id": null
+ },
+ "prayasta-3d": {
+  "classified_at": "2026-09-14T18:12:03+00:00",
+  "hash": "c88e9386a1cb0a3e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Prayasta 3D",
+  "note": "The project has developed specialized 3D printing technology for implant-grade silicone prosthetics and breast implants, which directly aligns with advanced biofabrication for medical implants under regenerative medicine.",
+  "project_type": "Advanced 3D bioprinting and biofabrication technologies",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.6"
  },
  "prayogik-technologies": {
   "classified_at": "2026-09-12T11:31:44+00:00",
@@ -13145,6 +13985,18 @@
   "note": "Pupilmesh's AR headset for industrial workflow visualization is primarily an application of existing display and software technologies rather than a deep-tech innovation in quantum, semiconductors, photonics, space, materials, robotics, or neuromorphic computing.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "purple-matter-technologies": {
+  "classified_at": "2026-09-14T18:11:54+00:00",
+  "hash": "2d437e3c8069b171",
+  "missing": "sustainable packaging materials",
+  "model": "claude-haiku-4-5",
+  "name": "Purple Matter Technologies",
+  "note": "The project develops compostable packaging materials from waste, which is a circular economy and materials innovation challenge, not an energy security or climate transition technology.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "venture-center",
   "subsector_id": null
  },
  "purple-squirrel-eduventure": {
@@ -13747,6 +14599,18 @@
   "sector_id": "1",
   "subsector_id": "1.16"
  },
+ "reql-labs": {
+  "classified_at": "2026-09-14T18:11:42+00:00",
+  "hash": "dd86cb8b79d34d6b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "REQL LABS PRIVATE LIMITED",
+  "note": "REQL Labs' NLP expertise can be applied to processing and extracting insights from electronic health records, a key healthcare application area within the taxonomy.",
+  "project_type": "Natural language processing for electronic health records",
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": "3.2"
+ },
  "reseapro-labs": {
   "classified_at": "2026-09-12T12:01:48+00:00",
   "hash": "e30cfe2491cce6b9",
@@ -13800,6 +14664,18 @@
   "note": "Reticulo Sport Technology's work in AI-based sports analytics for racket games does not align with the taxonomy's focus on agriculture, healthcare, education, or cross-domain enabling technologies for Indian societal challenges.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "revenueramp-solutions": {
+  "classified_at": "2026-09-14T18:11:39+00:00",
+  "hash": "dcf1a19abb102f1c",
+  "missing": "company product description",
+  "model": "claude-haiku-4-5",
+  "name": "REVENUERAMP SOLUTIONS PRIVATE LIMITED",
+  "note": "RevenueRamp Solutions is an AI startup but no publicly available information describes their specific application domain, making it impossible to assign them to agriculture, healthcare, education, or cross-domain enabling technologies.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "revogreen-technologies": {
@@ -13969,6 +14845,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "robotics-data": {
+  "classified_at": "2026-09-14T18:11:22+00:00",
+  "hash": "61f425551a2721ea",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ROBOTICS DATA PRIVATE LIMITED",
+  "note": "Robotics Data Private Limited develops robotic systems that align with the intelligent systems and robotics subsector, with modular robotic platforms being the closest match for a robotics-focused startup at the prototype stage.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
+ },
  "robotoai-technologies": {
   "classified_at": "2026-09-12T12:03:39+00:00",
   "hash": "4334cc608ff08cad",
@@ -14135,6 +15023,18 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "rudraxn-energy-solutions": {
+  "classified_at": "2026-09-14T18:11:28+00:00",
+  "hash": "f884ec917f1f8a85",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "RUDRAXN ENERGY SOLUTIONS PRIVATE LIMITED",
+  "note": "RUDRAXN Energy Solutions is a renewable solar energy startup at scaling stage, which aligns with the focus on cost reduction and commercialization of utility-scale photovoltaic systems.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
  },
  "rural-surgery-innovations": {
   "classified_at": "2026-09-12T11:59:38+00:00",
@@ -14479,6 +15379,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "saurient-ai-labs": {
+  "classified_at": "2026-09-14T18:11:40+00:00",
+  "hash": "166f6d517ca0b5ca",
+  "missing": "domain-specific application focus",
+  "model": "claude-haiku-4-5",
+  "name": "SAURIENT AI LABS PRIVATE LIMITED",
+  "note": "SAURIENT AI LABS is described only as an AI/Machine Learning startup at prototype stage with no specifics about application domain, making it impossible to determine if their work targets agriculture, healthcare, education, or cross-domain problems.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "saurza-power": {
   "classified_at": "2026-09-12T12:06:02+00:00",
   "hash": "fd10cc3f33e2138c",
@@ -14732,6 +15644,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "sevam-innovation": {
+  "classified_at": "2026-09-14T18:11:33+00:00",
+  "hash": "ae35447b963290e2",
+  "missing": "company application focus",
+  "model": "claude-haiku-4-5",
+  "name": "SEVAM INNOVATION PRIVATE LIMITED",
+  "note": "SEVAM INNOVATION is a DPIIT-recognised AI startup at prototype stage, but without specifics on their application domain (agriculture, health, education, or cross-domain), we cannot assign them to a sub-sector or project type.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "seven-rounds-defender": {
   "classified_at": "2026-09-14T07:04:00+00:00",
   "hash": "d8a994a68e53646c",
@@ -14754,6 +15678,18 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "sh-forhealth": {
+  "classified_at": "2026-09-14T18:11:53+00:00",
+  "hash": "0db33f462b6492b7",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SH Forhealth",
+  "note": "The project develops robotic assistive technologies for physical rehabilitation and fitness, which directly aligns with HRI applications in healthcare and wellness.",
+  "project_type": "Human-robot interaction (HRI)",
+  "sector_id": "2",
+  "source": "venture-center",
+  "subsector_id": "2.7"
  },
  "shaft-energies": {
   "classified_at": "2026-09-12T12:05:55+00:00",
@@ -14988,6 +15924,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "sieps-innotech": {
+  "classified_at": "2026-09-14T18:11:46+00:00",
+  "hash": "289fdabc20a9d5ba",
+  "missing": "company technical specification",
+  "model": "claude-haiku-4-5",
+  "name": "SIEPS INNOTECH LLP",
+  "note": "SIEPS INNOTECH LLP is described only as a 'Technology Hardware' prototype-stage startup with no details about which specific deep-tech domain (quantum, semiconductors, photonics, space, materials, robotics, or neuromorphic systems) it addresses.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "sightops-ai": {
   "classified_at": "2026-09-12T12:03:18+00:00",
   "hash": "2ab77bb3293bb119",
@@ -15099,14 +16047,15 @@
   "subsector_id": "1.2"
  },
  "sivatech-advanced-systems": {
-  "classified_at": "2026-09-12T12:05:53+00:00",
-  "hash": "c5b59fb6865bde47",
-  "missing": "company technology details",
+  "classified_at": "2026-09-14T18:11:22+00:00",
+  "hash": "2bd0dcff5182a1d2",
+  "missing": "company technical details",
   "model": "claude-haiku-4-5",
-  "name": "SIVATECH ADVANCED SYSTEMS PRIVATE LIMITED",
-  "note": "SIVATECH ADVANCED SYSTEMS is a DPIIT-recognised green technology startup at validation stage, but without specific information about their core technology or solution\u2014whether they work in energy systems, materials, carbon capture, industrial processes, or another area\u2014it is impossible to assign them to a particular sub-sector or project type.",
+  "name": "SIVATECH ADVANCED SYSTEMS PVT. LTD.",
+  "note": "SIVATECH ADVANCED SYSTEMS is recognized as a clean-tech startup but no public information about their specific technology, product, or innovation focus is available to match against the taxonomy's detailed project types.",
   "project_type": null,
   "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "sivi-geoinfra": {
@@ -15274,6 +16223,30 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "snras-systems": {
+  "classified_at": "2026-09-14T18:11:59+00:00",
+  "hash": "5a946ef940abd91a",
+  "missing": "aquaculture technology and equipment",
+  "model": "claude-haiku-4-5",
+  "name": "SNRAS Systems",
+  "note": "The project develops physical aquaculture equipment (recirculating aquaculture systems) for indoor fish farming, which is engineering/hardware for aquaculture production rather than a digital or data-driven solution.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "venture-center",
+  "subsector_id": null
+ },
+ "softwires-technologies": {
+  "classified_at": "2026-09-14T18:11:37+00:00",
+  "hash": "88e7a8a534d95269",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SOFTWIRES TECHNOLOGIES PRIVATE LIMITED",
+  "note": "SOFTWIRES TECHNOLOGIES is an NLP-focused startup whose natural language processing capabilities align with healthcare applications like processing electronic health records, a key use case within AI in Healthcare.",
+  "project_type": "Natural language processing for electronic health records",
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": "3.2"
  },
  "soham-compost-biogas": {
   "classified_at": "2026-09-12T12:06:10+00:00",
@@ -15466,6 +16439,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "spectraabridge-analytics-centre": {
+  "classified_at": "2026-09-14T18:11:23+00:00",
+  "hash": "d9dfa3096a09583d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SPECTRAABRIDGE ANALYTICS CENTRE LLP",
+  "note": "The company name 'SpectraaBridge Analytics Centre' suggests a focus on spectroscopic data analysis and bridging computational methods, which aligns with AI-driven analytical approaches in life sciences.",
+  "project_type": "Bioinformatics and computational / AI-driven life sciences",
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
+  "subsector_id": "4.1"
+ },
  "speezy-professionals": {
   "classified_at": "2026-09-12T10:56:22+00:00",
   "hash": "c75ef2e7a7732454",
@@ -15533,6 +16518,30 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "spotsense-healthcare-solutions": {
+  "classified_at": "2026-09-14T18:11:56+00:00",
+  "hash": "fa308047b16467e1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Spotsense Healthcare Solutions Pvt Ltd",
+  "note": "Spotsense develops portable, bedside diagnostic platforms like Droolie and VIEWDx that deliver rapid, non-invasive point-of-care results with AI-driven clinical support, matching the focus on indigenous diagnostic kits and point-of-care technologies.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
+ "sprih-labs": {
+  "classified_at": "2026-09-14T18:11:58+00:00",
+  "hash": "d619b3889472d7f4",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sprih Labs",
+  "note": "The project's SaaS platform directly enables businesses to measure, benchmark, and report emissions across scopes, which is the core function of carbon footprint monitoring and life-cycle assessment tools.",
+  "project_type": "Carbon footprint monitoring and life-cycle assessment",
+  "sector_id": "1",
+  "source": "venture-center",
+  "subsector_id": "1.16"
+ },
  "spyber-labs": {
   "classified_at": "2026-09-12T12:02:17+00:00",
   "hash": "2155db50986387d6",
@@ -15553,6 +16562,18 @@
   "note": "Square Comp Solutions provides Virtual Reality training and simulation software for manufacturing and industrial applications, which is a software/training solution rather than deep technology development.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "sri-kamakshi-automation-systems-opc": {
+  "classified_at": "2026-09-14T18:11:37+00:00",
+  "hash": "1a3aa508fe25fff6",
+  "missing": "company application details",
+  "model": "claude-haiku-4-5",
+  "name": "SRI KAMAKSHI AUTOMATION SYSTEMS (OPC) PRIVATE LIMITED",
+  "note": "SRI KAMAKSHI AUTOMATION SYSTEMS appears to be a general machine learning/AI company without sufficient detail to map to a specific application domain (agriculture, health, education, or cross-domain enabling technologies).",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "srinex-ventures": {
@@ -15600,6 +16621,18 @@
   "sector_id": "2",
   "subsector_id": "2.5"
  },
+ "starkwayne-enterprise": {
+  "classified_at": "2026-09-14T18:11:22+00:00",
+  "hash": "498e3fbc4179b4b5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "STARKWAYNE ENTERPRISE",
+  "note": "The project develops drone technology requiring autonomous navigation and perception systems as core capabilities for aerial vehicle operation.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
+ },
  "startup-vault-360": {
   "classified_at": "2026-09-12T12:06:46+00:00",
   "hash": "8aba97d5e4d27467",
@@ -15643,6 +16676,18 @@
   "project_type": "Digital farm-to-market value chains (logistics, traceability, e-mandis)",
   "sector_id": "5",
   "subsector_id": "5.2"
+ },
+ "stemtech-medical-devices": {
+  "classified_at": "2026-09-14T18:11:53+00:00",
+  "hash": "3179862b79764676",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Stemtech Medical Devices",
+  "note": "The project develops a medical device for cancer patient comfort during chemotherapy, directly addressing a supportive care need in cancer treatment.",
+  "project_type": "Devices for cancer care / radiotherapy, radiology, nuclear imaging, anesthesia, cardio-respiratory and renal care",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
  },
  "steradian-technologies": {
   "classified_at": "2026-09-12T11:31:48+00:00",
@@ -15779,6 +16824,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "strover-ai-labs": {
+  "classified_at": "2026-09-14T18:11:35+00:00",
+  "hash": "64003a6f0c917953",
+  "missing": "company application domain",
+  "model": "claude-haiku-4-5",
+  "name": "STROVER AI LABS PRIVATE LIMITED",
+  "note": "STROVER AI LABS is described only as an AI/Machine Learning company at validation stage with no specific application domain disclosed; without information about whether their work targets agriculture, health, education, or enabling technologies, a confident placement cannot be made.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "subtlebotic": {
   "classified_at": "2026-09-14T07:03:57+00:00",
   "hash": "868420873effd5d6",
@@ -15880,6 +16937,18 @@
   "project_type": "Solar home systems, micro-hydro, biomass gasification for rural areas",
   "sector_id": "1",
   "subsector_id": "1.9"
+ },
+ "suryudey-plastic-electronics": {
+  "classified_at": "2026-09-14T18:11:51+00:00",
+  "hash": "6c71395c8b53cd96",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Suryudey Plastic Electronics",
+  "note": "The project develops printed electronics and flexible wearable electronics using additive manufacturing, which falls under electronic control systems within semiconductors and electronics.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "source": "venture-center",
+  "subsector_id": "2.2"
  },
  "susstains-engineering-solutions": {
   "classified_at": "2026-09-14T07:04:23+00:00",
@@ -16282,6 +17351,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "technoconnect-ai-india": {
+  "classified_at": "2026-09-14T18:11:42+00:00",
+  "hash": "31f3e2f0472bbedb",
+  "missing": "general-purpose NLP technology development",
+  "model": "claude-haiku-4-5",
+  "name": "TECHNOCONNECT AI INDIA PRIVATE LIMITED",
+  "note": "TECHNOCONNECT AI INDIA's core work in NLP is a foundational technology that enables multiple applications across sectors, but the taxonomy lists NLP only as a supporting capability within sector 3.2 (for electronic health records) and 3.3 (for speech-to-text and text-to-speech), not as a standalone project type or primary focus area.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "techstay-systems": {
   "classified_at": "2026-09-12T12:04:56+00:00",
   "hash": "1293ecdd174c98a6",
@@ -16358,6 +17439,18 @@
   "project_type": "Chip design and advanced node fabrication",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "teralumen-solutions": {
+  "classified_at": "2026-09-14T18:11:49+00:00",
+  "hash": "d95af6404b8c210d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Teralumen Solutions",
+  "note": "The project develops terahertz imaging technology (TeraMargin) for real-time intraoperative guidance to identify malignant tissue margins during cancer surgery, directly matching image-guided surgical systems.",
+  "project_type": "Image-guided and robotic surgical systems",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
  },
  "terra-blupedia": {
   "classified_at": "2026-09-12T12:05:37+00:00",
@@ -16738,6 +17831,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "trebirth": {
+  "classified_at": "2026-09-14T18:11:51+00:00",
+  "hash": "490320be43168de2",
+  "missing": "crop pest detection hardware",
+  "model": "claude-haiku-4-5",
+  "name": "Trebirth",
+  "note": "the project develops X-ray and Doppler radar-based pest detection systems for crops, which is a specialized agricultural hardware innovation focused on pest management rather than the digital/data-driven approaches covered in Sector 5",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "venture-center",
+  "subsector_id": null
+ },
  "tree-task-technologies": {
   "classified_at": "2026-09-12T10:56:26+00:00",
   "hash": "55c507d11357a9cc",
@@ -16957,6 +18062,18 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "uday-solar-tech": {
+  "classified_at": "2026-09-14T18:11:29+00:00",
+  "hash": "d2dbdfe9c2457092",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "UDAY SOLAR TECH PRIVATE LIMITED",
+  "note": "UDAY Solar Tech is a solar energy startup at prototype stage, most likely focused on cost reduction or efficiency improvements in utility-scale photovoltaic systems, which aligns with the levelized cost objective of sub-sector 1.3.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
  },
  "udayan-ecotech": {
   "classified_at": "2026-09-12T10:56:27+00:00",
@@ -17234,6 +18351,18 @@
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "uxphoto-ai-labs": {
+  "classified_at": "2026-09-14T18:11:41+00:00",
+  "hash": "364e4917c53630b5",
+  "missing": "AI for commercial applications",
+  "model": "claude-haiku-4-5",
+  "name": "UXPHOTO AI LABS PRIVATE LIMITED",
+  "note": "UXPHOTO AI LABS appears to be a general AI company without specification that it works on deep-tech applications within quantum, photonics, space, materials, robotics, or neuromorphic hardware that are listed in Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "uyrmey-bio-research": {
   "classified_at": "2026-09-12T12:02:34+00:00",
@@ -17646,6 +18775,54 @@
   "sector_id": "4",
   "subsector_id": "4.2"
  },
+ "vidcare-technologies": {
+  "classified_at": "2026-09-14T18:12:03+00:00",
+  "hash": "bc001cf7ac601ef5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Vidcare Technologies",
+  "note": "The project develops an equipment-free, credit card-sized disposable immunoassay test for rapid quantitative point-of-care diagnosis of TSH and HbA1c, directly matching the indigenous diagnostic kits category.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.5"
+ },
+ "vidhi-solar-solutions": {
+  "classified_at": "2026-09-14T18:11:29+00:00",
+  "hash": "996b3fa8a98672b8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VIDHI SOLAR SOLUTIONS PRIVATE LIMITED",
+  "note": "VIDHI Solar Solutions is a renewable solar energy startup at prototype stage focused on reducing the cost and improving efficiency of utility-scale photovoltaic systems.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
+ },
+ "vidhilekha-lab": {
+  "classified_at": "2026-09-14T18:11:31+00:00",
+  "hash": "5297763c935f189d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VIDHILEKHA LAB LLP",
+  "note": "VIDHILEKHA LAB's NLP expertise aligns with processing healthcare text data, and their prototype stage suggests development of NLP applications for health records management.",
+  "project_type": "Natural language processing for electronic health records",
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": "3.2"
+ },
+ "vidyutt-anusandhan-and-abhiyantriki": {
+  "classified_at": "2026-09-14T18:11:47+00:00",
+  "hash": "20a37512ca7103db",
+  "missing": "company technology description",
+  "model": "claude-haiku-4-5",
+  "name": "VIDYUTT ANUSANDHAN AND ABHIYANTRIKI PRIVATE LIMITED",
+  "note": "Insufficient information to classify: company name translates to 'Power Research and Engineering' but no technical details provided about their specific technology, product, or innovation focus within energy or climate domains.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "vigved-healthcare": {
   "classified_at": "2026-09-12T12:02:18+00:00",
   "hash": "31c877d3803109f2",
@@ -17888,6 +19065,18 @@
   "project_type": "Natural language processing for electronic health records",
   "sector_id": "3",
   "subsector_id": "3.2"
+ },
+ "voxelcore-advanced-technologies": {
+  "classified_at": "2026-09-14T18:11:45+00:00",
+  "hash": "9a1115c1a7d8abad",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VOXELCORE ADVANCED TECHNOLOGIES PRIVATE LIMITED",
+  "note": "Voxelcore's 3D printing technology for hybrid components aligns directly with the advanced manufacturing focus on metal and multi-material 3D printing systems.",
+  "project_type": "Metal / multi-material 3D printing for next-gen hybrid components",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.3"
  },
  "vr-solar-tech": {
   "classified_at": "2026-09-12T12:06:10+00:00",
@@ -18329,6 +19518,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "xora-ai-research-labs": {
+  "classified_at": "2026-09-14T18:11:42+00:00",
+  "hash": "a1524cf5bb1a1dd5",
+  "missing": "general-purpose machine learning research",
+  "model": "claude-haiku-4-5",
+  "name": "XORA AI RESEARCH LABS PRIVATE LIMITED",
+  "note": "XORA AI Research Labs is a general machine learning company without disclosed application focus in agriculture, health, education, or the specific enabling technologies listed; the taxonomy requires documented work in one of these domains.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "xpeum": {
   "classified_at": "2026-09-12T12:07:16+00:00",
   "hash": "f2a72065cfed7cf9",
@@ -18394,6 +19595,18 @@
   "note": "YATHAARTH INNOVATIONS is a DPIIT-recognised AI startup at validation stage, but without specific information about their application domain (agriculture, healthcare, education, or cross-domain focus), no project type can be reliably matched.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "yetu-innovations": {
+  "classified_at": "2026-09-14T18:11:41+00:00",
+  "hash": "259dddc0dff8a07b",
+  "missing": "natural language processing infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "YETU INNOVATIONS PRIVATE LIMITED",
+  "note": "YETU INNOVATIONS is an NLP-focused startup without demonstrated application to agriculture, health, education, or cross-domain enabling technologies; NLP itself is foundational infrastructure rather than a problem-domain application.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "ylectric-technology": {
@@ -18576,6 +19789,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
+ "zerocircle-alternatives": {
+  "classified_at": "2026-09-14T18:11:57+00:00",
+  "hash": "521e7f87aa7c2d8f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Zerocircle Alternatives",
+  "note": "The project develops seaweed-based packaging as a sustainable bioprocess that converts marine biomass into bio-alternatives for commercial products, reducing lifecycle carbon footprint through bio-derived material substitution.",
+  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
+  "sector_id": "4",
+  "source": "venture-center",
+  "subsector_id": "4.2"
+ },
  "zeroearth": {
   "classified_at": "2026-09-12T11:31:12+00:00",
   "hash": "d2a7048a5a8b6b06",
@@ -18605,6 +19830,18 @@
   "model": "claude-haiku-4-5",
   "name": "ZETA NEXUS PRIVATE LIMITED",
   "note": "ZETA NEXUS PRIVATE LIMITED's specific AI application domain is not disclosed in the available information, making it impossible to map to a concrete project type within the agriculture, health, education, or cross-domain categories listed.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "zetabyteon-ai-solutions": {
+  "classified_at": "2026-09-14T18:11:34+00:00",
+  "hash": "4ce18df2289890bb",
+  "missing": "application domain specificity",
+  "model": "claude-haiku-4-5",
+  "name": "ZETABYTEON AI SOLUTIONS LLP",
+  "note": "ZETABYTEON AI SOLUTIONS is described only as an AI/Machine Learning startup at prototype stage with no information about which problem domain (agriculture, health, education, or cross-domain application) their work addresses.",
   "project_type": null,
   "sector_id": "3",
   "source": "dpiit-startup-india",
@@ -18664,6 +19901,18 @@
   "note": "Zwilling Labs develops a cross-industry digital twin platform with IoT and AI, which is a horizontal manufacturing/industrial optimization technology not targeted at agriculture, health, education or the specific cross-domain problems listed in 3.4.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "zynence-labs": {
+  "classified_at": "2026-09-14T18:11:33+00:00",
+  "hash": "e3ae4eebe6da9ebe",
+  "missing": "general-purpose machine learning platforms",
+  "model": "claude-haiku-4-5",
+  "name": "ZYNENCE LABS PRIVATE LIMITED",
+  "note": "ZYNENCE LABS is a general machine learning and AI startup at validation stage with no disclosed application domain; the taxonomy requires alignment to specific use cases in agriculture, healthcare, education, or enabling technologies, none of which can be confirmed from the information provided.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  }
 }

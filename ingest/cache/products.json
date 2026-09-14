@@ -195,6 +195,13 @@
   "prompt_version": 1,
   "status": "described"
  },
+ "cancrie": {
+  "hash": "cd561889a4318804",
+  "model": "claude-haiku-4-5",
+  "product": "Nanocarbon additive made from biomass that improves battery performance for lithium-ion and lead-acid battery manufacturers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
  "carimo-technologies": {
   "hash": "2e39914ca4142dfc",
   "model": "claude-haiku-4-5",
@@ -367,6 +374,13 @@
   "hash": "d290731feb1fbf73",
   "model": "claude-haiku-4-5",
   "product": "Fluorescent dyes for fluorescence and confocal microscopy imaging in live and fixed cells.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "forschmedx": {
+  "hash": "b1b236f1ccf10442",
+  "model": "claude-haiku-4-5",
+  "product": "Medical devices and monitoring platforms for intensive and acute care hospitals, including automated airway care systems with real-time patient monitoring and safety workflows for ICU teams.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -696,6 +710,13 @@
   "hash": "1dedf4e2a591ebf0",
   "model": "claude-haiku-4-5",
   "product": "A device that sprays skin for wound healing and micrografting for surgeons and hospitals.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "papyrus-diagnostics": {
+  "hash": "b427e4cf4a391997",
+  "model": "claude-haiku-4-5",
+  "product": "Papyrus MutaCheck Pro is a molecular diagnostic platform that identifies tuberculosis and detects drug-resistance mutations using existing PCR infrastructure without requiring new dedicated instruments.",
   "prompt_version": 1,
   "status": "described"
  },
