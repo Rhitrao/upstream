@@ -2355,3 +2355,14 @@ describe('awards as evidence on companies already held', () => {
 		expect(page).toContain('National Startup Awards 2022, finalist');
 	});
 });
+
+describe('merging what each source knows', () => {
+	it('never lets a register label replace a real description, and names whose words it is', async () => {
+		await post({ source: 'sine-iitb', companies: [{ id: 'gigaton', name: 'Gigaton Research', description: 'Carbon capture sorbents.', description_source: 'sine-iitb', sector_id: '1', subsector_id: '1.6' }] });
+		await post({ source: 'dpiit-startup-india', companies: [{ id: 'gigaton', name: 'Gigaton Research', description: 'DPIIT-recognised startup. Industry: Green Technology.', sector_id: '1', subsector_id: '1.6' }] });
+		const row = await env.DB.prepare("SELECT description, description_source FROM companies WHERE id = 'gigaton'").first<any>();
+		expect(row).toEqual({ description: 'Carbon capture sorbents.', description_source: 'sine-iitb' });
+		const page = await (await SELF.fetch(`${ORIGIN}/upstream/c/gigaton`)).text();
+		expect(page).toContain('as SINE IIT Bombay described it');
+	});
+});

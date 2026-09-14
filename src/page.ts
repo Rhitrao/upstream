@@ -1771,7 +1771,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	if (company.product && site) {
 		lines.push(`**What it builds:** ${company.product} _(in their own words, from ${new URL(site).hostname})_`);
 	} else if (describedBySource(company)) {
-		lines.push(`**What it builds:** ${company.description} _(as a source described it)_`);
+		lines.push(`**What it builds:** ${company.description} _(as ${SOURCE_LABELS[company.description_source ?? ''] ?? 'a source'} described it)_`);
 	} else {
 		lines.push('**What it builds:** Unknown. No source describes it.');
 		if (company.description) lines.push(`The only published line is a register label: ${registerText(company.description, company.dpiit_status)}`);
@@ -1948,7 +1948,7 @@ export function renderCompanyPage(view: CompanyView): string {
 	const excerpt = company.description
 		? !describedBySource(company)
 			? `<p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">A register&rsquo;s dropdown choices, not a description. Nothing here says what the company makes.</p>`
-			: `<p class="desc">${esc(company.description)}<span class="says">as the source described it</span></p>`
+			: `<p class="desc">${esc(company.description)}<span class="says">as ${esc(SOURCE_LABELS[company.description_source ?? ''] ?? 'the source')} described it</span></p>`
 		: '<p class="unknown-value">Unknown</p><p class="provenance">No source published a description.</p>';
 
 	const evidenceRows = company.signals

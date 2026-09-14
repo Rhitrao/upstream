@@ -61,6 +61,8 @@ export interface Company {
 	/** The founders a source names, in its words, and which source. Migration 0018. */
 	founders: string | null;
 	founders_source: string | null;
+	/** Which source's words the description is. Migration 0023. */
+	description_source: string | null;
 	/**
 	 * What the DPIIT register's record says: 'recognised', 'expired', 'cancelled',
 	 * 'pending', or 'profile' (on Startup India, never recognised). NULL: not on it.

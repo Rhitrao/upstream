@@ -94,6 +94,8 @@ class Company:
     # more: no titles looked up, no profiles followed (decision 006).
     founders: str | None = None
     founders_source: str | None = None
+    # Which source the description on the row came from, once the copies are merged.
+    description_source: str | None = None
     # What the DPIIT register's own record says, not what being on it implies. A
     # profile on Startup India is not a recognition: 345 of 966 register records we
     # hold carry no DIPP number and no status. See dpiit.recognition.

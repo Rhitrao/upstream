@@ -335,6 +335,7 @@ interface CompanyInput {
 	entity_note?: string | null;
 	founders?: string | null;
 	founders_source?: string | null;
+	description_source?: string | null;
 	/** What the register's record says about recognition — see DPIIT_STATUSES. */
 	dpiit_status?: string | null;
 	dpiit_stage?: string | null;
@@ -416,12 +417,24 @@ INSERT INTO companies (
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
   website_identity, website_identity_note, entity_type, entity_note, source_year, source_year_type,
   founders, founders_source, dpiit_status, dpiit_stage, contact_email, contact_page, domain_registered, papers,
-  first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
+  description_source, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
 ) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28,
-  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?14, ?15, ?16, 0, 'C', ?17)
+  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
-  description   = COALESCE(excluded.description,   companies.description),
+  -- A register label never replaces a real description; a real one replaces a label.
+  description   = CASE
+                    WHEN excluded.description IS NULL THEN companies.description
+                    WHEN substr(excluded.description, 1, 35) = 'DPIIT-recognised startup. Industry:'
+                     AND companies.description IS NOT NULL
+                     AND substr(companies.description, 1, 35) <> 'DPIIT-recognised startup. Industry:' THEN companies.description
+                    ELSE excluded.description END,
+  description_source = CASE
+                    WHEN excluded.description IS NULL THEN companies.description_source
+                    WHEN substr(excluded.description, 1, 35) = 'DPIIT-recognised startup. Industry:'
+                     AND companies.description IS NOT NULL
+                     AND substr(companies.description, 1, 35) <> 'DPIIT-recognised startup. Industry:' THEN companies.description_source
+                    ELSE COALESCE(excluded.description_source, companies.description_source) END,
   -- A checked address replaces whatever was there, including with nothing: COALESCE
   -- would keep HyperVerge's address on Grinntech for ever once the parser stopped
   -- sending it. An unchecked one (a scraper posting on its own) fills gaps only.
@@ -876,6 +889,7 @@ async function applyIngest(
 			str(c.contact_page),
 			str(c.domain_registered),
 			c.papers ? JSON.stringify(c.papers) : null,
+			str(c.description) ? str(c.description_source) : null,
 		);
 	});
 

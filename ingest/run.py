@@ -211,6 +211,10 @@ DESCRIBED_SOURCES = frozenset({nmicps.SOURCE, fsid.SOURCE, tides.SOURCE})
 CLASSIFY_ORDER = {fsid.SOURCE: 1, tides.SOURCE: 2, nmicps.SOURCE: 3}
 
 
+def _is_label_or_empty(company: Company) -> bool:
+    return not company.description or company.description_is_label
+
+
 def to_classify(unique: list[Company]) -> list[Company]:
     kept = [c for c in unique if c.description or c.source not in DESCRIBED_SOURCES]
     return sorted(kept, key=lambda c: CLASSIFY_ORDER.get(c.source or "", 0))
@@ -369,6 +373,15 @@ def main() -> int:
                 first[company.id] = company
                 continue
             kept = first[company.id]
+            # A real description beats a register label and beats nothing, whichever
+            # source uploads last. Until 15 September the last upload won, and the
+            # register's dropdown line overwrote SINE's sentence for Gigaton, NCF Green
+            # Energy, RELSYM and Agnikul. Between two real descriptions the owner's stands.
+            if _is_label_or_empty(kept) and not _is_label_or_empty(company):
+                kept.description, kept.description_is_label = company.description, False
+                kept.description_source = company.source
+            if not kept.city and not kept.state and (company.city or company.state):
+                kept.city, kept.state = company.city, company.state
             # What only one source publishes still belongs to the row, whichever source
             # owns it: founders from an incubator card, recognition from the register.
             if not kept.founders and company.founders:
@@ -381,6 +394,10 @@ def main() -> int:
                 # one to check, and checking it once means one answer for both copies.
                 first[company.id].website = company.website
                 first[company.id].website_checked = True
+
+    for company in unique:
+        if company.description and company.description_source is None:
+            company.description_source = company.source
 
     # A source that prints a city and no state still gives a state, where the city is
     # one of the few these sources use. See ingest/places.py.
@@ -542,6 +559,12 @@ def main() -> int:
                         "entity_note": enriched.get(company.id, company).entity_note,
                         # Every copy carries what the merged row knows, so the order the
                         # sources upload in cannot decide whether a row has founders.
+                        # The merged row's description on every copy, so a thinner copy
+                        # uploaded later cannot put a register label back.
+                        "description": enriched.get(company.id, company).description,
+                        "description_source": enriched.get(company.id, company).description_source,
+                        "city": enriched.get(company.id, company).city,
+                        "state": enriched.get(company.id, company).state,
                         "founders": enriched.get(company.id, company).founders,
                         "founders_source": enriched.get(company.id, company).founders_source,
                         "dpiit_status": enriched.get(company.id, company).dpiit_status,

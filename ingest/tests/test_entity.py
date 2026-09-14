@@ -119,3 +119,14 @@ class ANameAsThePagePrintsIt(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MergingCopies(unittest.TestCase):
+    def test_a_real_description_from_any_source_beats_the_owners_label(self):
+        from ingest import run
+        from ingest.sources.base import Company
+
+        label = Company(id="relsym", name="RELSYM", description="DPIIT-recognised startup. Industry: Nanotechnology.", description_is_label=True, source="dpiit-startup-india")
+        real = Company(id="relsym", name="Relsym Solutions", description="Printable nanomaterial inks.", source="sine-iitb")
+        self.assertTrue(run._is_label_or_empty(label))
+        self.assertFalse(run._is_label_or_empty(real))
