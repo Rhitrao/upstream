@@ -335,7 +335,10 @@ function freshness(view: PageView): string {
 	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
 	const parts = view.sourceHealth.map((h) => {
 		const name = esc(SOURCE_LABELS[h.source] ?? h.source);
-		const asOf = day(h.data_as_of ?? h.last_success);
+		// The data's own date or none. The day a run succeeded is not it: the grants list
+		// was read from a file this morning and its newest award is from 2025, and falling
+		// back to the run date printed "Government grants 14 Sep 2026".
+		const asOf = h.data_as_of ? day(h.data_as_of) : 'date unknown';
 		if (h.last_status === 'ok') return `${name} ${asOf}`;
 		const what = h.last_status === 'failed' ? 'failed' : 'returned too little and was set aside';
 		return `${name} <strong>${what} on ${day(h.last_attempt)}</strong>${h.last_success ? `, showing ${asOf}` : ', nothing shown from it yet'}`;
@@ -415,7 +418,12 @@ function header(view: PageView): string {
 		// Only when there is something to report. A liveness line that reads "0
 		// discovered in the last seven days" every day until the first discovery lands
 		// says the machine is broken, which is not what it means.
-		discoveredThisWeek > 0 ? `<p class="fresh">${discoveredThisWeek} added to Upstream in the last seven days.</p>` : ''
+		//
+		// Not "added to Upstream": each company page uses that for the day its row was
+		// written, and a new source's first read writes dozens of rows that are not finds.
+		discoveredThisWeek > 0
+			? `<p class="fresh">${discoveredThisWeek} ${discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in a source we were already watching. A new source's first read is not counted here.</p>`
+			: ''
 	}
   ${freshness(view)}
 </header>`;
@@ -804,8 +812,9 @@ function backfillNote(view: PageView): string {
 	// On an empty database it is vacuously true and reads as an excuse. Nothing to
 	// explain until there is something to explain.
 	if (!view.backfillOnly || view.tracked === 0) return '';
-	return `<p class="note">Every company here arrived in a backfill. Tier A and B are for companies we see appear
-    &mdash; those fill in from the first live run onward.</p>`;
+	return `<p class="note">Nothing qualifies for Tier A or B today, so the list is showing everything. Those tiers take a
+    company we watched arrive, recently, in a source we were already reading, with few public traces &mdash; and with
+    more than a register&rsquo;s dropdown label to say what it does. A new source&rsquo;s first read never qualifies.</p>`;
 }
 
 /**
@@ -1093,6 +1102,8 @@ function methodology(view: PageView): string {
     <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Early, some visibility.</li>
     <li><span class="tier tc">Tier C</span> Everything else. Known territory &mdash; listed, not promoted.</li>
   </ul>
+  <p>Neither A nor B is open to a company whose only description is a register's dropdown label. That is enough to
+    list a company and to place it where the label names a sub-sector outright; it is not enough to call it a find.</p>
   <p>This will sometimes put a company nobody has heard of above a famous one. That is the point, not a bug.</p>
 
   <h3>What the dates mean</h3>
@@ -1144,6 +1155,10 @@ function whyTier(company: Company): string {
 	if (company.first_seen === null) {
 		return `No source will say when this company became visible, so it cannot be called an early find
       however new it looks. A row with no date is Tier C by the rule, not by judgement.`;
+	}
+	if (company.classify_basis === 'register-label') {
+		return `The only thing any source says about what this company does is a register's dropdown label. That is
+      enough to list it, not to call it an early find, so it is Tier C until a source describes what it builds.`;
 	}
 	if (company.first_seen_basis === 'cohort') {
 		return `The date here was read off a published cohort or award year during a backfill. That is the

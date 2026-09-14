@@ -812,7 +812,7 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 
 	for (const group of chunk(ids, BIND_CHUNK)) {
 		const { results } = await env.DB.prepare(
-			`SELECT c.id, c.first_seen, c.first_seen_basis, c.origin_year,
+			`SELECT c.id, c.first_seen, c.first_seen_basis, c.origin_year, c.classify_basis,
 			   (SELECT COUNT(*) FROM signals s
 			     WHERE s.company_id = c.id
 			       AND s.type IN (${placeholders(TRACE_TYPES.length)})) AS trace_count,
@@ -825,6 +825,7 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 				first_seen: string | null;
 				first_seen_basis: string | null;
 				origin_year: number | null;
+				classify_basis: string | null;
 				trace_count: number;
 				earliest_signal: string | null;
 			}>();
@@ -833,7 +834,14 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 			updates.push(
 				env.DB.prepare('UPDATE companies SET trace_count = ?1, tier = ?2, updated_at = ?3 WHERE id = ?4').bind(
 					row.trace_count,
-					tierFor(row.first_seen, row.first_seen_basis, row.trace_count, now, earliestEvent([row.earliest_signal], row.origin_year)),
+					tierFor(
+						row.first_seen,
+						row.first_seen_basis,
+						row.trace_count,
+						now,
+						earliestEvent([row.earliest_signal], row.origin_year),
+						row.classify_basis,
+					),
 					nowIso,
 					row.id,
 				),
@@ -864,11 +872,12 @@ async function gapsApi(env: Env): Promise<Response> {
  */
 async function listView(url: URL, env: Env, now: Date, limit: number) {
 	const demo = url.searchParams.get('demo') === '1';
-	// Until the first live run, every row is a backfill and A+B is empty by
-	// construction. Opening on an empty list would read as a broken page, so the
-	// default widens to everything and the list says why. It narrows again on its own
-	// the moment a real discovery lands. The sample data has both tiers already.
-	const hasRanked = demo || (await queryHasRanked(env));
+	// Until something qualifies for A or B — before the first live run, or while every
+	// live find is a register record with nothing but a label — A+B is empty. Opening on
+	// an empty list would read as a broken page, so the default widens to everything and
+	// the list says why. It narrows again on its own the moment something qualifies. The
+	// sample data has both tiers already.
+	const hasRanked = demo || (await queryHasRanked(env, minOriginYear(now)));
 	const defaultTier: TierChoice = hasRanked ? 'ab' : 'all';
 	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
 	const age = parseAgeChoice(url.searchParams.get('age'));

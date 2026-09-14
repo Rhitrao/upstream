@@ -80,10 +80,18 @@ export function tierFor(
 	traceCount: number,
 	now: Date = new Date(),
 	sourceEvent: string | null = null,
+	classifyBasis: string | null = null,
 ): Tier {
 	// No date, no claim. A company we cannot place in time is not a company we found
 	// early, however new it looks.
 	if (firstSeen === null) return 'C';
+
+	// An early find is a claim that there is something here worth being early to, and a
+	// register label is not enough to make it. On 14 September 2026 all twenty Tier A
+	// rows were DPIIT records whose whole public description was a dropdown industry and
+	// a stage; five of them sat in AI in Healthcare because the dropdown said NLP. Until
+	// something other than the label says what a company does, it is listed, not promoted.
+	if (classifyBasis === 'register-label') return 'C';
 
 	const age = daysSince(firstSeen, now);
 	// Tier A says WE were early. Only a real discovery can say that: a cohort year

@@ -894,8 +894,10 @@ describe('GET /upstream (the page)', () => {
 			source: 'dpiit-startup-india',
 			mode: 'live',
 			companies: [
-				{ id: 'probird', name: 'Probird', sector_id: '2', subsector_id: '2.3', classify_basis: 'register-label' },
-				{ id: 'fresh', name: 'Fresh Co', sector_id: '2', subsector_id: '2.3', classify_basis: 'register-label' },
+				// Described, as though another source said what they build: a label alone
+				// keeps a company out of A and B whatever its dates, which is tested below.
+				{ id: 'probird', name: 'Probird', sector_id: '2', subsector_id: '2.3', classify_basis: 'description' },
+				{ id: 'fresh', name: 'Fresh Co', sector_id: '2', subsector_id: '2.3', classify_basis: 'description' },
 			],
 			signals: [
 				{ company_id: 'probird', type: 'dpiit', label: 'DPIIT recognised 2023', date: '2023-08-25' },
@@ -916,8 +918,9 @@ describe('GET /upstream (the page)', () => {
 		expect(row).toContain('DPIIT recognition 25 Aug 2023');
 		expect(row).toContain('added to Upstream today');
 		expect(row.indexOf('25 Aug 2023')).toBeLessThan(row.indexOf('added to Upstream'));
-		expect(html).toContain('2 added to Upstream in the last seven days.');
-		expect(html).not.toContain('discovered in the last seven days');
+		expect(html).toContain('2 companies turned up in the last seven days in a source we were already watching.');
+		// Each row's "added to Upstream" is the day it was written; the headline is not that count.
+		expect(html).not.toContain('added to Upstream in the last seven days');
 
 		const detailHtml = await detail('probird');
 		expect(detailHtml).toContain('A source dates this company to 25 Aug 2023');
@@ -1037,19 +1040,59 @@ describe('GET /upstream (the page)', () => {
 		const html = await page();
 		// A+B would be empty by construction here, so the default widens.
 		expect(html).toContain('value="all" checked');
-		expect(html).toContain('Every company here arrived in a backfill');
+		expect(html).toContain('Nothing qualifies for Tier A or B today');
 		expect(html).toContain('Backfilled Co');
 
 		// The explanation belongs to the state, not the toggle: it stands on A too.
-		expect(await page('?tier=a')).toContain('Every company here arrived in a backfill');
+		expect(await page('?tier=a')).toContain('Nothing qualifies for Tier A or B today');
 
 		// One live discovery and the default narrows again, with nothing left to explain.
 		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'found', name: 'Found Co' }] });
 		const after = await page();
 		expect(after).toContain('value="ab" checked');
-		expect(after).not.toContain('Every company here arrived in a backfill');
+		expect(after).not.toContain('Nothing qualifies for Tier A or B today');
 		expect(after).toContain('Found Co');
 		expect(after).not.toContain('Backfilled Co');
+	});
+
+	it('keeps a company placed from a register label alone out of A and B, and still opens on everything', async () => {
+		// 14 September 2026: every Tier A row was a DPIIT record like this one.
+		const recent = new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10);
+		await post({ source: 'dpiit-startup-india', companies: [{ id: 'old', name: 'Old Co', sector_id: '2', subsector_id: '2.5', classify_basis: 'register-label' }] });
+		await post({
+			source: 'dpiit-startup-india',
+			mode: 'live',
+			companies: [{ id: 'spaceock', name: 'Spaceock', sector_id: '2', subsector_id: '2.5', classify_basis: 'register-label' }],
+			signals: [{ company_id: 'spaceock', type: 'dpiit', label: `DPIIT recognised ${recent.slice(0, 4)}`, date: recent }],
+		});
+
+		const row = await env.DB.prepare('SELECT first_seen_basis, tier FROM companies WHERE id = ?').bind('spaceock').first<any>();
+		expect(row).toEqual({ first_seen_basis: 'discovered', tier: 'C' });
+
+		// A live find, so the headline still counts it; nothing ranked, so the default widens.
+		const html = await page();
+		expect(html).toContain('value="all" checked');
+		expect(html).toContain('Nothing qualifies for Tier A or B today');
+		expect(html).toContain('Spaceock');
+		expect(await detail('spaceock')).toContain("is a register's dropdown label");
+
+		// The same company, once something describes it, is a find again.
+		await post({ source: 'venture-center', companies: [{ id: 'spaceock', name: 'Spaceock', sector_id: '2', subsector_id: '2.5', classify_basis: 'description' }] });
+		const tier = await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('spaceock').first<any>();
+		expect(tier.tier).toBe('A');
+		expect(await page()).toContain('value="ab" checked');
+	});
+
+	it('opens on everything when the only B row is one the age gate holds back', async () => {
+		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
+		// Found live today, but started long ago: Tier B, and outside the default list.
+		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'veteran', name: 'Veteran Co', origin_year: 2009 }] });
+		const tier = await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('veteran').first<any>();
+		expect(tier.tier).toBe('B');
+
+		const html = await page();
+		expect(html).toContain('value="all" checked');
+		expect(html).toContain('Nothing qualifies for Tier A or B today');
 	});
 
 	it('states the whole funnel, under the map rather than above the proposition', async () => {
@@ -1322,8 +1365,9 @@ describe('searching and one company at a time', () => {
 		expect(html).toContain('On record');
 
 		// And the tier, with the rule that produced it rather than just the letter.
-		expect(html).toMatch(/<h2>Tier [ABC]<\/h2>/);
-		expect(html).toContain('Tier A is a discovery under 90 days old');
+		// Kadamb was placed from a register label, and that is the rule that decided.
+		expect(html).toContain('<h2>Tier C</h2>');
+		expect(html).toContain("is a register's dropdown label");
 	});
 
 	it('says what reading the homepage came to, whichever way it went', async () => {
@@ -1493,6 +1537,18 @@ describe('source health', () => {
 		expect(line).toContain('showing 12 Sep 2026');
 		// One healthy source does not vouch for the other.
 		expect(line).toContain('SINE IIT Bombay 13 Sep 2026');
+	});
+
+	it('never prints the day a run succeeded as the date of the data', async () => {
+		// The grants file was read on 14 September 2026; its newest award is from 2025.
+		await report([
+			{ source: 'grants-csv', status: 'ok', records: 177, data_as_of: '2025-10-06' },
+			{ source: 'rtbi-iitm', status: 'ok', records: 42 },
+		]);
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const line = html.slice(html.indexOf('<p class="freshness">'), html.indexOf('</p>', html.indexOf('<p class="freshness">')));
+		expect(line).toContain('Government grants 6 Oct 2025');
+		expect(line).toContain('IIT Madras RTBI date unknown');
 	});
 });
 

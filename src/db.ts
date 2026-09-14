@@ -646,15 +646,24 @@ export async function queryRegisterOutcomes(env: Env): Promise<RegisterOutcomes>
 }
 
 /**
- * Is there anything in the ranking yet?
+ * Would the default A+B list show anything?
  *
  * While every row came from a backfill, A and B are empty by construction, and a page
  * whose default view is empty is a broken page. The default toggle reads this and
- * opens on everything until the first real discovery lands, then goes back to A+B on
- * its own.
+ * opens on everything until something qualifies, then goes back to A+B on its own.
+ *
+ * Asked with the age gate the default list applies, not of the tier column alone: a
+ * Tier B row whose origin year is past the gate is a row the default list will not show,
+ * and counting it here would open the page on an empty list after all.
  */
-export async function queryHasRanked(env: Env): Promise<boolean> {
-	const row = await env.DB.prepare("SELECT 1 AS found FROM companies WHERE tier IN ('A', 'B') LIMIT 1").first<{ found: number }>();
+export async function queryHasRanked(env: Env, minYear: number): Promise<boolean> {
+	const row = await env.DB.prepare(
+		`SELECT 1 AS found FROM companies c
+		 WHERE c.tier IN ('A', 'B') AND c.first_seen IS NOT NULL AND (${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?1)
+		 LIMIT 1`,
+	)
+		.bind(minYear)
+		.first<{ found: number }>();
 	return row !== null;
 }
 

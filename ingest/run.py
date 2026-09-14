@@ -12,12 +12,15 @@ still has work to do and the summary says which source went quiet.
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import traceback
 
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
 from ingest import entity, health, identity, places
+from ingest import register_labels
+from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
 from ingest.sources import base
 from ingest.sources.base import Company, Signal
@@ -65,9 +68,11 @@ def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], dic
             print(f"  {module.SOURCE}: FAILED")
             traceback.print_exc()
         # The oldest page used, since a source is only as current as its stalest page.
-        # A source that reads a local file fetches nothing and has no such date.
+        # A source that reads a local file fetches nothing, and says for itself how
+        # current the file is, or has no date at all.
         used = base.FETCHED_AT[start:]
-        as_of[module.SOURCE] = min(used) if used else None
+        own = getattr(module, "data_as_of", None)
+        as_of[module.SOURCE] = min(used) if used else (own() if own else None)
 
     return companies, signals, failed, as_of
 
@@ -77,6 +82,35 @@ def scrape_all() -> tuple[dict[str, list[Company]], dict[str, list[Signal]], dic
 # nobody accounted for.
 NO_SECTOR = "No sector fits: the classifier placed this company outside all five sunrise sectors."
 NO_SECTOR_LABEL = "outside this taxonomy"
+
+SUBSECTOR_NAMES = {s["subsector_id"]: s["subsector"] for s in SUBSECTORS}
+
+
+def withhold_label_guesses(results: dict, label_only: dict[str, Company]) -> int:
+    """Unplace every company whose sub-sector came from a register label that does not name it.
+
+    `label_only` is the companies no source describes in anything but a register label,
+    keyed by id. Their cached answer is kept, so this costs nothing and is undone by
+    editing ingest/register_labels.py, not by paying again. The result is a gap under
+    "no gap named", which the page files as a record too thin to place — which is what
+    it is. Returns how many were withheld.
+    """
+    withheld = 0
+    for cid, company in label_only.items():
+        result = results.get(cid)
+        if result is None or not result.on_map or register_labels.supports(company.description, result.subsector_id):
+            continue
+        results[cid] = dataclasses.replace(
+            result,
+            subsector_id=None,
+            project_type=None,
+            missing=gap_labels.NO_GAP_NAMED,
+            note=register_labels.unsupported_note(
+                company.description, result.subsector_id, SUBSECTOR_NAMES.get(result.subsector_id, "")
+            ),
+        )
+        withheld += 1
+    return withheld
 
 
 def gap(company: Company, result) -> dict:
@@ -186,6 +220,13 @@ def main() -> int:
         return 2
     print(f"  {usage}")
 
+    # Only a company with no description anywhere: if any source describes it, the
+    # label is not all we know, and the sub-sector is not this rule's to withhold.
+    has_description = {c.id for companies in by_source.values() for c in companies if not c.description_is_label}
+    label_only = {c.id: c for c in unique if c.description_is_label and c.id not in has_description}
+    withheld = withhold_label_guesses(results, label_only)
+    print(f"  {withheld} placed from a register label that does not name the sub-sector: left unplaced")
+
     placed = {cid for cid, result in results.items() if result.on_map}
     dropped = len(unique) - len(placed)
     print(f"  {len(placed)} placed on the map, {dropped} unplaced")
@@ -254,12 +295,16 @@ def main() -> int:
                         # platform they build, and a project type is exactly that claim.
                         # The classifier still names one, because the prompt asks, so the
                         # claim stops here rather than in the model's answer.
-                        "project_type": None if company.description_is_label else result.project_type,
+                        #
+                        # Read off the copy that was classified, not this source's copy:
+                        # a SINE company the register also lists was placed from SINE's
+                        # description, and the register's batch must not relabel it.
+                        "project_type": None if enriched.get(company.id, company).description_is_label else result.project_type,
                         "classify_note": result.note,
                         # Said in the row, not only in the note: a sub-sector
                         # chosen from a register's industry label is a different
                         # kind of claim from one chosen from a description.
-                        "classify_basis": "register-label" if company.description_is_label else "description",
+                        "classify_basis": "register-label" if enriched.get(company.id, company).description_is_label else "description",
                         # enrich.apply wrote these onto the deduplicated company, which
                         # is a different object from this one when two sources both
                         # published the same firm.

@@ -32,6 +32,20 @@ CSV_PATH = pathlib.Path(__file__).parent / "grants.csv"
 FIELDS = ["company_name", "scheme", "award_date", "project_summary", "url", "website", "city"]
 
 
+def data_as_of() -> str | None:
+    """The newest award date in the file: how current this source is.
+
+    The file is read, not fetched, so there is no page date to take. The day the run
+    read it says nothing — the page used to print that, and so called a list whose
+    newest award is from 2025 current as of this morning.
+    """
+    if not CSV_PATH.exists():
+        return None
+    with CSV_PATH.open(encoding="utf-8", newline="") as handle:
+        dates = [d for row in csv.DictReader(handle) if len(d := (clean(row.get("award_date")) or "")) == 10]
+    return max(dates) if dates else None
+
+
 def scrape() -> tuple[list[Company], list[Signal]]:
     if not CSV_PATH.exists():
         raise ValueError(f"{CSV_PATH} is missing")

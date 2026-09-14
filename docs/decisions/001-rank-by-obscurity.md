@@ -16,6 +16,10 @@ Two facts decide where a company sits, and neither is a judgement about the comp
 | B | first seen under 180 days ago, at most 5 traces |
 | C | everything else |
 
+Two conditions added since (see `src/rank.ts`): Tier A also needs every source-dated event
+to be under 90 days old, and neither A nor B is open to a company placed from a register's
+dropdown label alone (14 Sep 2026 — all twenty Tier A rows were such records).
+
 No score. No pedigree signal — not the founder's degree, not the institution, not the
 investor. Sorting is tier first, newest first inside a tier.
 
