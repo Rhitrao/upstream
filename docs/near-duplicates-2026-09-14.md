@@ -54,8 +54,14 @@ once spaces, punctuation and legal suffixes including "Inc." are gone (Call X Ri
 Cancrie), or a hand-read entry in `ingest/aliases.json` with its reason (Bylin, DrPashu,
 Careflex, AUDO Sens/Shodhsens, and EyeROV before it arrives). The shared-website half
 below was dropped: whether an address is a company's own is only known after its page is
-read, which is after ids are fixed, and Arc Robotics/Driblet show what matching on an
-unverified address does. The surviving row keeps the earlier date and any note.
+read, which is after ids are fixed. The surviving row keeps the earlier date and any note.
+
+**Corrected later on 14 September.** Arc Robotics and Driblet were cited here as what
+matching on an unverified address does. Reading both records says otherwise: SINE's
+Driblet lists founder Shubham Vishvakerma and a robotic arm that cleans sewer lines, and
+Venture Center's Arc Robotics card lists the same founder, the same address and a
+sewer-cleaning robot. One company under two names; folded by hand in `aliases.json`.
+The rule is unchanged — the address was the clue, the founder and the product the proof.
 
 ## What it suggested for a rule, before the decision
 

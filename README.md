@@ -101,7 +101,7 @@ Measured, not guessed.
   DPIIT register publishes one. The state tiles say how many are unknown.
 - **Duplicates are caught only two ways.** A company two sources spell differently is folded into one
   row when the names match once punctuation and legal suffixes are gone, or when a person has read
-  the pair and written it into `ingest/aliases.json` with the reason. Six pairs were found and folded
+  the pair and written it into `ingest/aliases.json` with the reason. Seven pairs were found and folded
   on 14 September ([near-duplicates](docs/near-duplicates-2026-09-14.md)); a pair nobody has read stays two rows.
 - **Winning a grant pushes a company down.** A grant is a public trace, and the list sorts by fewest
   traces, so the week a company wins one it drops below companies nobody has funded — the week it is
