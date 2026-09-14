@@ -14,10 +14,9 @@ on:
       max_cost:
         description: "Dollars this run may spend on classification"
         required: false
-        # Held at zero from 14 Sep 2026 while the page after the register-label fix is
-        # reviewed; nightly runs still upload, recompute tiers and apply cached answers,
-        # and anything new waits unclassified. Restore "0.05" here and below to resume.
-        default: "0.00"
+        # Held at zero on 14 Sep 2026 while the page after the register-label fix was
+        # reviewed, and restored the same day. At zero every new company waits unclassified.
+        default: "0.05"
 
 # Never two at once. Two runs classifying the same new companies in parallel pay
 # for them twice and then race to commit the answers.
@@ -77,7 +76,7 @@ jobs:
           # starts returning 5,000 rows one morning stops at a known number
           # instead of emptying the balance. Raise it for a one-off backfill by
           # dispatching the workflow by hand; the nightly run keeps the floor.
-          UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.00' }}
+          UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.05' }}
         run: |
           set -euo pipefail
           python -m ingest.run --base-url https://rohitrao.in/upstream | tee run.log

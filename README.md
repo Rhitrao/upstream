@@ -90,8 +90,10 @@ Measured, not guessed.
   at all. ([009](docs/decisions/009-homepage-product-read.md))
 - **Location is known for fewer than half.** 234 of 607 rows have a state, 197 of them because the
   DPIIT register publishes one. The state tiles say how many are unknown.
-- **Duplicates.** Six pairs of rows are very probably one company listed twice, where two sources
-  spell a name differently. Counted, not yet merged: [near-duplicates](docs/near-duplicates-2026-09-14.md).
+- **Duplicates are caught only two ways.** A company two sources spell differently is folded into one
+  row when the names match once punctuation and legal suffixes are gone, or when a person has read
+  the pair and written it into `ingest/aliases.json` with the reason. Six pairs were found and folded
+  on 14 September ([near-duplicates](docs/near-duplicates-2026-09-14.md)); a pair nobody has read stays two rows.
 - **Winning a grant pushes a company down.** A grant is a public trace, and the list sorts by fewest
   traces, so the week a company wins one it drops below companies nobody has funded — the week it is
   most worth a call. This is a flaw in ranking by obscurity, not a trade-off being defended.

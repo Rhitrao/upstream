@@ -47,7 +47,17 @@ So no single rule gets all six without a flood of false pairs: exact-after-clean
 finds 2, a strict fuzzy threshold adds 1 and a false one, a shared website adds 2, and
 the last one (AUDO Sens) needed the website read against the *other* row's name.
 
-## What it suggests for a rule (not decided)
+## The rule, decided the same day
+
+Folded, not deleted, from the next ingest run on (`ingest/duplicates.py`): the same name
+once spaces, punctuation and legal suffixes including "Inc." are gone (Call X Ringers,
+Cancrie), or a hand-read entry in `ingest/aliases.json` with its reason (Bylin, DrPashu,
+Careflex, AUDO Sens/Shodhsens, and EyeROV before it arrives). The shared-website half
+below was dropped: whether an address is a company's own is only known after its page is
+read, which is after ids are fixed, and Arc Robotics/Driblet show what matching on an
+unverified address does. The surviving row keeps the earlier date and any note.
+
+## What it suggested for a rule, before the decision
 
 - Five of the six pairs span two listings — a grant row and an incubator row, or two
   cohorts. The ids are slugs of the name, so any spelling difference makes two rows.
