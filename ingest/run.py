@@ -115,6 +115,25 @@ def withhold_label_guesses(results: dict, label_only: dict[str, Company]) -> int
     return withheld
 
 
+def label_only_companies(copies: list[Company]) -> dict[str, Company]:
+    """Companies whose only published text, across every source, is a register label.
+
+    Keyed by id, valued by the register's copy, because that is the text the rule reads.
+    A copy with an empty description is not a description: GIGATON's SINE listing names
+    it and says nothing, and counting that as "described" let its placement, and four
+    others like it, stand as if a source had said what it builds.
+    """
+    described = {c.id for c in copies if (c.description or "").strip() and not c.description_is_label}
+    return {c.id: c for c in copies if c.description_is_label and c.id not in described}
+
+
+def from_label(classified: Company, label_only: dict[str, Company]) -> bool:
+    """Whether the copy the classifier read had nothing but a register label to go on."""
+    return classified.description_is_label or (
+        not (classified.description or "").strip() and classified.id in label_only
+    )
+
+
 def stale_label_guesses(rows: list[dict], sent: set[str]) -> list[dict]:
     """The same rule, for rows already on the page that this run did not send.
 
@@ -290,8 +309,9 @@ def main() -> int:
 
     # Only a company with no description anywhere: if any source describes it, the
     # label is not all we know, and the sub-sector is not this rule's to withhold.
-    has_description = {c.id for companies in by_source.values() for c in companies if not c.description_is_label}
-    label_only = {c.id: c for c in unique if c.description_is_label and c.id not in has_description}
+    copies = [c for companies in by_source.values() for c in companies]
+    label_only = label_only_companies(copies)
+    classified_from_label = {c.id for c in unique if from_label(c, label_only)}
     withheld = withhold_label_guesses(results, label_only)
     print(f"  {withheld} placed from a register label that does not name the sub-sector: left unplaced")
 
@@ -367,12 +387,12 @@ def main() -> int:
                         # Read off the copy that was classified, not this source's copy:
                         # a SINE company the register also lists was placed from SINE's
                         # description, and the register's batch must not relabel it.
-                        "project_type": None if enriched.get(company.id, company).description_is_label else result.project_type,
+                        "project_type": None if company.id in classified_from_label else result.project_type,
                         "classify_note": result.note,
                         # Said in the row, not only in the note: a sub-sector
                         # chosen from a register's industry label is a different
                         # kind of claim from one chosen from a description.
-                        "classify_basis": "register-label" if enriched.get(company.id, company).description_is_label else "description",
+                        "classify_basis": "register-label" if company.id in classified_from_label else "description",
                         # enrich.apply wrote these onto the deduplicated company, which
                         # is a different object from this one when two sources both
                         # published the same firm.

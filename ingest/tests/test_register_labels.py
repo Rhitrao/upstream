@@ -82,6 +82,25 @@ class WithholdingAGuess(unittest.TestCase):
         self.assertTrue(results["described"].on_map)
 
 
+class ACopyThatSaysNothing(unittest.TestCase):
+    def test_an_empty_listing_does_not_count_as_a_description(self):
+        # GIGATON: a SINE listing with a name and no sentence, and a register label.
+        sine = Company(id="gigaton", name="Gigaton", description="")
+        register = Company(id="gigaton", name="Gigaton", description=label("Green Technology", ["Clean Tech"]), description_is_label=True)
+        only = run.label_only_companies([sine, register])
+        self.assertIs(only["gigaton"], register)
+        self.assertTrue(run.from_label(sine, only))
+
+    def test_a_real_sentence_anywhere_takes_it_out_of_the_rule(self):
+        # Rechargion: the register lists it, Venture Center describes it.
+        register = Company(id="rechargion", name="Rechargion", description=label("Renewable Energy", []), description_is_label=True)
+        vc = Company(id="rechargion", name="Rechargion", description="Sodium-ion batteries.")
+        self.assertEqual(run.label_only_companies([register, vc]), {})
+        # Still said as it was: the register's copy is the one that was classified.
+        self.assertTrue(run.from_label(register, {}))
+        self.assertFalse(run.from_label(vc, {}))
+
+
 class SweepingRowsTheRunDidNotSend(unittest.TestCase):
     def row(self, cid: str, description: str, subsector_id: str, basis: str = "register-label") -> dict:
         return {"id": cid, "name": cid.upper(), "description": description, "sector_id": subsector_id.split(".")[0],
