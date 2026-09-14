@@ -1164,12 +1164,16 @@ function methodology(view: PageView): string {
     by the founder from a list when they applied. The RDI scheme has 44 sub-sectors, written by a different department
     for a different purpose. Neither was drawn up with the other in mind, and putting the same companies through both
     shows how little they overlap.</p>
-  <p>Where the two vocabularies happen to have a near-twin, a company places almost automatically: DPIIT's
-    &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent Systems &amp; Robotics&rdquo; placed 80 of 81. Where
-    they have none, almost nothing places: 3 of 87 for &ldquo;Computer Vision&rdquo;, 7 of 83 for &ldquo;AI&rdquo;.
-    Same companies, same government, two filing systems that, as this classifier maps them, do not meet. That is a
-    finding about the two vocabularies as read by one model from one-line labels, not a fault in either, and not a
-    reviewed crosswalk.</p>
+  <p>Where the two vocabularies happen to have a near-twin, a company places almost automatically: left to the
+    classifier on the run of 14 September 2026, DPIIT's &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent
+    Systems &amp; Robotics&rdquo; placed 79 of 80. Where they have none, almost nothing placed: 3 of 87 for &ldquo;Computer
+    Vision&rdquo;, 7 of 83 for &ldquo;AI&rdquo;. Same companies, same government, two filing systems that, as this
+    classifier maps them, do not meet. That is a finding about the two vocabularies as read by one model from one-line
+    labels, not a fault in either, and not a reviewed crosswalk.</p>
+  <p>Those few placements were also where the classifier guessed: five &ldquo;AI / NLP&rdquo; records had gone into AI in
+    Healthcare. So a register label now keeps a company on the map only where the label names the sub-sector outright
+    &mdash; &ldquo;Space Technology&rdquo;, &ldquo;Robotics&rdquo;, &ldquo;Electronics&rdquo; &mdash; and a company whose
+    label names none is counted with the ones we could not describe well enough to place.</p>
   <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
     company does, and should be read as exactly that much. Each company's own page says which of the two it was, in the
     classifier's own words. It also means the fuller cells of the coverage map above are partly a map of where the two
