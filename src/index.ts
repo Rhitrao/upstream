@@ -11,6 +11,8 @@
  *   GET  /upstream/api/gaps         companies the taxonomy has no cell for, grouped
  *   GET  /upstream/api/sources      per source: last attempt, last success, records
  *   POST /upstream/api/ingest       write endpoint, needs X-Ingest-Key
+ *   POST /upstream/api/ask          the question box; 404 unless ASK_ENABLED is set
+ *   GET  /upstream/asks             every question asked and its cost, behind Access
  *   POST /upstream/api/source-runs  what each source did in a pipeline run, needs X-Ingest-Key
  */
 import { SIGNAL_TYPES, TRACE_TYPES, TIERS, earliestEvent, minOriginYear, tierFor, type Tier } from './rank';
@@ -44,6 +46,7 @@ import {
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { accessConfig, identify } from './access';
+import { anthropicCreate, askMode, handleAsk, queryAskLog, renderAskLog } from './ask';
 import { PRIVATE_HEADERS, renderNotebook, renderNoteEditor } from './notes';
 import { BASE_PATH, renderCompanyPage, renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
@@ -1038,6 +1041,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// them would describe a different page. The demo has none.
 		demo ? Promise.resolve(null) : queryWidgets(env, ranked),
 	]);
+	const ask = askMode(env);
 
 	const html = renderPage({
 		coverage,
@@ -1054,6 +1058,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		notCompanies,
 		sourceHealth,
 		widgets,
+		ask,
 		state: ranked.state ?? null,
 		traces: ranked.traces ?? null,
 		described: ranked.described ?? null,
@@ -1210,6 +1215,32 @@ async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 	});
 }
 
+// --- the question box ------------------------------------------------------
+
+async function askApi(request: Request, env: Env): Promise<Response> {
+	const mode = askMode(env);
+	// Off is a 404, like the notebook: an endpoint that answers "resting" before anyone
+	// has decided to turn it on is advertising a door.
+	if (mode === null) return json({ error: 'not found' }, 404);
+	if (Number(request.headers.get('content-length') ?? 0) > 4096) {
+		return json({ status: 'invalid', message: 'Keep it under 300 characters.' }, 413, 'no-store');
+	}
+	const result = await handleAsk(request, env, mode === 'on' ? anthropicCreate(env) : undefined);
+	return json(result, result.status === 'invalid' ? 400 : 200, 'no-store');
+}
+
+async function askLogPage(request: Request, env: Env): Promise<Response> {
+	if (accessConfig(env) === null) return json({ error: 'not found' }, 404);
+	if ((await identify(request, env)) === null) {
+		return new Response('Forbidden', { status: 403, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'private, no-store' } });
+	}
+	try {
+		return new Response(renderAskLog(await queryAskLog(env)), { headers: PRIVATE_HEADERS });
+	} catch {
+		return new Response('The question log is not set up yet: apply migration 0016.', { status: 503, headers: PRIVATE_HEADERS });
+	}
+}
+
 // --- the private notebook ---------------------------------------------------
 
 /**
@@ -1317,6 +1348,12 @@ export default {
 
 			case `${BASE}/api/sources`:
 				return isRead ? json(await querySourceHealth(env), 200, PUBLIC_CACHE) : methodNotAllowed('GET, HEAD');
+
+			case `${BASE}/api/ask`:
+				return request.method === 'POST' ? askApi(request, env) : methodNotAllowed('POST');
+
+			case `${BASE}/asks`:
+				return isRead ? askLogPage(request, env) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/source-runs`:
 				return request.method === 'POST' ? recordSourceRuns(request, env) : methodNotAllowed('POST');

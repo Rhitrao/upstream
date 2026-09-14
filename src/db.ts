@@ -927,6 +927,30 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 	};
 }
 
+/**
+ * What a filtered view rests on, counted: how many records, how many placed from a
+ * register label alone, and how many say in a sentence what they build. The question
+ * box attaches this to every answer so the basis travels with it.
+ */
+export interface ViewSummary {
+	total: number;
+	fromLabel: number;
+	described: number;
+}
+
+export async function queryViewSummary(env: Env, filters: Filters): Promise<ViewSummary> {
+	const { clauses, binds } = conditions(filters);
+	const row = await env.DB.prepare(
+		`SELECT COUNT(*) AS total,
+		   SUM(c.classify_basis = 'register-label') AS from_label,
+		   SUM(${DESCRIBED_SQL} IN ('own', 'source')) AS described
+		 FROM companies c ${whereSql(clauses)}`,
+	)
+		.bind(...binds)
+		.first<Record<string, number | null>>();
+	return { total: Number(row?.total ?? 0), fromLabel: Number(row?.from_label ?? 0), described: Number(row?.described ?? 0) };
+}
+
 export async function queryOneTraceCount(env: Env): Promise<number> {
 	const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM companies WHERE trace_count <= 1').first<{ n: number }>();
 	return row?.n ?? 0;

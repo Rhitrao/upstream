@@ -19,4 +19,12 @@ interface Env {
 	 */
 	ACCESS_TEAM_DOMAIN?: string;
 	ACCESS_AUD?: string;
+	/**
+	 * The question box. Unset is the shipped state: the box is not drawn and
+	 * /upstream/api/ask is a 404. "rest" draws it and answers every question with the
+	 * precomputed examples, calling no model. "1" answers with Claude, and only while
+	 * ANTHROPIC_API_KEY (a secret) is also set; without the key it rests.
+	 */
+	ASK_ENABLED?: string;
+	ANTHROPIC_API_KEY?: string;
 }

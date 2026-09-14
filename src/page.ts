@@ -61,6 +61,8 @@ export interface PageView {
 	sourceHealth: SourceHealth[];
 	/** The widget row's counts under the current filters. null for the sample data. */
 	widgets: Widgets | null;
+	/** The question box: answering, resting on examples, or not drawn at all. */
+	ask?: 'on' | 'rest' | null;
 	/** The state the list is filtered to, 'unknown', or null. */
 	state: string | null;
 	traces: TraceBucket | null;
@@ -482,6 +484,28 @@ function widgets(view: PageView): string {
   ${described}
   ${sources}
   </div>
+</section>`;
+}
+
+/**
+ * The question box. Drawn only once someone has turned it on (ASK_ENABLED), so a page
+ * without it has no dead control; the endpoint is a 404 in the same state.
+ */
+function askBox(view: PageView): string {
+	if (!view.ask) return '';
+	return `
+<section class="ask" id="ask" aria-labelledby="ask-h">
+  <form class="ask-form" id="ask-form" action="${esc(`${BASE_PATH}/api/ask`)}" method="post">
+    <label id="ask-h" for="ask-q">Ask the records</label>
+    <div class="ask-bar">
+      <input type="text" id="ask-q" name="question" maxlength="300" required autocomplete="off"
+        placeholder="e.g. Which Energy Storage companies have one public trace?">
+      <button type="submit">Ask</button>
+    </div>
+    <p class="ask-note">Answered from this list&rsquo;s records through a filtered query, never from a model&rsquo;s own
+      knowledge, and every answer shows what it rests on. Questions are logged; no address is stored.</p>
+    <div class="ask-out" id="ask-out" aria-live="polite"></div>
+  </form>
 </section>`;
 }
 
@@ -2324,6 +2348,23 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .more-places > .grid { margin-top: var(--s1); }
 .districts { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
 .districts .n { font-family: var(--mono); color: var(--ink); }
+/* the question box */
+.ask { margin: 0 0 var(--s5); }
+.ask-form label { display: block; font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 500; margin-bottom: var(--s1); }
+.ask-bar { display: flex; gap: var(--s1); }
+.ask-bar input { flex: 1 1 auto; min-width: 0; font: inherit; font-size: var(--t-sm); padding: var(--s2) var(--s3); border: 1px solid var(--rule-strong); border-radius: var(--radius); background: var(--raise); color: var(--ink); }
+.ask-bar button { font: inherit; font-size: var(--t-sm); padding: var(--s2) var(--s4); border: 1px solid var(--ink); border-radius: var(--radius); background: var(--ink); color: var(--paper); cursor: pointer; }
+.ask-bar button:disabled { opacity: 0.5; cursor: wait; }
+.ask-note { font-size: var(--t-xs); color: var(--muted); margin: var(--s1) 0 0; max-width: 64ch; }
+.ask-out:empty { display: none; }
+.ask-out { margin-top: var(--s3); border-left: 2px solid var(--rule-strong); padding-left: var(--s3); }
+.ask-answer { margin: 0 0 var(--s1); }
+.ask-evidence { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s2); }
+.ask-view { color: var(--ink); white-space: nowrap; }
+.ask-resting, .ask-wait { font-size: var(--t-sm); color: var(--muted); }
+.ask-examples { list-style: none; padding: 0; margin: 0; }
+.ask-examples li { padding: var(--s2) 0; border-top: 1px solid var(--rule); }
+.ask-q { font-weight: 500; margin: 0 0 var(--s0); }
 .place-tiles { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; }
 .place-grid { margin-top: var(--s3); grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
 .place-grid .cell-name { overflow-wrap: normal; word-break: normal; hyphens: auto; }
@@ -2770,6 +2811,66 @@ export const LIST_SCRIPT = `
 `;
 
 /**
+ * The question box. Everything the server sends is put on the page as text, never as
+ * markup: the answer is model output about scraped names, and either could carry tags.
+ * A link is followed only if it points back into this site.
+ */
+export const ASK_SCRIPT = `
+(function () {
+  var form = document.getElementById('ask-form');
+  var out = document.getElementById('ask-out');
+  if (!form || !out || !window.fetch) return;
+  var input = form.querySelector('input');
+  var button = form.querySelector('button');
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function evidence(ev) {
+    var box = el('p', 'ask-evidence');
+    box.appendChild(el('span', 'ask-basis', ev.summary));
+    if (ev.view_url && ev.view_url.indexOf('/upstream?') === 0) {
+      box.appendChild(document.createTextNode(' '));
+      var a = el('a', 'ask-view', ev.count === 1 ? 'Show this record' : 'Show these ' + ev.count + ' records');
+      a.href = ev.view_url + '#list';
+      box.appendChild(a);
+    }
+    return box;
+  }
+  function render(data) {
+    out.textContent = '';
+    if (data.status === 'answered') {
+      out.appendChild(el('p', 'ask-answer', data.answer));
+      out.appendChild(evidence(data.evidence));
+    } else if (data.status === 'resting') {
+      out.appendChild(el('p', 'ask-resting', data.message));
+      var list = el('ul', 'ask-examples');
+      (data.examples || []).forEach(function (ex) {
+        var li = el('li');
+        li.appendChild(el('p', 'ask-q', ex.question));
+        li.appendChild(el('p', 'ask-answer', ex.answer));
+        li.appendChild(evidence(ex.evidence));
+        list.appendChild(li);
+      });
+      out.appendChild(list);
+    } else {
+      out.appendChild(el('p', 'ask-resting', data.message || 'Type a question about the companies on this page.'));
+    }
+  }
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var question = input.value.trim();
+    if (!question) return;
+    button.disabled = true;
+    out.textContent = '';
+    out.appendChild(el('p', 'ask-wait', 'Looking it up…'));
+    fetch(form.getAttribute('action'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question: question }) })
+      .then(function (r) { return r.json(); })
+      .then(render)
+      .catch(function () { render({ status: 'invalid', message: 'The question could not be sent. Try again in a moment.' }); })
+      .then(function () { button.disabled = false; });
+  });
+})();
+`;
+
+/**
  * The company page: copy the brief, mark it, and go back to the results it came from.
  */
 export const DETAIL_SCRIPT = `
@@ -2838,6 +2939,7 @@ export function renderPage(view: PageView): string {
 <div class="wrap">
 ${header(view)}
 ${widgets(view)}
+${askBox(view)}
 <main class="tool">
 ${controls(view)}
 <p class="device-note" id="device-note" hidden></p>
@@ -2850,6 +2952,7 @@ ${methodology(view)}
 </div>
 <script>${MARKS_SCRIPT}</script>
 <script>${LIST_SCRIPT}</script>
+${view.ask ? `<script>${ASK_SCRIPT}</script>` : ''}
 </body>
 </html>`;
 }
