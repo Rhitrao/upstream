@@ -1,6 +1,6 @@
 # 009 — What a company says it builds is quoted, attributed, and read only from a site that is theirs
 
-**Decided** 2026-09-12, revised 2026-09-13 · **Status** accepted
+**Decided** 2026-09-13, revised 2026-09-13 (identity check) · **Status** accepted
 
 ## What we decided
 

@@ -12,7 +12,7 @@ model answers (`ingest/cache/classify.json`, `products.json`) back to the reposi
 ## What else we considered
 
 **Scheduled Workers.** One platform, one deploy, one set of secrets. But a run fetches
-roughly 450 pages with a one-second delay between requests to each host, parses HTML
+roughly 350 pages with a one-second pause between requests, parses HTML
 with BeautifulSoup and makes a few hundred model calls; run #3 took 8 minutes 40
 seconds. That is long past a scheduled Worker's CPU budget, and the scrapers would have
 to be rewritten in TypeScript against an HTML parser that is not the one they were
