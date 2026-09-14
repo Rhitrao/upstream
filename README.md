@@ -66,12 +66,12 @@ The ingest run of 14 September 2026, replayed at $0 from the committed cache wit
 582 + 560 + 304 + 148 = 1,594. The page counts from its own database, which also keeps companies a
 source has since stopped listing, so its totals run a little higher than one run's.
 
-Two more numbers about what "early" means here, from the live database on 14 September. Of 761
-companies on the page, **38** were discovered — seen for the first time in a later run of a source
+Two more numbers about what "early" means here, from the live database after that night's run
+withdrew the label guesses. Of 607 records on the page, **25** were discovered — seen for the first time in a later run of a source
 already being watched; the rest came from a source's first sweep, which is a backfill and not a
-find ([003](docs/decisions/003-first-seen-honesty.md)). **36 of those 38 were register records with
-nothing but a label**, which is why a label alone no longer qualifies for Tier A or B. And **526 of
-761** had left one public trace or none.
+find ([003](docs/decisions/003-first-seen-honesty.md)). **23 of those 25 were register records with
+nothing but a label**, which is why a label alone no longer qualifies for Tier A or B. And **372 of
+607** had left one public trace or none.
 
 ## What it misses
 
@@ -86,10 +86,10 @@ Measured, not guessed.
 - **No founders, funding, revenue or registration numbers.** `cin` is empty on every row, so nothing
   joins to MCA filings, and the grant lists publish no amounts.
 - **Most rows cannot say what the company builds.** Only a homepage checked to be theirs is read, and
-  what it says is quoted as their words. 114 of 761 rows have such a sentence; 252 publish a website
+  what it says is quoted as their words. 115 of 607 rows have such a sentence; 252 publish a website
   at all. ([009](docs/decisions/009-homepage-product-read.md))
-- **Location is known for half.** 388 of 761 rows have a state, mostly because the DPIIT register
-  publishes one. The state tiles say how many are unknown.
+- **Location is known for fewer than half.** 234 of 607 rows have a state, 197 of them because the
+  DPIIT register publishes one. The state tiles say how many are unknown.
 - **Duplicates.** Six pairs of rows are very probably one company listed twice, where two sources
   spell a name differently. Counted, not yet merged: [near-duplicates](docs/near-duplicates-2026-09-14.md).
 - **Winning a grant pushes a company down.** A grant is a public trace, and the list sorts by fewest
