@@ -20,7 +20,7 @@ import requests
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import duplicates, entity, health, identity, places
+from ingest import duplicates, entity, health, identity, names, places
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
@@ -210,7 +210,7 @@ def gap(company: Company, result) -> dict:
     """
     return {
         "company_id": company.id,
-        "name": company.name,
+        "name": names.display(company.name),
         "description": company.description,
         "sector_id": result.sector_id,
         # Grouped by the canonical name a person has reviewed, not by the
@@ -292,6 +292,7 @@ def main() -> int:
     for company in unique:
         if not company.state and company.city:
             company.state = places.state_for(company.city)
+        company.city = places.place_name(company.city)
 
     # Before classification, because the classifier is told when a record is a
     # person's project: otherwise it writes "the company" about Aishwarya Dasare.
@@ -383,6 +384,10 @@ def main() -> int:
                 Company(
                     **{
                         **{f.name: getattr(company, f.name) for f in company.__dataclass_fields__.values()},
+                        # Cased here and not earlier: the classifier's cache is keyed by
+                        # the name as the source prints it, and recasing it first would
+                        # buy every register company's answer again.
+                        "name": names.display(company.name),
                         "sector_id": result.sector_id,
                         "subsector_id": result.subsector_id,
                         # A register label says "Robotics" and a stage. That can carry a

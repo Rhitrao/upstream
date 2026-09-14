@@ -1408,6 +1408,18 @@ describe('searching and one company at a time', () => {
 		expect(html).toContain('value="assay"');
 	});
 
+	it('does not call a claim that names its years undated', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [{ id: 'cohort-co', name: 'Cohort Co', sector_id: '2', subsector_id: '2.3' }],
+			signals: [{ company_id: 'cohort-co', type: 'incubator', label: 'SINE IIT Bombay incubatee, 2024-2025' }],
+		});
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/cohort-co`)).text();
+		expect(html).toContain('SINE IIT Bombay incubatee, 2024-2025 — ');
+		expect(html).toMatch(/incubatee, 2024-2025 — [^,]+, no exact date:/);
+		expect(html).toContain('<span class="no-link">no exact date</span>');
+	});
+
 	it('writes a brief from a template, with the unknowns before the evidence', async () => {
 		await seed();
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/kadamb-biolabs`)).text();
@@ -1434,6 +1446,7 @@ describe('searching and one company at a time', () => {
 		// Evidence with the real link, or saying there is none.
 		expect(brief).toContain('https://sineiitb.org/portfolio/');
 		expect(brief).toContain('no link published');
+		expect(brief).toContain('- no url for this one — press, not dated:');
 		expect(brief).toContain(`Upstream: ${ORIGIN}/upstream/c/kadamb-biolabs`);
 
 		// The page lists the same unknowns, and the actions are there for the script.
@@ -1730,7 +1743,7 @@ describe('where they are', () => {
 		expect(maharashtra).toContain('Location: Maharashtra');
 		expect(maharashtra).toContain('<input type="hidden" id="state" name="state" value="Maharashtra">');
 		// The district is the detail, as the source wrote it.
-		expect(maharashtra).toContain('In Maharashtra, as the sources write it: Pune <span class="n">1</span>');
+		expect(maharashtra).toContain('In Maharashtra, by city or district: Pune <span class="n">1</span>');
 
 		const unknown = await text('?tier=all&age=all&state=unknown');
 		expect(rows(unknown)).toEqual(['a', 'b', 'c']);

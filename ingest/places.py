@@ -34,5 +34,34 @@ CITY_STATE = {
 }
 
 
+# One place, one spelling. The register writes districts ("Bengaluru Urban"), the grants
+# lists write cities ("Bangalore"), and the page counted them as four places in
+# Karnataka. Only a spelling, or a district that is the city under its official name,
+# is folded; a district that holds more than one town ("Ernakulam", "Khordha") stays as
+# the source wrote it, since folding it into its best-known city would be a guess.
+PLACE_NAMES = {
+    "bangalore": "Bengaluru",
+    "bengaluru urban": "Bengaluru",
+    "bhubaneshwar": "Bhubaneswar",
+    "trivandrum": "Thiruvananthapuram",
+    "kanpur nagar": "Kanpur",
+    "mumbai suburban": "Mumbai",
+    "south eastdelhi": "South East Delhi",
+    "jammu, j & k": "Jammu",
+}
+
+# A state printed where a city should be says nothing a state column does not.
+STATE_NAMES = {"jharkhand"}
+
+
 def state_for(city: str | None) -> str | None:
     return CITY_STATE.get(city.strip().lower()) if city else None
+
+
+def place_name(city: str | None) -> str | None:
+    if not city or not city.strip():
+        return None
+    key = city.strip().lower()
+    if key in STATE_NAMES:
+        return None
+    return PLACE_NAMES.get(key, city.strip())

@@ -69,6 +69,36 @@ class AStateForACity(unittest.TestCase):
         self.assertIsNone(places.state_for("Shell, Tricon Buildwell"))
         self.assertIsNone(places.state_for(None))
 
+    def test_one_place_has_one_spelling_and_a_district_of_many_towns_is_left_alone(self):
+        from ingest import places
+
+        self.assertEqual({places.place_name(c) for c in ["Bangalore", "Bengaluru", " Bengaluru Urban "]}, {"Bengaluru"})
+        self.assertEqual(places.place_name("Bengaluru Rural"), "Bengaluru Rural")
+        self.assertEqual(places.place_name("Mumbai Suburban"), "Mumbai")
+        self.assertEqual(places.place_name("South Eastdelhi"), "South East Delhi")
+        self.assertEqual(places.place_name("Ernakulam"), "Ernakulam")
+        # A state where a city belongs is not a place of its own.
+        self.assertIsNone(places.place_name("Jharkhand"))
+        self.assertIsNone(places.place_name("  "))
+        # The state is still found from a spelling that is folded away.
+        self.assertEqual(places.state_for(places.place_name("Bhubaneshwar")), "Odisha")
+
+
+class ANameAsThePagePrintsIt(unittest.TestCase):
+    def test_a_register_name_in_capitals_is_recased_and_a_company_spelling_is_not(self):
+        from ingest.names import display
+
+        self.assertEqual(display("GIGATON RESEARCH PRIVATE LIMITED"), "Gigaton Research Private Limited")
+        self.assertEqual(display("NCF GREEN ENERGY PRIVATE LIMITED"), "NCF Green Energy Private Limited")
+        self.assertEqual(display("AAYUSHI SOLAR ENERGY (OPC) PRIVATE LIMITED"), "Aayushi Solar Energy (OPC) Private Limited")
+        self.assertEqual(display("D-RUBE LABS AND RESEARCH PRIVATE LIMITED"), "D-Rube Labs and Research Private Limited")
+        self.assertEqual(display("2D MATX PRIVATE LIMITED"), "2D Matx Private Limited")
+        self.assertEqual(display("BIKE SPA INTERNATIONAL PVT LTD"), "Bike Spa International Pvt Ltd")
+        self.assertEqual(display("A R SHAKTI BIOFUELS"), "A R Shakti Biofuels")
+        # Any lower-case letter means the source already cased it: the company's own.
+        self.assertEqual(display("KaviRISE Technologies Pvt Ltd"), "KaviRISE Technologies Pvt Ltd")
+        self.assertEqual(display("MANI Aerospace"), "MANI Aerospace")
+
 
 if __name__ == "__main__":
     unittest.main()

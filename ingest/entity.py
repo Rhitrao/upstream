@@ -75,7 +75,7 @@ def assess(name: str, sources) -> tuple[str, str]:
     company whichever source happened to reach it first.
     """
     if LEGAL_SUFFIX.search(name):
-        return COMPANY, "the name carries a legal suffix"
+        return COMPANY, "a source lists it with a legal suffix"
     if "dpiit-startup-india" in set(sources or ()):
         return COMPANY, DPIIT_NOTE
     if LAB_NAME.search(name):

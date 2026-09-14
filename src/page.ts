@@ -435,7 +435,7 @@ function widgets(view: PageView): string {
 		}
     ${
 			chosen && chosen.districts.length
-				? `<p class="districts">In ${esc(chosen.state)}, as the sources write it: ${chosen.districts.map((d) => `${esc(d.name)} <span class="n">${d.n}</span>`).join(' &middot; ')}</p>`
+				? `<p class="districts">In ${esc(chosen.state)}, by city or district: ${chosen.districts.map((d) => `${esc(d.name)} <span class="n">${d.n}</span>`).join(' &middot; ')}</p>`
 				: ''
 		}
     </div>
@@ -1439,6 +1439,15 @@ export function unknowns(company: Company): string[] {
 }
 
 /** Where a brief says the website came from, in plain words. */
+/**
+ * What to print for a claim no source dated. "SINE IIT Bombay incubatee, 2024-2025 —
+ * undated" read as a contradiction: the claim names its years, but no day on which
+ * anything happened is on record, and that is the thing this column is about.
+ */
+function undatedWord(label: string): string {
+	return /\b(19|20)\d\d\b/.test(label) ? 'no exact date' : 'not dated';
+}
+
 function siteLine(company: Company): string | null {
 	const site = safeUrl(company.website);
 	if (!site) return null;
@@ -1487,7 +1496,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	);
 	for (const signal of company.signals) {
 		const where = SOURCE_LABELS[signal.source ?? ''] ?? signal.type;
-		lines.push(`- ${signal.label} — ${where}, ${signal.date ?? 'undated'}: ${safeUrl(signal.url) ?? 'no link published'}`);
+		lines.push(`- ${signal.label} — ${where}, ${signal.date ?? undatedWord(signal.label)}: ${safeUrl(signal.url) ?? 'no link published'}`);
 	}
 	const siteSaid = siteLine(company);
 	if (siteSaid) lines.push(`- Website: ${siteSaid}`);
@@ -1639,7 +1648,7 @@ export function renderCompanyPage(view: CompanyView): string {
 			return `<tr>
           <td>${esc(signal.label)} <span class="ev-type">${esc(signal.type)}</span></td>
           <td>${esc(SOURCE_LABELS[signal.source ?? ''] ?? signal.source ?? '')}</td>
-          <td class="mono">${signal.date ? esc(signal.date) : '<span class="no-link">not dated</span>'}</td>
+          <td class="mono">${signal.date ? esc(signal.date) : `<span class="no-link">${undatedWord(signal.label)}</span>`}</td>
           <td>${where}</td>
         </tr>`;
 		})
