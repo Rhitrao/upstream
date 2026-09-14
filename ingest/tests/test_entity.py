@@ -67,6 +67,14 @@ class TheClassifierIsToldAndOnlyTheyRerun(unittest.TestCase):
         company = Company(id="c", name="Acme Pvt Ltd", description="x", source="sine-iitb", entity_type=entity.COMPANY)
         self.assertFalse(classify._answered_before_entity_types(company, off_map))
 
+    def test_a_placed_register_profile_keeps_its_answer_when_only_its_entity_type_changed(self):
+        profile = Company(
+            id="tatva-core", name="TATVA CORE", description="DPIIT-recognised startup. Industry: Robotics.", source="dpiit-startup-india",
+            description_is_label=True, entity_type=entity.UNVERIFIED,
+        )
+        placed = {"hash": classify._fingerprint(profile, with_entity=False), "sector_id": "2", "subsector_id": "2.7", "note": "The company builds robots."}
+        self.assertTrue(classify._answered_before_entity_types(profile, placed))
+
 
 
 class AStateForACity(unittest.TestCase):

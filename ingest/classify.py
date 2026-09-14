@@ -385,7 +385,12 @@ def _answered_before_entity_types(company: Company, entry: dict | None) -> bool:
     if entry is None or company.entity_type in (None, entity.COMPANY):
         return False
     unchanged = entry.get("hash") == _fingerprint(company, with_entity=False)
-    return unchanged and not _from_cache(entry).on_map
+    # Nor for a record whose only text is a register label. The answer rests on the label
+    # either way, and where its reasoning still says "company" the page already says
+    # nothing on record shows one. On 14 September 2026 the recognition fix turned 21
+    # placed register profiles unverified; re-asking them would have bought 21 rewordings
+    # ahead of the 65 Venture Center companies still waiting for a first answer.
+    return unchanged and (not _from_cache(entry).on_map or company.description_is_label)
 
 
 def _fingerprint(company: Company, *, with_entity: bool = True) -> str:
