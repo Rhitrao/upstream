@@ -88,6 +88,10 @@ export interface Filters {
 	site: SiteState | null;
 	/** A state as a source wrote it, or 'unknown' for records with none. null for any. */
 	state?: string | null;
+	/** How many public traces: one or none, two, three or more. null for any. */
+	traces?: TraceBucket | null;
+	/** Whose words say what the company builds, if anyone's. null for any. */
+	described?: DescribedState | null;
 	/** How the list is ordered. See SORTS. */
 	sort: SortChoice;
 	limit: number;
@@ -108,6 +112,38 @@ export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-i
 export type SiteState = 'has' | 'none';
 
 export type SortChoice = 'obscurity' | 'newest' | 'quietest' | 'name';
+
+/**
+ * Trace counts in the three groups the page draws. "One or none" is one group because
+ * the headline's claim is "one public trace at most"; a company found only through a
+ * patent or an incorporation has none, and is less known rather than more.
+ */
+export const TRACE_BUCKETS = ['1', '2', '3+'] as const;
+export type TraceBucket = (typeof TRACE_BUCKETS)[number];
+const TRACE_SQL: Record<TraceBucket, string> = {
+	'1': 'c.trace_count <= 1',
+	'2': 'c.trace_count = 2',
+	'3+': 'c.trace_count >= 3',
+};
+
+/**
+ * Whose words say what a company builds.
+ *
+ * 'own': a sentence read from a homepage checked to be theirs. 'source': an incubator's
+ * or a grant list's description. 'label': nothing but the DPIIT register's dropdown
+ * ("DPIIT-recognised startup. Industry: AI. Sector: NLP."), which is not a description.
+ * 'none': no text at all. The shape of the register's line is the test, not the
+ * classification basis: RELSYM was classified as a SINE row and its only text is the
+ * register's. src/page.ts's describedBySource is the same rule for one company.
+ */
+export const DESCRIBED_STATES = ['own', 'source', 'label', 'none'] as const;
+export type DescribedState = (typeof DESCRIBED_STATES)[number];
+export const REGISTER_LABEL_PREFIX = 'DPIIT-recognised startup. Industry:';
+const DESCRIBED_SQL = `CASE
+  WHEN COALESCE(c.product, '') <> '' AND c.website_identity = 'verified' THEN 'own'
+  WHEN COALESCE(c.description, '') <> '' AND substr(c.description, 1, ${REGISTER_LABEL_PREFIX.length}) <> '${REGISTER_LABEL_PREFIX}' THEN 'source'
+  WHEN COALESCE(c.description, '') <> '' THEN 'label'
+  ELSE 'none' END`;
 
 /**
  * The orderings, as SQL, keyed by the only names the URL is allowed to use.
@@ -281,6 +317,12 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 	else if (filters.state) {
 		clauses.push('c.state = ?');
 		binds.push(filters.state);
+	}
+
+	if (filters.traces && filters.traces in TRACE_SQL) clauses.push(TRACE_SQL[filters.traces]);
+	if (filters.described) {
+		clauses.push(`${DESCRIBED_SQL} = ?`);
+		binds.push(filters.described);
 	}
 
 	if (filters.site === 'has') clauses.push("c.website IS NOT NULL AND c.website <> ''");
@@ -764,6 +806,125 @@ export async function querySourceHealth(env: Env): Promise<SourceHealth[]> {
 		 ORDER BY r.source`,
 	).all<SourceHealth>();
 	return results;
+}
+
+/**
+ * The widget row: the records in view, counted five ways.
+ *
+ * Every widget counts what every other filter in the view leaves, and ignores its own
+ * dimension, so a reader looking at Karnataka still sees how many are in Maharashtra and
+ * can move there in one click. The universe is the one the result line accounts for —
+ * the tier choice, the date split and the age gate shape the list, not the population —
+ * so a segment's number is the number a click on it reconciles to in "N of M".
+ *
+ * Counts only. Nothing here compares one run with another: the data has days of history,
+ * and a change over a few days on a few hundred rows would be noise printed as a trend.
+ */
+export interface Widgets {
+	/** Records the current filters leave, before tier, dates and age. */
+	total: number;
+	places: {
+		states: { state: string; n: number; dated: number; districts: { name: string; n: number }[] }[];
+		unknown: number;
+		unknownDated: number;
+		/** Of `total`, those with a state, and the same for the dated rows. */
+		located: number;
+		dated: number;
+		datedLocated: number;
+	};
+	sectors: { sector_id: string; n: number }[];
+	/** Records in no sunrise sector. */
+	offSectors: number;
+	traces: Record<TraceBucket, number>;
+	described: Record<DescribedState, number>;
+	sources: { source: string; n: number }[];
+	/** What each widget counts over: the view without that widget's own filter. */
+	totals: { places: number; sectors: number; traces: number; described: number; sources: number };
+}
+
+export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets> {
+	const base: Filters = { ...filters, tiers: null, dated: null, minOriginYear: null };
+	const without = (patch: Partial<Filters>) => conditions({ ...base, ...patch });
+	const all = <T>(sql: string, parts: { binds: unknown[] }) => env.DB.prepare(sql).bind(...parts.binds).all<T>();
+
+	const place = without({ state: null });
+	const sector = without({ sector: null, subsector: null });
+	const trace = without({ traces: null });
+	const said = without({ described: null });
+	const source = without({ source: null });
+	const everything = without({});
+
+	const [placeRows, sectorRows, traceRow, saidRows, sourceRow, totalRow] = await Promise.all([
+		all<{ state: string; city: string; n: number; dated: number }>(
+			`SELECT COALESCE(c.state, '') AS state, COALESCE(c.city, '') AS city, COUNT(*) AS n, SUM(c.first_seen IS NOT NULL) AS dated
+			 FROM companies c ${whereSql(place.clauses)} GROUP BY 1, 2`,
+			place,
+		),
+		all<{ sector_id: string | null; n: number }>(`SELECT c.sector_id, COUNT(*) AS n FROM companies c ${whereSql(sector.clauses)} GROUP BY 1`, sector),
+		env.DB.prepare(
+			`SELECT ${TRACE_BUCKETS.map((b, i) => `SUM(CASE WHEN ${TRACE_SQL[b]} THEN 1 ELSE 0 END) AS t${i}`).join(', ')}
+			 FROM companies c ${whereSql(trace.clauses)}`,
+		)
+			.bind(...trace.binds)
+			.first<Record<string, number | null>>(),
+		all<{ said: DescribedState; n: number }>(`SELECT ${DESCRIBED_SQL} AS said, COUNT(*) AS n FROM companies c ${whereSql(said.clauses)} GROUP BY 1`, said),
+		env.DB.prepare(
+			`SELECT ${SOURCES.map((_, i) => `SUM(EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.source = ?${i + 1})) AS s${i}`).join(', ')}
+			   , COUNT(*) AS total
+			 FROM companies c ${whereSql(source.clauses)}`,
+		)
+			// Numbered binds for the sources, then the filters' own positional ones after them.
+			.bind(...SOURCES, ...source.binds)
+			.first<Record<string, number | null>>(),
+		env.DB.prepare(`SELECT COUNT(*) AS n FROM companies c ${whereSql(everything.clauses)}`)
+			.bind(...everything.binds)
+			.first<{ n: number }>(),
+	]);
+
+	const byState = new Map<string, { state: string; n: number; dated: number; districts: { name: string; n: number }[] }>();
+	let unknown = 0;
+	let unknownDated = 0;
+	for (const row of placeRows.results) {
+		if (!row.state) {
+			unknown += row.n;
+			unknownDated += Number(row.dated ?? 0);
+			continue;
+		}
+		const entry = byState.get(row.state) ?? { state: row.state, n: 0, dated: 0, districts: [] };
+		entry.n += row.n;
+		entry.dated += Number(row.dated ?? 0);
+		// As each source spelled it: "Bengaluru Urban" is a district, "Bangalore" a city in
+		// it. Merging them would be this page deciding what a source meant.
+		if (row.city) entry.districts.push({ name: row.city, n: row.n });
+		byState.set(row.state, entry);
+	}
+	const states = [...byState.values()]
+		.map((s) => ({ ...s, districts: s.districts.sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)) }))
+		.sort((a, b) => b.n - a.n || a.state.localeCompare(b.state));
+	const located = states.reduce((n, s) => n + s.n, 0);
+	const datedLocated = states.reduce((n, s) => n + s.dated, 0);
+
+	const sunrise = new Set(SUNRISE_SECTORS.map((g) => g.sector_id));
+	const sectorCounts = new Map(sectorRows.results.map((r) => [r.sector_id ?? '', r.n]));
+	const described = Object.fromEntries(DESCRIBED_STATES.map((k) => [k, 0])) as Record<DescribedState, number>;
+	for (const row of saidRows.results) described[row.said] = row.n;
+
+	return {
+		total: totalRow?.n ?? 0,
+		places: { states, unknown, unknownDated, located, dated: datedLocated + unknownDated, datedLocated },
+		sectors: SUNRISE_SECTORS.map((g) => ({ sector_id: g.sector_id, n: sectorCounts.get(g.sector_id) ?? 0 })),
+		offSectors: sectorRows.results.filter((r) => !sunrise.has(r.sector_id ?? '')).reduce((n, r) => n + r.n, 0),
+		traces: Object.fromEntries(TRACE_BUCKETS.map((b, i) => [b, Number(traceRow?.[`t${i}`] ?? 0)])) as Record<TraceBucket, number>,
+		described,
+		sources: SOURCES.map((id, i) => ({ source: id, n: Number(sourceRow?.[`s${i}`] ?? 0) })),
+		totals: {
+			places: located + unknown,
+			sectors: sectorRows.results.reduce((n, r) => n + r.n, 0),
+			traces: TRACE_BUCKETS.reduce((n, _, i) => n + Number(traceRow?.[`t${i}`] ?? 0), 0),
+			described: saidRows.results.reduce((n, r) => n + r.n, 0),
+			sources: Number(sourceRow?.total ?? 0),
+		},
+	};
 }
 
 export async function queryOneTraceCount(env: Env): Promise<number> {

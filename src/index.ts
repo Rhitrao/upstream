@@ -32,8 +32,12 @@ import {
 	type SortChoice,
 	queryGaps,
 	queryHasRanked,
-	queryPlaces,
 	querySourceHealth,
+	queryWidgets,
+	DESCRIBED_STATES,
+	TRACE_BUCKETS,
+	type DescribedState,
+	type TraceBucket,
 	queryNotCompanies,
 	queryRegisterOutcomes,
 	type Filters,
@@ -133,6 +137,16 @@ function parseSite(raw: string | null): SiteState | null {
 	return raw === 'has' || raw === 'none' ? raw : null;
 }
 
+function parseTraces(raw: string | null): TraceBucket | null {
+	// "3 " is what a "+" becomes when a hand-typed url is not encoded.
+	const value = raw === '3 ' ? '3+' : raw;
+	return value && (TRACE_BUCKETS as readonly string[]).includes(value) ? (value as TraceBucket) : null;
+}
+
+function parseDescribed(raw: string | null): DescribedState | null {
+	return raw && (DESCRIBED_STATES as readonly string[]).includes(raw) ? (raw as DescribedState) : null;
+}
+
 function parseSort(raw: string | null): SortChoice {
 	return raw !== null && raw in SORTS ? (raw as SortChoice) : 'obscurity';
 }
@@ -173,6 +187,10 @@ async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 	if (site && !parseSite(site)) return json({ error: "site must be 'has' or 'none'" }, 400);
 	const sort = url.searchParams.get('sort');
 	if (sort && !(sort in SORTS)) return json({ error: `sort must be one of ${Object.keys(SORTS).join(', ')}` }, 400);
+	const traces = url.searchParams.get('traces');
+	if (traces && !parseTraces(traces)) return json({ error: `traces must be one of ${TRACE_BUCKETS.join(', ')}` }, 400);
+	const described = url.searchParams.get('described');
+	if (described && !parseDescribed(described)) return json({ error: `described must be one of ${DESCRIBED_STATES.join(', ')}` }, 400);
 
 	const companies = await queryCompanies(env, {
 		sector: url.searchParams.get('sector') || null,
@@ -180,6 +198,9 @@ async function listCompaniesApi(url: URL, env: Env): Promise<Response> {
 		search: url.searchParams.get('q') || null,
 		source: parseSource(source),
 		site: parseSite(site),
+		state: (url.searchParams.get('state') || '').trim().slice(0, 60) || null,
+		traces: parseTraces(traces),
+		described: parseDescribed(described),
 		sort: parseSort(sort),
 		tiers,
 		dated: undated ? 'undated' : 'dated',
@@ -961,6 +982,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		search: (url.searchParams.get('q') || '').trim() || null,
 		source: parseSource(url.searchParams.get('source')),
 		site: parseSite(url.searchParams.get('site')),
+		traces: parseTraces(url.searchParams.get('traces')),
+		described: parseDescribed(url.searchParams.get('described')),
 		// Bound as a value, never spliced, so any string is safe; one that names no
 		// state simply matches nothing and the list says so.
 		state: (url.searchParams.get('state') || '').trim().slice(0, 60) || null,
@@ -987,7 +1010,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, places] = await Promise.all([
+	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, widgets] = await Promise.all([
 		queryCoverage(env),
 		dates === 'undated'
 			? Promise.resolve([])
@@ -1011,7 +1034,9 @@ async function page(url: URL, env: Env): Promise<Response> {
 		demo ? Promise.resolve(demoProductOutcomes()) : queryProductOutcomes(env),
 		demo ? Promise.resolve(0) : queryNotCompanies(env),
 		querySourceHealth(env),
-		queryPlaces(env),
+		// The sample rows are not in the database, and widgets counting the database over
+		// them would describe a different page. The demo has none.
+		demo ? Promise.resolve(null) : queryWidgets(env, ranked),
 	]);
 
 	const html = renderPage({
@@ -1028,8 +1053,10 @@ async function page(url: URL, env: Env): Promise<Response> {
 		tracked: coverage.total_companies,
 		notCompanies,
 		sourceHealth,
-		places,
+		widgets,
 		state: ranked.state ?? null,
+		traces: ranked.traces ?? null,
+		described: ranked.described ?? null,
 		oneTrace,
 		discoveredThisWeek,
 		sector,

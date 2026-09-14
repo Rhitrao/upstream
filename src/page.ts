@@ -6,7 +6,7 @@
  * The only JavaScript on the page submits the filter form on change. Everything works
  * without it: the filters are a GET form and every coverage cell is a link.
  */
-import { SECTOR_GROUPS, SUBSECTOR_BY_ID } from './taxonomy';
+import { SECTOR_GROUPS, SUBSECTOR_BY_ID, SUNRISE_SECTORS } from './taxonomy';
 import { daysSince, earliestEvent, MAX_AGE_YEARS, type Tier } from './rank';
 import {
 	SORTS,
@@ -21,7 +21,12 @@ import {
 	type SiteState,
 	type SortChoice,
 	type SourceHealth,
-	type Places,
+	type Widgets,
+	type TraceBucket,
+	type DescribedState,
+	REGISTER_LABEL_PREFIX,
+	TRACE_BUCKETS,
+	DESCRIBED_STATES,
 } from './db';
 
 /**
@@ -54,9 +59,12 @@ export interface PageView {
 	notCompanies: number;
 	/** Each source's last attempt and last good run. Empty until a run has reported. */
 	sourceHealth: SourceHealth[];
-	places: Places;
+	/** The widget row's counts under the current filters. null for the sample data. */
+	widgets: Widgets | null;
 	/** The state the list is filtered to, 'unknown', or null. */
 	state: string | null;
+	traces: TraceBucket | null;
+	described: DescribedState | null;
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -324,55 +332,156 @@ function freshness(view: PageView): string {
 }
 
 /**
- * Where the records are, as state tiles with the unknown counted beside them.
+ * The widget row: the records in view, five ways, each segment a filter.
  *
- * Tiles rather than a map. A map of India with pins at district precision, drawn
- * from under half the records, would show the page's knowledge as geography; a row of
- * counted tiles with "location unknown" as one of them shows what is and is not
- * known, and clicking any of them, unknown included, filters the list under it.
+ * Under the masthead and above the controls, so the page reads as one instrument: every
+ * count here is taken under the filters already chosen (leaving out the widget's own),
+ * every segment is a link to the view it names, and the list under it is that view.
+ *
+ * The cell is the coverage map's cell. What a widget does not know goes in its header,
+ * in the sentence a reader sees first, not under it: 373 of 607 records have no
+ * location, and a row of state tiles that said so only in a footnote would draw the
+ * page's knowledge as geography.
+ *
+ * No deltas, anywhere. The data has days of history.
  */
-function geography(view: PageView): string {
-	const p = view.places;
-	if (p.total === 0) return '';
-
-	const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
-	const unknown = p.total - p.located;
-	// The same cell as the coverage map, so the two read as one kind of thing: a count
-	// in the corner, a name under it, a link that filters the list. Unknown is a cell
-	// too, dashed like an empty one, because it is the largest single place on the list.
-	const tile = (state: string, n: number, label = state) => {
-		const on = view.state === state;
-		const href = `${query(viewParams(view, { state: on ? null : state }))}#list`;
-		const classes = ['cell', state === 'unknown' ? 'empty unknown-place' : 'filled', on ? 'active' : ''].filter(Boolean).join(' ');
-		return `<a class="${classes}" href="${esc(href)}" title="${esc(label)}: ${n}"${on ? ' aria-current="true"' : ''}>
-        <span class="cell-head"><span class="cell-id">${state === 'unknown' ? '?' : ''}</span><span class="cell-n">${n}</span></span>
-        <span class="cell-name">${esc(label)}</span>
+function widgets(view: PageView): string {
+	const w = view.widgets;
+	if (!w || w.total === 0) return '<section class="widgets" id="widgets" hidden></section>';
+	// Each widget's share and "of N" are over its own population: the view without that
+	// widget's filter. Over the filtered total, Karnataka chosen, the places header read
+	// "192 of 26 have a location".
+	const share = (n: number, of: number) => (of ? Math.round((n / of) * 1000) / 10 : 0);
+	const link = (key: string, value: string, on: boolean) => `${BASE_PATH}${query(viewParams(view, { [key]: on ? null : value }))}#widgets`;
+	const cell = (opts: { key: string; value: string; n: number; of: number; name: string; id?: string; title?: string; extra?: string; classes?: string[] }) => {
+		const on = (view as unknown as Record<string, unknown>)[opts.key] === opts.value;
+		const classes = ['cell', 'seg', opts.n > 0 ? 'filled' : 'empty', on ? 'active' : '', ...(opts.classes ?? [])].filter(Boolean).join(' ');
+		return `<a class="${classes}" href="${esc(link(opts.key, opts.value, on))}" title="${esc(opts.title ?? `${opts.name}: ${opts.n}`)}"${on ? ' aria-current="true"' : ''}>
+        <span class="cell-head"><span class="cell-id">${opts.id ?? ''}</span><span class="cell-n">${opts.n}</span></span>
+        <span class="cell-name">${esc(opts.name)}</span>${opts.extra ?? ''}
+        <span class="share" style="width:${share(opts.n, opts.of)}%" aria-hidden="true"></span>
       </a>`;
 	};
+	const t = w.totals;
+	const head = (id: string, title: string, meta: string) =>
+		`<div class="widget-head"><h2 id="${id}">${title}</h2><p class="widget-meta">${meta}</p></div>`;
 
-	const underHalf = p.located * 2 < p.total || p.rankedLocated * 2 < p.rankedTotal;
-	const caveat = underHalf
-		? ` <strong>That is under half${p.located * 2 >= p.total ? ' of the ranked list' : ''}, so this is not a picture of where
-    Indian deep-tech is.</strong> ${p.fromRegister} of the ${p.located} located records have a state because the DPIIT register
-    publishes one; the incubator and grant sources mostly do not. The tiles lean towards wherever DPIIT-recognised
-    companies registered.`
-		: '';
+	// Where they are.
+	const p = w.places;
+	const shownStates = 11;
+	const districts = (s: { districts: { name: string; n: number }[] }) => s.districts.map((d) => `${d.name} ${d.n}`).join(', ');
+	const stateCell = (s: Widgets['places']['states'][number]) =>
+		cell({ key: 'state', value: s.state, n: s.n, of: t.places, name: s.state, title: `${s.state}: ${s.n}${s.districts.length ? ` — ${districts(s)}` : ''}` });
+	const first = p.states.slice(0, shownStates);
+	const rest = p.states.slice(shownStates);
+	const restHoldsChoice = rest.some((s) => s.state === view.state);
+	const under = p.located * 2 < t.places;
+	const datedUnder = p.datedLocated * 2 < p.dated;
+	const placesMeta = `${under ? 'Only ' : ''}<strong>${p.located} of ${t.places}</strong> have a location${
+		p.dated ? `, and ${datedUnder && !under ? 'only ' : ''}<strong>${p.datedLocated} of the ${p.dated}</strong> dated ${p.dated === 1 ? 'row does' : 'rows do'}` : ''
+	}.${under || datedUnder ? ' The tiles lean to wherever the DPIIT register, which gives a state, has companies.' : ''}`;
+	const chosen = view.state && view.state !== 'unknown' ? p.states.find((s) => s.state === view.state) : undefined;
+	const places = `
+  <div class="widget widget-places" aria-labelledby="w-places">
+    ${head('w-places', 'Where they are', placesMeta)}
+    <div class="grid seg-grid place-grid">
+      ${cell({ key: 'state', value: 'unknown', n: p.unknown, of: t.places, name: 'location unknown', id: '?', classes: ['unknown-place'] })}
+      ${first.map(stateCell).join('\n      ')}
+    </div>
+    ${
+			rest.length
+				? `<details class="more-places"${restHoldsChoice ? ' open' : ''}><summary>${rest.length} more ${rest.length === 1 ? 'state' : 'states'}</summary>
+      <div class="grid seg-grid place-grid">${rest.map(stateCell).join('\n      ')}</div></details>`
+				: ''
+		}
+    ${
+			chosen && chosen.districts.length
+				? `<p class="districts">In ${esc(chosen.state)}, as the sources write it: ${chosen.districts.map((d) => `${esc(d.name)} <span class="n">${d.n}</span>`).join(' &middot; ')}</p>`
+				: ''
+		}
+  </div>`;
+
+	// RDI sunrise sector.
+	const inFive = w.sectors.reduce((n, s) => n + s.n, 0);
+	const sectors = `
+  <div class="widget" aria-labelledby="w-sectors">
+    ${head('w-sectors', 'RDI sunrise sector', `<strong>${inFive} of ${t.sectors}</strong> placed in the scheme's five${w.offSectors ? `; ${w.offSectors} in none of them` : ''}.`)}
+    <div class="grid seg-grid">
+      ${w.sectors
+				.map((s) => {
+					const group = SUNRISE_SECTORS.find((g) => g.sector_id === s.sector_id);
+					const on = view.sector === s.sector_id;
+					// A sector chosen here replaces a sub-sector in another one.
+					const href = `${BASE_PATH}${query(viewParams(view, { sector: on ? null : s.sector_id, subsector: null }))}#widgets`;
+					const classes = ['cell', 'seg', s.n > 0 ? 'filled' : 'empty', on ? 'active' : ''].filter(Boolean).join(' ');
+					return `<a class="${classes}" href="${esc(href)}" title="${esc(`${s.sector_id} ${group?.sector ?? ''}: ${s.n}`)}"${on ? ' aria-current="true"' : ''}>
+        <span class="cell-head"><span class="cell-id">${sectorIcon(s.sector_id)}${esc(s.sector_id)}</span><span class="cell-n">${s.n}</span></span>
+        <span class="cell-name">${esc(group?.sector ?? '')}</span>
+        <span class="share" style="width:${share(s.n, t.sectors)}%" aria-hidden="true"></span>
+      </a>`;
+				})
+				.join('\n      ')}
+    </div>
+  </div>`;
+
+	// Public traces: the thesis, drawn.
+	const traces = `
+  <div class="widget" aria-labelledby="w-traces">
+    ${head('w-traces', 'Public traces', `<strong>${w.traces['1']} of ${t.traces}</strong> have one or none. The list sorts the fewest first.`)}
+    <div class="grid seg-grid">
+      ${TRACE_BUCKETS.map((b) => cell({ key: 'traces', value: b, n: w.traces[b], of: t.traces, name: TRACE_LABELS[b].toLowerCase(), id: b === '3+' ? '3+' : b === '1' ? '≤1' : '2' })).join('\n      ')}
+    </div>
+  </div>`;
+
+	// What they build, and on whose word.
+	const sentence = w.described.own + w.described.source;
+	const described = `
+  <div class="widget" aria-labelledby="w-described">
+    ${head(
+			'w-described',
+			'What they build',
+			`<strong>${t.described - sentence} of ${t.described}</strong> have no sentence saying so${
+				w.described.label === t.described - sentence && w.described.label
+					? ", only the DPIIT register's dropdown label"
+					: w.described.label
+						? `: ${w.described.label} carry only the DPIIT register's dropdown label`
+						: ''
+			}.`,
+		)}
+    <div class="grid seg-grid">
+      ${DESCRIBED_STATES.filter((k) => k !== 'none' || w.described.none > 0 || view.described === 'none')
+				.map((k) => cell({ key: 'described', value: k, n: w.described[k], of: t.described, name: DESCRIBED_LABELS[k].toLowerCase(), classes: k === 'label' || k === 'none' ? ['weak-seg'] : [] }))
+				.join('\n      ')}
+    </div>
+  </div>`;
+
+	// Sources, and when each last worked.
+	const health = new Map(view.sourceHealth.map((h) => [h.source, h]));
+	const sources = `
+  <div class="widget" aria-labelledby="w-sources">
+    ${head('w-sources', 'Sources', 'Records each lists, and its last successful check. A company two sources list counts under both.')}
+    <div class="grid seg-grid source-grid">
+      ${w.sources
+				.map((src) => {
+					const h = health.get(src.source);
+					const checked = h?.last_success ? `checked ${shortDate(h.last_success.slice(0, 10))}` : 'no successful check yet';
+					const failing = h && h.last_status !== 'ok' ? ` <strong class="failing">${h.last_status === 'failed' ? 'failed' : 'set aside'} ${shortDate(h.last_attempt.slice(0, 10))}</strong>` : '';
+					const name = SOURCE_LABELS[src.source] ?? src.source;
+					return cell({ key: 'source', value: src.source, n: src.n, of: t.sources, name, title: `${name}: ${src.n} records, ${checked}`, extra: `<span class="cell-when">${esc(checked)}${failing}</span>` });
+				})
+				.join('\n      ')}
+    </div>
+  </div>`;
 
 	return `
-<section class="places" id="places" aria-labelledby="places-h">
-  <details class="map-fold"${view.state ? ' open' : ''}>
-    <summary>
-      <h2 id="places-h">Where they are</h2>
-      <span class="map-fold-meta">${p.located} of ${p.total} located &middot; ${unknown} location unknown</span>
-    </summary>
-    <p class="note"><strong>${unknown} of ${p.total} records (${pct(unknown, p.total)}%) have no location</strong> in any source.
-      ${p.located} of ${p.total} records (${pct(p.located, p.total)}%) have a state. On the ranked list it is
-      ${p.rankedLocated} of ${p.rankedTotal} (${pct(p.rankedLocated, p.rankedTotal)}%).${caveat} Pick a tile to filter the list.</p>
-    <div class="grid place-grid">
-      ${tile('unknown', unknown, 'location unknown')}
-      ${p.states.map((s) => tile(s.state, s.n)).join('\n      ')}
-    </div>
-  </details>
+<section class="widgets" id="widgets" aria-label="The records in view, counted">
+  ${places}
+  <div class="widget-row">
+  ${sectors}
+  ${traces}
+  ${described}
+  ${sources}
+  </div>
 </section>`;
 }
 
@@ -485,6 +594,8 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		source: view.source,
 		site: view.site,
 		state: view.state,
+		traces: view.traces,
+		described: view.described,
 		sort: view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -513,6 +624,13 @@ const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all:
 const DATES_LABELS: Record<PageView['dates'], string> = { both: 'Dated and undated', dated: 'Dated only', undated: 'Undated only' };
 const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website' };
 const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Every year' };
+const TRACE_LABELS: Record<TraceBucket, string> = { '1': 'One or none', '2': 'Two', '3+': 'Three or more' };
+const DESCRIBED_LABELS: Record<DescribedState, string> = {
+	own: 'Their own homepage says',
+	source: 'A source describes it',
+	label: 'Register label only',
+	none: 'Nothing at all',
+};
 
 /**
  * Every filter that is not at its default, as the chip that names it and the link that
@@ -533,6 +651,8 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		['dates', view.dates !== 'both' ? `Dates: ${DATES_LABELS[view.dates].toLowerCase()}` : null],
 		['site', view.site ? `Website: ${SITE_LABELS[view.site].toLowerCase()}` : null],
 		['state', view.state ? `Location: ${view.state === 'unknown' ? 'unknown' : view.state}` : null],
+		['traces', view.traces ? `Public traces: ${TRACE_LABELS[view.traces].toLowerCase()}` : null],
+		['described', view.described ? `What it builds: ${DESCRIBED_LABELS[view.described].toLowerCase()}` : null],
 		['age', view.age !== 'recent' ? `Started: ${AGE_LABELS[view.age].toLowerCase()}` : null],
 	];
 	return named
@@ -628,6 +748,8 @@ function controls(view: PageView): string {
 	const siteOptions = [option('', 'Website or not', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
 	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
 	const sortOptions = (Object.keys(SORTS) as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
+	const traceOptions = [option('', 'Any number', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
+	const describedOptions = [option('', 'Any', view.described ?? '')].concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], view.described ?? ''))).join('');
 	const count = activeFilters(view).filter((f) => f.key !== 'q').length;
 
 	const field = (id: string, label: string, options: string) =>
@@ -651,7 +773,9 @@ function controls(view: PageView): string {
         ${field('dates', 'Dates', datesOptions)}
         ${field('site', 'Website', siteOptions)}
         ${field('age', 'Started', ageOptions)}
-        ${view.state ? `<input type="hidden" name="state" value="${esc(view.state)}">` : ''}
+        ${field('traces', 'Public traces', traceOptions)}
+        ${field('described', 'What it builds', describedOptions)}
+        <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
         <button type="submit" class="apply">Apply</button>
       </div>
     </details>
@@ -740,9 +864,7 @@ function monthYear(iso: string): string {
  * September 2026. The shape is the one ingest/sources/dpiit.py writes.
  */
 function describedBySource(company: Company): boolean {
-	return Boolean(
-		company.description && company.classify_basis !== 'register-label' && !company.description.startsWith('DPIIT-recognised startup. Industry:'),
-	);
+	return Boolean(company.description && !company.description.startsWith(REGISTER_LABEL_PREFIX));
 }
 
 /**
@@ -2178,6 +2300,30 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site:hover { text-decoration-color: currentColor; }
 .fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
 .result-summary { color: var(--muted); }
+/* the widget row: the population in view, five ways, in the coverage map's cells */
+.widgets { margin: calc(-1 * var(--s5)) 0 var(--s5); display: grid; gap: var(--s5); }
+.widget { min-width: 0; border-top: 1px solid var(--rule); padding-top: var(--s3); }
+.widget-head { margin: 0 0 var(--s2); }
+.widget-head h2 { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s1); }
+.widget-meta { margin: 0; font-size: var(--t-xs); color: var(--muted); max-width: 60ch; }
+.widget-meta strong { color: var(--ink); font-weight: 500; }
+.widget-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
+@media (min-width: 46rem) { .widget-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.seg-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+.cell.seg { overflow: hidden; padding-bottom: var(--s1); }
+.cell.seg .cell-id { display: inline-flex; align-items: center; gap: 0.3em; }
+.cell.seg .sector-icon { width: 1.1em; height: 1.1em; }
+/* The share of the records in view, as a hairline along the cell's foot. A proportion
+   drawn in ink, not a colour: the yellow stays spent on what nobody has noticed. */
+.cell .share { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--ink); opacity: 0.5; }
+.cell.weak-seg { border-style: dashed; }
+.cell-when { font-size: var(--t-nano); color: var(--muted); line-height: 1.2; margin-top: var(--s0); }
+.cell-when .failing { color: var(--ink); font-weight: 500; }
+.more-places { margin-top: var(--s1); }
+.more-places > summary { cursor: pointer; font-size: var(--t-xs); color: var(--muted); }
+.more-places > .grid { margin-top: var(--s1); }
+.districts { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
+.districts .n { font-family: var(--mono); color: var(--ink); }
 .place-tiles { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; }
 .place-grid { margin-top: var(--s3); grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
 .place-grid .cell-name { overflow-wrap: normal; word-break: normal; hyphens: auto; }
@@ -2542,23 +2688,40 @@ export const LIST_SCRIPT = `
   });
 
   // --- filters that apply as they change ---
+  var timer = null;
   var sector = form.querySelector('#sector');
   var subsector = form.querySelector('#subsector');
-  var slots = ['chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'places-slot', 'undated-slot'];
+  var slots = ['widgets', 'chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'undated-slot'];
   var seq = 0;
   function refresh() {
     var params = new URLSearchParams(new FormData(form));
+    // Empty fields are defaults; the canonical url leaves them out and so does this.
+    Array.from(params.keys()).forEach(function (k) { if (!params.get(k)) params.delete(k); });
+    load(form.getAttribute('action').split('#')[0] + '?' + params.toString());
+  }
+  // One way to change the view, whether a control changed or a widget segment was picked:
+  // fetch the page for that url, put its pieces in place, and make the controls say what
+  // the server says the view is.
+  function load(url) {
     var mine = ++seq;
-    fetch(form.getAttribute('action').split('#')[0] + '?' + params.toString(), { headers: { accept: 'text/html' } })
+    fetch(url.split('#')[0], { headers: { accept: 'text/html' } })
       .then(function (r) { return r.text(); })
       .then(function (html) {
         if (mine !== seq) return;
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var mapOpen = document.querySelector('.map-fold') && document.querySelector('.map-fold').open;
+        var moreOpen = document.querySelector('.more-places') && document.querySelector('.more-places').open;
         slots.forEach(function (id) {
           var now = document.getElementById(id), next = doc.getElementById(id);
           if (now && next) now.replaceWith(next);
         });
+        var more = document.querySelector('.more-places');
+        if (more && moreOpen) more.open = true;
+        var fields = form.querySelectorAll('select[name], input[name]');
+        for (var i = 0; i < fields.length; i++) {
+          var mine2 = fields[i], theirs = doc.querySelector('#controls [name="' + mine2.name + '"]');
+          if (theirs && !(mine2 === document.activeElement && mine2.id === 'q')) mine2.value = theirs.value;
+        }
         var fold = document.querySelector('.map-fold');
         if (fold && mapOpen) fold.open = true;
         var canonical = doc.querySelector('link[rel=canonical]');
@@ -2570,9 +2733,15 @@ export const LIST_SCRIPT = `
         remember();
         paint();
       })
-      .catch(function () { form.submit(); });
+      .catch(function () { location.href = url; });
   }
-  var timer = null;
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest ? event.target.closest('#widgets a.seg') : null;
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    clearTimeout(timer);
+    load(link.getAttribute('href'));
+  });
   form.addEventListener('input', function (event) {
     if (event.target.id !== 'q') return;
     clearTimeout(timer);
@@ -2668,13 +2837,13 @@ export function renderPage(view: PageView): string {
 <body>
 <div class="wrap">
 ${header(view)}
+${widgets(view)}
 <main class="tool">
 ${controls(view)}
 <p class="device-note" id="device-note" hidden></p>
 ${list(view)}
 </main>
 ${coverageMap(view)}
-<div id="places-slot">${geography(view)}</div>
 <div id="undated-slot">${undatedList(view)}</div>
 ${offMap(view)}
 ${methodology(view)}

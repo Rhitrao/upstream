@@ -1682,19 +1682,25 @@ describe('where they are', () => {
 	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
 	const rows = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 
-	it('counts what is known and unknown, and says when it is under half', async () => {
+	const widget = (html: string, id: string) => {
+		const at = html.indexOf(`aria-labelledby="${id}"`);
+		const next = html.indexOf('aria-labelledby="w-', at + 1);
+		return html.slice(at, next === -1 ? html.indexOf('</section>', at) : next);
+	};
+
+	it('says what it does not know in the widget header, with unknown as the first tile', async () => {
 		await seed();
 		const html = await text('?tier=all');
-		const section = html.slice(html.indexOf('<section class="places"'), html.indexOf('</section>', html.indexOf('<section class="places"')));
-		// The unknown is said first, in words, and is a tile of its own.
-		expect(section).toContain('<strong>3 of 7 records (43%) have no location</strong>');
-		expect(section).toContain('3 location unknown');
-		expect(section).toMatch(/4 of 7 records \(57%\) have a state\. On the ranked list it is\s+1 of 4 \(25%\)\./);
-		expect(section).toContain('under half of the ranked list');
-		expect(section).toContain('3 of the 4 located records have a state because the DPIIT register');
-		// Tiles in the coverage map's cell, count then name.
-		expect(section).toMatch(/<span class="cell-n">2<\/span><\/span>\s*<span class="cell-name">Maharashtra<\/span>/);
-		expect(section).toMatch(/class="cell empty unknown-place"[\s\S]*?<span class="cell-n">3<\/span><\/span>\s*<span class="cell-name">location unknown<\/span>/);
+		// Above the controls, under the masthead.
+		expect(html.indexOf('id="widgets"')).toBeGreaterThan(html.indexOf('class="masthead"'));
+		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="controls"'));
+
+		const places = widget(html, 'w-places');
+		expect(places).toContain('<strong>4 of 7</strong> have a location, and only <strong>1 of the 4</strong> dated rows do.');
+		const tiles = [...places.matchAll(/<span class="cell-n">(\d+)<\/span><\/span>\s*<span class="cell-name">([^<]+)<\/span>/g)].map((m) => `${m[2]} ${m[1]}`);
+		expect(tiles).toEqual(['location unknown 3', 'Maharashtra 2', 'Gujarat 1', 'Karnataka 1']);
+		// No comparison with an earlier run, anywhere on the page.
+		expect(html).not.toMatch(/vs\.? (previous|last)|since yesterday|[+−-]\d+%/);
 	});
 
 	it('filters the list, the counts and the file by a tile, unknown included', async () => {
@@ -1703,7 +1709,9 @@ describe('where they are', () => {
 		expect(rows(maharashtra)).toEqual(['pune-co', 'thane-co']);
 		expect(maharashtra).toContain('5 hidden by filters');
 		expect(maharashtra).toContain('Location: Maharashtra');
-		expect(maharashtra).toContain('<input type="hidden" name="state" value="Maharashtra">');
+		expect(maharashtra).toContain('<input type="hidden" id="state" name="state" value="Maharashtra">');
+		// The district is the detail, as the source wrote it.
+		expect(maharashtra).toContain('In Maharashtra, as the sources write it: Pune <span class="n">1</span>');
 
 		const unknown = await text('?tier=all&age=all&state=unknown');
 		expect(rows(unknown)).toEqual(['a', 'b', 'c']);
@@ -1711,6 +1719,64 @@ describe('where they are', () => {
 		const csv = await text('/export.csv?tier=all&age=all&state=Gujarat');
 		expect(csv.trim().split('\n')).toHaveLength(2);
 		expect(csv).toContain('Surat Co');
+	});
+
+	it('counts every widget under the other filters, and its own dimension in full', async () => {
+		await seed();
+		const html = await text('?tier=all&age=all&state=Maharashtra');
+		// The sector widget sees only Maharashtra's two.
+		expect(widget(html, 'w-sectors')).toContain('<strong>2 of 2</strong> placed');
+		// Over its own population, not the filtered one: "192 of 26" was this bug.
+		expect(widget(html, 'w-places')).toContain('<strong>4 of 7</strong> have a location');
+		// The places widget still shows every state, so a reader can move to another.
+		expect(widget(html, 'w-places')).toMatch(/<span class="cell-n">1<\/span><\/span>\s*<span class="cell-name">Gujarat<\/span>/);
+		// And the chosen tile is marked, and links back to no location filter.
+		expect(widget(html, 'w-places')).toMatch(/class="cell seg filled active" href="\/upstream\?age=all#widgets"/);
+	});
+});
+
+describe('what they build, and how many traces', () => {
+	async function seed() {
+		await post({
+			source: 'dpiit-startup-india',
+			companies: [{ id: 'label-co', name: 'Label Co', sector_id: '2', subsector_id: '2.3', description: 'DPIIT-recognised startup. Industry: Robotics. Stage: Prototype.', classify_basis: 'register-label' }],
+			signals: [{ company_id: 'label-co', type: 'dpiit', label: 'DPIIT recognised 2026' }],
+		});
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'said-co', name: 'Said Co', sector_id: '2', subsector_id: '2.3', description: 'Cobots for small workshops.' },
+				{ id: 'loud-co', name: 'Loud Co', sector_id: '2', subsector_id: '2.3', description: 'Drones.' },
+			],
+			signals: [
+				{ company_id: 'said-co', type: 'incubator', label: 'SINE cohort' },
+				...['incubator', 'grant', 'press'].map((type) => ({ company_id: 'loud-co', type, label: `${type} trace` })),
+			],
+		});
+	}
+	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+	const rows = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
+
+	it('filters by whose words say what a company builds, and says how many have none', async () => {
+		await seed();
+		const all = await text('?tier=all&age=all');
+		expect(all).toContain("<strong>1 of 3</strong> have no sentence saying so, only the DPIIT register's dropdown label.");
+		expect(rows(await text('?tier=all&age=all&described=label'))).toEqual(['label-co']);
+		expect(rows(await text('?tier=all&age=all&described=source'))).toEqual(['loud-co', 'said-co']);
+		expect(await text('?tier=all&age=all&described=label')).toContain('What it builds: register label only');
+		const api = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=all&age=all&undated=1&described=label`)).json<any>();
+		expect(api.companies.map((c: any) => c.id)).toEqual(['label-co']);
+		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?described=vibes`)).status).toBe(400);
+	});
+
+	it('filters by public traces, and draws the thesis as one or none, two, three or more', async () => {
+		await seed();
+		const all = await text('?tier=all&age=all');
+		expect(all).toContain('<strong>2 of 3</strong> have one or none.');
+		expect(rows(await text('?tier=all&age=all&traces=3%2B'))).toEqual(['loud-co']);
+		expect(rows(await text('?tier=all&age=all&traces=1'))).toEqual(['label-co', 'said-co']);
+		const csv = await text('/export.csv?tier=all&age=all&traces=1');
+		expect(csv.trim().split('\n')).toHaveLength(3);
 	});
 });
 
