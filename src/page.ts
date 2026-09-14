@@ -162,29 +162,6 @@ function sourceEvent(company: Company): { label: string; date: string } | null {
 	return null;
 }
 
-/**
- * The two dates a row must never let a reader merge: when the world first heard of
- * the company, and when this list did.
- *
- * They used to be one phrase. Probird's row said "first seen today" beside a DPIIT
- * recognition from August 2023, and a reader took "today" as the company's news. Now
- * the source's event comes first and says what it was, and the collection date says
- * it is ours. Every row has the second; only rows some source dates have the first.
- */
-function dateLine(company: Company, now: Date): string | null {
-	const event = sourceEvent(company);
-	const said = event
-		? `${esc(event.label)} ${esc(event.date.length === 4 ? event.date : shortDate(event.date))}`
-		: null;
-	const added = `added to Upstream ${esc(addedAgo(company.discovered, now))}`;
-
-	// A register can date the record without saying when the company started, and a
-	// row in that state has to say so: otherwise the date reads as a founding year,
-	// which is how a 2019 company recognised last week comes to look brand new.
-	const founding = event && !ageKnown(company) ? ' &middot; founding year unknown' : '';
-	return said ? `${said}${founding} &middot; ${added}` : added;
-}
-
 function addedAgo(iso: string, now: Date): string {
 	const days = Math.floor(daysSince(iso, now));
 	if (!Number.isFinite(days)) return 'on a date not recorded';
@@ -458,17 +435,19 @@ ${cells}
 		})
 		.join('\n');
 
+	// After the list and folded: the map is the argument, not the interface, and open it
+	// put forty-four cells between a reader and the first company. It opens by itself
+	// when a cell is the filter in use, so the chosen cell is never hidden.
 	return `
-<section class="coverage" aria-labelledby="coverage-h">
-  <h2 id="coverage-h">Coverage</h2>
-  <p class="note">All ${coverage.subsector_count} sunrise sub-sectors of the RDI scheme. An outlined cell is one we have
-    found nothing in yet &mdash; our blind spot, not proof the sector is empty. Pick a cell to filter the list; the counts
-    include the companies the list below sets aside as old or undated.</p>
-  <details class="map-fold" open>
+<section class="coverage" id="coverage" aria-labelledby="coverage-h">
+  <details class="map-fold"${subsector ? ' open' : ''}>
     <summary>
-      <span class="map-fold-label">Coverage map</span>
+      <h2 id="coverage-h">Coverage map</h2>
       <span class="map-fold-meta">${coverage.covered} of ${coverage.subsector_count} sub-sectors have companies</span>
     </summary>
+    <p class="note">All ${coverage.subsector_count} sunrise sub-sectors of the RDI scheme. An outlined cell is one we have
+      found nothing in yet &mdash; our blind spot, not proof the sector is empty. Pick a cell to filter the list; the counts
+      include the companies the list sets aside as old or undated.</p>
     <div class="sectors">
 ${sectors}
     </div>
@@ -517,133 +496,162 @@ const SORT_LABELS: Record<SortChoice, string> = {
 	name: 'Name',
 };
 
-function filters(view: PageView): string {
-	const { sector, subsector, search, source, site, sort, dates, tier, defaultTier, age } = view;
+const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all: 'Everything' };
+const DATES_LABELS: Record<PageView['dates'], string> = { both: 'Dated and undated', dated: 'Dated only', undated: 'Undated only' };
+const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website' };
+const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Every year' };
 
-	const options = [`<option value=""${sector ? '' : ' selected'}>All sectors</option>`]
+/**
+ * Every filter that is not at its default, as the chip that names it and the link that
+ * removes it and nothing else.
+ *
+ * "Clear 3 filters" makes a reader work out which three. A chip per filter says it, and
+ * its own x means taking one away never takes the others with it.
+ */
+function activeFilters(view: PageView): Array<{ key: string; label: string; href: string }> {
+	const sector = view.sector ? SECTOR_GROUPS.find((g) => g.sector_id === view.sector) : undefined;
+	const sub = view.subsector ? SUBSECTOR_BY_ID.get(view.subsector) : undefined;
+	const named: Array<[string, string | null]> = [
+		['q', view.search ? `Search: “${view.search}”` : null],
+		['sector', view.sector ? `Sector: ${view.sector} ${sector?.sector ?? ''}`.trim() : null],
+		['subsector', view.subsector ? `Sub-sector: ${view.subsector} ${sub?.subsector ?? ''}`.trim() : null],
+		['tier', view.tier !== view.defaultTier ? `Tier: ${TIER_LABELS[view.tier]}` : null],
+		['source', view.source ? `Found by: ${SOURCE_LABELS[view.source] ?? view.source}` : null],
+		['dates', view.dates !== 'both' ? `Dates: ${DATES_LABELS[view.dates].toLowerCase()}` : null],
+		['site', view.site ? `Website: ${SITE_LABELS[view.site].toLowerCase()}` : null],
+		['state', view.state ? `Location: ${view.state === 'unknown' ? 'unknown' : view.state}` : null],
+		['age', view.age !== 'recent' ? `Started: ${AGE_LABELS[view.age].toLowerCase()}` : null],
+	];
+	return named
+		.filter((entry): entry is [string, string] => entry[1] !== null)
+		.map(([key, label]) => ({ key, label, href: `${BASE_PATH}${query(viewParams(view, { [key]: null }))}#list` }));
+}
+
+function chips(view: PageView): string {
+	const active = activeFilters(view);
+	const items = active
+		.map(
+			(f) =>
+				`<li><a class="chip filter-chip" href="${esc(f.href)}" aria-label="Remove ${esc(f.label)}">${esc(f.label)} <span aria-hidden="true">&times;</span></a></li>`,
+		)
+		.join('');
+	// Clearing everything is still offered, but only beside the chips that say what it clears.
+	const all = active.length > 1 ? `<li><a class="clear" href="${esc(`${BASE_PATH}#list`)}">Remove all ${active.length}</a></li>` : '';
+	return `<ul class="chips active-chips" id="chips">${items}${all}</ul>`;
+}
+
+/**
+ * The result line: what is on screen, out of everything held, and where every other
+ * record went, each part a link to the view that shows it.
+ *
+ * Built from the same buckets as the list, so the parts always add up to the whole:
+ * shown + hidden by filters + held back by tier or age + undated = every record.
+ * Energy Storage's cell once said 14 over an empty list; nothing is allowed to vanish
+ * between the number and the rows again.
+ */
+function resultLine(view: PageView): string {
+	const b = view.buckets;
+	// The demo rows are not the database, so they account for themselves.
+	const universe = view.demo ? b.total : Math.max(view.tracked, b.total);
+	const shown = view.dates === 'undated' ? b.undated : b.ranked;
+	const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+	const parts: string[] = [];
+
+	const byFilters = universe - b.total;
+	if (byFilters > 0) {
+		const cleared = `${BASE_PATH}${query({ sort: view.sort === 'obscurity' ? null : view.sort, tier: view.tier === view.defaultTier ? null : view.tier, age: view.age === 'recent' ? null : view.age })}#list`;
+		parts.push(
+			`<a href="${esc(cleared)}" title="Records the search, sector, sub-sector, source, website or location filters leave out. Follow to remove those filters.">${byFilters} hidden by filters</a>`,
+		);
+	}
+
+	const held = view.dates === 'undated' ? 0 : b.older + b.tierHidden;
+	if (held > 0) {
+		const why: string[] = [];
+		if (b.older > 0) why.push(`${b.older} started more than ${MAX_AGE_YEARS} years ago and ${plural(b.older, 'is', 'are')} held back by the age filter`);
+		if (b.tierHidden > 0) {
+			const outside = view.tier === 'a' ? 'Tier B or C' : 'Tier C';
+			const showing = view.tier === 'a' ? 'Tier A' : 'Tier A and B';
+			why.push(`${b.tierHidden} ${plural(b.tierHidden, 'is', 'are')} ${outside}, and the list is showing ${showing}`);
+		}
+		const everything = `${BASE_PATH}${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
+		parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${held} held back by tier or age</a>`);
+	}
+
+	if (view.dates === 'dated' && b.undated > 0) {
+		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#undated`)}" title="Records no source dates. Follow to list them below the map.">${b.undated} undated, hidden</a>`);
+	} else if (view.dates !== 'undated' && b.undated > 0) {
+		parts.push(`<a href="#undated" title="Records no source dates, so no tier can be claimed for them. Listed below the coverage map.">${b.undated} undated</a>`);
+	}
+
+	const what = view.dates === 'undated' ? 'undated' : 'in the list';
+	return `<p class="result-line" id="result-line"><strong>${shown}</strong> ${what} of ${universe}${parts.length ? ` &middot; ${parts.join(' &middot; ')}` : ''}<span class="marks-line" hidden></span></p>`;
+}
+
+function controls(view: PageView): string {
+	const { sector, subsector, search, source, site, sort, dates, tier, age } = view;
+	const option = (value: string, label: string, current: string) =>
+		`<option value="${esc(value)}"${current === value ? ' selected' : ''}>${esc(label)}</option>`;
+
+	const sectorOptions = [option('', 'All sectors', sector ?? '')]
+		.concat(SECTOR_GROUPS.map((g) => option(g.sector_id, `${g.sector_id} — ${g.sector}`, sector ?? '')))
+		.join('');
+	// Grouped by sector, and the sector in the data attribute so the script can drop a
+	// sub-sector that the newly chosen sector does not contain.
+	const subsectorOptions = [option('', 'All sub-sectors', subsector ?? '')]
 		.concat(
 			SECTOR_GROUPS.map(
-				(group) =>
-					`<option value="${esc(group.sector_id)}"${sector === group.sector_id ? ' selected' : ''}>${esc(group.sector_id)} &mdash; ${esc(
-						group.sector,
-					)}</option>`,
+				(g) =>
+					`<optgroup label="${esc(`${g.sector_id} ${g.sector}`)}">${g.subsectors
+						.map((sub) => `<option value="${esc(sub.subsector_id)}" data-sector="${esc(g.sector_id)}"${subsector === sub.subsector_id ? ' selected' : ''}>${esc(`${sub.subsector_id} ${sub.subsector}`)}</option>`)
+						.join('')}</optgroup>`,
 			),
 		)
-		.join('\n      ');
+		.join('');
+	const tierOptions = (Object.keys(TIER_LABELS) as TierChoice[]).map((v) => option(v, TIER_LABELS[v], tier)).join('');
+	const sourceOptions = [option('', 'Any source', source ?? '')].concat(SOURCES.map((id) => option(id, SOURCE_LABELS[id] ?? id, source ?? ''))).join('');
+	const datesOptions = (Object.keys(DATES_LABELS) as Array<PageView['dates']>).map((v) => option(v, DATES_LABELS[v], dates)).join('');
+	// "No website" is its own option: on this list the absence is the signal.
+	const siteOptions = [option('', 'Website or not', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
+	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
+	const sortOptions = (Object.keys(SORTS) as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
+	const count = activeFilters(view).filter((f) => f.key !== 'q').length;
 
-	// The hint follows the default rather than naming a fixed one: while the ranking is
-	// empty the default is Everything, and a toggle that claimed otherwise would lie.
-	const choices: Array<[TierChoice, string, string]> = [
-		['a', 'A', 'New and quiet'],
-		['ab', 'A + B', defaultTier === 'ab' ? 'The default view' : 'Once the ranking fills'],
-		['all', 'Everything', defaultTier === 'all' ? 'The default view' : 'Including known territory'],
-	];
-	const toggle = choices
-		.map(
-			([value, label, hint]) => `<label class="seg${tier === value ? ' on' : ''}" title="${esc(hint)}">
-        <input type="radio" name="tier" value="${value}"${tier === value ? ' checked' : ''}> ${esc(label)}
-      </label>`,
-		)
-		.join('\n      ');
-
-	const ages: Array<[AgeChoice, string, string]> = [
-		['recent', `Last ${MAX_AGE_YEARS} years`, 'The default view'],
-		['all', 'Every year', 'Including companies that are history by now'],
-	];
-	const ageToggle = ages
-		.map(
-			([value, label, hint]) => `<label class="seg${age === value ? ' on' : ''}" title="${esc(hint)}">
-        <input type="radio" name="age" value="${value}"${age === value ? ' checked' : ''}> ${esc(label)}
-      </label>`,
-		)
-		.join('\n      ');
-
-	const sourceOptions = [`<option value=""${source ? '' : ' selected'}>Any source</option>`]
-		.concat(SOURCES.map((id) => `<option value="${esc(id)}"${source === id ? ' selected' : ''}>${esc(SOURCE_LABELS[id] ?? id)}</option>`))
-		.join('\n      ');
-
-	const siteOptions = [
-		['', 'Website or not'],
-		['has', 'Has a website'],
-		// Worth its own option: on this list the absence is the signal.
-		['none', 'No website'],
-	]
-		.map(([value, label]) => `<option value="${value}"${(site ?? '') === value ? ' selected' : ''}>${esc(label)}</option>`)
-		.join('\n      ');
-
-	const datesOptions = [
-		['both', 'Dated and not'],
-		['dated', 'On record only'],
-		['undated', 'Undated only'],
-	]
-		.map(([value, label]) => `<option value="${value}"${dates === value ? ' selected' : ''}>${esc(label)}</option>`)
-		.join('\n      ');
-
-	const sortOptions = (Object.keys(SORTS) as SortChoice[])
-		.map((value) => `<option value="${value}"${sort === value ? ' selected' : ''}>${esc(SORT_LABELS[value])}</option>`)
-		.join('\n      ');
-
-	// Every filter that is not at its default, counted, so "clear" can say what it
-	// clears and a reader can see at a glance that the list is narrowed.
-	const active = Object.entries(viewParams(view)).filter(([, value]) => value !== null && value !== '');
-	const clear = active.length
-		? `<a class="clear" href="${esc(BASE_PATH)}#list">Clear ${active.length} filter${active.length === 1 ? '' : 's'}</a>`
-		: '';
+	const field = (id: string, label: string, options: string) =>
+		`<div class="field"><label for="${id}">${label}</label><select id="${id}" name="${id}">${options}</select></div>`;
 
 	return `
-<form class="filters" method="get" action="#list">
-  <div class="field field-search">
-    <label for="q">Search</label>
-    <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="name or what they build"
-      autocomplete="off" spellcheck="false">
-  </div>
-  <div class="field">
-    <label for="sector">Sector</label>
-    <select id="sector" name="sector">
-      ${options}
-    </select>
-  </div>
-  <div class="field">
-    <label for="source">Found by</label>
-    <select id="source" name="source">
-      ${sourceOptions}
-    </select>
-  </div>
-  <div class="field">
-    <label for="site">Website</label>
-    <select id="site" name="site">
-      ${siteOptions}
-    </select>
-  </div>
-  <div class="field">
-    <label for="dates">Dates</label>
-    <select id="dates" name="dates">
-      ${datesOptions}
-    </select>
-  </div>
-  <div class="field">
-    <label for="sort">Sort by</label>
-    <select id="sort" name="sort">
-      ${sortOptions}
-    </select>
-  </div>
-  <div class="field">
-    <span class="legend">Tier</span>
-    <div class="segmented">
-      ${toggle}
+<form class="controls" id="controls" method="get" action="${esc(BASE_PATH)}#list" role="search">
+  <div class="bar">
+    <div class="field field-search">
+      <label for="q" class="visually-hidden">Search</label>
+      <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="Search names and what they build"
+        autocomplete="off" spellcheck="false">
     </div>
+    <details class="filter-menu">
+      <summary>Filters<span class="filter-count" id="filter-count">${count ? `&nbsp;&middot;&nbsp;${count}` : ''}</span></summary>
+      <div class="filter-panel">
+        ${field('sector', 'Sector', sectorOptions)}
+        ${field('subsector', 'Sub-sector', subsectorOptions)}
+        ${field('tier', 'Tier', tierOptions)}
+        ${field('source', 'Found by', sourceOptions)}
+        ${field('dates', 'Dates', datesOptions)}
+        ${field('site', 'Website', siteOptions)}
+        ${field('age', 'Started', ageOptions)}
+        ${view.state ? `<input type="hidden" name="state" value="${esc(view.state)}">` : ''}
+        <button type="submit" class="apply">Apply</button>
+      </div>
+    </details>
+    <div class="field field-sort"><label for="sort" class="visually-hidden">Sort by</label><select id="sort" name="sort">${sortOptions}</select></div>
   </div>
-  <div class="field">
-    <span class="legend">Started</span>
-    <div class="segmented">
-      ${ageToggle}
-    </div>
+  ${chips(view)}
+  <div class="bar-foot">
+    ${resultLine(view)}
+    <span class="bar-links">
+      <button type="button" class="linkish shortlist-toggle" hidden aria-pressed="false">Shortlisted only</button>
+      <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">CSV of this view</a>
+    </span>
   </div>
-  ${subsector ? `<input type="hidden" name="subsector" value="${esc(subsector)}">` : ''}
-  ${view.state ? `<input type="hidden" name="state" value="${esc(view.state)}">` : ''}
-  <button type="submit" class="apply">Apply</button>
-  ${clear}
-  <a class="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Download CSV</a>
 </form>`;
 }
 
@@ -681,117 +689,150 @@ function basisTag(company: Company): string {
 		: ' <span class="basis-tag">from its description</span>';
 }
 
-function companyRow(company: Company, now: Date): string {
-	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
-	// A sub-sector chosen from a register's industry label is a claim about two
-	// vocabularies agreeing, not about the company. The detail view spells that out;
-	// the row carries the id and the name, which is what a reader scans by.
-	// What the placement rests on, beside it rather than on another page: a sub-sector
-	// read off "Industry: Robotics" is a weaker claim than one read off a paragraph about
-	// the product, and a reader scanning the row should not have to click to learn that.
-	const rdi = sub
-		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>${basisTag(company)}`
-		: '<span class="rdi unclassified">not yet classified</span>';
-	// An address nothing ties to the company is not linked from its row as "website":
-	// that label is a claim, and for Grinntech it was HyperVerge's. The address and the
-	// reason stay on the detail page, where there is room to say why.
-	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
-	const unconfirmed = company.website_identity !== 'verified';
-	// The name goes to the detail view, not to the company. Everything we hold is on
-	// that page, including the link out — and a row whose only link leaves the site is
-	// a row that cannot be looked into.
-	const name = `<a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>${entityTag(company)}`;
+/** Short names for evidence on a row, where there is room for one word each. */
+const EVIDENCE_NAMES: Record<string, string> = {
+	dpiit: 'DPIIT',
+	incubator: 'incubator',
+	grant: 'grant',
+	press: 'press',
+	patent: 'patent',
+	incorporation: 'incorporation',
+	website: 'website live',
+};
 
-	// What the company says it builds, read off its own homepage. Attributed on every
-	// row that carries one, because this is the only line here that is not a fact
-	// somebody published about the company in a register — it is the company's own
-	// account of itself, and the difference is the whole reason the label is there.
-	const builds = company.product && company.website_identity === 'verified' ? `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>` : '';
+/** What the source's own date says happened, in the words a row has room for. */
+const EVENT_VERBS: Record<string, string> = {
+	dpiit: 'DPIIT recognised',
+	incubator: 'incubator listing',
+	grant: 'grant awarded',
+	press: 'press mention',
+	patent: 'patent filed',
+	incorporation: 'incorporated',
+	website: 'website seen',
+};
 
-	// The source's description is kept unless the homepage has already said it better.
-	// A register-label row's "description" is an industry picked from a dropdown —
-	// printing "Industry: Nanotechnology. Stage: Prototype." under a sentence about
-	// what the company actually makes adds nothing and costs the row its clarity.
-	const keepDescription = company.description && !(company.product && company.classify_basis === 'register-label');
-
-	// Anchored by slug so a single row can be linked to and argued with, rather than
-	// "it is somewhere in the list under 2.6".
-	return `
-  <li class="company" id="c-${esc(company.id)}">
-    <div class="row-head">
-      <h3>${name}</h3>
-      ${rdi}
-    </div>
-    ${builds}
-    ${keepDescription ? `<p class="desc">${esc(company.description)}</p>` : ''}
-    <p class="facts">
-      ${traceLine(company)}
-      ${
-				// Four fields, and this is the one a reader acts on fastest: no website
-				// means genuinely early, and it also means you will have to work to reach
-				// them. Only said where a source that publishes websites went looking.
-				site
-					? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">website</a>${unconfirmed ? ' <span class="fact-unconfirmed">not confirmed as theirs</span>' : ''}`
-					: company.website_checked
-						? '<span class="fact-none">no website</span>'
-						: ''
-			}
-      ${dateLine(company, now) ? `<span class="fact-seen">${dateLine(company, now)}</span>` : ''}
-    </p>
-  </li>`;
+/** "Aug 2023", or the year alone when that is all a source gave. */
+function monthYear(iso: string): string {
+	const [y, m] = iso.slice(0, 10).split('-').map(Number);
+	return m ? `${MONTHS[m - 1]} ${y}` : String(y);
 }
 
 /**
- * The held-back line. A coverage cell can say 3 while the list shows 1, and the page
- * has to account for the other two rather than let the map look like it lied.
+ * What a row can say the company builds, and on whose word.
+ *
+ * Three states, and a reader has to tell them apart without reading: the company's own
+ * homepage (checked to be theirs), a source's description of them, or nothing. A
+ * register's dropdown label is not a description, and a row that printed "Industry:
+ * Robotics. Stage: Prototype." where a sentence should be was padding an absence.
  */
+function buildsLine(company: Company): { html: string; described: boolean } {
+	if (company.product && company.website_identity === 'verified') {
+		return { html: `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>`, described: true };
+	}
+	if (company.description && company.classify_basis !== 'register-label') {
+		return { html: `<p class="builds from-source">${esc(company.description)}</p>`, described: true };
+	}
+	return { html: '<p class="builds none">No description published</p>', described: false };
+}
+
 /**
- * Every company this view matches, and where each one went.
- *
- * Energy Storage's cell said 14; clicking it showed an empty ranked list and four
- * undated rows, and the other ten were nowhere. They were Tier C, and the list was
- * showing A and B — true, and said by nothing on the page. Searching for Grinntech
- * printed "Nothing matches" above the one row that did.
- *
- * So the list opens with the total and its parts, which come from one query and
- * always add up, and a link that shows all of them. It is skipped only when the view
- * is showing everything it matches, and there is nothing to account for.
+ * The source's date for a row, named for what happened: "DPIIT recognised Aug 2023".
+ * Null when no source dates anything.
  */
-function resultSummary(view: PageView): string {
-	const b = view.buckets;
-	if (b.total === 0) return '';
+function eventPhrase(company: Company): string | null {
+	const dated = company.signals.filter((s) => s.date && s.date.length >= 10).sort((a, b) => (a.date! < b.date! ? -1 : 1));
+	if (dated.length) return `${EVENT_VERBS[dated[0].type] ?? dated[0].type} ${monthYear(dated[0].date!)}`;
+	const event = sourceEvent(company);
+	return event ? `${event.label} ${event.date}` : null;
+}
 
-	const rankedShown = view.dates === 'undated' ? 0 : b.ranked;
-	const undatedShown = view.dates === 'dated' ? 0 : b.undated;
-	const hidden: string[] = [];
-	const are = (n: number) => (n === 1 ? 'is' : 'are');
+/**
+ * One row: what it builds, how old it is, what evidence exists, and why it is in this
+ * view. Everything else is on the company's own page.
+ *
+ * Scanned, not read. So the three distinctions that decide whether a row is worth a
+ * click are carried by how the row looks as well as by what it says: described or not,
+ * dated or not, a website confirmed as theirs or not.
+ */
+function companyRow(company: Company, now: Date): string {
+	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
+	const builds = buildsLine(company);
+	const dated = company.first_seen !== null;
 
-	if (b.older > 0) {
-		hidden.push(`${b.older} started more than ${MAX_AGE_YEARS} years ago and ${are(b.older)} held back by the age filter`);
+	// An address nothing ties to the company is not linked from its row: for Grinntech
+	// it was HyperVerge's. The address and the reason stay on the company's page.
+	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
+	const siteState = site ? (company.website_identity === 'verified' ? 'verified' : 'unconfirmed') : company.website_checked ? 'none' : 'unknown';
+
+	// What the placement rests on, beside it: a sub-sector read off "Industry: Robotics"
+	// is a weaker claim than one read off a paragraph about the product.
+	const placement = sub
+		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>${
+				company.classify_basis === 'register-label' ? ' <span class="basis-tag weak">register label only</span>' : ''
+			}`
+		: '<span class="rdi unclassified">not yet classified</span>';
+
+	// Evidence as links to where it was published. A website counts only once it is
+	// confirmed as theirs; before that the row says so rather than linking it as theirs.
+	const evidence = company.signals
+		.filter((signal) => signal.type !== 'website')
+		.map((signal) => {
+			const href = safeUrl(signal.url);
+			const name = esc(EVIDENCE_NAMES[signal.type] ?? signal.type);
+			const title = esc(`${signal.label}${signal.date ? `, ${signal.date}` : ''}`);
+			return href
+				? `<a class="ev" href="${esc(href)}" rel="noopener nofollow" title="${title}">${name}</a>`
+				: `<span class="ev" title="${title}">${name}</span>`;
+		});
+	if (siteState === 'verified') evidence.push(`<a class="ev ev-site" href="${esc(site!)}" rel="noopener nofollow">website</a>`);
+	if (siteState === 'unconfirmed') {
+		evidence.push(`<a class="ev ev-site unconfirmed" href="${esc(site!)}" rel="noopener nofollow">website not confirmed as theirs</a>`);
 	}
-	if (b.tierHidden > 0) {
-		const outside = view.tier === 'a' ? 'Tier B or C' : 'Tier C';
-		const showing = view.tier === 'a' ? 'Tier A' : 'Tier A and B';
-		hidden.push(`${b.tierHidden} ${are(b.tierHidden)} ${outside}, and the list is showing ${showing}`);
-	}
-	if (view.dates === 'undated' && b.ranked > 0) hidden.push(`${b.ranked} dated ${are(b.ranked)} hidden by the dates filter`);
-	if (view.dates === 'dated' && b.undated > 0) hidden.push(`${b.undated} undated ${are(b.undated)} hidden by the dates filter`);
+	// Only where a source that publishes websites went looking. On this list the absence
+	// is the finding, which is why it keeps the page's one yellow.
+	if (siteState === 'none') evidence.push('<span class="fact-none">no website</span>');
 
-	const filtered = Boolean(view.search || view.sector || view.subsector || view.source || view.site || view.state);
-	if (hidden.length === 0 && !filtered) return '';
+	// How old: the source's dated event, whether anyone says when it started, and when
+	// this list first wrote it down. Three facts, never merged into one "first seen".
+	const event = eventPhrase(company);
+	const age = ageKnown(company) ? `started ${company.origin_year ?? company.founded_year}` : 'founding year unknown';
+	const when = [event ?? 'no dated event', age, `added to Upstream ${addedAgo(company.discovered, now)}`].map(esc).join(' &middot; ');
+	const located = Boolean(company.city || company.state);
+	const place = located ? esc([company.city, company.state].filter(Boolean).join(', ')) : 'location unknown';
 
-	const what = view.search
-		? `${b.total === 1 ? 'result' : 'results'} for &ldquo;${esc(view.search)}&rdquo;`
-		: filtered
-			? `${b.total === 1 ? 'company matches' : 'companies match'} these filters`
-			: `${b.total === 1 ? 'company' : 'companies'} in the database`;
-	const parts = [`${rankedShown} in the ranked list`, `${undatedShown} undated${undatedShown ? ', listed below it' : ''}`];
-	const notShown = b.total - rankedShown - undatedShown;
-	const all = `${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
+	// Why it is in this view. Only A and B say anything a reader can act on; a column of
+	// "Tier C" beside every row reads as a bug.
+	const tier =
+		company.tier === 'A'
+			? '<span class="tier ta" title="Found by us under 90 days ago, nothing dated earlier, at most 2 public traces">Tier A</span>'
+			: company.tier === 'B'
+				? '<span class="tier tb" title="First seen under 180 days ago, at most 5 public traces">Tier B</span>'
+				: '';
 
-	return `<p class="result-summary"><strong>${b.total}</strong> ${what}: ${parts.join(', ')}.${
-		notShown > 0 ? ` ${notShown} not shown: ${hidden.join('; ')}. <a href="${esc(all)}">Show all ${b.total}</a>.` : ''
-	}</p>`;
+	const state = [builds.described ? 'described' : 'undescribed', dated ? 'dated' : 'undated', `site-${siteState}`].join(' ');
+
+	// Anchored by slug so one row can be linked to, and so "back to results" lands on it.
+	return `
+  <li class="company ${state}" id="c-${esc(company.id)}" data-id="${esc(company.id)}">
+    <div class="row-main">
+      <h3><a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>${entityTag(company)}</h3>
+      ${builds.html}
+      <p class="meta">
+        <span class="meta-rdi">${placement}</span>
+        <span class="meta-ev">${evidence.join(' ') || '<span class="ev none">no evidence recorded</span>'}</span>
+        <span class="meta-when${dated ? '' : ' undated'}">${when}</span>
+        <span class="meta-where${located ? '' : ' unknown'}">${place}</span>
+      </p>
+    </div>
+    <div class="row-side">
+      ${traceLine(company)}
+      ${tier}
+      <span class="row-actions" hidden>
+        <button type="button" class="mark" data-mark="shortlist" aria-pressed="false">Shortlist</button>
+        <button type="button" class="mark" data-mark="seen" aria-pressed="false">Seen</button>
+      </span>
+    </div>
+  </li>`;
 }
 
 /**
@@ -843,10 +884,14 @@ function list(view: PageView): string {
 
 	if (companies.length === 0) {
 		// "Nothing matches" only when nothing does. A search whose one hit is undated
-		// has a result, and saying otherwise above it is the page contradicting itself.
+		// has a result, and saying otherwise above it is the page contradicting itself —
+		// as is an empty list that does not say where its matches went.
+		const undatedHere = view.dates !== 'dated' ? view.buckets.undated : 0;
 		const empty =
 			view.buckets.total > 0
-				? ''
+				? undatedHere > 0
+					? `<p class="empty">No dated match. <a href="#undated">${undatedHere} undated ${undatedHere === 1 ? 'match is' : 'matches are'} listed below the coverage map</a>.</p>`
+					: ''
 				: view.tracked === 0
 					? '<p class="empty">Nothing matches yet. The ingest has not put anything here.</p>'
 					: '<p class="empty">Nothing matches these filters.</p>';
@@ -854,7 +899,6 @@ function list(view: PageView): string {
 <section class="list" id="list">
   <h2>Companies</h2>
   ${backfillNote(view)}
-  ${resultSummary(view)}
   ${empty}
 </section>`;
 	}
@@ -869,7 +913,6 @@ function list(view: PageView): string {
   <h2>Companies <span class="count">${listed(view)}</span></h2>
   ${banner}
   ${backfillNote(view)}
-  ${resultSummary(view)}
   ${unknownAge(view)}
   ${truncated(companies.length, listed(view))}
   <ol class="companies">
@@ -1625,50 +1668,22 @@ section > h2 {
 .cell:active { transform: translateY(1px); }
 .cell.active { border-color: var(--ink); border-style: solid; box-shadow: inset 0 0 0 1px var(--ink); }
 
-/* The map folds on a narrow screen only. Above the breakpoint the summary is
-   not rendered at all and the section looks exactly as it always has. */
-.map-fold > summary { display: none; }
-@media (max-width: 699px) {
-  .map-fold > summary {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--s2);
-    cursor: pointer;
-    padding: var(--s2) var(--s3);
-    margin-bottom: var(--s4);
-    border: 1px solid var(--rule);
-    border-radius: var(--radius);
-    list-style: none;
-  }
-  .map-fold > summary::-webkit-details-marker { display: none; }
-  .map-fold-label { font-weight: 500; }
-  .map-fold-meta { color: var(--muted); font-size: var(--t-xs); }
-  /* The affordance, written by CSS so the two states cannot disagree. */
-  .map-fold > summary::after { content: "show"; margin-left: auto; color: var(--muted); font-size: var(--t-xs); }
-  .map-fold[open] > summary::after { content: "hide"; }
-}
 
-/* filters */
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  /* Seven controls now. On a phone they stack two-up rather than one long column,
-     which is why the selects are allowed to shrink below their content width. */
-  gap: var(--s3) var(--s4);
-  padding: var(--s4) 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: var(--s5);
+/* the control bar: controls before explanation, and still there after a scroll */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--paper);
+  padding: var(--s3) 0 var(--s2);
+  margin: 0 0 var(--s4);
+  border-bottom: 1px solid var(--rule-strong);
 }
-.field { display: flex; flex-direction: column; gap: var(--s1); }
-.field label, .legend {
-  font-size: var(--t-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
+.bar { position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--s2); }
+.bar .field { display: flex; }
+.bar .field-search { flex: 1 1 14rem; min-width: 0; }
+.field-sort select { height: 100%; }
 select {
   font: inherit;
   font-size: var(--t-sm);
@@ -1678,55 +1693,203 @@ select {
   border-radius: var(--radius);
   padding: var(--s2) var(--s3);
   max-width: 100%;
+  min-width: 0;
 }
-select:hover, .apply:hover { border-color: var(--rule-strong); }
-/* Without this a select refuses to go narrower than its longest option and the bar
-   pushes the page sideways on a phone. */
-.filters .field { flex: 1 1 9rem; min-width: 0; }
-.filters select { width: 100%; }
-.seg:hover:not(.on) { background: var(--paper); }
-.segmented { display: flex; border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
-.seg {
+select:hover { border-color: var(--rule-strong); }
+.filter-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
   font-size: var(--t-sm);
   padding: var(--s2) var(--s3);
-  cursor: pointer;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
   background: var(--raise);
-  border-right: 1px solid var(--rule);
   white-space: nowrap;
 }
-.seg:last-child { border-right: 0; }
-.seg input { position: absolute; opacity: 0; pointer-events: none; }
-.seg.on { background: var(--ink); color: var(--paper); }
+.filter-menu > summary::-webkit-details-marker { display: none; }
+.filter-menu > summary:hover { border-color: var(--rule-strong); }
+.filter-menu[open] > summary { border-color: var(--ink); }
+.filter-count { font-family: var(--mono); }
+/* Positioned against the bar rather than the button, so on a phone it spans the width
+   instead of hanging off whichever line the button wrapped onto. */
+.filter-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + var(--s1));
+  z-index: 11;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--raise);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.filter-panel .field { display: flex; flex-direction: column; gap: var(--s1); }
+.filter-panel label {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.filter-panel select { width: 100%; }
 .apply {
   font: inherit;
   font-size: var(--t-sm);
   padding: var(--s2) var(--s4);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--ink);
   border-radius: var(--radius);
-  background: var(--raise);
-  color: inherit;
+  background: var(--ink);
+  color: var(--paper);
   cursor: pointer;
+  align-self: end;
 }
+.active-chips { margin: var(--s2) 0 0; align-items: center; }
+.active-chips:empty { display: none; }
+.filter-chip { color: var(--ink); }
+.filter-chip span { color: var(--muted); margin-left: var(--s0); }
+.filter-chip:hover span { color: var(--ink); }
 .clear { font-size: var(--t-xs); color: var(--muted); }
-.export {
+.bar-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s1) var(--s3);
+  margin-top: var(--s2);
   font-size: var(--t-xs);
   color: var(--muted);
-  text-decoration-color: var(--rule-strong);
-  text-underline-offset: 3px;
-  margin-left: auto;
 }
+.result-line { margin: 0; }
+.result-line strong { font-family: var(--mono); color: var(--ink); font-weight: 500; }
+.result-line a, .linkish { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.result-line a:hover, .linkish:hover { text-decoration-color: currentColor; }
+.bar-links { display: flex; flex-wrap: wrap; gap: var(--s3); }
+.linkish { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.linkish[aria-pressed='true'] { font-weight: 600; text-decoration-color: currentColor; }
+.export { color: var(--muted); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .export:hover { color: var(--ink); text-decoration-color: currentColor; }
+.device-note { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s4); }
+.device-note strong { color: var(--ink); font-weight: 500; }
+
+/* rows: dense, and different at a glance by what is known */
+.company {
+  display: flex;
+  gap: var(--s3);
+  padding: var(--s3);
+  margin-inline: calc(var(--s3) * -1);
+  border-bottom: 1px solid var(--rule);
+}
+.row-main { flex: 1 1 auto; min-width: 0; }
+.row-main h3 { font-size: var(--t-body); font-weight: 600; margin: 0 0 var(--s0); line-height: 1.3; }
+.row-main h3 a { text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.row-main h3 a:hover { text-decoration-color: currentColor; }
+.company .builds {
+  font-size: var(--t-sm);
+  margin: 0 0 var(--s1);
+  max-width: 66ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Nothing published: said in words, and quieter than a row that has a sentence. */
+.company .builds.none { color: var(--muted); font-style: italic; }
+.company.undescribed h3 a { font-weight: 500; }
+.meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); margin: 0; font-size: var(--t-xs); color: var(--muted); }
+.meta > span { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--s0h); }
+.ev {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  line-height: 1.5;
+  padding: 0 var(--s0h);
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--raise);
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.ev:hover { border-color: var(--ink); }
+.ev.unconfirmed { border-style: dashed; color: var(--muted); }
+.ev.none { border-style: dashed; color: var(--muted); }
+/* Undated and unlocated are said, and said in the voice of an absence. */
+.meta-when.undated, .meta-where.unknown { font-style: italic; }
+.row-side {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s1);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  text-align: right;
+}
+.row-actions { display: flex; gap: var(--s1); }
+.row-actions[hidden] { display: none; }
+.mark {
+  font: inherit;
+  font-size: var(--t-micro);
+  padding: var(--s0) var(--s2);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--raise);
+  color: var(--muted);
+  cursor: pointer;
+}
+.mark:hover { border-color: var(--rule-strong); color: var(--ink); }
+.mark[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+/* Seen dims and stays where it was, so the list does not shift under a reader. */
+.company.is-seen .row-main { opacity: 0.5; }
+.company.is-passed { display: none; }
+.show-passed .company.is-passed { display: flex; opacity: 0.45; }
+@media (max-width: 34rem) {
+  .bar .field-search { flex-basis: 100%; }
+  .bar .field-sort { flex: 1 1 auto; }
+  .bar .field-sort select { width: 100%; }
+}
+.only-shortlisted .company:not(.is-shortlisted) { display: none; }
+@media (max-width: 34rem) {
+  .company { flex-direction: column; gap: var(--s1); }
+  .row-side { flex-direction: row; align-items: center; flex-wrap: wrap; }
+}
+
+/* coverage map, folded after the list */
+.map-fold > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s3);
+  cursor: pointer;
+  list-style: none;
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: var(--s4);
+}
+.map-fold > summary::-webkit-details-marker { display: none; }
+.map-fold > summary h2 {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 500;
+  margin: 0;
+}
+.map-fold-meta { color: var(--muted); font-size: var(--t-xs); }
+.map-fold > summary::after { content: "show"; margin-left: auto; color: var(--muted); font-size: var(--t-xs); }
+.map-fold[open] > summary::after { content: "hide"; }
 
 /* list */
 .list h2 .count { font-family: var(--mono); }
 .companies { list-style: none; margin: 0; padding: 0; }
 /* Padded past the text column and pulled back by the same amount, so a row can take
    a background on hover without the text appearing to shift. */
-.company {
-  padding: var(--s5) var(--s3);
-  margin-inline: calc(var(--s3) * -1);
-  border-bottom: 1px solid var(--rule);
-}
 @media (hover: hover) {
   .company:hover { background: var(--raise); }
 }
@@ -2018,11 +2181,248 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 /* The radio inputs behind the segmented control are visually hidden but still
    focusable, so the focus ring has to be drawn on the label. */
 .seg:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: -2px; }
-a:focus-visible, select:focus-visible, .apply:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+a:focus-visible, select:focus-visible, .apply:focus-visible, .mark:focus-visible, .linkish:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: no-preference) {
   .cell, .chip, .apply, .company, select, .seg { transition: border-color 120ms ease, background 120ms ease; }
 }
+`;
+
+// --- scripts ------------------------------------------------------------------
+
+/**
+ * Shortlist, seen and pass, kept in this browser and nowhere else.
+ *
+ * localStorage, because the alternative is an account, and an account is a promise to
+ * keep somebody's working list safe that a single-person project cannot make. The cost
+ * is that nothing follows a reader to another device, and the page says so wherever the
+ * marks appear. Everything is wrapped: a private window or blocked storage turns the
+ * buttons off rather than breaking the page.
+ */
+export const MARKS_SCRIPT = `
+(function () {
+  var KEY = 'upstream.marks.v1';
+  var store = null;
+  try { localStorage.setItem(KEY + '.probe', '1'); localStorage.removeItem(KEY + '.probe'); store = localStorage; } catch (e) {}
+  function empty() { return { shortlist: {}, seen: {}, pass: {} }; }
+  function read() {
+    if (!store) return empty();
+    try {
+      var v = JSON.parse(store.getItem(KEY) || '{}');
+      return { shortlist: v.shortlist || {}, seen: v.seen || {}, pass: v.pass || {} };
+    } catch (e) { return empty(); }
+  }
+  function write(m) { if (store) { try { store.setItem(KEY, JSON.stringify(m)); } catch (e) {} } }
+  window.upstreamMarks = {
+    available: !!store,
+    read: read,
+    toggle: function (kind, id) {
+      var m = read();
+      if (m[kind][id]) { delete m[kind][id]; }
+      else {
+        m[kind][id] = Date.now();
+        // Shortlisting and passing contradict each other; the newer one wins.
+        if (kind === 'pass') delete m.shortlist[id];
+        if (kind === 'shortlist') delete m.pass[id];
+      }
+      write(m);
+      return !!m[kind][id];
+    },
+    clear: function () { if (store) { try { store.removeItem(KEY); } catch (e) {} } },
+    size: function (m) { return Object.keys(m.shortlist).length + Object.keys(m.seen).length + Object.keys(m.pass).length; }
+  };
+})();
+`;
+
+/**
+ * The list page. Everything here is an enhancement: without it the form is a GET form,
+ * every chip and count is a link, and the rows simply have no mark buttons.
+ */
+export const LIST_SCRIPT = `
+(function () {
+  var form = document.getElementById('controls');
+  if (!form || !window.fetch || !window.DOMParser || !window.URLSearchParams) return;
+  var marks = window.upstreamMarks;
+  var apply = form.querySelector('.apply');
+  if (apply) apply.hidden = true;
+
+  // Where "back to results" should go: the view as it is now, canonical spelling.
+  function remember() { try { sessionStorage.setItem('upstream.results', location.pathname + location.search); } catch (e) {} }
+  remember();
+
+  // --- marks on rows ---
+  var showPassed = false;
+  var onlyShortlisted = false;
+  function paint() {
+    var m = marks.read();
+    var rows = document.querySelectorAll('li.company[data-id]');
+    var passedHere = 0, shortlistedHere = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i], id = row.getAttribute('data-id');
+      row.classList.toggle('is-shortlisted', !!m.shortlist[id]);
+      row.classList.toggle('is-seen', !!m.seen[id]);
+      row.classList.toggle('is-passed', !!m.pass[id]);
+      if (m.pass[id]) passedHere++;
+      if (m.shortlist[id]) shortlistedHere++;
+      var actions = row.querySelector('.row-actions');
+      if (actions && marks.available) actions.hidden = false;
+      var buttons = row.querySelectorAll('button.mark');
+      for (var j = 0; j < buttons.length; j++) {
+        var kind = buttons[j].getAttribute('data-mark');
+        buttons[j].setAttribute('aria-pressed', m[kind][id] ? 'true' : 'false');
+      }
+    }
+    document.body.classList.toggle('show-passed', showPassed);
+    document.body.classList.toggle('only-shortlisted', onlyShortlisted);
+
+    var line = document.querySelector('.marks-line');
+    if (line) {
+      line.hidden = passedHere === 0;
+      line.innerHTML = passedHere ? ' &middot; <button type="button" class="linkish" data-act="show-passed">' + passedHere + ' passed, ' + (showPassed ? 'shown dimmed' : 'hidden') + '</button>' : '';
+    }
+    var toggle = form.querySelector('.shortlist-toggle');
+    var total = Object.keys(m.shortlist).length;
+    if (toggle) {
+      toggle.hidden = !marks.available || total === 0;
+      toggle.setAttribute('aria-pressed', onlyShortlisted ? 'true' : 'false');
+      toggle.textContent = onlyShortlisted ? 'Showing ' + shortlistedHere + ' shortlisted · show all' : 'Show shortlisted only (' + shortlistedHere + ' here, ' + total + ' in all)';
+    }
+    var note = document.getElementById('device-note');
+    if (note) {
+      var size = marks.size(m);
+      note.hidden = !marks.available && false;
+      note.innerHTML = marks.available
+        ? (size
+            ? '<strong>' + Object.keys(m.shortlist).length + '</strong> shortlisted, <strong>' + Object.keys(m.seen).length + '</strong> seen, <strong>' + Object.keys(m.pass).length + '</strong> passed. '
+            : 'Shortlist, seen and pass are kept as you work. ')
+          + 'Stored in this browser on this device only &mdash; not synced, and not visible to anyone else, including whoever runs this site.'
+          + (size ? ' <button type="button" class="linkish" data-act="clear-marks">Clear all ' + size + '</button>' : '')
+        : 'This browser is not letting the page store anything, so shortlist, seen and pass are off.';
+    }
+  }
+  document.addEventListener('click', function (event) {
+    var target = event.target.closest ? event.target.closest('button') : null;
+    if (!target) return;
+    if (target.classList.contains('mark')) {
+      var row = target.closest('li.company');
+      if (row) { marks.toggle(target.getAttribute('data-mark'), row.getAttribute('data-id')); paint(); }
+    } else if (target.getAttribute('data-act') === 'show-passed') {
+      showPassed = !showPassed; paint();
+    } else if (target.getAttribute('data-act') === 'clear-marks') {
+      if (window.confirm('Clear every shortlist, seen and pass mark stored on this device?')) { marks.clear(); paint(); }
+    } else if (target.classList.contains('shortlist-toggle')) {
+      onlyShortlisted = !onlyShortlisted; paint();
+    }
+  });
+  // Where a reader was, for the company page's way back.
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest ? event.target.closest('li.company h3 a') : null;
+    if (link) { remember(); }
+  });
+
+  // --- filters that apply as they change ---
+  var sector = form.querySelector('#sector');
+  var subsector = form.querySelector('#subsector');
+  var slots = ['chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'places-slot', 'undated-slot'];
+  var seq = 0;
+  function refresh() {
+    var params = new URLSearchParams(new FormData(form));
+    var mine = ++seq;
+    fetch(form.getAttribute('action').split('#')[0] + '?' + params.toString(), { headers: { accept: 'text/html' } })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        if (mine !== seq) return;
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var mapOpen = document.querySelector('.map-fold') && document.querySelector('.map-fold').open;
+        slots.forEach(function (id) {
+          var now = document.getElementById(id), next = doc.getElementById(id);
+          if (now && next) now.replaceWith(next);
+        });
+        var fold = document.querySelector('.map-fold');
+        if (fold && mapOpen) fold.open = true;
+        var canonical = doc.querySelector('link[rel=canonical]');
+        if (canonical) {
+          history.replaceState(null, '', canonical.getAttribute('href'));
+          var own = document.querySelector('link[rel=canonical]');
+          if (own) own.setAttribute('href', canonical.getAttribute('href'));
+        }
+        remember();
+        paint();
+      })
+      .catch(function () { form.submit(); });
+  }
+  var timer = null;
+  form.addEventListener('input', function (event) {
+    if (event.target.id !== 'q') return;
+    clearTimeout(timer);
+    timer = setTimeout(refresh, 250);
+  });
+  form.addEventListener('change', function (event) {
+    // A sub-sector belongs to one sector; choosing a different sector drops it, and
+    // choosing a sub-sector brings its sector along.
+    if (event.target === sector && subsector && subsector.value) {
+      var chosen = subsector.options[subsector.selectedIndex];
+      if (sector.value && chosen.getAttribute('data-sector') !== sector.value) subsector.value = '';
+    }
+    if (event.target === subsector && sector && subsector.value) {
+      sector.value = subsector.options[subsector.selectedIndex].getAttribute('data-sector') || sector.value;
+    }
+    if (event.target.id === 'q') return;
+    refresh();
+  });
+  form.addEventListener('submit', function (event) { event.preventDefault(); clearTimeout(timer); refresh(); });
+  var menu = form.querySelector('.filter-menu');
+  document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && menu) menu.open = false; });
+  document.addEventListener('click', function (event) { if (menu && menu.open && !menu.contains(event.target)) menu.open = false; });
+
+  paint();
+})();
+`;
+
+/**
+ * The company page: copy the brief, mark it, and go back to the results it came from.
+ */
+export const DETAIL_SCRIPT = `
+(function () {
+  var marks = window.upstreamMarks;
+  var id = document.body.getAttribute('data-company');
+
+  var back = document.querySelector('a.back');
+  try {
+    var from = sessionStorage.getItem('upstream.results');
+    if (back && from) { back.setAttribute('href', from + '#c-' + id); back.textContent = '← Back to results'; }
+  } catch (e) {}
+
+  var copy = document.querySelector('button.copy-brief');
+  var brief = document.getElementById('brief-text');
+  if (copy && brief) {
+    copy.hidden = false;
+    copy.addEventListener('click', function () {
+      var text = brief.value;
+      var done = function () { copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy brief'; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { brief.parentNode.open = true; brief.select(); });
+      } else { brief.parentNode.open = true; brief.select(); }
+    });
+  }
+
+  if (!marks || !marks.available) return;
+  var buttons = document.querySelectorAll('button.mark');
+  function paint() {
+    var m = marks.read();
+    for (var i = 0; i < buttons.length; i++) {
+      var kind = buttons[i].getAttribute('data-mark');
+      buttons[i].hidden = false;
+      buttons[i].setAttribute('aria-pressed', m[kind][id] ? 'true' : 'false');
+    }
+    var note = document.getElementById('device-note');
+    if (note) note.hidden = false;
+  }
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', function (event) { marks.toggle(event.currentTarget.getAttribute('data-mark'), id); paint(); });
+  }
+  paint();
+})();
 `;
 
 // --- the page ---------------------------------------------------------------
@@ -2047,39 +2447,19 @@ export function renderPage(view: PageView): string {
 <body>
 <div class="wrap">
 ${header(view)}
-${coverageMap(view)}
-${geography(view)}
-${filters(view)}
+<main class="tool">
+${controls(view)}
+<p class="device-note" id="device-note" hidden></p>
 ${list(view)}
-${undatedList(view)}
+</main>
+${coverageMap(view)}
+<div id="places-slot">${geography(view)}</div>
+<div id="undated-slot">${undatedList(view)}</div>
 ${offMap(view)}
 ${methodology(view)}
 </div>
-<script>
-  // Progressive enhancement only: without this the Apply button does the same job.
-  (function () {
-    var form = document.querySelector('.filters');
-    if (!form) return;
-    form.querySelector('.apply').hidden = true;
-    form.addEventListener('change', function () { form.submit(); });
-  })();
-
-  // The coverage map is six rows on a desktop and eleven on a phone, which puts
-  // the company list below the fold on the device most likely to be reading it.
-  // The markup ships open, so without this the map behaves as it always has.
-  (function () {
-    var fold = document.querySelector('.map-fold');
-    if (!fold || !window.matchMedia) return;
-    var narrow = window.matchMedia('(max-width: 699px)');
-    function sync() { fold.open = !narrow.matches; }
-    sync();
-    // Only on crossing the breakpoint, so a reader who opens the map by hand
-    // keeps it open, and one who arrives on a desktop never finds it shut with
-    // the summary hidden and no way back.
-    if (narrow.addEventListener) narrow.addEventListener('change', sync);
-    else if (narrow.addListener) narrow.addListener(sync);
-  })();
-</script>
+<script>${MARKS_SCRIPT}</script>
+<script>${LIST_SCRIPT}</script>
 </body>
 </html>`;
 }
