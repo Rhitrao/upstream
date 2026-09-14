@@ -78,10 +78,19 @@ export interface Example {
 
 const SOURCE_NAMES: Record<string, string> = {
 	'sine-iitb': 'SINE IIT Bombay',
-	'rtbi-iitm': 'IIT Madras RTBI',
+	// The page this source reads is on rtbi.in but is the IIT Madras Incubation Cell's
+	// portfolio (its own title says so); the id stays, the name is corrected.
+	'rtbi-iitm': 'IIT Madras Incubation Cell',
 	'grants-csv': 'Government grants',
 	'dpiit-startup-india': 'DPIIT register',
 	'venture-center': 'Venture Center',
+	'nmicps-tih': 'NM-ICPS innovation hubs',
+	'fsid-iisc': 'FSID, IISc',
+	'tides-iitr': 'TIDES, IIT Roorkee',
+	'nsa-dpiit': 'National Startup Awards',
+	'birac-big': 'BIRAC BIG',
+	'tdb-agreements': 'Technology Development Board',
+	'idex': 'iDEX',
 };
 
 export const TOOL: Anthropic.Tool = {

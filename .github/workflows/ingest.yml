@@ -17,6 +17,11 @@ on:
         # Held at zero on 14 Sep 2026 while the page after the register-label fix was
         # reviewed, and restored the same day. At zero every new company waits unclassified.
         default: "0.05"
+      batch:
+        description: "Classify through Message Batches (half price, answers within the hour as a rule) — for a backfill"
+        type: boolean
+        required: false
+        default: false
 
 # Never two at once. Two runs classifying the same new companies in parallel pay
 # for them twice and then race to commit the answers.
@@ -30,7 +35,9 @@ permissions:
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # A batch run waits for its answers (up to UPSTREAM_BATCH_WAIT_MINUTES, then it
+    # leaves the batch for the next run to collect); a nightly run has nothing to wait for.
+    timeout-minutes: ${{ inputs.batch && 200 || 30 }}
     steps:
       - uses: actions/checkout@v4
 
@@ -77,6 +84,8 @@ jobs:
           # instead of emptying the balance. Raise it for a one-off backfill by
           # dispatching the workflow by hand; the nightly run keeps the floor.
           UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.05' }}
+          UPSTREAM_BATCH: ${{ inputs.batch && '1' || '0' }}
+          UPSTREAM_BATCH_WAIT_MINUTES: "150"
         run: |
           set -euo pipefail
           python -m ingest.run --base-url https://rohitrao.in/upstream | tee run.log
@@ -95,6 +104,7 @@ jobs:
             ingest/cache/contacts.json
             ingest/cache/rdap.json
             ingest/cache/papers.json
+            ingest/cache/batch_pending.json
             run.log
           retention-days: 30
           if-no-files-found: error
@@ -150,13 +160,20 @@ jobs:
           # registration date and a company's papers, each looked up once and refreshed
           # monthly. Not committed, every night would ask every registry again.
           paid="$paid ingest/cache/contacts.json ingest/cache/rdap.json ingest/cache/papers.json"
+          # A batch the run stopped waiting for: its id, so the next run collects the
+          # answers instead of paying for them twice. Removed once collected.
+          if [ -f ingest/cache/batch_pending.json ] || git ls-files --error-unmatch ingest/cache/batch_pending.json >/dev/null 2>&1; then
+            paid="$paid ingest/cache/batch_pending.json"
+          fi
 
-          if git diff --quiet -- $paid; then
+          # status, not diff: a new file (the first batch_pending.json) is untracked,
+          # and diff would call that "no new answers".
+          if [ -z "$(git status --porcelain -- $paid)" ]; then
             echo "No new answers this run; nothing to commit."
             exit 0
           fi
 
-          git add $paid
+          git add -A -- $paid
           git commit -m "cache: answers from $(date -u +%Y-%m-%d)"
 
           # One rebase attempt, because a human may have pushed while this ran.

@@ -12,6 +12,7 @@ still has work to do and the summary says which source went quiet.
 from __future__ import annotations
 
 import argparse
+import re
 import dataclasses
 import traceback
 
@@ -198,6 +199,77 @@ def register_rows(base_url: str) -> list[dict] | None:
         print(f"  could not read the register's rows ({error}): not sweeping")
         return None
     return list(rows.values())
+
+
+DIPP_NUMBER = re.compile(r"\((DIPP\d+)\)")
+
+
+def evidence_modules() -> list:
+    """The evidence collectors, imported here so a missing optional dependency (a PDF
+    reader) costs its own list and not the run."""
+    from ingest.evidence import birac_big, idex, national_startup_awards, tdb
+
+    return [national_startup_awards, birac_big, tdb, idex]
+
+
+def held_for_evidence(unique: list[Company], sent: set[str], signals_by_source: dict[str, list[Signal]]) -> list[tuple[str, str, str | None]]:
+    """(id, name, DIPP number) for every company this run put on the page. The DIPP
+    number is read off the register's own evidence line, where the register gave one."""
+    numbers: dict[str, str] = {}
+    for signal in signals_by_source.get(dpiit.SOURCE, []):
+        found = DIPP_NUMBER.search(signal.label or "")
+        if found:
+            numbers[signal.company_id] = found.group(1)
+    return [(c.id, c.name, numbers.get(c.id)) for c in unique if c.id in sent]
+
+
+def evidence_signals_for(awards, held) -> list[Signal]:
+    """Matched awards as signals. Individuals are never matched: a person on a grant
+    list is not a company on ours, whatever their name shares with one."""
+    from ingest.evidence import match as evidence_match
+
+    matched = evidence_match.match([a for a in awards if a.is_company], held)
+    return [
+        Signal(company_id=cid, type=a.type, label=a.label, date=a.date, url=a.url, source=a.source, published=a.published)
+        for a, cid in matched
+    ]
+
+
+def attach_evidence(unique: list[Company], sent: set[str], signals_by_source: dict[str, list[Signal]], args) -> int:
+    held = held_for_evidence(unique, sent, signals_by_source)
+    try:
+        modules = evidence_modules()
+    except ImportError as error:
+        print(f"\nEvidence: not collected ({error})")
+        return 0
+    print("\nEvidence")
+    previous = health.history(args.base_url)
+    verdicts = []
+    attached = 0
+    for module in modules:
+        try:
+            awards = module.collect()
+        except Exception as error:  # noqa: BLE001 - one list, not the run
+            verdicts.append(health.failed(module.SOURCE, f"{type(error).__name__}: {error}"))
+            print(f"  {module.SOURCE}: FAILED — {error}")
+            continue
+        last = (previous.get(module.SOURCE) or {}).get("last_success_records")
+        verdict = health.judge(module.SOURCE, len(awards), last, None)
+        verdicts.append(verdict)
+        if verdict.status != health.OK:
+            # A list that shrank sharply is a parser problem until shown otherwise; what it
+            # attached before stays attached.
+            print(f"  {module.SOURCE}: {verdict.status} — {verdict.reason}")
+            continue
+        signals = evidence_signals_for(awards, held)
+        dated = sum(1 for s in signals if s.date)
+        print(f"  {module.SOURCE}: {len(awards)} listed, {len(signals)} on companies we hold ({dated} dated)")
+        if signals and not args.dry_run:
+            upload(module.SOURCE, [], signals, [], base_url=args.base_url, mode=args.mode)
+        attached += len(signals)
+    if not args.dry_run:
+        health.record(args.base_url, verdicts)
+    return attached
 
 
 def gap(company: Company, result) -> dict:
@@ -488,6 +560,10 @@ def main() -> int:
         upload(owner[folds[0]["into"]], [], [], [], base_url=args.base_url, mode=args.mode, merged=folds)
     unfolded = sorted(a for a, b in merge_map.items() if b not in sent)
     print(f"  {len(folds)} of {len(merge_map)} duplicates folded" + (f"; not placed this run, left as they are: {', '.join(unfolded)}" if unfolded else ""))
+
+    # Award and grant lists, as evidence on companies this run placed and never as a
+    # source of new ones. After the uploads, so every id they match exists.
+    evidence_signals = attach_evidence(unique, sent, signals_by_source, args)
 
     # After the uploads, so everything this run re-sent has already been judged above.
     swept: int | None = None

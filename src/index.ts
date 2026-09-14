@@ -397,6 +397,7 @@ interface SignalInput {
 	url?: string | null;
 	source?: string | null;
 	found_at?: string | null;
+	published?: string | null;
 }
 
 /**
@@ -478,8 +479,18 @@ ON CONFLICT(id) DO UPDATE SET
   updated_at    = excluded.updated_at`;
 
 const INSERT_SIGNAL_SQL = `
-INSERT OR IGNORE INTO signals (company_id, type, label, date, url, source, found_at)
-VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`;
+INSERT OR IGNORE INTO signals (company_id, type, label, date, url, source, found_at, published)
+VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`;
+
+/**
+ * A company no source dated takes the date of the first event a source does date: an
+ * award, a grant, an incubation. As a source's date ('cohort'), never as a discovery,
+ * and at the precision the source gave — a year stays a year. A row that already has a
+ * date keeps it.
+ */
+const DATE_FROM_EVENT_SQL = `
+UPDATE companies SET first_seen = ?2, first_seen_basis = 'cohort'
+WHERE id = ?1 AND first_seen IS NULL`;
 
 const UPSERT_GAP_SQL = `
 INSERT INTO gaps (company_id, name, description, sector_id, missing, note, source, found_at)
@@ -685,6 +696,14 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 			return json({ error: `signals[${i}].type must be one of ${SIGNAL_TYPES.join(', ')}` }, 400);
 		}
 		if (!label) return json({ error: `signals[${i}].label is required` }, 400);
+		// A full date or a bare year, and nothing padded or approximate in between: "2021"
+		// is what a source said, "2021-01-01" would be a date it did not give.
+		for (const field of ['date', 'published'] as const) {
+			const value = str(s[field]);
+			if (value !== null && !/^\d{4}(-\d{2}-\d{2})?$/.test(value)) {
+				return json({ error: `signals[${i}].${field} must be YYYY-MM-DD or YYYY` }, 400);
+			}
+		}
 		signals.push({ ...(s as object), company_id: companyId, type, label } as SignalInput);
 	}
 
@@ -875,6 +894,7 @@ async function applyIngest(
 				str(s.url),
 				str(s.source) ?? source,
 				str(s.found_at) ?? nowIso,
+				str(s.published),
 			),
 		);
 	}
@@ -916,6 +936,9 @@ async function applyIngest(
 	for (const s of accepted) {
 		if (s.type === 'dpiit') gapWrites.push(env.DB.prepare(DELETE_STALE_REGISTER_SIGNAL_SQL).bind(s.company_id, s.label));
 	}
+	// Earliest first, so of two dated events arriving together the older one dates the row.
+	const datedEvents = accepted.filter((s) => str(s.date) !== null).sort((a, b) => (str(a.date)! < str(b.date)! ? -1 : 1));
+	for (const s of datedEvents) gapWrites.push(env.DB.prepare(DATE_FROM_EVENT_SQL).bind(s.company_id, str(s.date)));
 	if (gapWrites.length > 0) await env.DB.batch(gapWrites);
 
 	// A row that has just been deleted has no ranking to recompute.

@@ -14,6 +14,8 @@ export interface Signal {
 	source?: string;
 	/** When we recorded it, as against `date`, which is when it happened. */
 	found_at?: string;
+	/** When the page or list carrying it was published, where it says. Never an event date. */
+	published?: string | null;
 }
 
 export interface Company {
@@ -125,7 +127,7 @@ export interface Filters {
  * The four sources, as the ingest writes them. Listed so a filter cannot be handed an
  * arbitrary string and quietly return nothing, which looks identical to "no matches".
  */
-export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-india', 'venture-center'] as const;
+export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-india', 'venture-center', 'nmicps-tih', 'fsid-iisc', 'tides-iitr'] as const;
 
 /**
  * 'has' is simple. 'none' is not an absence but an assertion — a source that publishes
@@ -461,7 +463,7 @@ export async function queryCompany(env: Env, id: string): Promise<Company | null
 	const row = await env.DB.prepare(
 		`SELECT c.*,
   (SELECT json_group_array(json_object(
-      'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date, 'source', s.source, 'found_at', s.found_at))
+      'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date, 'source', s.source, 'found_at', s.found_at, 'published', s.published))
    FROM signals s WHERE s.company_id = c.id) AS signals
 FROM companies c WHERE c.id = ?`,
 	)

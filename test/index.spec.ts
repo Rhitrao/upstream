@@ -1759,7 +1759,7 @@ describe('source health', () => {
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
 		const line = html.slice(html.indexOf('<p class="freshness">'), html.indexOf('</p>', html.indexOf('<p class="freshness">')));
 		expect(line).toContain('Government grants 6 Oct 2025');
-		expect(line).toContain('IIT Madras RTBI date unknown');
+		expect(line).toContain('IIT Madras Incubation Cell date unknown');
 	});
 });
 
@@ -2320,5 +2320,38 @@ describe('how many ranked rows it takes to open on them', () => {
 		expect(minRankedToOpen({ MIN_RANKED_TO_OPEN: '1' } as Env)).toBe(1);
 		expect(minRankedToOpen({ MIN_RANKED_TO_OPEN: 'zero' } as Env)).toBe(5);
 		expect(minRankedToOpen({ MIN_RANKED_TO_OPEN: '0' } as Env)).toBe(5);
+	});
+});
+
+describe('awards as evidence on companies already held', () => {
+	it('never creates a company, dates an undated one at the precision given, and counts the award as a trace', async () => {
+		await post({ source: 'sine-iitb', companies: [{ id: 'held-co', name: 'Held Co', description: 'Battery cells.', sector_id: '1', subsector_id: '1.4' }] });
+		const before = await env.DB.prepare("SELECT first_seen, trace_count FROM companies WHERE id = 'held-co'").first<any>();
+		expect(before.first_seen).toBeNull();
+
+		const res = await post({
+			source: 'nsa-dpiit',
+			signals: [
+				{ company_id: 'held-co', type: 'award', label: 'National Startup Awards 2022, finalist — Energy', date: '2022', url: 'https://www.startupindia.gov.in/nsa2022results/' },
+				{ company_id: 'not-held', type: 'award', label: 'National Startup Awards 2022, winner — Space', date: '2022', url: 'https://www.startupindia.gov.in/nsa2022results/' },
+			],
+		});
+		expect(res.status).toBe(200);
+		expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM companies WHERE id = 'not-held'").first<any>()).toEqual({ n: 0 });
+		const after = await env.DB.prepare("SELECT first_seen, first_seen_basis, trace_count FROM companies WHERE id = 'held-co'").first<any>();
+		expect(after).toEqual({ first_seen: '2022', first_seen_basis: 'cohort', trace_count: 1 });
+
+		// A padded date is refused: "2022-01-01" is a day the source never gave, and "2022-23" is not a date.
+		const padded = await post({ source: 'tdb-agreements', signals: [{ company_id: 'held-co', type: 'grant', label: 'TDB FY 2022-23', date: '2022-23' }] });
+		expect(padded.status).toBe(400);
+
+		// The page shows the list's own date apart from the event's.
+		await post({
+			source: 'birac-big',
+			signals: [{ company_id: 'held-co', type: 'grant', label: 'BIRAC BIG round 18 awardee', published: '2021-09-03', url: 'https://birac.nic.in/big.php' }],
+		});
+		const page = await (await SELF.fetch(`${ORIGIN}/upstream/c/held-co`)).text();
+		expect(page).toContain('not dated; list published 2021-09-03');
+		expect(page).toContain('National Startup Awards 2022, finalist');
 	});
 });

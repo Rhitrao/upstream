@@ -165,6 +165,7 @@ function query(params: Record<string, string | null | undefined>): string {
 /** What each kind of evidence is called when its date is the one on the row. */
 const EVENT_NAMES: Record<string, string> = {
 	dpiit: 'DPIIT register record',
+	award: 'award',
 	incubator: 'incubator listing',
 	grant: 'grant award',
 	press: 'press mention',
@@ -172,6 +173,11 @@ const EVENT_NAMES: Record<string, string> = {
 	incorporation: 'incorporated',
 	website: 'website seen',
 };
+
+/** A source date a reader can place: a full ISO date, or a year when that is all a source gave. */
+function isDated(date: string | null | undefined): boolean {
+	return Boolean(date && (date.length >= 10 || /^\d{4}$/.test(date)));
+}
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -186,7 +192,7 @@ function shortDate(iso: string): string {
  * 25 Aug 2023". Null when no source dates anything.
  */
 function sourceEvent(company: Company): { label: string; date: string } | null {
-	const dated = company.signals.filter((s) => s.date && s.date.length >= 10).sort((a, b) => (a.date! < b.date! ? -1 : 1));
+	const dated = company.signals.filter((s) => isDated(s.date)).sort((a, b) => (a.date! < b.date! ? -1 : 1));
 	if (dated.length) return { label: EVENT_NAMES[dated[0].type] ?? dated[0].type, date: dated[0].date!.slice(0, 10) };
 	if (company.first_seen_basis === 'cohort' && company.first_seen !== null) {
 		return { label: 'on public record from', date: String(company.origin_year ?? company.first_seen.slice(0, 4)) };
@@ -798,10 +804,19 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 /** The labels for the sources, since the ids are not written for reading. */
 const SOURCE_LABELS: Record<string, string> = {
 	'sine-iitb': 'SINE IIT Bombay',
-	'rtbi-iitm': 'IIT Madras RTBI',
+	// The page this source reads is on rtbi.in but is the IIT Madras Incubation Cell's
+	// portfolio (its own title says so); the id stays, the name is corrected.
+	'rtbi-iitm': 'IIT Madras Incubation Cell',
 	'grants-csv': 'Government grants',
 	'dpiit-startup-india': 'DPIIT register',
 	'venture-center': 'Venture Center',
+	'nmicps-tih': 'NM-ICPS innovation hubs',
+	'fsid-iisc': 'FSID, IISc',
+	'tides-iitr': 'TIDES, IIT Roorkee',
+	'nsa-dpiit': 'National Startup Awards',
+	'birac-big': 'BIRAC BIG',
+	'tdb-agreements': 'Technology Development Board',
+	'idex': 'iDEX',
 };
 
 const SORT_LABELS: Record<SortChoice, string> = {
@@ -1046,6 +1061,7 @@ function basisTag(company: Company): string {
 /** Short names for evidence on a row, where there is room for one word each. */
 const EVIDENCE_NAMES: Record<string, string> = {
 	dpiit: 'DPIIT',
+	award: 'award',
 	incubator: 'incubator',
 	grant: 'grant',
 	press: 'press',
@@ -1057,6 +1073,7 @@ const EVIDENCE_NAMES: Record<string, string> = {
 /** What the source's own date says happened, in the words a row has room for. */
 const EVENT_VERBS: Record<string, string> = {
 	dpiit: 'on DPIIT register',
+	award: 'award',
 	incubator: 'incubator listing',
 	grant: 'grant awarded',
 	press: 'press mention',
@@ -1107,7 +1124,7 @@ function buildsLine(company: Company): { html: string; described: boolean } {
  * Null when no source dates anything.
  */
 function eventPhrase(company: Company): string | null {
-	const dated = company.signals.filter((s) => s.date && s.date.length >= 10).sort((a, b) => (a.date! < b.date! ? -1 : 1));
+	const dated = company.signals.filter((s) => isDated(s.date)).sort((a, b) => (a.date! < b.date! ? -1 : 1));
 	if (dated.length) return `${EVENT_VERBS[dated[0].type] ?? dated[0].type} ${monthYear(dated[0].date!)}`;
 	const event = sourceEvent(company);
 	return event ? `${event.label} ${event.date}` : null;
@@ -1304,7 +1321,7 @@ function undatedList(view: PageView): string {
 <section class="list undated-list" id="undated" aria-labelledby="undated-h">
   <h2 id="undated-h">Undated <span class="count">${n}</span></h2>
   <p class="note">${n} ${n === 1 ? 'company we can&rsquo;t' : 'companies we can&rsquo;t'} place in time yet. IIT Madras
-    RTBI publishes no incubation years, so there is no honest date to rank these by. Dating them from incorporation
+    Incubation Cell's portfolio publishes no incubation years, so there is no honest date to rank these by. Dating them from incorporation
     filings is on the roadmap; until then they are listed here, counted in the coverage map above, and left out of the
     tiers rather than shown as if they were new.</p>
   ${truncated(undated.length, n)}
@@ -1492,7 +1509,7 @@ function methodology(view: PageView): string {
   <h3>Where this comes from</h3>
   <p>Public sources only, nothing behind a login. Five are read today: three incubator portfolios
     (<a href="https://www.sineiitb.org/portfolio/" rel="noopener">SINE IIT Bombay</a>,
-    <a href="https://rtbi.in/incubationiitm/portfolio.html" rel="noopener">IIT Madras RTBI</a> and
+    <a href="https://rtbi.in/incubationiitm/portfolio.html" rel="noopener">IIT Madras Incubation Cell</a> and
     <a href="https://www.venturecenter.co.in/startups-and-success-stories/startups" rel="noopener">Venture Center, Pune</a>), the published award lists
     of two grant programmes (<a href="https://birac.nic.in/" rel="noopener">BIRAC BIG</a> rounds 21&ndash;24 and
     DST NIDHI-PRAYAS, typed up by hand from the lists themselves), and the
@@ -1582,7 +1599,7 @@ export function unknowns(company: Company): string[] {
 	else if (!productKnown) out.push('What it says about itself: no homepage of theirs has been read');
 	if (sub && !company.project_type) out.push(`What kind of product it is, within ${sub.subsector_id} ${sub.subsector}`);
 	if (!ageKnown(company)) out.push('When it was founded: no source gives a founding or incubation year');
-	if (!company.signals.some((s) => s.date && s.date.length >= 10) && company.first_seen_basis !== 'cohort') {
+	if (!company.signals.some((s) => isDated(s.date)) && company.first_seen_basis !== 'cohort') {
 		out.push('When any source first recorded it: no source dates anything about it');
 	}
 	if (!company.city && !company.state) out.push('Where it is based');
@@ -1716,7 +1733,7 @@ function evidenceLimits(company: Company): string[] {
 	if (company.entity_type && company.entity_type !== 'company') out.push(`Not shown to be a company: ${company.entity_note ?? 'nothing on record shows one'}`);
 	if (company.dpiit_status === 'profile' || company.dpiit_status === 'pending') out.push('On Startup India with a profile DPIIT has not recognised');
 	if (company.dpiit_status === 'expired' || company.dpiit_status === 'cancelled') out.push(`Its DPIIT recognition is ${company.dpiit_status}`);
-	if (!company.signals.some((s) => s.date && s.date.length >= 10)) out.push('No source gives a date for anything it lists');
+	if (!company.signals.some((s) => isDated(s.date))) out.push('No source gives a date for anything it lists');
 	out.push('The placement is automated and nobody has reviewed it');
 	return out;
 }
@@ -1943,7 +1960,11 @@ export function renderCompanyPage(view: CompanyView): string {
 			return `<tr>
           <td>${esc(signal.label)} <span class="ev-type">${esc(signal.type)}</span></td>
           <td>${esc(SOURCE_LABELS[signal.source ?? ''] ?? signal.source ?? '')}</td>
-          <td class="mono">${signal.date ? esc(signal.date) : `<span class="no-link">${undatedWord(signal.label)}</span>`}</td>
+          <td class="mono">${
+				signal.date
+					? esc(signal.date)
+					: `<span class="no-link">${undatedWord(signal.label)}${signal.published ? `; list published ${esc(signal.published)}` : ''}</span>`
+			}</td>
           <td>${where}</td>
         </tr>`;
 		})

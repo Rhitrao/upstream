@@ -17,7 +17,7 @@
  * a department assessed it, and the result is published in a register anyone can
  * search. That is somebody having noticed.
  */
-export const TRACE_TYPES = ['website', 'press', 'grant', 'incubator', 'dpiit'] as const;
+export const TRACE_TYPES = ['website', 'press', 'grant', 'incubator', 'dpiit', 'award'] as const;
 
 /**
  * Every signal type the ingest will accept, and the only place that decides.
@@ -69,7 +69,12 @@ export function daysSince(iso: string, now: Date): number {
  * company can have started, so a year is never read as more recent than it is.
  */
 export function earliestEvent(signalDates: readonly (string | null)[], originYear: number | null): string | null {
-	const dates = signalDates.filter((d): d is string => typeof d === 'string' && d.length >= 10).map((d) => d.slice(0, 10));
+	// A source that gives only a year ("2021") is taken at the latest day it could mean, the
+	// same reading as an origin year: an award dated only by its year cannot make a company
+	// look older than it might be.
+	const dates = signalDates
+		.filter((d): d is string => typeof d === 'string' && (d.length >= 10 || /^\d{4}$/.test(d)))
+		.map((d) => (d.length === 4 ? `${d}-12-31` : d.slice(0, 10)));
 	if (originYear !== null) dates.push(`${originYear}-12-31`);
 	return dates.length ? dates.sort()[0] : null;
 }

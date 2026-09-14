@@ -29,6 +29,7 @@ import hashlib
 import json
 import pathlib
 import threading
+import time
 
 import os
 
@@ -96,6 +97,16 @@ MAX_COST_ENV = "UPSTREAM_MAX_COST"
 # check at zero and the first batch is unconditional, which on a small ceiling
 # means spending double it.
 COST_PER_COMPANY = 0.003
+
+# The Message Batches API answers the same requests at half the price, within an hour
+# as a rule and within 24 at most. Right for a backfill of hundreds, wrong for a night
+# of ten — so it is chosen by hand for a run, never by default.
+BATCH_ENV = "UPSTREAM_BATCH"
+BATCH_DISCOUNT = 0.5
+BATCH_STATE_PATH = pathlib.Path(__file__).parent / "cache" / "batch_pending.json"
+BATCH_POLL_SECONDS = 30
+BATCH_WAIT_ENV = "UPSTREAM_BATCH_WAIT_MINUTES"
+BATCH_WAIT_MINUTES = 150
 
 
 def max_cost(explicit: float | None = None) -> float:
@@ -199,6 +210,12 @@ class Usage:
     failed: int = 0
     over_budget: int = 0
     never_attempted: int = 0
+    # Answers asked for in a Message Batch that had not come back when the run stopped
+    # waiting. Not lost and not billed yet: the batch id is kept, and the next run
+    # collects them instead of asking again.
+    pending: int = 0
+    # Batch requests bill at half the price of the same request made directly.
+    price_factor: float = 1.0
 
     def add(self, response) -> None:
         self.calls += 1
@@ -207,7 +224,7 @@ class Usage:
 
     @property
     def cost(self) -> float:
-        return (self.input_tokens * PRICE_IN + self.output_tokens * PRICE_OUT) / 1_000_000
+        return self.price_factor * (self.input_tokens * PRICE_IN + self.output_tokens * PRICE_OUT) / 1_000_000
 
     def __str__(self) -> str:
         said = (
@@ -220,6 +237,10 @@ class Usage:
             said += f", {self.over_budget} left unclassified at the cost ceiling"
         if self.never_attempted:
             said += f", {self.never_attempted} never attempted"
+        if self.pending:
+            said += f", {self.pending} still in a batch for the next run to collect"
+        if self.price_factor != 1.0:
+            said += " (Message Batches, half price)"
         return said
 
 
@@ -343,7 +364,11 @@ def _classify_one(client: anthropic.Anthropic, company: Company, usage: Usage, l
 
     sector = SECTOR_BY_ID[chosen]
     answer = _ask(client, SUBSECTOR_SYSTEM, _subsector_prompt(company, sector), _subsector_schema(sector), usage, lock)
+    return _placement(sector, answer)
 
+
+def _placement(sector: dict, answer: dict) -> Classification:
+    """The second call's answer, checked against the sector it was asked about."""
     if answer["subsector_id"] == "none":
         # The sector was right and nothing under it fits. Keep the sector, the
         # reason and the name of the hole: unplaced for want of a sub-sector is a
@@ -368,6 +393,21 @@ def _classify_one(client: anthropic.Anthropic, company: Company, usage: Usage, l
         project_type=project,
         note=clean(answer["reason"]),
     )
+
+
+def _cache_entry(company: Company, result: Classification) -> dict:
+    return {
+        "hash": _fingerprint(company),
+        "name": company.name,
+        "sector_id": result.sector_id,
+        "subsector_id": result.subsector_id,
+        "project_type": result.project_type,
+        "note": result.note,
+        "missing": result.missing,
+        "source": company.source,
+        "model": MODEL,
+        "classified_at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
+    }
 
 
 # --- cache and overrides ----------------------------------------------------
@@ -481,6 +521,7 @@ def classify(
     *,
     force: bool = False,
     cost_limit: float | None = None,
+    batch: bool | None = None,
 ) -> tuple[dict[str, Classification], Usage]:
     """Classify what is not already known, up to the cost ceiling.
 
@@ -515,6 +556,11 @@ def classify(
             usage.cached += 1
             continue
         todo.append(company)
+
+    if batch is None:
+        batch = os.environ.get(BATCH_ENV) == "1"
+    if batch and (todo or BATCH_STATE_PATH.exists()):
+        return _classify_in_batches(todo, results, usage, cache, ceiling)
 
     if not todo:
         return results, usage
@@ -590,18 +636,7 @@ def classify(
                     usage.failed += 1
                     continue
                 results[company.id] = result
-                cache[company.id] = {
-                    "hash": _fingerprint(company),
-                    "name": company.name,
-                    "sector_id": result.sector_id,
-                    "subsector_id": result.subsector_id,
-                    "project_type": result.project_type,
-                    "note": result.note,
-                    "missing": result.missing,
-                    "source": company.source,
-                    "model": MODEL,
-                    "classified_at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
-                }
+                cache[company.id] = _cache_entry(company, result)
                 done += 1
                 # Saved as we go, and saved again on the way out of a failure:
                 # the work is paid for the moment the call returns, and a crash
@@ -633,6 +668,166 @@ def classify(
         )
 
     return results, usage
+
+
+# --- Message Batches ----------------------------------------------------------
+
+
+def _request(custom_id: str, system: str, prompt: str, schema: dict) -> dict:
+    return {
+        "custom_id": custom_id,
+        "params": {
+            "model": MODEL,
+            "max_tokens": MAX_TOKENS,
+            "system": system,
+            "messages": [{"role": "user", "content": prompt}],
+            "output_config": {"format": schema},
+        },
+    }
+
+
+def _wait(client, batch_id: str, minutes: float, sleep=time.sleep, clock=time.monotonic) -> bool:
+    """Poll until the batch has ended or the wait runs out. True when it ended."""
+    deadline = clock() + minutes * 60
+    while True:
+        status = client.messages.batches.retrieve(batch_id).processing_status
+        if status == "ended":
+            return True
+        if clock() >= deadline:
+            return False
+        sleep(BATCH_POLL_SECONDS)
+
+
+def _answers(client, batch_id: str, usage: Usage) -> tuple[dict[str, dict], dict[str, str]]:
+    """custom_id -> parsed JSON answer, and custom_id -> why there is none. Results come
+    back in any order, so nothing here is positional."""
+    answers: dict[str, dict] = {}
+    problems: dict[str, str] = {}
+    for item in client.messages.batches.results(batch_id):
+        result = item.result
+        if result.type != "succeeded":
+            problems[item.custom_id] = result.type
+            continue
+        usage.add(result.message)
+        text = next((block.text for block in result.message.content if block.type == "text"), None)
+        try:
+            answers[item.custom_id] = json.loads(text) if text else None
+        except ValueError:
+            answers[item.custom_id] = None
+        if answers[item.custom_id] is None:
+            del answers[item.custom_id]
+            problems[item.custom_id] = "unreadable answer"
+    return answers, problems
+
+
+def _save_state(state: dict | None) -> None:
+    if state is None:
+        BATCH_STATE_PATH.unlink(missing_ok=True)
+        return
+    BATCH_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    BATCH_STATE_PATH.write_text(json.dumps(state, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _classify_in_batches(
+    todo: list[Company],
+    results: dict[str, Classification],
+    usage: Usage,
+    cache: dict,
+    ceiling: float,
+    *,
+    client=None,
+    sleep=time.sleep,
+    clock=time.monotonic,
+) -> tuple[dict[str, Classification], Usage]:
+    """The two calls per company, as two Message Batches at half price.
+
+    The first batch asks every company's sector; the second asks the sub-sector of
+    those that have one. A batch that has not ended when the wait runs out is written to
+    ingest/cache/batch_pending.json — committed with the cache — and the next run
+    collects it rather than asking, and paying, again. The ceiling is reserved up
+    front at half of COST_PER_COMPANY, so a batch cannot be sent that the run could
+    not afford.
+    """
+    usage.price_factor = BATCH_DISCOUNT
+    client = client or _client()
+    minutes = float(os.environ.get(BATCH_WAIT_ENV) or BATCH_WAIT_MINUTES)
+    by_id = {company.id: company for company in todo}
+    state = _load(BATCH_STATE_PATH) or None
+
+    try:
+        if state is None:
+            affordable = int(ceiling // (COST_PER_COMPANY * BATCH_DISCOUNT))
+            asked, usage.over_budget = todo[:affordable], max(0, len(todo) - affordable)
+            if not asked:
+                return results, usage
+            ids = [company.id for company in asked]
+            batch = client.messages.batches.create(
+                requests=[_request(f"c{i}", SECTOR_SYSTEM, _sector_prompt(c), _sector_schema()) for i, c in enumerate(asked)]
+            )
+            state = {"stage": "sector", "batch_id": batch.id, "ids": ids, "created": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds")}
+            _save_state(state)
+            print(f"  batch {batch.id}: asked the sector of {len(ids)} companies")
+        else:
+            print(f"  collecting batch {state['batch_id']} ({state['stage']}) left by an earlier run")
+
+        if state["stage"] == "sector":
+            if not _wait(client, state["batch_id"], minutes, sleep, clock):
+                usage.pending = len(state["ids"])
+                return results, usage
+            answers, problems = _answers(client, state["batch_id"], usage)
+            sectors: dict[str, str] = {}
+            for i, cid in enumerate(state["ids"]):
+                answer = answers.get(f"c{i}")
+                if answer is None:
+                    usage.failed += cid in by_id
+                    continue
+                sectors[cid] = answer["sector_id"]
+            second = [(i, cid) for i, cid in enumerate(state["ids"]) if sectors.get(cid) not in (None, "none") and cid in by_id]
+            for cid, chosen in sectors.items():
+                if chosen == "none" and cid in by_id:
+                    results[cid] = Classification(sector_id=None)
+                    cache[cid] = _cache_entry(by_id[cid], results[cid])
+            _save_cache(cache)
+            if not second:
+                _save_state(None)
+                return results, usage
+            batch = client.messages.batches.create(
+                requests=[
+                    _request(f"c{i}", SUBSECTOR_SYSTEM, _subsector_prompt(by_id[cid], SECTOR_BY_ID[sectors[cid]]), _subsector_schema(SECTOR_BY_ID[sectors[cid]]))
+                    for i, cid in second
+                ]
+            )
+            state = {"stage": "subsector", "batch_id": batch.id, "ids": state["ids"], "sectors": sectors, "created": state.get("created")}
+            _save_state(state)
+            print(f"  batch {batch.id}: asked the sub-sector of {len(second)} companies")
+
+        if not _wait(client, state["batch_id"], minutes, sleep, clock):
+            usage.pending = len(state["sectors"])
+            return results, usage
+        answers, problems = _answers(client, state["batch_id"], usage)
+        for i, cid in enumerate(state["ids"]):
+            chosen = state["sectors"].get(cid)
+            if chosen in (None, "none"):
+                continue
+            answer = answers.get(f"c{i}")
+            company = by_id.get(cid)
+            if answer is None or company is None:
+                # Nothing to file: the company is no longer asked for (its record
+                # changed since), or its answer did not come back.
+                usage.failed += company is not None
+                continue
+            results[cid] = _placement(SECTOR_BY_ID[chosen], answer)
+            cache[cid] = _cache_entry(company, results[cid])
+        _save_cache(cache)
+        _save_state(None)
+        if problems:
+            print(f"  {len(problems)} batch answers did not come back, e.g. {next(iter(problems.items()))}")
+        return results, usage
+    except anthropic.APIStatusError as error:
+        reason = fatal_reason(error)
+        if reason:
+            raise ConfigurationError(f"Batch classification stopped: {reason}.") from error
+        raise
 
 
 def check_key() -> str:

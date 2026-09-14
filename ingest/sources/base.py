@@ -139,9 +139,14 @@ class Signal:
     company_id: str
     type: str
     label: str
+    # When the source says the thing happened: a full ISO date, or only the year ("2021")
+    # when that is all it says. Never a year padded out to 1 January.
     date: str | None = None
     url: str | None = None
     source: str | None = None
+    # When the page carrying it was published or last updated, where it says so. Not an
+    # event date, and never copied into `date` for want of one.
+    published: str | None = None
     found_at: str | None = None
 
     def payload(self) -> dict:
@@ -250,6 +255,12 @@ def fetch_optional(url: str, *, force: bool = False, patience: bool = False) -> 
         return None, "unreachable"
 
 
+def fetch_form(url: str, form: dict, *, force: bool = False) -> str:
+    """A form-encoded POST, for the WordPress-style search endpoints a portfolio page
+    calls for itself (admin-ajax.php). Cached like the rest, the form in the key."""
+    return _cached(url, {"__form__": form}, force=force)
+
+
 def fetch_json(url: str, body: dict, *, force: bool = False) -> dict:
     """The same, for a search API that wants a POST.
 
@@ -266,22 +277,42 @@ FETCHED_AT: list[str] = []
 
 
 def _cached(url: str, body: dict | None, *, force: bool, retries: int = RETRIES, timeout: int = TIMEOUT_SECONDS) -> str:
-    path = _cache_path(url, body)
-    if not force:
-        cached = _read_cache(path)
-        if cached is not None:
-            try:
-                FETCHED_AT.append(json.loads(path.read_text(encoding="utf-8"))["fetched_at"])
-            except (OSError, ValueError, KeyError):
-                pass
-            return cached
+    """The page, from the cache while it is fresh; otherwise asked for again.
 
-    text = _request(url, body, retries=retries, timeout=timeout)
+    Asked conditionally when the last answer carried an ETag or Last-Modified: a 304
+    means the page has not changed, so the cached copy is kept and only the time it was
+    checked moves. Nothing downstream can tell a 304 from a fresh fetch of the same
+    bytes, which is the point — an unchanged page must not look like new events.
+    """
+    path = _cache_path(url, body)
+    previous = _read_entry(path)
+    if not force and previous is not None and _fresh(previous):
+        FETCHED_AT.append(previous["fetched_at"])
+        return previous["response"]
+
+    validators = {}
+    if previous is not None and previous.get("response") is not None:
+        if previous.get("etag"):
+            validators["If-None-Match"] = previous["etag"]
+        if previous.get("last_modified"):
+            validators["If-Modified-Since"] = previous["last_modified"]
+
+    response = _send(url, body, retries=retries, timeout=timeout, extra_headers=validators)
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    entry = {"url": url, "body": body, "fetched_at": _now().isoformat(), "response": text}
+    if response.status_code == 304 and previous is not None:
+        entry = {**previous, "fetched_at": _now().isoformat()}
+    else:
+        entry = {
+            "url": url,
+            "body": body,
+            "fetched_at": _now().isoformat(),
+            "response": response.text,
+            "etag": response.headers.get("ETag"),
+            "last_modified": response.headers.get("Last-Modified"),
+        }
     FETCHED_AT.append(entry["fetched_at"])
     path.write_text(json.dumps(entry), encoding="utf-8")
-    return text
+    return entry["response"]
 
 
 def preview(companies: list[Company], signals: list[Signal], limit: int = 5) -> str:
@@ -324,10 +355,15 @@ def _request(url: str, body: dict | None = None, *, retries: int = RETRIES, time
     the opposite shape — each host is visited exactly once in the whole run — so
     enrich.py fetches those concurrently and this queue is not what holds it back.
     """
+    return _send(url, body, retries=retries, timeout=timeout).text
+
+
+def _send(url: str, body: dict | None = None, *, retries: int = RETRIES, timeout: int = TIMEOUT_SECONDS, extra_headers: dict | None = None):
     global _last_call
 
-    headers = {"User-Agent": USER_AGENT}
-    if body is not None:
+    headers = {"User-Agent": USER_AGENT, **(extra_headers or {})}
+    form = body.get("__form__") if isinstance(body, dict) and "__form__" in body else None
+    if body is not None and form is None:
         headers["content-type"] = "application/json"
 
     for attempt in range(1, retries + 1):
@@ -337,9 +373,13 @@ def _request(url: str, body: dict | None = None, *, retries: int = RETRIES, time
         try:
             if body is None:
                 response = requests.get(url, headers=headers, timeout=timeout)
+            elif form is not None:
+                response = requests.post(url, headers=headers, data=form, timeout=timeout)
             else:
                 response = requests.post(url, headers=headers, data=json.dumps(body), timeout=timeout)
             _last_call = time.monotonic()
+            if response.status_code == 304 and extra_headers:
+                return response
             if response.status_code in RETRY_STATUSES:
                 raise requests.HTTPError(f"{response.status_code} from {url}", response=response)
             response.raise_for_status()
@@ -347,7 +387,7 @@ def _request(url: str, body: dict | None = None, *, retries: int = RETRIES, time
             # turns every curly quote on a UTF-8 page into mojibake.
             if "charset" not in response.headers.get("content-type", "").lower():
                 response.encoding = response.apparent_encoding or "utf-8"
-            return response.text
+            return response
         except requests.RequestException:
             _last_call = time.monotonic()
             if attempt == retries:
@@ -367,15 +407,23 @@ def _cache_path(url: str, body: dict | None = None) -> pathlib.Path:
     return CACHE_DIR / f"{stem}-{hashlib.sha256(key.encode()).hexdigest()[:8]}.json"
 
 
-def _read_cache(path: pathlib.Path) -> str | None:
+def _read_entry(path: pathlib.Path) -> dict | None:
     try:
         entry = json.loads(path.read_text(encoding="utf-8"))
-        fetched_at = datetime.datetime.fromisoformat(entry["fetched_at"])
-    except (OSError, ValueError, KeyError):
+        datetime.datetime.fromisoformat(entry["fetched_at"])
+        entry["response"]
+    except (OSError, ValueError, KeyError, TypeError):
         return None
-    if (_now() - fetched_at).total_seconds() > CACHE_TTL_SECONDS:
-        return None
-    return entry["response"]
+    return entry
+
+
+def _fresh(entry: dict) -> bool:
+    return (_now() - datetime.datetime.fromisoformat(entry["fetched_at"])).total_seconds() <= CACHE_TTL_SECONDS
+
+
+def _read_cache(path: pathlib.Path) -> str | None:
+    entry = _read_entry(path)
+    return entry["response"] if entry is not None and _fresh(entry) else None
 
 
 TITLE = r"(?:Dr|Prof|Mr|Ms|Mrs)\.?"

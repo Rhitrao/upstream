@@ -116,6 +116,14 @@ Measured, not guessed.
 - **Classification is automated.** A model places each company from what its sources say. The page
   prints its reasoning, labelled as reasoning and not evidence, beside every placement.
 
+## Next, not built
+
+- **Venture portfolios as a suppression signal, not a source.** A company on a VC's portfolio page
+  (Speciale Invest, pi Ventures, Blume and the rest) has already been found by a fund, which is the
+  one thing this list exists to get ahead of. Read those pages only to disqualify: a company that
+  appears on one leaves the obscurity ranking. Nothing from them is added, and nothing is shown
+  except the fact and the link. It is the strongest possible expression of the thesis.
+
 ## How it works
 
 ```
