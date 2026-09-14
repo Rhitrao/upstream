@@ -490,7 +490,10 @@ VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`;
  */
 const DATE_FROM_EVENT_SQL = `
 UPDATE companies SET first_seen = ?2, first_seen_basis = 'cohort'
-WHERE id = ?1 AND first_seen IS NULL`;
+WHERE id = ?1
+  AND (first_seen IS NULL
+       -- A source's bare year is refined by a full date in that same year, and by nothing else.
+       OR (first_seen_basis = 'cohort' AND length(first_seen) = 4 AND length(?2) = 10 AND substr(?2, 1, 4) = first_seen))`;
 
 const UPSERT_GAP_SQL = `
 INSERT INTO gaps (company_id, name, description, sector_id, missing, note, source, found_at)
@@ -800,7 +803,8 @@ async function isBackfill(env: Env, source: string, today: string): Promise<bool
  * Tier A and it drops a company out of the age gate slightly early rather than late.
  */
 function cohortDate(year: number | null): string | null {
-	return year === null ? null : `${year}-01-01`;
+	// The year as the source gave it. "2023-01-01" would be a day nobody said.
+	return year === null ? null : String(year);
 }
 
 async function applyIngest(

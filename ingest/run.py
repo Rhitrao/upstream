@@ -24,7 +24,7 @@ from ingest import gaps as gap_labels
 from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
-from ingest.sources import dpiit, grants_csv, rtbi, sine, venture_center
+from ingest.sources import dpiit, fsid, grants_csv, nmicps, rtbi, sine, tides, venture_center
 from ingest.sources import base
 from ingest.sources.base import Company, Signal
 from ingest.upload import PRODUCTION, TIMEOUT_SECONDS, upload
@@ -34,7 +34,7 @@ from ingest.upload import PRODUCTION, TIMEOUT_SECONDS, upload
 # worse thing to classify on than whatever the incubator wrote about them.
 # Venture Center last: a company it shares with an older source keeps that source's row
 # and cached classification, so adding it re-buys nothing that was already placed.
-SOURCES = [sine, rtbi, grants_csv, dpiit, venture_center]
+SOURCES = [sine, rtbi, grants_csv, dpiit, venture_center, nmicps, fsid, tides]
 
 
 def scrape(module) -> tuple[list[Company], list[Signal]]:
@@ -199,6 +199,21 @@ def register_rows(base_url: str) -> list[dict] | None:
         print(f"  could not read the register's rows ({error}): not sweeping")
         return None
     return list(rows.values())
+
+
+# Sources that publish what a company builds, and so are only worth classifying where a
+# record actually does. A name from one of them with no description is not asked about:
+# the classifier would be guessing from a name, which this page does not print.
+DESCRIBED_SOURCES = frozenset({nmicps.SOURCE, fsid.SOURCE, tides.SOURCE})
+
+# Who is asked first when a run's ceiling cannot cover everyone: what the older sources
+# still need, then the new portfolios from the richest descriptions to the thinnest.
+CLASSIFY_ORDER = {fsid.SOURCE: 1, tides.SOURCE: 2, nmicps.SOURCE: 3}
+
+
+def to_classify(unique: list[Company]) -> list[Company]:
+    kept = [c for c in unique if c.description or c.source not in DESCRIBED_SOURCES]
+    return sorted(kept, key=lambda c: CLASSIFY_ORDER.get(c.source or "", 0))
 
 
 DIPP_NUMBER = re.compile(r"\((DIPP\d+)\)")
@@ -381,7 +396,7 @@ def main() -> int:
 
     print(f"\nClassifying {len(unique)} companies")
     try:
-        results, usage = classifier.classify(unique, cost_limit=args.max_cost)
+        results, usage = classifier.classify(to_classify(unique), cost_limit=args.max_cost)
     except classifier.ConfigurationError as error:
         # Nothing is uploaded and the job goes red. A run that cannot classify has
         # no new placements to publish, and the scraped rows are unchanged from

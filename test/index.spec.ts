@@ -170,7 +170,7 @@ describe('POST /upstream/api/ingest', () => {
 		expect(await second.json()).toMatchObject({ inserted: 0, updated: 1, signals_added: 0, backfill: false });
 
 		const row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('verve-aerospace').first<any>();
-		expect(row.first_seen).toBe('2022-01-01');
+		expect(row.first_seen).toBe('2022');
 		expect(row.first_seen_basis).toBe('cohort');
 		expect(row.discovered).toBe(TODAY);
 		// The earliest claim wins, so a later cohort year cannot age a company forward.
@@ -267,7 +267,7 @@ describe('POST /upstream/api/ingest', () => {
 		expect((await res.json<any>()).merged).toBe(1);
 
 		const rows = await env.DB.prepare('SELECT id, first_seen, trace_count FROM companies ORDER BY id').all<any>();
-		expect(rows.results).toEqual([{ id: 'cancrie', first_seen: '2021-01-01', trace_count: 1 }]);
+		expect(rows.results).toEqual([{ id: 'cancrie', first_seen: '2021', trace_count: 1 }]);
 		expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM signals WHERE company_id = 'cancrie-inc'").first<any>()).toEqual({ n: 0 });
 		expect(await env.DB.prepare('SELECT company_id FROM notes').first<any>()).toEqual({ company_id: 'cancrie' });
 
@@ -311,7 +311,7 @@ describe('POST /upstream/api/ingest', () => {
 
 		const rows = await env.DB.prepare('SELECT id, first_seen, first_seen_basis, tier FROM companies ORDER BY id').all<any>();
 		expect(rows.results).toEqual([
-			{ id: 'backfilled', first_seen: `${THIS_YEAR}-01-01`, first_seen_basis: 'cohort', tier: expect.stringMatching(/B|C/) },
+			{ id: 'backfilled', first_seen: `${THIS_YEAR}`, first_seen_basis: 'cohort', tier: expect.stringMatching(/B|C/) },
 			{ id: 'found', first_seen: TODAY, first_seen_basis: 'discovered', tier: 'A' },
 			{ id: 'other', first_seen: null, first_seen_basis: null, tier: 'C' },
 		]);
@@ -334,12 +334,12 @@ describe('POST /upstream/api/ingest', () => {
 		await post({ source: 'sine', companies: [{ id: 'shared', name: 'Shared Co', origin_year: 2023 }] });
 
 		let row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('shared').first<any>();
-		expect(row.first_seen).toBe('2023-01-01');
+		expect(row.first_seen).toBe('2023');
 		expect(row.first_seen_basis).toBe('cohort');
 
 		await post({ source: 'grants', companies: [{ id: 'shared', name: 'Shared Co', origin_year: 2025 }] });
 		row = await env.DB.prepare('SELECT * FROM companies WHERE id = ?').bind('shared').first<any>();
-		expect(row.first_seen).toBe('2023-01-01');
+		expect(row.first_seen).toBe('2023');
 	});
 
 	it('keeps a cohort date out of Tier A however recent it is', async () => {
@@ -1019,8 +1019,8 @@ describe('GET /upstream (the page)', () => {
 		const rows = await env.DB.prepare('SELECT id, first_seen, origin_year FROM companies ORDER BY id').all<any>();
 		expect(rows.results).toEqual([
 			// Both dated; only one claims to know when the company began.
-			{ id: 'founded', first_seen: `${THIS_YEAR}-01-01`, origin_year: THIS_YEAR },
-			{ id: 'registered', first_seen: `${THIS_YEAR}-01-01`, origin_year: null },
+			{ id: 'founded', first_seen: `${THIS_YEAR}`, origin_year: THIS_YEAR },
+			{ id: 'registered', first_seen: `${THIS_YEAR}`, origin_year: null },
 		]);
 
 		const html = await page('?tier=all');

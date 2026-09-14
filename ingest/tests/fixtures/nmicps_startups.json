@@ -1,0 +1,319 @@
+{
+ "message": "Startups fetched successfully",
+ "data": [
+  {
+   "id": 537,
+   "startup_name": "EdgeForce Solutions",
+   "founder_name": "Colonel P Hani, Colonel (Dr) N Sriramesh",
+   "logo": "public/uploads/startups/edgeforce_1.png",
+   "product_brief": "EdgeForce Solutions is a technology startup focused on developing advanced systems in unmanned technologies, AI, robotics, and electronics to provide innovative solutions across industries.",
+   "incub_date": "2023-09-22",
+   "website_url": "https://edgeforce.in/",
+   "hub_id": 1,
+   "year_id": 4,
+   "master_hub": {
+    "id": 1,
+    "hub_name": "IIT Kharagpur AI4ICPS I-Hub Foundation",
+    "technology_vertical": "Artificial Intelligence and Machine Learning",
+    "institute_id": 1,
+    "master_institute": {
+     "id": 1,
+     "institute_name": "IIT Kharagpur",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 64,
+   "startup_name": "Senseqube Technologies Pvt Ltd",
+   "founder_name": "Naimish Chandra Patidar",
+   "logo": "public/uploads/startups/SenseQube_Logo_Big.png",
+   "product_brief": "Soil Trident is a movable handy IoT-based device  that uses statistical models to get weather and soil-related information; thus, providing farmers instantaneous suggestions for precise irrigation. ",
+   "incub_date": "2021-2022",
+   "website_url": "NA",
+   "hub_id": 5,
+   "year_id": 2,
+   "master_hub": {
+    "id": 5,
+    "hub_name": "TIH Foundation For IOT And IOE",
+    "technology_vertical": "Technologies for Internet of Things & Internet of Everything",
+    "institute_id": 5,
+    "master_institute": {
+     "id": 5,
+     "institute_name": "IIT Bombay Mumbai",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 91,
+   "startup_name": "Senseqube Technologies Pvt Ltd",
+   "founder_name": "Naimish Chandra Patidar",
+   "logo": "public/uploads/startups/SenseQube_Logo_Big.png",
+   "product_brief": "Soil Trident is a movable handy IoT-based device  that uses statistical models to get weather and soil-related information; thus, providing farmers instantaneous suggestions for precise irrigation. ",
+   "incub_date": "2023-2024",
+   "website_url": "NA",
+   "hub_id": 5,
+   "year_id": 4,
+   "master_hub": {
+    "id": 5,
+    "hub_name": "TIH Foundation For IOT And IOE",
+    "technology_vertical": "Technologies for Internet of Things & Internet of Everything",
+    "institute_id": 5,
+    "master_institute": {
+     "id": 5,
+     "institute_name": "IIT Bombay Mumbai",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 47,
+   "startup_name": "Darwin Digitech Pvt. Ltd.",
+   "founder_name": "Rahul Bajaj",
+   "logo": "public/uploads/startups/Darwin_logo.png",
+   "product_brief": "PhysioAI® platform by Darwin is connecting a network of independent therapists on a SaaS Cloud Rehab clinic delivering standardized Anytime, Anywhere, Hybrid-mode therapies . PHYBot®; the Computer-Vision, AI, NLP powered proprietary virtual therapist ; enables Physiotherapists to provide Evidence based therapies with Quantified Assessment, Digitization of joint & muscle KPI’s and defining & monitoring personalized therapy plans for patients.",
+   "incub_date": "2023-2024",
+   "website_url": "Home - Darwin Technology Private Limited",
+   "hub_id": 5,
+   "year_id": 4,
+   "master_hub": {
+    "id": 5,
+    "hub_name": "TIH Foundation For IOT And IOE",
+    "technology_vertical": "Technologies for Internet of Things & Internet of Everything",
+    "institute_id": 5,
+    "master_institute": {
+     "id": 5,
+     "institute_name": "IIT Bombay Mumbai",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 485,
+   "startup_name": "Canorx Motors Private Limited",
+   "founder_name": "Mr. Kalavathi Ramu Banothu",
+   "logo": "public/uploads/startups/Canorx__Motors_Pvt_Ltd.jpg",
+   "product_brief": "CANORX Multi purpose sustainable and renewable Solar electric tractor for agriculture and commercial at affordable price ",
+   "incub_date": "2023-10-31 - 2025-10-30",
+   "website_url": "https:--www-canorx-com",
+   "hub_id": 4,
+   "year_id": 4,
+   "master_hub": {
+    "id": 4,
+    "hub_name": "NMICPS Technology Innovation Hub On Autonomous Navigation Foundation",
+    "technology_vertical": "Autonomous Navigation and Data Acquisition systems(UAV, RoVetc)",
+    "institute_id": 4,
+    "master_institute": {
+     "id": 4,
+     "institute_name": "IIT Hyderabad",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 773,
+   "startup_name": "Canorx  Motors Pvt Ltd",
+   "founder_name": "Ramu Banothu",
+   "logo": "public/uploads/startups/Canorx__Motors_Pvt_Ltd.jpg",
+   "product_brief": "Multipurpose Solar Electric Hybrid Tractor",
+   "incub_date": "2025-02-01",
+   "website_url": "https://www.canorx.com/",
+   "hub_id": 17,
+   "year_id": 6,
+   "master_hub": {
+    "id": 17,
+    "hub_name": "IIT Palakkad Technology Ihub Foundation",
+    "technology_vertical": "Intelligent Collaborative Systems",
+    "institute_id": 17,
+    "master_institute": {
+     "id": 17,
+     "institute_name": "IIT Palakkad",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 500,
+   "startup_name": "Grow Your Farms Private Limited",
+   "founder_name": "Mr. Aruneswar",
+   "logo": "public/uploads/startups/growyourfarms_1.png",
+   "product_brief": "Grow Your Farms is an AgriTech Startup helping farmers with smart and data driven insights through Predictive AI technology and empower them to make better and informed decisions on their day to day farming activities- We empower farmers with weather advisory, crop pest identification and recommending solutions, sell agri inputs like seeds, crop nutrition and crop protection products, etc-, access to credit and access to market to make farming sustainable, productive and profitable ",
+   "incub_date": "09-05-2024 - 31-11-2025",
+   "website_url": "https:--growyourfarms-com",
+   "hub_id": 4,
+   "year_id": 5,
+   "master_hub": {
+    "id": 4,
+    "hub_name": "NMICPS Technology Innovation Hub On Autonomous Navigation Foundation",
+    "technology_vertical": "Autonomous Navigation and Data Acquisition systems(UAV, RoVetc)",
+    "institute_id": 4,
+    "master_institute": {
+     "id": 4,
+     "institute_name": "IIT Hyderabad",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 857,
+   "startup_name": "Opt2Deal E-commerce Private Limited",
+   "founder_name": "Mr. Upender Singh",
+   "logo": "public/uploads/startups/opt2deal.png",
+   "product_brief": "Platform to liquidate access inventory",
+   "incub_date": "2025-26",
+   "website_url": "https://www.linkedin.com/company/opt2deal-e-commerce-private-limited/",
+   "hub_id": 2,
+   "year_id": 6,
+   "master_hub": {
+    "id": 2,
+    "hub_name": "I-Dapt-Hub Foundation",
+    "technology_vertical": "Data Analytics & Predictive Technologies",
+    "institute_id": 2,
+    "master_institute": {
+     "id": 2,
+     "institute_name": "IIT BHU Varanasi",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 438,
+   "startup_name": "GDQ",
+   "founder_name": "Pranab Dutta,Korak Biswas,Kushal Patel",
+   "logo": "public/uploads/startups/8)_GDQ_Labs_1.jpg",
+   "product_brief": "Quantum Magnetometers using Optically Pumped Magnetometers",
+   "incub_date": "not given any funds, only incubation",
+   "website_url": "https://gdqlabs.com/",
+   "hub_id": 23,
+   "year_id": null,
+   "master_hub": {
+    "id": 23,
+    "hub_name": "I-Hub Quantum Technology Foundation",
+    "technology_vertical": "Quantum Technologies",
+    "institute_id": 23,
+    "master_institute": {
+     "id": 23,
+     "institute_name": "IISER Pune",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 202,
+   "startup_name": "Neos Healthtech Pvt Ltd",
+   "founder_name": "Avnish Parekh",
+   "logo": "public/uploads/startups/Neos_Healthtech_Pvt_Ltd_1.jpg",
+   "product_brief": "Flow",
+   "incub_date": "2023 - 24",
+   "website_url": "https://neoshealthtech.com/",
+   "hub_id": 11,
+   "year_id": 4,
+   "master_hub": {
+    "id": 11,
+    "hub_name": "IIT Patna Vishlesan I-Hub Foundation",
+    "technology_vertical": "Speech, Video & Text Analytics",
+    "institute_id": 11,
+    "master_institute": {
+     "id": 11,
+     "institute_name": "IIT Patna",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 203,
+   "startup_name": "Bramhansh Technologies Pvt Ltd",
+   "founder_name": "Kartik K",
+   "logo": "public/uploads/startups/Bramhansh_Technologies_Pvt_Ltd_1.jpg",
+   "product_brief": "Migrarelief",
+   "incub_date": "2023 - 24",
+   "website_url": "https://www.bramhansh.com/",
+   "hub_id": 11,
+   "year_id": 4,
+   "master_hub": {
+    "id": 11,
+    "hub_name": "IIT Patna Vishlesan I-Hub Foundation",
+    "technology_vertical": "Speech, Video & Text Analytics",
+    "institute_id": 11,
+    "master_institute": {
+     "id": 11,
+     "institute_name": "IIT Patna",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 397,
+   "startup_name": "Neos Healthtech Pvt Ltd",
+   "founder_name": "Avnish Parekh",
+   "logo": "public/uploads/startups/Neos_Healthtech_Pvt_Ltd_1.jpg",
+   "product_brief": "Flow",
+   "incub_date": "2023 - 24",
+   "website_url": "https://neoshealthtech.com/",
+   "hub_id": 21,
+   "year_id": 4,
+   "master_hub": {
+    "id": 21,
+    "hub_name": "IITI Drishti CPS Foundation",
+    "technology_vertical": "System Simulation,Modelling & Visualization",
+    "institute_id": 21,
+    "master_institute": {
+     "id": 21,
+     "institute_name": "IIT Indore",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 398,
+   "startup_name": "Bramhansh Technologies Pvt Ltd",
+   "founder_name": "Kartik K",
+   "logo": "public/uploads/startups/Bramhansh_Technologies_Pvt_Ltd_1.jpg",
+   "product_brief": "Migrarelief",
+   "incub_date": "2023 - 24",
+   "website_url": "https://www.bramhansh.com/",
+   "hub_id": 21,
+   "year_id": 4,
+   "master_hub": {
+    "id": 21,
+    "hub_name": "IITI Drishti CPS Foundation",
+    "technology_vertical": "System Simulation,Modelling & Visualization",
+    "institute_id": 21,
+    "master_institute": {
+     "id": 21,
+     "institute_name": "IIT Indore",
+     "institute_type": "To be Filled"
+    }
+   }
+  },
+  {
+   "id": 248,
+   "startup_name": "Embright Infotech Private Limited",
+   "founder_name": "Sathyanarayanan A R",
+   "logo": "public/uploads/startups/Embright_Infotech_Private_Limited.jpg",
+   "product_brief": "Embright is developing Assistive Technology Platform for Inclusive Learning for Autism Spectrum Disorder & Special education using XR-AI.",
+   "incub_date": "2023",
+   "website_url": "Embright Infotech",
+   "hub_id": 12,
+   "year_id": 4,
+   "master_hub": {
+    "id": 12,
+    "hub_name": "IIT Mandi IHub and HCI Foundation",
+    "technology_vertical": "Human Computer Interaction",
+    "institute_id": 12,
+    "master_institute": {
+     "id": 12,
+     "institute_name": "IIT Mandi",
+     "institute_type": "To be Filled"
+    }
+   }
+  }
+ ],
+ "pagination": {
+  "currentPage": 1,
+  "limit": 100,
+  "totalCount": 14,
+  "totalPages": 1
+ }
+}
