@@ -1101,14 +1101,14 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 
 // --- GET /upstream/c/:id ----------------------------------------------------
 
-async function companyPage(id: string, env: Env): Promise<Response> {
+async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 	const company = await queryCompany(env, id);
 	if (company === null) {
 		// A plain 404 rather than a redirect to the list: a link that stops working
 		// should say so, not quietly land somebody on a different page.
 		return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
 	}
-	return new Response(renderCompanyPage({ company, now: new Date() }), {
+	return new Response(renderCompanyPage({ company, now: new Date(), pageUrl: `${url.origin}${BASE_PATH}/c/${company.id}` }), {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
@@ -1196,7 +1196,7 @@ export default {
 		if (path.startsWith(`${BASE}/c/`)) {
 			if (!isRead) return methodNotAllowed('GET, HEAD');
 			const id = path.slice(`${BASE}/c/`.length);
-			return id && !id.includes('/') ? companyPage(id, env) : json({ error: 'not found' }, 404);
+			return id && !id.includes('/') ? companyPage(id, env, url) : json({ error: 'not found' }, 404);
 		}
 
 		switch (path) {

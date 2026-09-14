@@ -1188,9 +1188,112 @@ ${registerSplit(view)}
 
 // --- one company ------------------------------------------------------------
 
+/**
+ * Everything not known about a company, read off its empty fields. No model and no
+ * judgement: each line is there because a column is NULL, so the list cannot flatter a
+ * company by forgetting to mention something, and cannot invent a gap either.
+ *
+ * Shared by the page and the brief, so the two cannot disagree about what is unknown.
+ */
+export function unknowns(company: Company): string[] {
+	const out: string[] = [];
+	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
+	const site = safeUrl(company.website);
+	const host = site ? new URL(site).hostname : null;
+	const productKnown = Boolean(company.product && company.website_identity === 'verified');
+	const described = productKnown || Boolean(company.description && company.classify_basis !== 'register-label');
+
+	if (company.entity_type === 'unverified') out.push('Whether a company exists behind this name: nothing on record shows one');
+	if (company.entity_type === 'researcher-project') out.push('Whether a company has been formed: the record is a researcher’s project');
+	if (!described) out.push('What it builds: no source describes it, and a register’s dropdown label is not a description');
+	else if (!productKnown) out.push('What it says about itself: no homepage of theirs has been read');
+	if (sub && !company.project_type) out.push(`What kind of product it is, within ${sub.subsector_id} ${sub.subsector}`);
+	if (!ageKnown(company)) out.push('When it was founded: no source gives a founding or incubation year');
+	if (!company.signals.some((s) => s.date && s.date.length >= 10) && company.first_seen_basis !== 'cohort') {
+		out.push('When any source first recorded it: no source dates anything about it');
+	}
+	if (!company.city && !company.state) out.push('Where it is based');
+	if (site && company.website_identity === 'discovered') out.push(`Its website: ${host} was given for it, and is not treated as theirs`);
+	else if (site && company.website_identity !== 'verified') out.push(`Whether ${host} is its website: not confirmed as theirs`);
+	else if (!site && !company.website_checked) out.push('Whether it has a website: no source that publishes websites lists it');
+	if (!company.cin) out.push('Its company registration: no CIN on record, so no MCA filing is joined');
+	out.push('Founders, funding and revenue: Upstream collects none of these');
+	return out;
+}
+
+/** Where a brief says the website came from, in plain words. */
+function siteLine(company: Company): string | null {
+	const site = safeUrl(company.website);
+	if (!site) return null;
+	if (company.website_identity === 'verified') return `${site} (checked as theirs: ${company.website_identity_note ?? 'name matched'})`;
+	if (company.website_identity === 'discovered') return `${site} was given for it and is NOT treated as theirs (${company.website_identity_note ?? 'nothing ties it to them'})`;
+	return `${site} (not confirmed as theirs${company.website_identity_note ? `: ${company.website_identity_note}` : ''})`;
+}
+
+/**
+ * The brief a reader can forward, as markdown, from a template.
+ *
+ * The order is the one a partner reads in: what it is, what nobody knows, then the
+ * evidence. "Unknown" is a heading at the same level as "Evidence" and comes before it,
+ * because a forwarded lead that buries its gaps is how a guess becomes a fact two
+ * emails later.
+ */
+export function briefMarkdown(company: Company, pageUrl: string, now: Date): string {
+	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
+	const site = company.website_identity === 'verified' ? safeUrl(company.website) : null;
+	const lines: string[] = [`# ${company.name}`, ''];
+
+	if (company.entity_type && company.entity_type !== 'company') {
+		lines.push(`_${(ENTITY_LABELS[company.entity_type] ?? '').replace(/&rsquo;/g, '’')}${company.entity_note ? `: ${company.entity_note}` : ''}._`, '');
+	}
+
+	if (company.product && site) {
+		lines.push(`**What it builds:** ${company.product} _(in their own words, from ${new URL(site).hostname})_`);
+	} else if (company.description && company.classify_basis !== 'register-label') {
+		lines.push(`**What it builds:** ${company.description} _(as a source described it)_`);
+	} else {
+		lines.push('**What it builds:** Unknown. No source describes it.');
+		if (company.description) lines.push(`The only published line is a register label: ${company.description}`);
+	}
+	if (company.product && site && company.description && company.classify_basis !== 'register-label') {
+		lines.push(`**As a source described it:** ${company.description}`);
+	}
+
+	const located = [company.city, company.state].filter(Boolean).join(', ');
+	lines.push(
+		`**Started:** ${ageKnown(company) ? String(company.origin_year ?? company.founded_year) : 'unknown'} · **Based:** ${located || 'unknown'} · **Public traces:** ${company.trace_count}`,
+		'',
+		'## Unknown',
+		...unknowns(company).map((u) => `- ${u}`),
+		'',
+		'## Evidence',
+	);
+	for (const signal of company.signals) {
+		const where = SOURCE_LABELS[signal.source ?? ''] ?? signal.type;
+		lines.push(`- ${signal.label} — ${where}, ${signal.date ?? 'undated'}: ${safeUrl(signal.url) ?? 'no link published'}`);
+	}
+	const siteSaid = siteLine(company);
+	if (siteSaid) lines.push(`- Website: ${siteSaid}`);
+
+	lines.push('', '## Placement');
+	if (sub) {
+		lines.push(
+			`- RDI ${sub.subsector_id} ${sub.subsector}, placed ${
+				company.classify_basis === 'register-label' ? 'from a register label only, which supports nothing narrower' : 'from its description'
+			}${company.project_type ? `; project type: ${company.project_type}` : ''}`,
+		);
+	} else {
+		lines.push('- Not placed in any RDI sub-sector');
+	}
+	lines.push(`- Tier ${company.tier}`, '', `Upstream: ${pageUrl}`, `_Assembled from public records on ${shortDate(now.toISOString())} by a template. No person has checked it, and the placement is automated._`);
+	return lines.join('\n');
+}
+
 export interface CompanyView {
 	company: Company;
 	now: Date;
+	/** The company page's own absolute URL, for the brief. */
+	pageUrl: string;
 }
 
 /** Why this company is in the tier it is in, in the words of the rule that decided. */
@@ -1285,63 +1388,71 @@ function productStatusDetail(company: Company, link: string, site: string | null
 }
 
 /**
- * Everything held about one company, on a page of its own.
+ * One company, as a brief rather than a record dump.
  *
- * The list has to choose four facts; this chooses none. The classifier's reasoning is
- * printed verbatim rather than summarised, every signal is a link back to the page it
- * came from, and all four dates are separate because they mean four different things.
- * Somebody disagreeing with a placement should be able to see exactly what was decided
- * and on what, without an API key and without reading the source.
+ * In the order a sourcing decision needs it: what it builds and on whose word, what is
+ * not known, the evidence with a link for every claim, the three dates kept apart, and
+ * the classification with the model's note labelled as reasoning. The classifier's note
+ * is printed as written; every signal links back to the page it came from.
  */
 export function renderCompanyPage(view: CompanyView): string {
-	const { company, now } = view;
+	const { company, now, pageUrl } = view;
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	// Not a discovered address: the header link reads as "their site", and for Grinntech
 	// it was HyperVerge's. productDetail still names the address, with the reason.
 	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
+	const productKnown = Boolean(company.product && company.website_identity === 'verified');
+	const located = [company.city, company.state].filter(Boolean).join(', ');
 
-	const signals = company.signals.length
-		? `<ul class="evidence">${company.signals
-				.map((signal) => {
-					const href = safeUrl(signal.url);
-					const where = href
-						? `<a href="${esc(href)}" rel="noopener nofollow">${esc(new URL(href).hostname)}</a>`
-						: '<span class="no-link">no link published</span>';
-					const when = signal.date ? `<span class="ev-date">${esc(signal.date)}</span>` : '';
-					return `<li>
-        <span class="ev-type">${esc(signal.type)}</span>
-        <span class="ev-label">${esc(signal.label)}</span>
-        ${when}
-        ${where}
-      </li>`;
-				})
-				.join('')}</ul>`
+	const summary = productKnown
+		? productDetail(company)
+		: `<p class="unknown-value">Unknown</p>${productDetail(company)}`;
+	const excerpt = company.description
+		? company.classify_basis === 'register-label'
+			? `<p class="desc">${esc(company.description)}</p><p class="provenance">A register&rsquo;s dropdown choices, not a description. Nothing here says what the company makes.</p>`
+			: `<p class="desc">${esc(company.description)}<span class="says">as the source described it</span></p>`
+		: '<p class="unknown-value">Unknown</p><p class="provenance">No source published a description.</p>';
+
+	const evidenceRows = company.signals
+		.map((signal) => {
+			const href = safeUrl(signal.url);
+			const where = href
+				? `<a href="${esc(href)}" rel="noopener nofollow">${esc(new URL(href).hostname)}</a>`
+				: '<span class="no-link">no link published</span>';
+			return `<tr>
+          <td>${esc(signal.label)} <span class="ev-type">${esc(signal.type)}</span></td>
+          <td>${esc(SOURCE_LABELS[signal.source ?? ''] ?? signal.source ?? '')}</td>
+          <td class="mono">${signal.date ? esc(signal.date) : '<span class="no-link">not dated</span>'}</td>
+          <td>${where}</td>
+        </tr>`;
+		})
+		.join('');
+	const evidence = company.signals.length
+		? `<div class="table-scroll"><table class="evidence-table">
+      <thead><tr><th scope="col">Claim</th><th scope="col">Source</th><th scope="col">Date</th><th scope="col">Link</th></tr></thead>
+      <tbody>${evidenceRows}</tbody>
+    </table></div>`
 		: '<p class="provenance">No signals recorded, which should not be possible &mdash; every company here arrived with at least one.</p>';
 
-	const dates = [
-		['Started', company.origin_year ?? company.founded_year, 'The year a source says the company began. This is what the age gate reads.'],
-		(() => {
-			const event = sourceEvent(company);
-			return [
-				'Source event',
-				event ? `${event.label} ${event.date}` : null,
-				'The oldest dated thing any source says about the company. This is their timeline, not ours.',
-			] as const;
-		})(),
+	const event = sourceEvent(company);
+	const dates: Array<[string, string, string]> = [
 		[
-			'On record',
-			company.first_seen,
-			company.first_seen_basis === 'cohort'
-				? 'Read off a published cohort or award year.'
-				: 'The day it appeared in a run of ours. When we noticed, not when it happened.',
+			'Source event',
+			event ? `${event.label} ${event.date}` : 'none',
+			event ? 'The oldest dated thing any source says about the company. Their timeline, not ours.' : 'No source dates anything about this company.',
 		],
-		['Added to Upstream', company.discovered, 'The day the row was written. Never a claim about the company.'],
-		[
-			'Year on the source listing',
-			company.source_year,
-			'Printed beside the name, with no word on what it counts: founding, incubation or admission. Nothing here dates or ranks the company by it.',
-		],
-	] as const;
+		['Added to Upstream', company.discovered.slice(0, 10), 'The day the row was written. Never a claim about the company.'],
+		['Last checked', company.updated_at.slice(0, 10), 'The last run that read a source listing this company and wrote the row again.'],
+	];
+
+	const unknownItems = unknowns(company)
+		.map((u) => {
+			const [head, ...rest] = u.split(': ');
+			return `<li><strong>${esc(head)}</strong>${rest.length ? ` &mdash; ${esc(rest.join(': '))}` : ''}</li>`;
+		})
+		.join('');
+
+	const brief = briefMarkdown(company, pageUrl, now);
 
 	return `<!doctype html>
 <html lang="en">
@@ -1351,14 +1462,15 @@ export function renderCompanyPage(view: CompanyView): string {
 <title>${esc(company.name)} &mdash; Upstream</title>
 <meta name="description" content="${esc(company.product ?? company.description ?? company.name)}">
 <meta name="color-scheme" content="light dark">
+<link rel="canonical" href="${esc(`${BASE_PATH}/c/${company.id}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
 <style>${STYLES}</style>
 </head>
-<body>
+<body data-company="${esc(company.id)}">
 <div class="wrap detail">
-  <p class="eyebrow"><a href="${esc(BASE_PATH)}">&larr; Upstream</a></p>
+  <p class="eyebrow"><a class="back" href="${esc(`${BASE_PATH}#c-${company.id}`)}">&larr; Upstream</a></p>
 
   <header class="masthead">
     <h1>${esc(company.name)}</h1>
@@ -1369,26 +1481,60 @@ export function renderCompanyPage(view: CompanyView): string {
 		}
     <p class="facts">
       ${traceLine(company)}
-      ${site ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : ''}
-      ${company.city ? `<span class="fact-seen">${esc(company.city)}${company.state ? `, ${esc(company.state)}` : ''}</span>` : ''}
+      ${site && company.website_identity === 'verified' ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : ''}
+      <span class="${located ? '' : 'unknown-inline'}">${located ? esc(located) : 'location unknown'}</span>
+      <span class="${ageKnown(company) ? '' : 'unknown-inline'}">${ageKnown(company) ? `started ${esc(company.origin_year ?? company.founded_year)}` : 'founding year unknown'}</span>
     </p>
+    <div class="actions">
+      <button type="button" class="action copy-brief" hidden>Copy brief</button>
+      <button type="button" class="action mark" data-mark="shortlist" aria-pressed="false" hidden>Shortlist</button>
+      <button type="button" class="action mark" data-mark="pass" aria-pressed="false" hidden>Pass</button>
+    </div>
+    <p class="device-note" id="device-note" hidden>Shortlist and pass are stored in this browser on this device only &mdash;
+      not synced, and not visible to anyone else, including whoever runs this site.</p>
+    <details class="brief-fold"><summary>The brief, as markdown</summary><textarea id="brief-text" readonly rows="16" spellcheck="false">${esc(brief)}</textarea></details>
   </header>
 
   <section>
     <h2>What they build</h2>
-    ${productDetail(company)}
-    ${company.description ? `<p class="desc">${esc(company.description)}<span class="says">as the source described it</span></p>` : ''}
+    <div class="builds-grid">
+      <div><h3 class="mini">Summary</h3>${summary}</div>
+      <div><h3 class="mini">Source excerpt</h3>${excerpt}</div>
+    </div>
+  </section>
+
+  <section class="unknowns">
+    <h2>What is not known</h2>
+    <ul class="unknown-list">${unknownItems}</ul>
   </section>
 
   <section>
-    <h2>Where it sits in the RDI scheme</h2>
+    <h2>Evidence</h2>
+    <p class="provenance">Everything that put this company on the list, with the page it came from.</p>
+    ${evidence}
+  </section>
+
+  <section>
+    <h2>Dates</h2>
+    <dl class="dates">
+      ${dates.map(([label, value, why]) => `<div><dt>${label}</dt><dd>${esc(value)}</dd><dd class="why">${why}</dd></div>`).join('')}
+    </dl>
+    ${
+			company.source_year
+				? `<p class="provenance">The source listing prints ${esc(company.source_year)} beside the name, with no word on what it counts &mdash; founding, incubation or admission. Nothing here dates or ranks the company by it.</p>`
+				: ''
+		}
+  </section>
+
+  <section>
+    <h2>Classification</h2>
     ${
 			sub
 				? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
-      <p class="provenance basis">${basisTag(company)} ${
+      <p class="provenance basis">${
 				company.classify_basis === 'register-label'
-					? "The only thing placing it here is a register's industry label, picked by the founder from a fixed list. That supports this sub-sector and nothing narrower."
-					: 'Placed from the description above.'
+					? `<span class="basis-tag weak">register label only</span> The only thing placing it here is a register's industry label, picked by the founder from a fixed list. That supports this sub-sector and nothing narrower.`
+					: '<span class="basis-tag">from its description</span> Placed from the description above.'
 			}</p>
       <p class="provenance">Project type: ${
 				company.project_type
@@ -1415,27 +1561,12 @@ export function renderCompanyPage(view: CompanyView): string {
   </section>
 
   <section>
-    <h2>Evidence</h2>
-    <p class="provenance">Everything that put this company on the list, with the page it came from.</p>
-    ${signals}
-  </section>
-
-  <section>
-    <h2>Dates</h2>
-    <dl class="dates">
-      ${dates
-				.filter(([, value]) => value)
-				.map(([label, value, why]) => `<div><dt>${label}</dt><dd>${esc(value)}</dd><dd class="why">${why}</dd></div>`)
-				.join('')}
-    </dl>
-    ${company.first_seen === null ? '<p class="provenance">No source will say when this company became visible, so the list keeps it out of the ranking.</p>' : ''}
-  </section>
-
-  <section>
     <h2>Tier ${esc(company.tier)}</h2>
     <p class="provenance">${whyTier(company)}</p>
   </section>
 </div>
+<script>${MARKS_SCRIPT}</script>
+<script>${DETAIL_SCRIPT}</script>
 </body>
 </html>`;
 }
@@ -1785,6 +1916,8 @@ select:hover { border-color: var(--rule-strong); }
   margin-inline: calc(var(--s3) * -1);
   border-bottom: 1px solid var(--rule);
 }
+/* Clear of the sticky bar when a link or "back to results" lands on a row. */
+li.company { scroll-margin-top: 10rem; }
 .row-main { flex: 1 1 auto; min-width: 0; }
 .row-main h3 { font-size: var(--t-body); font-weight: 600; margin: 0 0 var(--s0); line-height: 1.3; }
 .row-main h3 a { text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
@@ -1936,6 +2069,7 @@ a.ev:hover { border-color: var(--ink); }
 /* The attribution is not decoration. This line is the company's own account of
    itself and the row must never let it read as something we checked. */
 .says {
+  margin-left: 0.35em;
   font-size: var(--t-micro);
   color: var(--muted);
   text-transform: uppercase;
@@ -2131,6 +2265,40 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
 .dates dt { flex: 0 0 8rem; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .dates dd { margin: 0; font-family: var(--mono); font-size: var(--t-sm); }
 .dates dd.why { font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); flex: 1 1 18rem; }
+
+
+/* the brief */
+.actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0 var(--s2); }
+.action {
+  font: inherit;
+  font-size: var(--t-sm);
+  padding: var(--s2) var(--s4);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--raise);
+  color: var(--ink);
+  cursor: pointer;
+}
+.action:hover { border-color: var(--ink); }
+.action.copy-brief { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.action[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.brief-fold { margin-top: var(--s2); font-size: var(--t-xs); color: var(--muted); }
+.brief-fold summary { cursor: pointer; }
+.brief-fold textarea { margin-top: var(--s2); font-family: var(--mono); font-size: var(--t-xs); }
+.builds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--s4) var(--s6); }
+.mini { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s2); }
+/* Unknown is a value, and gets the weight of one. */
+.unknown-value { font-weight: 600; margin: 0 0 var(--s2); }
+.unknown-inline { font-style: italic; }
+.unknown-list { list-style: none; margin: 0; padding: 0; }
+.unknown-list li { padding: var(--s2) 0; border-bottom: 1px solid var(--rule); font-size: var(--t-sm); color: var(--muted); }
+.unknown-list li strong { color: var(--ink); font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+.evidence-table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.evidence-table th { text-align: left; font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--rule-strong); }
+.evidence-table td { padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+.evidence-table .ev-type { margin-left: var(--s1); }
+.mono { font-family: var(--mono); font-size: var(--t-xs); white-space: nowrap; }
 
 /* the notebook */
 .whoami { font-family: var(--mono); text-transform: none; letter-spacing: 0; margin-left: var(--s2); }

@@ -588,7 +588,10 @@ describe('what a company builds', () => {
 		expect(detail).toContain('is not treated as');
 		// Named once, in the sentence explaining why it is not theirs, and never as a link
 		// in the header where it would read as their site.
-		expect(detail.match(/hyperverge\.co/g)).toHaveLength(2); // the href and its text, in that sentence
+		expect(detail.match(/href="http:\/\/hyperverge\.co\/"/g)).toHaveLength(1); // only in that sentence
+		// The unknowns and the brief name it too, and only to say it is not theirs.
+		expect(detail).toContain('Its website</strong> &mdash; hyperverge.co was given for it, and is not treated as theirs');
+		expect(detail).toContain('http://hyperverge.co/ was given for it and is NOT treated as theirs');
 		expect(detail).not.toContain('class="fact-site" href="http://hyperverge.co/"');
 		expect(detail).toContain('the same address is given for another company');
 		expect(detail).not.toContain('Identity verification');
@@ -1349,6 +1352,42 @@ describe('searching and one company at a time', () => {
 		expect(html).toContain('value="assay"');
 	});
 
+	it('writes a brief from a template, with the unknowns before the evidence', async () => {
+		await seed();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/kadamb-biolabs`)).text();
+		const brief = html
+			.slice(html.indexOf('<textarea id="brief-text"'), html.indexOf('</textarea>'))
+			.replace(/^[^>]*>/, '')
+			.replace(/&amp;/g, '&')
+			.replace(/&quot;/g, '"')
+			.replace(/&#39;/g, "'")
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>');
+
+		expect(brief.startsWith('# Kadamb Biolabs')).toBe(true);
+		expect(brief).toContain('**What it builds:** Benchtop assay kits for district hospitals.');
+		// Unknown is a section of the same rank as Evidence, and comes first.
+		expect(brief.indexOf('## Unknown')).toBeGreaterThan(0);
+		expect(brief.indexOf('## Unknown')).toBeLessThan(brief.indexOf('## Evidence'));
+		// Only what is actually empty: the founding year and the city are known here.
+		expect(brief).not.toContain('When it was founded');
+		expect(brief).not.toContain('Where it is based');
+		expect(brief).toContain('- What kind of product it is, within 4.2');
+		expect(brief).toContain('- Its company registration: no CIN on record');
+		expect(brief).toContain('- Founders, funding and revenue: Upstream collects none of these');
+		// Evidence with the real link, or saying there is none.
+		expect(brief).toContain('https://sineiitb.org/portfolio/');
+		expect(brief).toContain('no link published');
+		expect(brief).toContain(`Upstream: ${ORIGIN}/upstream/c/kadamb-biolabs`);
+
+		// The page lists the same unknowns, and the actions are there for the script.
+		expect(html).toContain('<h2>What is not known</h2>');
+		expect(html).toContain('<strong>Its company registration</strong>');
+		expect(html).toContain('class="action copy-brief"');
+		expect(html).toContain('data-mark="pass"');
+		expect(html).toContain('stored in this browser on this device only');
+	});
+
 	it('gives every company a page of its own, with the reasoning printed as written', async () => {
 		await seed();
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/kadamb-biolabs`)).text();
@@ -1371,7 +1410,7 @@ describe('searching and one company at a time', () => {
 		// The dates are separate because they mean different things.
 		expect(html).toContain('Source event');
 		expect(html).toContain('Added to Upstream');
-		expect(html).toContain('On record');
+		expect(html).toContain('Last checked');
 
 		// And the tier, with the rule that produced it rather than just the letter.
 		// Kadamb was placed from a register label, and that is the rule that decided.
@@ -1498,7 +1537,7 @@ describe('a year a source does not explain', () => {
 		expect(html).toContain('Call X Ringers Pvt Ltd');
 
 		const detail = await (await SELF.fetch(`${ORIGIN}/upstream/c/call-x-ringers`)).text();
-		expect(detail).toContain('Year on the source listing');
+		expect(detail).toContain('The source listing prints 2015 beside the name');
 		expect(detail).toContain('no word on what it counts');
 		expect(detail).toContain('listing already says what they build');
 
