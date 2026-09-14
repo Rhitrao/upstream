@@ -8,6 +8,10 @@ before the register-label rule withdrew 157 placements). Nothing was merged.
 **6 pairs are very probably one company listed twice — 12 of 761 rows (1.6%).**
 One more pair is waiting to happen when the Venture Center finish runs.
 
+Re-checked the same day after the nightly run withdrew the label guesses (607 rows left):
+all six pairs are still there, so it is **12 of 607 rows (2.0%)**. None of them was a
+register-label row.
+
 | Pair | What gives it away | Sources |
 |---|---|---|
 | Call X Ringers Pvt Ltd / CallX Ringers | same name without spaces; same website | Venture Center lists it twice |
