@@ -2515,6 +2515,20 @@ section > h2 {
    the id reads better than parking it at the bottom. */
 .cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s1); line-height: 1.2; }
 .cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
+/* Selected text inverts, in both themes, rather than borrowing the browser's blue. */
+::selection { background: var(--ink); color: var(--paper); }
+/* The smallest step is for labels a desktop reader glances at; on a phone it grows a step. */
+@media (max-width: 34rem) { :root { --t-nano: var(--t-micro); } }
+/* On paper: the rows and what they rest on, in black on white, without the controls. */
+@media print {
+  :root { --paper: #fff; --raise: #fff; --ink: #000; --muted: #444; --rule: #bbb; --rule-strong: #888; }
+  .controls, .filter-menu, .row-actions, .copy-row, .mark, .ask, .bar-links, script, .device-note { display: none !important; }
+  .company { break-inside: avoid; }
+  details { display: block; }
+  details > summary { list-style: none; }
+  a { text-decoration: none; }
+  .row-main h3 a::after { content: ' — ' attr(href); font-weight: 400; font-size: var(--t-micro); color: var(--muted); }
+}
 /* Figures that sit in columns or beside each other keep one width, so counts line up. */
 .cell-n, .stats dd, .result-line strong, .count, .districts .n, .trace-n, .finding-list strong, .widget-meta strong { font-variant-numeric: tabular-nums; }
 .cell-name {
@@ -3206,7 +3220,7 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 a:focus-visible, select:focus-visible, .apply:focus-visible, .mark:focus-visible, .linkish:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .cell, .chip, .apply, .company, select, .seg { transition: border-color 120ms ease, background 120ms ease; }
+  .cell, .chip, .apply, .company, select, .seg, .mark, .copy-row, .ev { transition: border-color 160ms ease-out, background 160ms ease-out, color 160ms ease-out; }
 }
 `;
 
