@@ -342,6 +342,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", default=PRODUCTION)
     parser.add_argument("--dry-run", action="store_true", help="scrape and classify, upload nothing")
+    parser.add_argument(
+        "--classify-only",
+        action="store_true",
+        help="scrape and classify only the ids in ingest/ask_anyway.json, then stop: no homepages, lookups, upload or health record",
+    )
     parser.add_argument("--mode", choices=["backfill", "live"], help="override what the Worker would infer")
     parser.add_argument(
         "--max-cost",
@@ -349,6 +354,8 @@ def main() -> int:
         help=f"stop classifying after this much, in dollars (default {classifier.DEFAULT_MAX_COST})",
     )
     args = parser.parse_args()
+    if args.classify_only:
+        args.dry_run = True
 
     print("Scraping")
     by_source, signals_by_source, failed, as_of = scrape_all()
@@ -440,6 +447,13 @@ def main() -> int:
 
     print(f"\nClassifying {len(unique)} companies")
     try:
+        if args.classify_only:
+            # A person chose these ids and saw the price; nothing else is asked, held or not.
+            chosen = [c for c in unique if c.id in _ask_anyway()]
+            print(f"  classify-only: {len(chosen)} of {len(_ask_anyway())} chosen ids found in this scrape")
+            results, usage = classifier.classify(chosen, cost_limit=args.max_cost, may_ask=lambda c: c.id in _ask_anyway())
+            print(f"\nSummary\n  classification: {usage}")
+            return 0
         results, usage = classifier.classify(to_classify(unique), cost_limit=args.max_cost, may_ask=may_ask)
     except classifier.ConfigurationError as error:
         # Nothing is uploaded and the job goes red. A run that cannot classify has

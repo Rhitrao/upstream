@@ -1032,6 +1032,18 @@
   "source": "tides-iitr",
   "subsector_id": "5.2"
  },
+ "agrivittal-innovation": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "537b1e975894fcf7",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AgriVittal Innovation Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "agrocom-software-technologies": {
   "classified_at": "2026-09-12T10:54:59+00:00",
   "hash": "1f35d3977f4331f1",
@@ -1041,6 +1053,18 @@
   "note": "aAQUA is a farmer discussion forum and knowledge-sharing platform in native languages, which does not match any of the listed project types across the sub-sectors.",
   "project_type": null,
   "sector_id": "5",
+  "subsector_id": null
+ },
+ "agrohaven-techno-consultant": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "534b481e9967898e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Agrohaven Techno Consultant LLP",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "agrotick": {
@@ -2242,6 +2266,18 @@
   "sector_id": "2",
   "subsector_id": "2.1"
  },
+ "arista-vault": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "9813367ff1291601",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Arivation Fashiontech Pvt Ltd (Arista Vault)",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "arivyam-technologies": {
   "classified_at": "2026-09-12T12:06:38+00:00",
   "hash": "447f0d6f99c8ea70",
@@ -2579,6 +2615,18 @@
   "sector_id": "2",
   "source": "tides-iitr",
   "subsector_id": "2.5"
+ },
+ "astute-lex-servicado": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "c4ba60c9862ac27d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Astute Lex Servicado Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "ateon-labs": {
   "classified_at": "2026-09-12T12:03:30+00:00",
@@ -5268,6 +5316,18 @@
   "source": "tides-iitr",
   "subsector_id": "2.3"
  },
+ "cybergenix-security": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "36e7dc10e9228243",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Cybergenix Security Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "cybokrafts-universal-innovations": {
   "classified_at": "2026-09-12T12:06:57+00:00",
   "hash": "1d119c6514226cdf",
@@ -6400,6 +6460,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "drumlin-water-technology": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "430854da92ef9644",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Drumlin Water Technology Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "dtown-robotics": {
   "classified_at": "2026-09-12T11:31:31+00:00",
   "hash": "b6d75ba2bed007fb",
@@ -6582,6 +6654,18 @@
   "project_type": "AI/ML-powered diagnostic and imaging devices",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "easyinfra-techno": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "f56a561c13998900",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Easyinfra Techno Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "eco-365": {
   "classified_at": "2026-09-12T12:05:29+00:00",
@@ -10563,6 +10647,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "indulge-insight": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "33d817a3c4025ade",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Indulge Insight Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "indusmind-technologies": {
   "classified_at": "2026-09-12T12:04:13+00:00",
   "hash": "8ebe91230338373c",
@@ -10842,6 +10938,18 @@
   "project_type": "Pre-clinical and clinical pharmaceutical R&D",
   "sector_id": "4",
   "subsector_id": "4.4"
+ },
+ "integerspin": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "18933cbaa7882642",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Integerspin Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "integrated-maritime-exchange": {
   "classified_at": "2026-09-15T01:39:35+00:00",
@@ -11358,6 +11466,18 @@
   "project_type": "Chip design and advanced node fabrication",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "jaljeevan-agro-tech": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "efa6703d8fa98ee9",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Jaljeevan Agro Tech Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "jalsax-ai": {
   "classified_at": "2026-09-14T18:11:31+00:00",
@@ -13435,6 +13555,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "mcr-builders-point": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "7b3954d762be6402",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "MCR Builders Point Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "mechanoweb": {
   "classified_at": "2026-09-12T12:03:49+00:00",
   "hash": "f2282e0a7e13828c",
@@ -14493,6 +14625,18 @@
   "sector_id": "2",
   "subsector_id": "2.6"
  },
+ "nap-pads-solutions": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "8e4868ef4e577898",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Nap-Pads Solutions Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "narnolia-spectra-global-ai": {
   "classified_at": "2026-09-12T12:03:00+00:00",
   "hash": "2de8dd2dd20323a1",
@@ -14502,6 +14646,18 @@
   "note": "NARNOLIA SPECTRA GLOBAL AI LLP is a computer vision company without specified application to agriculture, health, education, or the enabling technologies listed; computer vision is a foundational technology rather than a solution to one of these Indian problem domains.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "natturz-bio-kontrol": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "bd0265fb51fbb2ea",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Natturz Bio Kontrol Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "natureve-ecoworld": {
@@ -14895,6 +15051,18 @@
   "note": "NeuroTej AI is a computer vision company without specification of application domain; the company name and description lack sufficient detail to confidently map it to agriculture, health, education, or cross-domain enabling technologies within Sector 3.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "new-unnat-india-techno-solutions-innovation": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "1e299317a42f5dfa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "New Unnat India Techno Solutions & Innovation Pvt. Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "newspace-research-technologies": {
@@ -17530,6 +17698,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
+ "rappr-innovations": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "73ad7f605e0c40b6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Rappr Innovations Private Limited",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "rapture-innovation-labs": {
   "classified_at": "2026-09-14T07:03:51+00:00",
   "hash": "ddb966ea462061eb",
@@ -18636,6 +18816,18 @@
   "note": "SAJGE SHEATT TECHNOLOGIES works on IoT wearables, which falls outside the deep-tech taxonomy provided; the sector covers quantum, semiconductors, advanced manufacturing, photonics, space, materials, robotics, and neuromorphic computing, but not consumer or health wearable devices as an independent capability.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "sakillion-innovations": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "26503ce8b477efb0",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sakillion Innovations Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "sakura-biotech": {
@@ -21148,6 +21340,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
+ "tastetron": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "f738cead666c8e77",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TasteTron LLP",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "tathyashodh-ai": {
   "classified_at": "2026-09-12T12:05:27+00:00",
   "hash": "e1684b27eddd1f20",
@@ -21258,6 +21462,18 @@
   "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
   "sector_id": "4",
   "subsector_id": "4.7"
+ },
+ "techedge-developers": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "c1e902b773e07755",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TechEdge Developers Pvt. Ltd.",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "techinvention-lifecare": {
   "classified_at": "2026-09-12T10:56:24+00:00",
@@ -22924,6 +23140,18 @@
   "sector_id": "4",
   "source": "tides-iitr",
   "subsector_id": "4.5"
+ },
+ "vewmet-digital-life": {
+  "classified_at": "2026-09-15T02:47:40+00:00",
+  "hash": "ecc7881cee1da9c6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Vewmet Digital Life Pvt Ltd",
+  "note": null,
+  "project_type": null,
+  "sector_id": null,
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "vexon-automation": {
   "classified_at": "2026-09-12T12:03:51+00:00",

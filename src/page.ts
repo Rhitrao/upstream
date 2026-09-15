@@ -2622,6 +2622,15 @@ select:hover { border-color: var(--rule-strong); }
 .result-line a, .linkish { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .result-line a:hover, .linkish:hover { text-decoration-color: currentColor; }
 .bar-links { display: flex; flex-wrap: wrap; gap: var(--s3); }
+@media (max-width: 34rem) {
+  /* Pinned, only the search, the filter button and the sort stay: about 110px, not 183. */
+  .controls.stuck .bar-foot, .controls.stuck .active-chips { display: none; }
+  .controls { padding-block: var(--s2); }
+  /* The panel scrolls inside itself and keeps Apply in reach instead of below the fold. */
+  .filter-panel { max-height: calc(100dvh - 9rem); overflow-y: auto; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding: var(--s3); }
+  .filter-panel .field-search, .filter-panel .field-wide { grid-column: 1 / -1; }
+  .apply { position: sticky; bottom: 0; grid-column: 1 / -1; width: 100%; min-height: 44px; }
+}
 .linkish { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .linkish[aria-pressed='true'] { font-weight: 600; text-decoration-color: currentColor; }
 .export { color: var(--muted); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
@@ -3405,6 +3414,17 @@ export const LIST_SCRIPT = `
   var menu = form.querySelector('.filter-menu');
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && menu) menu.open = false; });
   document.addEventListener('click', function (event) { if (menu && menu.open && !menu.contains(event.target)) menu.open = false; });
+
+  // Once the bar is pinned, the counts and chips under it stop riding along: on a phone they
+  // took a quarter of the screen. They are back the moment the reader returns to the top.
+  if ('IntersectionObserver' in window) {
+    var sentinel = document.createElement('div');
+    sentinel.setAttribute('aria-hidden', 'true');
+    form.parentNode.insertBefore(sentinel, form);
+    new IntersectionObserver(function (entries) {
+      form.classList.toggle('stuck', !entries[0].isIntersecting);
+    }).observe(sentinel);
+  }
 
   paint();
 })();
