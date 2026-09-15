@@ -2534,6 +2534,21 @@ describe('the shortlist and the methodology page', () => {
 		expect(html).toContain('<li class="nav-shortlist-item" hidden><a class="nav-shortlist"');
 	});
 
+	it('pins only the search box and the filter bar, and nothing pinned changes size when it pins', async () => {
+		await post({ source: 'sine-iitb', companies: [{ id: 'pin-co', name: 'Pin Co', description: 'Tidal turbines.' }] });
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const form = html.slice(html.indexOf('<form class="controls"'), html.indexOf('</form>', html.indexOf('<form class="controls"')));
+		expect(form).toContain('id="q"');
+		expect(form).toContain('id="sort"');
+		// The parts a reader needs once scroll away with the page, outside the pinned form.
+		for (const id of ['quick', 'chips', 'result-line', 'export']) expect(form).not.toContain(`id="${id}"`);
+		expect(form).not.toContain('class="search-label"');
+		// A bar that hid its own parts once pinned shortened the page, unpinned itself, and snapped the
+		// page back while scrolling (15 Sep 2026). No rule may depend on the pinned state but paint.
+		const css = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+		expect(css).not.toMatch(/\.(stuck|pinned)[^{]*\{[^}]*(display|height|padding|margin)\s*:/);
+	});
+
 	it('serves coverage and methodology on its own page, with the source status and no list', async () => {
 		await SELF.fetch(`${ORIGIN}/upstream/api/source-runs`, {
 			method: 'POST',

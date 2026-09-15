@@ -1115,7 +1115,7 @@ function controls(view: PageView): string {
 		.join('');
 	// Keyword tags, and said to be keywords in the label: a filter a reader cannot tell was
 	// read off the words would pass for someone's judgement.
-	const buildOptions = [option('', 'Any', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.build ?? ''))).join('');
+	const buildOptions = [option('', 'Any technology', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.build ?? ''))).join('');
 	const domainOptions = [option('', 'Any', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.domain ?? ''))).join('');
 	// The count on "More filters" is the filters inside it, so a reader knows to look there.
 	const inside = new Set(['subsector', 'tier', 'source', 'dates', 'site', 'traces', 'described', 'domain', 'age']);
@@ -1124,17 +1124,21 @@ function controls(view: PageView): string {
 	const field = (id: string, label: string, options: string, extra = '') =>
 		`<div class="field${extra}"><label for="${id}">${label}</label><select id="${id}" name="${id}">${options}</select></div>`;
 
+	// Only the search box and the filter bar are inside the pinned form, and nothing in it changes
+	// size when it pins: a bar that hid its own parts once pinned made the page shorter, which
+	// unpinned it, which made the page longer again, and the page snapped back while scrolling.
+	// Everything else a reader needs once (the label, the presets, the chips, the count) sits
+	// outside it and scrolls away.
 	return `
+<label for="q" class="search-label">Find companies</label>
 <form class="controls" id="controls" method="get" action="${esc(BASE_PATH)}#list" role="search">
   <div class="search-block">
-    <label for="q" class="search-label">Find companies</label>
     <div class="search-row">
       <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="Search companies or technologies"
         autocomplete="off" spellcheck="false" aria-describedby="q-hint">
       <button type="submit" class="search-go">Search</button>
     </div>
     <p class="visually-hidden" id="q-hint">Searches company names and what their descriptions say they build.</p>
-    ${quickStarts(view)}
   </div>
   <div class="bar">
     ${field('sector', 'Sector', sectorOptions, ' field-inline')}
@@ -1163,16 +1167,17 @@ function controls(view: PageView): string {
     </details>
     ${field('sort', 'Sort', sortOptions, ' field-inline field-sort')}
   </div>
-  ${chips(view)}
-  <div class="bar-foot">
+</form>
+${quickStarts(view)}
+${chips(view)}
+<div class="bar-foot">
     ${resultLine(view)}
     <span class="bar-links">
       <button type="button" class="linkish seen-toggle" hidden aria-pressed="false">Hide seen</button>
       <a class="linkish shortlist-export" hidden href="#">Export shortlist</a>
       <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Export results</a>
     </span>
-  </div>
-</form>`;
+</div>`;
 }
 
 /**
@@ -2836,7 +2841,6 @@ section > h2, .section-h {
   background: var(--paper);
   padding: var(--s2) 0 var(--s3);
   margin: 0 0 var(--s3);
-  border-bottom: 1px solid var(--rule-strong);
 }
 .bar { position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s2) var(--s3); margin-top: var(--s2); }
 .bar .field-inline { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
@@ -2942,15 +2946,15 @@ a.chip.filter-chip:hover { border-color: #111111; }
   .row-side .mark, .row-side .copy-row { padding-inline: var(--s3); border-radius: var(--radius); }
   a.rdi, .result-line a, .bar-links a { position: relative; }
   a.rdi::after, .result-line a::after, .bar-links a::after { content: ''; position: absolute; inset: -14px -4px; }
-  /* Pinned, only the search box stays: the filters, counts and chips are back at the top. */
-  .controls.stuck .bar, .controls.stuck .bar-foot, .controls.stuck .active-chips { display: none; }
-  .bar .field-inline { flex: 1 1 40%; }
-  .bar .field-inline select { width: 100%; }
+  /* Pinned on a phone: the search box and a two-by-two grid of choices, each saying what it is
+     in its own first option, so the bar stays about a fifth of the screen and never changes. */
+  .bar { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
+  .bar .field-inline label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .bar .field-inline select, .filter-menu > summary { width: 100%; min-height: 40px; }
   .bar .field-sort { margin-left: 0; }
-  .filter-menu { flex: 1 1 40%; }
   .controls { padding-block: var(--s2); }
   /* The panel scrolls inside itself and keeps Apply in reach instead of below the fold. */
-  .filter-panel { max-height: calc(100dvh - 9rem); overflow-y: auto; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding: var(--s3); }
+  .filter-panel { max-height: calc(100dvh - var(--pinned, 10rem) - 1rem); overflow-y: auto; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding: var(--s3); }
   .filter-panel .field-wide { grid-column: 1 / -1; }
   .apply { position: sticky; bottom: 0; grid-column: 1 / -1; width: 100%; min-height: 44px; }
 }
@@ -2972,7 +2976,7 @@ a.chip.filter-chip:hover { border-color: #111111; }
 /* The notebook's rows are the older shape, stacked rather than main-and-side. */
 .company:not(:has(> .row-main)) { display: block; padding-block: var(--s4); }
 /* Clear of the sticky bar when a link or "back to results" lands on a row. */
-li.company { scroll-margin-top: 10rem; }
+
 .row-main { flex: 1 1 auto; min-width: 0; }
 .row-main h3 { font-size: var(--t-name); font-weight: 700; margin: 0 0 var(--s1); line-height: 1.3; letter-spacing: -0.025em; }
 /* The company name takes the site's heading highlight when its row is pointed at or focused. */
@@ -3488,12 +3492,12 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 }
 .coverage-line a:hover, .about-results a:hover, .page-foot a:hover, .crumb a:hover, .about-upstream a:hover, .toc a:hover, .example:hover, .export:hover, .toast a:hover, .lede a:hover { box-shadow: inset 0 -1.2em 0 var(--mark); color: #111111; }
 .search-block { padding-top: 0; }
-.search-label { display: block; font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); margin: 0 0 var(--s1); }
+.search-label { display: block; font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); margin: 0; }
 .search-row { display: flex; gap: var(--s2); }
 .search-row input { flex: 1 1 auto; }
 .search-go { font: inherit; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; min-height: 52px; padding: 0 var(--s5); border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent); color: var(--on-accent); cursor: pointer; }
 .search-go:hover { box-shadow: inset 0 -4px 0 var(--mark); }
-.quick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin-top: var(--s2); font-size: var(--t-xs); }
+.quick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: 0 0 var(--s2); font-size: var(--t-xs); }
 .quick-label { font-family: var(--mono); color: var(--muted); }
 .quick-or { margin-left: var(--s3); }
 .quick .sep { margin-left: calc(-1 * var(--s2)); color: var(--muted); }
@@ -3502,11 +3506,17 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .preset:hover { background: var(--mark); color: #111111; }
 .preset.active { background: var(--mark); color: #111111; }
 .preset.active::before { content: '✓'; margin-right: var(--s1); }
-.controls.stuck .search-label, .controls.stuck .quick, .controls.stuck .sort-note, .controls.stuck .about-results { display: none; }
-/* Pinned, the bar is a white band across the whole width, like the site's own top bar; resting
-   in place (with the script running to tell the two apart) it lets the page's wash show through. */
-.controls { box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax -1px); }
-.js .controls:not(.stuck) { background: transparent; box-shadow: none; clip-path: none; }
+/* The pinned bar is a solid band across the whole width, like the site's own top bar. Drawn by a
+   layer behind it rather than a clip, so the More filters panel can hang below it; the page clips
+   sideways overflow so the band cannot widen the page. Pinned or not, only its shadow changes. */
+.controls::before { content: ''; position: absolute; z-index: -1; top: 0; bottom: 0; left: calc(50% - 50vw); right: calc(50% - 50vw); background: var(--paper); border-bottom: 1px solid var(--rule-strong); }
+.controls.pinned::before { box-shadow: 0 10px 18px -16px rgba(17, 17, 17, 0.45); }
+/* At rest, with the script there to tell the two apart, the band steps aside so the page's wash runs
+   unbroken; only paint changes, never size. */
+.js .controls:not(.pinned), .js .controls:not(.pinned)::before { background: transparent; border-bottom-color: transparent; }
+html, body { overflow-x: clip; }
+/* Anchors and "back to results" land below the pinned bar, whatever height it has here. */
+html { scroll-padding-top: calc(var(--pinned, 10rem) + var(--s3)); }
 .result-line strong { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; }
 .sort-note { margin: 0; font-size: var(--t-xs); color: var(--muted); }
 .about-results { margin: 0; }
@@ -3517,9 +3527,9 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .about-results-body p { margin: 0 0 var(--s2); }
 .bar-links { align-items: center; padding-top: var(--s1); }
 .export { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; }
-.toast { position: sticky; top: var(--s2); z-index: 12; margin: 0 0 var(--s3); padding: var(--s2) var(--s3); border: 1px solid var(--rule); border-left: 4px solid var(--mark); border-radius: var(--radius); background: var(--raise); box-shadow: var(--shadow); font-size: var(--t-sm); }
+.toast { position: fixed; left: 0; right: 0; bottom: calc(var(--s4) + env(safe-area-inset-bottom, 0px)); width: min(40rem, calc(100vw - 2rem)); z-index: 20; margin: 0 auto; padding: var(--s2) var(--s3); border: 1px solid var(--rule); border-left: 4px solid var(--mark); border-radius: var(--radius); background: var(--raise); box-shadow: var(--shadow); font-size: var(--t-sm); }
 .toast a { margin-left: var(--s1); }
-.explore { display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0; }
+.explore { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s3) 0 var(--s1); }
 .explore-fold { flex: 0 1 auto; }
 .explore-fold[open] { flex-basis: 100%; order: 2; padding: var(--s3) var(--s4) var(--s1); border: 1px solid var(--rule); border-radius: var(--radius-lg); background: var(--raise); box-shadow: var(--shadow); }
 .explore-fold > summary { cursor: pointer; list-style: none; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s2); min-height: 36px; padding: var(--s1) var(--s3); border: 1px solid var(--rule-strong); border-radius: var(--radius); font-size: var(--t-sm); background: var(--raise); }
@@ -3864,13 +3874,13 @@ export const LIST_SCRIPT = `
       if (!since.querySelector('a.resume')) { if (since.innerHTML) since.appendChild(document.createElement('br')); since.appendChild(link); }
     }
     var seenCount = Object.keys(m.seen).length;
-    var seenToggle = form.querySelector('.seen-toggle');
+    var seenToggle = document.querySelector('.seen-toggle');
     if (seenToggle) {
       seenToggle.hidden = !marks.available || seenCount === 0;
       seenToggle.setAttribute('aria-pressed', hideSeen ? 'true' : 'false');
       seenToggle.textContent = hideSeen ? 'Show the ' + seenCount + ' seen' : 'Hide the ' + seenCount + ' seen';
     }
-    var exportLink = form.querySelector('.shortlist-export');
+    var exportLink = document.querySelector('.shortlist-export');
     var ids = Object.keys(m.shortlist);
     if (exportLink) {
       exportLink.hidden = !marks.available || ids.length === 0;
@@ -3982,12 +3992,15 @@ export const LIST_SCRIPT = `
         paint();
         var stale = document.getElementById('toast');
         if (stale && /could not be updated/.test(stale.textContent)) stale.hidden = true;
-        if (opts.reveal) {
-          var line = document.getElementById('result-line');
-          var top = line ? line.getBoundingClientRect().top : 0;
-          if (line && (top < 0 || top > window.innerHeight * 0.6)) {
+        // A view the reader chose starts at its first result: from deep in the old list, the page
+        // would otherwise open the new one somewhere in its middle. Back and Forward keep their place.
+        if (opts.history !== 'none') {
+          var head = document.getElementById('result-line');
+          var pinnedBottom = form.getBoundingClientRect().bottom;
+          var top = head ? head.getBoundingClientRect().top : 0;
+          if (head && (top < pinnedBottom || (opts.reveal && top > window.innerHeight * 0.6))) {
             var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-            form.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+            window.scrollTo({ top: Math.max(0, window.scrollY + top - pinnedBottom - 8), behavior: smooth ? 'smooth' : 'auto' });
           }
         }
       })
@@ -4078,15 +4091,19 @@ export const LIST_SCRIPT = `
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && menu) menu.open = false; });
   document.addEventListener('click', function (event) { if (menu && menu.open && !menu.contains(event.target)) menu.open = false; });
 
-  // Once the bar is pinned, the counts and chips under it stop riding along: on a phone they
-  // took a quarter of the screen. They are back the moment the reader returns to the top.
+  // The pinned bar's height, for anchors and the filter panel to clear. Measured, not assumed, and
+  // measuring it changes nothing on the page.
+  function measure() { document.documentElement.style.setProperty('--pinned', Math.ceil(form.getBoundingClientRect().height) + 'px'); }
+  measure();
+  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(form);
+  else window.addEventListener('resize', measure);
+  // Pinned or resting, only the bar's shadow changes: never its size, so the page cannot jump.
   if ('IntersectionObserver' in window) {
     var sentinel = document.createElement('div');
     sentinel.setAttribute('aria-hidden', 'true');
     form.parentNode.insertBefore(sentinel, form);
     new IntersectionObserver(function (entries) {
-      // Stuck only once the bar has scrolled past its place, not while it is still below the screen.
-      form.classList.toggle('stuck', !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0);
+      form.classList.toggle('pinned', !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0);
     }).observe(sentinel);
   }
 
