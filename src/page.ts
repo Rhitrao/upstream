@@ -2515,6 +2515,8 @@ section > h2 {
    the id reads better than parking it at the bottom. */
 .cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s1); line-height: 1.2; }
 .cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
+/* Figures that sit in columns or beside each other keep one width, so counts line up. */
+.cell-n, .stats dd, .result-line strong, .count, .districts .n, .trace-n, .finding-list strong, .widget-meta strong { font-variant-numeric: tabular-nums; }
 .cell-name {
   font-size: var(--t-nano);
   line-height: 1.2;
