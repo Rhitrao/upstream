@@ -2481,6 +2481,30 @@ describe('signs of activity on their own site', () => {
 	});
 });
 
+describe('the finding the scatter would have drawn', () => {
+	it('says how many described companies one outside source has noticed, and the link lists exactly them', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'once-co', name: 'Once Co', description: 'Lidar for mines.', website: 'https://once.example', website_identity: 'verified', website_identity_note: 'name in the domain' },
+				{ id: 'twice-co', name: 'Twice Co', description: 'Radar for ports.' },
+			],
+			signals: [
+				{ company_id: 'once-co', type: 'incubator', label: 'SINE cohort' },
+				{ company_id: 'once-co', type: 'website', label: 'website live' },
+				{ company_id: 'twice-co', type: 'incubator', label: 'SINE cohort' },
+				{ company_id: 'twice-co', type: 'grant', label: 'BIRAC BIG 21' },
+			],
+		});
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		expect(html).toContain('Most companies here have been noticed by exactly one outside source.');
+		expect(html).toMatch(/>1 of the 2 \(50%\)<\/a> that say what they\s+build appear in one list other than their own website/);
+		const only = await (await SELF.fetch(`${ORIGIN}/upstream?noticed=1&age=all`)).text();
+		expect([...only.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1])).toEqual(['once-co']);
+		expect(only).toContain('Noticed by: one outside source');
+	});
+});
+
 describe('who has noticed a company, named', () => {
 	it('names each trace by who left it, once, with scheme numbers and cohorts dropped', async () => {
 		const { traceTrail } = await import('../src/page');

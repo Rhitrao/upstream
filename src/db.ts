@@ -127,6 +127,8 @@ export interface Filters {
 	kind?: KindChoice | null;
 	/** What the DPIIT register's record says — see DPIIT_STATUS_PHRASES. null for any. */
 	dpiit?: string | null;
+	/** Only companies exactly one outside source has noticed (their own website not counted). */
+	noticedOnce?: boolean;
 	/** Exactly these ids, as a shortlist export asks for them. */
 	ids?: string[] | null;
 	/** A keyword tag for what it builds (BUILD_TAGS), or null for any. */
@@ -503,6 +505,7 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 		clauses.push('c.dpiit_status = ?');
 		binds.push(filters.dpiit);
 	}
+	if (filters.noticedOnce) clauses.push("(SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1");
 	if (filters.ids?.length) {
 		clauses.push(`c.id IN (${filters.ids.map(() => '?').join(', ')})`);
 		binds.push(...filters.ids);
@@ -1245,6 +1248,8 @@ export interface Findings {
 	register: { total: number; described: number };
 	described: { total: number; unmapped: number; holes: { missing: string; n: number }[] };
 	recognition: { withStatus: number; profile: number };
+	/** Described companies, and those only one outside source has noticed (their own website not counted). */
+	noticed: { companies: number; once: number };
 }
 
 /** The gap group for companies the classifier put outside the RDI scheme altogether. */
@@ -1264,7 +1269,10 @@ export async function queryFindings(env: Env): Promise<Findings> {
 			   (SELECT COUNT(*) FROM gaps g WHERE ${saidGap}) AS gaps_said,
 			   (SELECT COUNT(*) FROM gaps g WHERE ${saidGap} AND g.missing <> ?2) AS gaps_said_unmapped,
 			   (SELECT COUNT(*) FROM companies WHERE dpiit_status IS NOT NULL) AS with_status,
-			   (SELECT COUNT(*) FROM companies WHERE dpiit_status = 'profile') AS profile`,
+			   (SELECT COUNT(*) FROM companies WHERE dpiit_status = 'profile') AS profile,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company') AS companies_said,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company'
+			      AND (SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1) AS noticed_once`,
 		)
 			.bind(REGISTER_SOURCE, NO_GAP_NAMED)
 			.first<Record<string, number | null>>(),
@@ -1281,5 +1289,6 @@ export async function queryFindings(env: Env): Promise<Findings> {
 		register: { total: n('register_rows') + n('register_gaps'), described: n('register_rows_said') + n('register_gaps_said') },
 		described: { total: n('rows_said') + n('gaps_said'), unmapped: n('gaps_said_unmapped'), holes: holes.results },
 		recognition: { withStatus: n('with_status'), profile: n('profile') },
+		noticed: { companies: n('companies_said'), once: n('noticed_once') },
 	};
 }

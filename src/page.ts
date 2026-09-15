@@ -88,6 +88,8 @@ export interface PageView {
 	/** Keyword tags the list is filtered to: what it builds, where it is used. */
 	build: string | null;
 	domain: string | null;
+	/** '1' when the list is narrowed to companies exactly one outside source has noticed. */
+	noticed?: string | null;
 	/** The page's two halves, counted over every record. */
 	substance: Substance;
 	/** The numbers behind the findings under the masthead. null for the sample data. */
@@ -652,6 +654,14 @@ function findingsSection(view: PageView): string {
 	if (!f) return '';
 	const items: string[] = [];
 
+	// What the scatter would have shown, said instead: its trace axis had one value for most rows.
+	if (f.noticed.companies > 0 && f.noticed.once > 0) {
+		const share = pct(f.noticed.once, f.noticed.companies);
+		items.push(`<li><strong>Most companies here have been noticed by exactly one outside source.</strong>
+      <a href="${esc(`${BASE_PATH}${query({ noticed: '1', age: 'all' })}#list`)}">${f.noticed.once} of the ${f.noticed.companies} (${share}%)</a> that say what they
+      build appear in one list other than their own website &mdash; usually the listing that brought them here.</li>`);
+	}
+
 	const silent = f.register.total - f.register.described;
 	if (f.register.total > 0) {
 		items.push(`<li><strong>The register that sees Indian startups first describes almost none of them.</strong> Of the
@@ -854,6 +864,7 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		dpiit: view.dpiit,
 		build: view.build,
 		domain: view.domain,
+		noticed: view.noticed ?? null,
 		sort: view.sort === 'quietest' || view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -929,6 +940,7 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		],
 		['kind', view.kind === 'company' ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
+		['noticed', view.noticed ? 'Noticed by: one outside source' : null],
 		['build', view.build ? `Builds: ${view.build}` : null],
 		['domain', view.domain ? `Used in: ${view.domain}` : null],
 		['age', view.age !== 'recent' ? `Started: ${AGE_LABELS[view.age].toLowerCase()}` : null],
@@ -1082,6 +1094,7 @@ function controls(view: PageView): string {
         <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
         <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
         <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
+        <input type="hidden" name="noticed" value="${esc(view.noticed ?? '')}">
         <button type="submit" class="apply">Apply</button>
       </div>
     </details>
