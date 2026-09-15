@@ -2371,7 +2371,7 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 
 		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
 		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
-		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","builds","used_in","papers_found"');
+		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","build_tags","domain_tags","papers_found"');
 		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","","","2"');
 
 		// An address later found not to be theirs takes what was read off it with it.
