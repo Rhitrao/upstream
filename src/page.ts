@@ -3803,7 +3803,10 @@ export const LIST_SCRIPT = `
   form.addEventListener('input', function (event) {
     if (event.target.id !== 'q') return;
     clearTimeout(timer);
-    timer = setTimeout(function () { refresh({ history: 'replace' }); }, 250);
+    // Each pause in typing is a full page render on the server: wait for a word, not a letter.
+    var typed = event.target.value.trim();
+    if (typed.length > 0 && typed.length < 3) return;
+    timer = setTimeout(function () { refresh({ history: 'replace' }); }, 450);
   });
   form.addEventListener('change', function (event) {
     // A sub-sector belongs to one sector; choosing a different sector drops it, and

@@ -58,6 +58,8 @@ import {
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { FAVICON_SVG, OG_PNG_BASE64 } from './og';
+import { meter } from './d1meter';
+import { bumpDataVersion, cachedResponse, edgeCache, memo, type EdgeCache } from './edgecache';
 import { organisationsOf, programmesOf, type ProgrammeSignal } from './programmes';
 import { accessConfig, identify } from './access';
 import { anthropicCreate, askMode, handleAsk, queryAskLog, renderAskLog } from './ask';
@@ -813,6 +815,8 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		const result = await applyIngest(env, source, companies, signals, gaps, now, mode);
 		result.merged = await applyMerges(env, merged, now);
 		await env.DB.prepare(INSERT_RUN_SQL).bind(startedAt, source, 'ok', companies.length, null).run();
+		// The public data moved, so every cached page and aggregate is left behind.
+		await bumpDataVersion(env, now.toISOString());
 		return json(result);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
@@ -1128,10 +1132,12 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 			}
 			const programmes = programmesOf(signals, row.dpiit_status);
 			updates.push(
-				env.DB.prepare('UPDATE companies SET programmes = ?1, programme_count = ?2, organisation_count = ?3 WHERE id = ?4').bind(
+				env.DB.prepare('UPDATE companies SET programmes = ?1, programme_count = ?2, organisation_count = ?3, outside_count = ?4, other_count = ?5 WHERE id = ?6').bind(
 					JSON.stringify(programmes),
 					programmes.length,
 					organisationsOf(signals, row.dpiit_status).length,
+					signals.filter((s) => s.type !== 'website').length,
+					signals.filter((s) => s.type === 'website' || s.type === 'press').length,
 					row.id,
 				),
 			);
@@ -1182,7 +1188,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	// the list says why. It narrows again on its own the moment something qualifies. The
 	// sample data has both tiers already.
 	const half = { described: parseDescribedChoice(url.searchParams.get('described')), kind: parseKind(url.searchParams.get('kind')) };
-	const hasRanked = demo || (await queryHasRanked(env, minOriginYear(now), half));
+	// The list opens on every tier, so nothing needs to know whether A or B has rows.
+	const hasRanked = true;
 	// Every company a reader can form a view on, not the few a tier rule promotes: on 15 Sep
 	// 2026 the A+B default showed 5 of 395. The tier is still a filter, and a reason on the row.
 	const defaultTier: TierChoice = 'all';
@@ -1268,15 +1275,18 @@ async function nearestNames(env: Env, search: string): Promise<{ id: string; nam
 
 // --- GET /upstream ----------------------------------------------------------
 
-async function page(url: URL, env: Env): Promise<Response> {
+async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 	const now = new Date();
 	const view = await listView(url, env, now, DEFAULT_LIMIT);
 	const { demo, hasRanked, defaultTier, tier, age, dates, ranked, undated: unplaceable } = view;
 	const { sector, subsector, search, source, site, sort } = ranked;
 
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
+	// What no filter changes is computed once per data version; only the filtered parts hit D1.
+	const once = <T>(name: string, compute: () => Promise<T>) => memo(cache, name, compute);
+	const half = { described: ranked.described ?? null, kind: ranked.kind ?? null, dpiit: ranked.dpiit ?? null, tiers: ranked.tiers, dated: ranked.dated, age: ranked.minOriginYear, ids: ranked.ids ?? null };
 	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, widgets, substance, findings, category] = await Promise.all([
-		queryCoverage(env),
+		once('coverage', () => queryCoverage(env)),
 		dates === 'undated'
 			? Promise.resolve([])
 			: demo
@@ -1288,26 +1298,26 @@ async function page(url: URL, env: Env): Promise<Response> {
 				? Promise.resolve(splitDemo(demoCompanies(), now).undated)
 				: queryCompanies(env, unplaceable),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked),
-		demo ? Promise.resolve(demoGaps()) : queryGaps(env),
-		queryDiscoveredSince(env, weekAgo),
-		demo ? Promise.resolve(demoRegisterOutcomes()) : queryRegisterOutcomes(env),
+		demo ? Promise.resolve(demoGaps()) : once('gaps', () => queryGaps(env)),
+		once(`discovered:${weekAgo}`, () => queryDiscoveredSince(env, weekAgo)),
+		demo ? Promise.resolve(demoRegisterOutcomes()) : once('register', () => queryRegisterOutcomes(env)),
 		// The demo set has to answer this the same way the database does, or the row
 		// design gets checked against a headline number that is not about it.
-		demo ? Promise.resolve(demoCompanies().filter((c) => c.trace_count <= 1).length) : queryOneTraceCount(env),
+		demo ? Promise.resolve(demoCompanies().filter((c) => c.trace_count <= 1).length) : once('one-trace', () => queryOneTraceCount(env)),
 		// The demo answers this from its own rows too, so the paragraph under the list
 		// is about the seven companies on screen rather than about the database.
-		demo ? Promise.resolve(demoProductOutcomes()) : queryProductOutcomes(env),
-		demo ? Promise.resolve(0) : queryNotCompanies(env),
-		querySourceHealth(env),
+		demo ? Promise.resolve(demoProductOutcomes()) : once('products', () => queryProductOutcomes(env)),
+		demo ? Promise.resolve(0) : once('not-companies', () => queryNotCompanies(env)),
+		once('source-health', () => querySourceHealth(env)),
 		// The sample rows are not in the database, and widgets counting the database over
 		// them would describe a different page. The demo has none.
 		demo ? Promise.resolve(null) : queryWidgets(env, ranked),
-		querySubstance(env),
-		demo ? Promise.resolve(null) : queryFindings(env),
+		once('substance', () => querySubstance(env)),
+		demo ? Promise.resolve(null) : once('findings', () => queryFindings(env)),
 		// The chosen half on its own, so the result line counts out of it.
 		demo
 			? Promise.resolve(null)
-			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null, programmesAtLeast: null, alone: false, noticedOnce: false }),
+			: once(`category:${JSON.stringify(half)}`, () => queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null, programmesAtLeast: null, alone: false, noticedOnce: false })),
 	]);
 	const ask = askMode(env);
 	// Only when the list came back empty: the same question over every record, so the empty
@@ -1564,6 +1574,7 @@ async function askApi(request: Request, env: Env): Promise<Response> {
 		return json({ status: 'invalid', message: 'Keep it under 300 characters.' }, 413, 'no-store');
 	}
 	const result = await handleAsk(request, env, mode === 'on' ? anthropicCreate(env) : undefined);
+	if (result.status !== 'invalid') await bumpDataVersion(env, new Date().toISOString());
 	return json(result, result.status === 'invalid' ? 400 : 200, 'no-store');
 }
 
@@ -1644,7 +1655,19 @@ function methodNotAllowed(allow: string): Response {
 }
 
 export default {
-	async fetch(request, env): Promise<Response> {
+	async fetch(request, env, ctx): Promise<Response> {
+		const counted = meter(env.DB);
+		const response = await route(request, { ...env, DB: counted.db }, ctx);
+		const out = new Response(response.body, response);
+		out.headers.set('x-d1-rows-read', String(counted.rows()));
+		// The statements themselves only when asked for: they are our SQL, not the visitor's business.
+		if (counted.rows() > 0 && (env.EDGE_CACHE === 'off' || request.headers.get('x-upstream-debug') === 'rows')) out.headers.set('x-d1-heaviest', counted.heaviest());
+		return out;
+	},
+} satisfies ExportedHandler<Env>;
+
+async function route(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+	{
 		const url = new URL(request.url);
 		// Trailing slashes are the same route: /upstream/ is /upstream.
 		const path = url.pathname.replace(/\/+$/, '') || '/';
@@ -1662,12 +1685,18 @@ export default {
 		if (path.startsWith(`${BASE}/c/`)) {
 			if (!isRead) return methodNotAllowed('GET, HEAD');
 			const id = path.slice(`${BASE}/c/`.length);
-			return id && !id.includes('/') ? companyPage(id, env, url) : json({ error: 'not found' }, 404);
+			if (!id || id.includes('/')) return json({ error: 'not found' }, 404);
+			return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyPage(id, env, url));
 		}
+
+		// Public reads that change only when an ingest writes are answered from the edge cache.
+		const cacheable = isRead && [BASE, `${BASE}/export.csv`, `${BASE}/api/companies`, `${BASE}/api/coverage`, `${BASE}/api/gaps`, `${BASE}/api/sources`].includes(path);
+		const cache: EdgeCache = cacheable ? await edgeCache(env, ctx, url.origin) : { enabled: false, key: '', origin: url.origin, ctx };
+		const served = (build: () => Promise<Response>) => cachedResponse(request, cache, build);
 
 		switch (path) {
 			case BASE:
-				return isRead ? page(url, env) : methodNotAllowed('GET, HEAD');
+				return isRead ? served(() => page(url, env, cache)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/og.png`:
 				return new Response(Uint8Array.from(atob(OG_PNG_BASE64), (c) => c.charCodeAt(0)), {
@@ -1678,22 +1707,22 @@ export default {
 				return new Response(FAVICON_SVG, { headers: { 'content-type': 'image/svg+xml', 'cache-control': 'public, max-age=604800' } });
 
 			case `${BASE}/export.csv`:
-				return isRead ? exportCsv(url, env) : methodNotAllowed('GET, HEAD');
+				return isRead ? served(() => exportCsv(url, env)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/companies`:
-				return isRead ? listCompaniesApi(url, env) : methodNotAllowed('GET, HEAD');
+				return isRead ? served(() => listCompaniesApi(url, env)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/coverage`:
-				return isRead ? coverageApi(env) : methodNotAllowed('GET, HEAD');
+				return isRead ? served(() => coverageApi(env)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/gaps`:
-				return isRead ? gapsApi(env) : methodNotAllowed('GET, HEAD');
+				return isRead ? served(() => gapsApi(env)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/ingest`:
 				return request.method === 'POST' ? ingest(request, env) : methodNotAllowed('POST');
 
 			case `${BASE}/api/sources`:
-				return isRead ? json(await querySourceHealth(env), 200, PUBLIC_CACHE) : methodNotAllowed('GET, HEAD');
+				return isRead ? served(async () => json(await querySourceHealth(env), 200, PUBLIC_CACHE)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/api/ask`:
 				return request.method === 'POST' ? askApi(request, env) : methodNotAllowed('POST');
@@ -1707,5 +1736,5 @@ export default {
 			default:
 				return json({ error: 'not found' }, 404);
 		}
-	},
-} satisfies ExportedHandler<Env>;
+	}
+}

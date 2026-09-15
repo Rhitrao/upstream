@@ -29,6 +29,8 @@ export default defineConfig({
 			miniflare: {
 				outboundService,
 				bindings: {
+					// The tests write to the database directly between requests; a cached page would hide that.
+					EDGE_CACHE: 'off',
 					TEST_MIGRATIONS: migrations,
 					// The real INGEST_KEY is a secret set in Part 8; tests use their own.
 					INGEST_KEY: 'test-ingest-key',

@@ -312,11 +312,17 @@ export function papersOf(raw: string | null): PapersFound | null {
 		return null;
 	}
 }
-const DESCRIBED_SQL = `CASE
-  WHEN COALESCE(c.product, '') <> '' AND c.website_identity = 'verified' THEN 'own'
-  WHEN COALESCE(c.description, '') <> '' AND NOT ${labelSql('c.description')} THEN 'source'
-  WHEN COALESCE(c.description, '') <> '' THEN 'label'
+/**
+ * Whose words say what a company builds: 'own', 'source', 'label' or 'none'. A generated column
+ * since migration 0028, with this expression, so filters on it use an index; SAID_STATE_SQL is
+ * the expression itself, pinned against the migration by a test.
+ */
+export const SAID_STATE_SQL = `CASE
+  WHEN COALESCE(product, '') <> '' AND website_identity = 'verified' THEN 'own'
+  WHEN COALESCE(description, '') <> '' AND NOT ${labelSql('description')} THEN 'source'
+  WHEN COALESCE(description, '') <> '' THEN 'label'
   ELSE 'none' END`;
+const DESCRIBED_SQL = 'c.said_state';
 
 /**
  * The orderings, as SQL, keyed by the only names the URL is allowed to use.
@@ -503,14 +509,16 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 	}
 
 	if (filters.traces && filters.traces in TRACE_SQL) clauses.push(TRACE_SQL[filters.traces]);
-	if (filters.described === 'said') clauses.push(`${DESCRIBED_SQL} IN ('own', 'source')`);
-	else if (filters.described === 'unsaid') clauses.push(`${DESCRIBED_SQL} IN ('label', 'none')`);
+	// said_state and is_company are generated columns (migration 0028) with an index, so the default
+	// half is read through the index instead of computing a CASE for every row.
+	if (filters.described === 'said') clauses.push(`c.said_state IN ('own', 'source')`);
+	else if (filters.described === 'unsaid') clauses.push(`c.said_state IN ('label', 'none')`);
 	else if (filters.described) {
-		clauses.push(`${DESCRIBED_SQL} = ?`);
+		clauses.push(`c.said_state = ?`);
 		binds.push(filters.described);
 	}
-	if (filters.kind === 'company') clauses.push("COALESCE(c.entity_type, 'company') = 'company'");
-	if (filters.kind === 'other') clauses.push("COALESCE(c.entity_type, 'company') <> 'company'");
+	if (filters.kind === 'company') clauses.push('c.is_company = 1');
+	if (filters.kind === 'other') clauses.push('c.is_company = 0');
 	if (filters.dpiit) {
 		clauses.push('c.dpiit_status = ?');
 		binds.push(filters.dpiit);
@@ -519,8 +527,8 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 		clauses.push('c.programme_count >= ?');
 		binds.push(filters.programmesAtLeast);
 	}
-	if (filters.alone) clauses.push("NOT EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.type IN ('website', 'press'))");
-	if (filters.noticedOnce) clauses.push("(SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1");
+	if (filters.alone) clauses.push('c.other_count = 0');
+	if (filters.noticedOnce) clauses.push('c.outside_count = 1');
 	if (filters.ids?.length) {
 		clauses.push(`c.id IN (${filters.ids.map(() => '?').join(', ')})`);
 		binds.push(...filters.ids);
@@ -1090,51 +1098,75 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 	const prog = without({ programmesAtLeast: null, alone: false });
 	const everything = without({});
 
-	const [placeRows, sectorRows, traceRow, saidRows, sourceRow, totalRow, tagRow, subRows, progRow] = await Promise.all([
+	// Every count that is a plain SUM over companies is folded into one scan per distinct filter set:
+	// with no filter on a widget's own dimension, its set is the view's, and six scans become one.
+	const scalars: { parts: { clauses: string[]; binds: unknown[] }; select: string }[] = [
+		{ parts: trace, select: TRACE_BUCKETS.map((b, i) => `SUM(CASE WHEN ${TRACE_SQL[b]} THEN 1 ELSE 0 END) AS t${i}`).join(', ') },
+		{ parts: said, select: DESCRIBED_STATES.map((k) => `SUM(c.said_state = '${k}') AS said_${k}`).join(', ') },
+		{ parts: source, select: 'COUNT(*) AS source_total' },
+		{ parts: everything, select: 'COUNT(*) AS all_total' },
+		{ parts: tag, select: "COUNT(*) AS tag_total, SUM(COALESCE(c.build_tags, '[]') = '[]' AND COALESCE(c.domain_tags, '[]') = '[]') AS untagged" },
+		{
+			parts: prog,
+			select: `COUNT(*) AS prog_total, SUM(c.programme_count = 1) AS prog_one, SUM(c.programme_count = 2) AS prog_two, SUM(c.programme_count >= 3) AS prog_three,
+			   SUM(c.programme_count >= 2) AS prog_two_plus, SUM(c.programme_count >= 2 AND c.organisation_count >= 2) AS prog_two_plus_orgs,
+			   SUM(c.programme_count >= 2 AND c.other_count = 0) AS prog_two_plus_alone`,
+		},
+	];
+	const groups = new Map<string, { parts: { clauses: string[]; binds: unknown[] }; selects: string[] }>();
+	for (const m of scalars) {
+		const key = `${whereSql(m.parts.clauses)}|${JSON.stringify(m.parts.binds)}`;
+		const group = groups.get(key) ?? { parts: m.parts, selects: [] };
+		group.selects.push(m.select);
+		groups.set(key, group);
+	}
+	const scalarRow: Record<string, number | null> = {};
+	const scalarQueries = [...groups.values()].map((g) =>
+		env.DB.prepare(`SELECT ${g.selects.join(', ')} FROM companies c ${whereSql(g.parts.clauses)}`)
+			.bind(...g.parts.binds)
+			.first<Record<string, number | null>>()
+			.then((row) => Object.assign(scalarRow, row ?? {})),
+	);
+
+	const [placeRows, sourceGroups, tagGroups, subRows] = await Promise.all([
 		all<{ state: string; city: string; n: number; dated: number }>(
 			`SELECT COALESCE(c.state, '') AS state, COALESCE(c.city, '') AS city, COUNT(*) AS n, SUM(c.first_seen IS NOT NULL) AS dated
 			 FROM companies c ${whereSql(place.clauses)} GROUP BY 1, 2`,
 			place,
 		),
-		all<{ sector_id: string | null; n: number }>(`SELECT c.sector_id, COUNT(*) AS n FROM companies c ${whereSql(sector.clauses)} GROUP BY 1`, sector),
-		env.DB.prepare(
-			`SELECT ${TRACE_BUCKETS.map((b, i) => `SUM(CASE WHEN ${TRACE_SQL[b]} THEN 1 ELSE 0 END) AS t${i}`).join(', ')}
-			 FROM companies c ${whereSql(trace.clauses)}`,
-		)
-			.bind(...trace.binds)
-			.first<Record<string, number | null>>(),
-		all<{ said: DescribedState; n: number }>(`SELECT ${DESCRIBED_SQL} AS said, COUNT(*) AS n FROM companies c ${whereSql(said.clauses)} GROUP BY 1`, said),
-		env.DB.prepare(
-			`SELECT ${SOURCES.map((_, i) => `SUM(EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.source = ?${i + 1})) AS s${i}`).join(', ')}
-			   , COUNT(*) AS total
-			 FROM companies c ${whereSql(source.clauses)}`,
-		)
-			// Numbered binds for the sources, then the filters' own positional ones after them.
-			.bind(...SOURCES, ...source.binds)
-			.first<Record<string, number | null>>(),
-		env.DB.prepare(`SELECT COUNT(*) AS n FROM companies c ${whereSql(everything.clauses)}`)
-			.bind(...everything.binds)
-			.first<{ n: number }>(),
-		env.DB.prepare(
-			`SELECT COUNT(*) AS total,
-			   SUM(COALESCE(c.build_tags, '[]') = '[]' AND COALESCE(c.domain_tags, '[]') = '[]') AS untagged,
-			   ${[...BUILD_TAGS.map((t, i) => [`b${i}`, 'build_tags', t]), ...DOMAIN_TAGS.map((t, i) => [`d${i}`, 'domain_tags', t])]
-					.map(([alias, col, t]) => `SUM(EXISTS (SELECT 1 FROM json_each(c.${col}) WHERE json_each.value = '${t.replace(/'/g, "''")}')) AS ${alias}`)
-					.join(',\n\t\t\t   ')}
-			 FROM companies c ${whereSql(tag.clauses)}`,
-		)
-			.bind(...tag.binds)
-			.first<Record<string, number | null>>(),
+		// One grouped join over signals, not a correlated probe per company per source (9,733 rows a render).
+		all<{ source: string; n: number }>(
+			`SELECT s.source, COUNT(DISTINCT s.company_id) AS n FROM signals s JOIN companies c ON c.id = s.company_id ${whereSql(source.clauses)} GROUP BY s.source`,
+			source,
+		),
+		// Each tag list unrolled once and grouped, not fourteen JSON probes per company (6,388 rows a render).
+		all<{ kind: string; tag: string; n: number }>(
+			`SELECT 'b' AS kind, j.value AS tag, COUNT(*) AS n FROM companies c, json_each(COALESCE(c.build_tags, '[]')) j ${whereSql(tag.clauses)} GROUP BY j.value
+			 UNION ALL
+			 SELECT 'd' AS kind, j.value AS tag, COUNT(*) AS n FROM companies c, json_each(COALESCE(c.domain_tags, '[]')) j ${whereSql(tag.clauses)} GROUP BY j.value`,
+			{ binds: [...tag.binds, ...tag.binds] },
+		),
 		all<{ subsector_id: string | null; n: number }>(`SELECT c.subsector_id, COUNT(*) AS n FROM companies c ${whereSql(sector.clauses)} GROUP BY 1`, sector),
-		env.DB.prepare(
-			`SELECT COUNT(*) AS total, SUM(c.programme_count = 1) AS one, SUM(c.programme_count = 2) AS two, SUM(c.programme_count >= 3) AS three,
-			   SUM(c.programme_count >= 2) AS two_plus, SUM(c.programme_count >= 2 AND c.organisation_count >= 2) AS two_plus_orgs,
-			   SUM(c.programme_count >= 2 AND NOT EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.type IN ('website', 'press'))) AS two_plus_alone
-			 FROM companies c ${whereSql(prog.clauses)}`,
-		)
-			.bind(...prog.binds)
-			.first<Record<string, number | null>>(),
+		...scalarQueries,
 	]);
+	const sectorRows = { results: [] as { sector_id: string | null; n: number }[] };
+	const traceRow = scalarRow;
+	const saidRows = { results: DESCRIBED_STATES.map((k) => ({ said: k, n: Number(scalarRow[`said_${k}`] ?? 0) })) };
+	const sourceRow: Record<string, number | null> = { total: scalarRow.source_total ?? 0 };
+	SOURCES.forEach((id, i) => (sourceRow[`s${i}`] = sourceGroups.results.find((g) => g.source === id)?.n ?? 0));
+	const totalRow = { n: Number(scalarRow.all_total ?? 0) };
+	const tagRow: Record<string, number | null> = { total: scalarRow.tag_total ?? 0, untagged: scalarRow.untagged ?? 0 };
+	BUILD_TAGS.forEach((t, i) => (tagRow[`b${i}`] = tagGroups.results.find((g) => g.kind === 'b' && g.tag === t)?.n ?? 0));
+	DOMAIN_TAGS.forEach((t, i) => (tagRow[`d${i}`] = tagGroups.results.find((g) => g.kind === 'd' && g.tag === t)?.n ?? 0));
+	const progRow = {
+		total: scalarRow.prog_total,
+		one: scalarRow.prog_one,
+		two: scalarRow.prog_two,
+		three: scalarRow.prog_three,
+		two_plus: scalarRow.prog_two_plus,
+		two_plus_orgs: scalarRow.prog_two_plus_orgs,
+		two_plus_alone: scalarRow.prog_two_plus_alone,
+	};
 
 	const byState = new Map<string, { state: string; n: number; dated: number; districts: { name: string; n: number }[] }>();
 	let unknown = 0;
@@ -1295,26 +1327,35 @@ export const OUTSIDE_TAXONOMY = 'outside this taxonomy';
 export async function queryFindings(env: Env): Promise<Findings> {
 	const saidRow = `${DESCRIBED_SQL} IN ('own', 'source')`;
 	const saidGap = `COALESCE(g.description, '') <> '' AND NOT ${labelSql('g.description')}`;
-	const [row, holes] = await Promise.all([
+	// One pass over each table. The correlated subqueries this replaced read 17,752 rows a render
+	// on 15 September 2026, most of the free daily limit spent on a paragraph nobody changed.
+	const [row, gapRow, holes] = await Promise.all([
 		env.DB.prepare(
-			`SELECT
-			   (SELECT COUNT(DISTINCT s.company_id) FROM signals s WHERE s.source = ?1) AS register_rows,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.source = ?1)) AS register_rows_said,
-			   (SELECT COUNT(*) FROM gaps g WHERE g.source = ?1) AS register_gaps,
-			   (SELECT COUNT(*) FROM gaps g WHERE g.source = ?1 AND ${saidGap}) AS register_gaps_said,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow}) AS rows_said,
-			   (SELECT COUNT(*) FROM gaps g WHERE ${saidGap}) AS gaps_said,
-			   (SELECT COUNT(*) FROM gaps g WHERE ${saidGap} AND g.missing <> ?2) AS gaps_said_unmapped,
-			   (SELECT COUNT(*) FROM companies WHERE dpiit_status IS NOT NULL) AS with_status,
-			   (SELECT COUNT(*) FROM companies WHERE dpiit_status = 'profile') AS profile,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company') AS companies_said,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company'
-			      AND (SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1) AS noticed_once,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 2) AS prog_two,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 3) AS prog_three,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.organisation_count >= 2) AS prog_orgs,
-			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 2
-			      AND NOT EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.type IN ('website', 'press'))) AS prog_alone`,
+			`WITH sig AS (
+			   SELECT company_id, MAX(source = ?1) AS on_register, SUM(type <> 'website') AS outside,
+			          SUM(type IN ('website', 'press')) AS other
+			   FROM signals GROUP BY company_id
+			 )
+			 SELECT
+			   SUM(COALESCE(sig.on_register, 0)) AS register_rows,
+			   SUM(COALESCE(sig.on_register, 0) AND ${saidRow}) AS register_rows_said,
+			   SUM(${saidRow}) AS rows_said,
+			   SUM(c.dpiit_status IS NOT NULL) AS with_status,
+			   SUM(c.dpiit_status = 'profile') AS profile,
+			   SUM(${saidRow} AND COALESCE(c.entity_type, 'company') = 'company') AS companies_said,
+			   SUM(${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND COALESCE(sig.outside, 0) = 1) AS noticed_once,
+			   SUM(${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 2) AS prog_two,
+			   SUM(${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 3) AS prog_three,
+			   SUM(${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.organisation_count >= 2) AS prog_orgs,
+			   SUM(${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 2 AND COALESCE(sig.other, 0) = 0) AS prog_alone
+			 FROM companies c LEFT JOIN sig ON sig.company_id = c.id`,
+		)
+			.bind(REGISTER_SOURCE)
+			.first<Record<string, number | null>>(),
+		env.DB.prepare(
+			`SELECT SUM(g.source = ?1) AS register_gaps, SUM(g.source = ?1 AND ${saidGap}) AS register_gaps_said,
+			   SUM(${saidGap}) AS gaps_said, SUM(${saidGap} AND g.missing <> ?2) AS gaps_said_unmapped
+			 FROM gaps g`,
 		)
 			.bind(REGISTER_SOURCE, NO_GAP_NAMED)
 			.first<Record<string, number | null>>(),
@@ -1326,7 +1367,7 @@ export async function queryFindings(env: Env): Promise<Findings> {
 			.bind(NO_GAP_NAMED, OUTSIDE_TAXONOMY)
 			.all<{ missing: string; n: number }>(),
 	]);
-	const n = (k: string) => Number(row?.[k] ?? 0);
+	const n = (k: string) => Number(row?.[k] ?? gapRow?.[k] ?? 0);
 	return {
 		register: { total: n('register_rows') + n('register_gaps'), described: n('register_rows_said') + n('register_gaps_said') },
 		described: { total: n('rows_said') + n('gaps_said'), unmapped: n('gaps_said_unmapped'), holes: holes.results },

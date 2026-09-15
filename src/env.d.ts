@@ -33,4 +33,8 @@ interface Env {
 	 */
 	MIN_RANKED_TO_OPEN?: string;
 	ANTHROPIC_API_KEY?: string;
+	/** 'off' serves every request from D1, as the tests need; unset caches at the edge (src/edgecache.ts). */
+	EDGE_CACHE?: string;
+	/** The deployed version, so a deploy starts a fresh cache. */
+	CF_VERSION_METADATA?: { id: string; tag?: string; timestamp?: string };
 }

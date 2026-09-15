@@ -1,4 +1,5 @@
-import { env, SELF } from 'cloudflare:test';
+import { createExecutionContext, env, SELF, waitOnExecutionContext } from 'cloudflare:test';
+import worker from '../src/index';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { SIGNAL_TYPES, TRACE_TYPES } from '../src/rank';
 import { NO_GAP_NAMED } from '../src/db';
@@ -2478,6 +2479,57 @@ describe('signs of activity on their own site', () => {
 		// Found not to be theirs, and what was read off it goes.
 		await post({ source: 'sine-iitb', companies: [{ id: 'act-co', name: 'Act Co', website: 'https://act.example', website_identity: 'discovered' }] });
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/act-co`)).text()).not.toContain('roles listed');
+	});
+});
+
+describe('the generated column and the expression it mirrors', () => {
+	it('keeps said_state in migration 0028 identical to SAID_STATE_SQL', async () => {
+		const { SAID_STATE_SQL } = await import('../src/db');
+		const migration = (await import('../migrations/0028_site_state_and_indexes.sql?raw')).default as string;
+		expect(migration).toContain(`said_state TEXT GENERATED ALWAYS AS (${SAID_STATE_SQL}) VIRTUAL`);
+	});
+});
+
+describe('rows read, and the edge cache', () => {
+	const cachedFetch = async (path: string) => {
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(new Request(`${ORIGIN}${path}`), { ...env, EDGE_CACHE: 'on' } as Env, ctx);
+		const body = await response.text();
+		await waitOnExecutionContext(ctx);
+		return { response, body };
+	};
+
+	it('says how many rows each response read, serves a repeat from the cache, and lets an ingest through', async () => {
+		await post({ source: 'sine-iitb', companies: [{ id: 'cache-co', name: 'Cache Co', description: 'Thermal cameras.', sector_id: '2', subsector_id: '2.2' }] });
+		const first = await cachedFetch('/upstream?q=cache');
+		expect(first.response.headers.get('x-edge-cache')).toBe('miss');
+		expect(Number(first.response.headers.get('x-d1-rows-read'))).toBeGreaterThan(1);
+		expect(first.body).toContain('Cache Co');
+
+		const again = await cachedFetch('/upstream?q=cache');
+		expect(again.response.headers.get('x-edge-cache')).toBe('hit');
+		// Only the data version's one row.
+		expect(Number(again.response.headers.get('x-d1-rows-read'))).toBeLessThanOrEqual(1);
+
+		// An ingest moves the version, so the same url is computed afresh and shows the change.
+		await post({ source: 'sine-iitb', companies: [{ id: 'cache-co', name: 'Cache Co Renamed', description: 'Thermal cameras.', sector_id: '2', subsector_id: '2.2' }] });
+		const after = await cachedFetch('/upstream?q=cache');
+		expect(after.response.headers.get('x-edge-cache')).toBe('miss');
+		expect(after.body).toContain('Cache Co Renamed');
+
+		const company = await cachedFetch('/upstream/c/cache-co');
+		const companyAgain = await cachedFetch('/upstream/c/cache-co');
+		expect(companyAgain.response.headers.get('x-edge-cache')).toBe('hit');
+		expect(company.body).toContain('Cache Co Renamed');
+
+		// D1 refusing every query (a spent daily limit): the last good copy is served, not an error.
+		const refusing = { prepare: () => { throw new Error('D1_ERROR: exceeded daily rows read'); }, batch: async () => { throw new Error('refused'); }, exec: async () => { throw new Error('refused'); } };
+		const ctx = createExecutionContext();
+		const down = await worker.fetch(new Request(`${ORIGIN}/upstream?q=cache`), { ...env, EDGE_CACHE: 'on', DB: refusing } as unknown as Env, ctx);
+		await waitOnExecutionContext(ctx);
+		expect(down.status).toBe(200);
+		expect(down.headers.get('x-edge-cache')).toBe('stale');
+		expect(await down.text()).toContain('Cache Co Renamed');
 	});
 });
 
