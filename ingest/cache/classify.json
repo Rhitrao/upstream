@@ -940,15 +940,15 @@
   "subsector_id": null
  },
  "agnikul-cosmos": {
-  "classified_at": "2026-09-15T01:38:54+00:00",
-  "hash": "bbae4a8be46bb161",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "8ecbc9f9e0d22fd5",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "AGNIKUL COSMOS PRIVATE LIMITED",
-  "note": "Agnikul Cosmos develops launch vehicles and propulsion systems, directly matching the space technologies sub-sector's focus on advanced and reusable launch vehicles with propulsion innovation.",
+  "name": "Agnikul Cosmos Private Limited",
+  "note": "Agnikul Cosmos develops configurable launch vehicles with 3D-printed rocket engines for small satellite payloads to LEO, directly aligning with advanced launch vehicle technology and innovative propulsion manufacturing.",
   "project_type": "Advanced and reusable launch vehicles, propulsion innovation (cryogenic / green propellants)",
   "sector_id": "2",
-  "source": "dpiit-startup-india",
+  "source": "rtbi-iitm",
   "subsector_id": "2.5"
  },
  "agnit-semiconductors": {
@@ -1252,6 +1252,18 @@
   "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
   "sector_id": "4",
   "subsector_id": "4.7"
+ },
+ "aigiri-industries": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "b81d628703eede69",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "AIGIRI INDUSTRIES PRIVATE LIMITED",
+  "note": "AIGIRI Industries' specific renewable energy technology and focus area are not provided in the available information, making it impossible to map them to a particular sub-sector or project type with confidence.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "aimos-labs": {
   "classified_at": "2026-09-12T12:07:04+00:00",
@@ -1824,6 +1836,18 @@
   "sector_id": "1",
   "source": "venture-center",
   "subsector_id": "1.10"
+ },
+ "ambit-transmission-products": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "1ab8d2ef0c3ea13b",
+  "missing": "power transmission infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "AMBIT TRANSMISSION PRODUCTS PRIVATE LIMITED",
+  "note": "AMBIT Transmission Products appears to focus on transmission infrastructure and equipment for power distribution, which does not align with the energy generation, storage, conversion, or industrial decarbonization projects listed in this taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "amdus-technologies": {
   "classified_at": "2026-09-12T11:30:42+00:00",
@@ -2466,6 +2490,18 @@
   "sector_id": "2",
   "subsector_id": "2.5"
  },
+ "arnatura": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "44014753908e0749",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "ARNATURA",
+  "note": "ARNATURA is a green technology startup at validation stage, but without specific information about their core technology focus (renewable energy, storage, carbon capture, materials, etc.), it cannot be reliably mapped to a sub-sector.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "arogriha": {
   "classified_at": "2026-09-15T01:39:58+00:00",
   "hash": "25c09a72bb4bf668",
@@ -3103,15 +3139,15 @@
   "subsector_id": null
  },
  "avinya-leather": {
-  "classified_at": "2026-09-14T07:04:38+00:00",
-  "hash": "23de7265041d6462",
+  "classified_at": "2026-09-15T08:38:05+00:00",
+  "hash": "77d1992d33e84e52",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "Avinya Leather Private Limited",
+  "name": "AVINYA LEATHER PRIVATE LIMITED",
   "note": null,
   "project_type": null,
   "sector_id": null,
-  "source": "venture-center",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "avinya-neurotech": {
@@ -3591,6 +3627,18 @@
   "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
+ },
+ "bhambri-solar": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "50a3365cb223f6f0",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "BHAMBRI SOLAR PRIVATE LIMITED",
+  "note": "Bhambri Solar is a DPIIT-recognized renewable solar energy startup in validation stage, which aligns with efforts to reduce the levelized cost of utility-scale photovoltaic systems through innovations in solar technology.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
  },
  "bharat-atomic-labs": {
   "classified_at": "2026-09-12T12:01:24+00:00",
@@ -4102,6 +4150,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "botdynax": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "76d9a520d949c104",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "BOTDYNAX PRIVATE LIMITED",
+  "note": "BOTDYNAX operates in robotics technology and would fall under Intelligent Systems & Robotics, with modular robotic platforms being the closest match to a validation-stage robotics startup.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
+ },
  "botloka": {
   "classified_at": "2026-09-15T01:39:12+00:00",
   "hash": "c9abee92de802c79",
@@ -4545,15 +4605,16 @@
   "subsector_id": "4.5"
  },
  "cancrie": {
-  "classified_at": "2026-09-12T11:30:55+00:00",
-  "hash": "edb55682ef286471",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "6637d1c08536f32c",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Cancrie Private Limited",
-  "note": "Cancrie's BIRAC award in Industrial Biotechnology and Clean Energy & Environment aligns with sustainable bioprocess development using agricultural feedstocks for environmentally friendly production.",
-  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
-  "sector_id": "4",
-  "subsector_id": "4.2"
+  "note": "Cancrie's nanocarbon additives from agricultural waste directly enhance battery efficiency, lifespan, and charging speed, fitting the energy storage sub-sector's focus on improved battery performance metrics.",
+  "project_type": "High energy density, long cycle life",
+  "sector_id": "1",
+  "source": "grants-csv",
+  "subsector_id": "1.4"
  },
  "cancrie-inc": {
   "classified_at": "2026-09-14T07:04:48+00:00",
@@ -4823,6 +4884,18 @@
   "note": "Chaithra Arun's smart gas stove knob with leakage detection is a consumer safety device that does not align with any energy transition, renewable energy, energy storage, hydrogen economy, carbon capture, nuclear, cooling efficiency, critical minerals, or climate action technology listed in this taxonomy.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "chandravedalabs-opc": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "727664b36d04c7a6",
+  "missing": "company technology description",
+  "model": "claude-haiku-4-5",
+  "name": "CHANDRAVEDALABS (OPC) PRIVATE LIMITED",
+  "note": "Without specific information about CHANDRAVEDALABS' research focus, product pipeline, or technological platform, it is impossible to accurately place them within any sub-sector.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "chapo": {
@@ -5324,6 +5397,18 @@
   "sector_id": "1",
   "subsector_id": "1.13"
  },
+ "consider-done-hydro-power": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "747b9d035be40efc",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "CONSIDER DONE HYDRO POWER LLP",
+  "note": "Consider Done Hydro Power develops micro-hydro solutions for decentralized renewable energy generation, directly matching innovations in last-mile energy access for off-grid and rural electrification.",
+  "project_type": "Innovations for last-mile energy access",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.9"
+ },
  "consilium-ventures": {
   "classified_at": "2026-09-15T01:40:01+00:00",
   "hash": "68b14956d04e5a88",
@@ -5607,14 +5692,15 @@
   "subsector_id": null
  },
  "curexel-technologies": {
-  "classified_at": "2026-09-12T11:31:16+00:00",
-  "hash": "b9463ef6906aa708",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "66529a74714dcc8a",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Curexel Technologies Private Limited",
-  "note": "Curexel's BIRAC award in Medical Devices and Diagnostics aligns with 4.5's focus on diagnostic platforms, and their work most likely involves detection and management technologies for disease applications.",
-  "project_type": "Platform technologies for infectious disease detection and management",
+  "note": "Curexel's painless injection technology is an advanced drug delivery system that improves vaccine administration through novel delivery mechanism design.",
+  "project_type": "Advanced drug delivery systems and biocompatible materials",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.5"
  },
  "curva-dynamics": {
@@ -6428,14 +6514,15 @@
   "subsector_id": null
  },
  "diagopreutic": {
-  "classified_at": "2026-09-12T11:31:17+00:00",
-  "hash": "2cda8318353b15ab",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "9135cc01f124b624",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Diagopreutic Private limited",
-  "note": "Diagopreutic's BIRAC award in Medical Devices and Diagnostics category directly aligns with 4.5's focus on developing indigenous diagnostic solutions.",
-  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "note": "Diagopreutic's enzymatic activity-based diagnostic platform for rapid pathogen identification and antibiotic susceptibility testing directly addresses infectious disease detection and management through an innovative diagnostic approach.",
+  "project_type": "Platform technologies for infectious disease detection and management",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.5"
  },
  "diana-metals": {
@@ -7401,6 +7488,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "elecon-aerotech": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "5674221be692dbd2",
+  "missing": "autonomous aerial vehicles, drone technology",
+  "model": "claude-haiku-4-5",
+  "name": "ELECON AEROTECH PRIVATE LIMITED",
+  "note": "ELECON AEROTECH develops drones for aeronautics and aerospace applications, which falls outside the deep-technology taxonomy provided that focuses on quantum, semiconductors, photonics, space infrastructure, materials science, and robotics\u2014but not autonomous aerial vehicles or unmanned aircraft systems as a distinct category.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "electica-energy": {
   "classified_at": "2026-09-15T01:40:09+00:00",
   "hash": "c51b0b13264c0441",
@@ -7978,6 +8077,18 @@
   "project_type": "Scale-up and production of bio-enzymes, biosurfactants and biopolymers",
   "sector_id": "4",
   "subsector_id": "4.2"
+ },
+ "eonforge-apex": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "a353277f2485ad20",
+  "missing": "company technical details",
+  "model": "claude-haiku-4-5",
+  "name": "EONFORGE APEX PRIVATE LIMITED",
+  "note": "EONFORGE APEX's specific renewable energy focus and technology domain cannot be determined from the provided information (company name and general sector classification alone do not reveal their particular innovation area).",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "epocare": {
   "classified_at": "2026-09-12T12:00:00+00:00",
@@ -8882,15 +8993,28 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "forgonyx-india": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "29be8e6d36717f7f",
+  "missing": "company-specific technology details",
+  "model": "claude-haiku-4-5",
+  "name": "FORGONYX INDIA PRIVATE LIMITED",
+  "note": "FORGONYX INDIA PRIVATE LIMITED's specific technology, products, or focus areas are not disclosed in the available information, making it impossible to map them accurately to a sub-sector or project type.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "forschmedx": {
-  "classified_at": "2026-09-12T11:31:18+00:00",
-  "hash": "5fcf0331d8c76a4c",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "885c3bdb532e5bae",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "ForschmedX Private Limited",
-  "note": "ForschmedX's BIRAC Biotechnology Ignition Grant award in the Medical Devices and Diagnostics category aligns with subsector 4.5, which encompasses indigenous diagnostic development and point-of-care solutions.",
-  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "note": "The modified endotracheal tube with IoT-enabled automatic suction is a cardio-respiratory care device that continuously monitors and manages patient airways, fitting squarely within medical devices for respiratory management.",
+  "project_type": "Devices for cancer care / radiotherapy, radiology, nuclear imaging, anesthesia, cardio-respiratory and renal care",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.5"
  },
  "fortavora": {
@@ -9073,6 +9197,18 @@
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "galaxeye-space-solutions": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "abdc2805dcecda95",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "GALAXEYE SPACE SOLUTIONS PRIVATE LIMITED",
+  "note": "GalaxyEye Space Solutions, as a space technology startup, most likely develops satellite-based Earth observation and geospatial solutions, which aligns with the geospatial and remote sensing applications project type under Space Technologies.",
+  "project_type": "Geospatial and remote sensing applications (including hyperspectral imaging)",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.5"
  },
  "galaxy-air-link": {
   "classified_at": "2026-09-12T12:03:58+00:00",
@@ -9533,6 +9669,18 @@
   "note": "GoFloat Technologies develops underwater drones and water safety devices, which is marine/ocean robotics hardware, not covered by the deep-tech taxonomy focused on quantum, semiconductors, photonics, space, materials science, and land-based intelligent systems.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "gohemp-agro-ventures": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "aac7e0a05d467b06",
+  "missing": "sustainable building materials manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "Gohemp Agroventures Private Limited",
+  "note": "Gohemp Agroventures focuses on green building solutions and sustainable construction materials derived from hemp, which is a manufacturing and materials science application rather than a digital economy initiative.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "grants-csv",
   "subsector_id": null
  },
  "gohemp-agroventures": {
@@ -13167,6 +13315,18 @@
   "sector_id": "3",
   "subsector_id": "3.3"
  },
+ "lastmile-robotics": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "0758ce0e91141509",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "LASTMILE ROBOTICS PRIVATE LIMITED",
+  "note": "Lastmile Robotics, a robotics technology startup, aligns with the Intelligent Systems & Robotics sub-sector, specifically modular robotic platforms which represent scalable, configurable robotic systems for deployment.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
+ },
  "latentlinks-opc": {
   "classified_at": "2026-09-14T07:04:12+00:00",
   "hash": "957d31c112d74753",
@@ -13734,6 +13894,18 @@
   "sector_id": null,
   "source": "tides-iitr",
   "subsector_id": null
+ },
+ "madhuban-technologies": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "15c508e55991d6a8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Madhuban Technologies LLP",
+  "note": "Madhuban Technologies is an IoT-focused startup whose work aligns with core infrastructure development for the digital economy, specifically in sensor and IoT device creation that enables broader digital economy applications.",
+  "project_type": "Development of indigenous processors, chipsets, sensors",
+  "sector_id": "5",
+  "source": "dpiit-startup-india",
+  "subsector_id": "5.1"
  },
  "magheals": {
   "classified_at": "2026-09-15T01:39:22+00:00",
@@ -15420,6 +15592,18 @@
   "sector_id": "4",
   "subsector_id": "4.2"
  },
+ "neda-aero-india": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "b31a69bcb420cc18",
+  "missing": "aviation and aeronautics",
+  "model": "claude-haiku-4-5",
+  "name": "NEDA AERO INDIA PRIVATE LIMITED",
+  "note": "NEDA AERO INDIA works in general aviation and aeronautics, which falls outside the deep-technology focus of Sector 2. The taxonomy covers quantum, semiconductors, advanced manufacturing, photonics, space, materials, robotics, and neuromorphic computing\u2014but not conventional aircraft design, propulsion systems, or avionics for commercial aviation.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "neer-shakti-systems": {
   "classified_at": "2026-09-12T12:01:49+00:00",
   "hash": "a3f0761f34d79da8",
@@ -15971,6 +16155,18 @@
   "project_type": "Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "noumad-tech": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "c7f1852b39b9cacd",
+  "missing": "internet of things infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "NOUMAD TECH PRIVATE LIMITED",
+  "note": "NOUMAD TECH's IoT focus does not map to the deep-tech project types listed across Sector 2, which emphasize quantum, semiconductors, advanced manufacturing, photonics, space, materials science, robotics, and neuromorphic hardware.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "nova-dynamix": {
   "classified_at": "2026-09-12T12:03:51+00:00",
@@ -16754,14 +16950,15 @@
   "subsector_id": null
  },
  "papyrus-diagnostics": {
-  "classified_at": "2026-09-12T11:31:21+00:00",
-  "hash": "8717fc0f3ca81005",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "95fae506b62a5fa2",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Papyrus Diagnostics Private Limited",
-  "note": "Papyrus Diagnostics received a BIRAC Biotechnology Ignition Grant in the Medical Devices and Diagnostics category, directly aligning with 4.5's focus on indigenous diagnostic solutions.",
+  "note": "Papyrus Diagnostics develops rapid, low-cost, paper-based diagnostic kits for point-of-care detection of drug-resistant UTIs, directly matching the indigenous diagnostic kit category under Medical Devices & Diagnostics.",
   "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.5"
  },
  "paragise": {
@@ -17910,14 +18107,15 @@
   "subsector_id": "2.7"
  },
  "proxi-farma": {
-  "classified_at": "2026-09-12T11:31:23+00:00",
-  "hash": "98604d30b7961530",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "21b0b503d42a9a38",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Proxi Farma Private Limited",
-  "note": "Proxi Farma received a BIRAC Biotechnology Ignition Grant specifically in the Agriculture and allied areas category, indicating their work develops biological solutions for agricultural applications.",
-  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "note": "Proxi Farma's fibre-based nutrition products targeting gut microbiome for immuno-metabolic health management directly align with microbiome-based therapeutics, a recognized advanced therapeutic approach.",
+  "project_type": "Microbiome-based therapeutics",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.7"
  },
  "proximal-soilsens-technologies": {
@@ -18114,26 +18312,28 @@
   "subsector_id": null
  },
  "qualivon-technologies": {
-  "classified_at": "2026-09-12T11:31:01+00:00",
-  "hash": "afd6de37ec6b61b4",
-  "missing": null,
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "fc182eecf1dffc4e",
+  "missing": "industrial emissions monitoring and sensing",
   "model": "claude-haiku-4-5",
   "name": "Qualivon Technologies Private Limited",
-  "note": "Qualivon's BIRAC Ignition Grant in Industrial Biotechnology and Clean Energy & Environment aligns with sub-sector 4.2's focus on sustainable bioprocesses, likely involving conversion of agro-waste or CO2 into value-added products through bioengineering.",
-  "project_type": "Sustainable bioprocesses using agro-waste and CO2 conversion",
-  "sector_id": "4",
-  "subsector_id": "4.2"
+  "note": "Qualivon's nanophotonics-based multi-gas sensing for industrial emission monitoring is a measurement and diagnostics tool, not an energy generation, storage, conversion, or carbon reduction technology.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "grants-csv",
+  "subsector_id": null
  },
  "quan2d-technologies": {
-  "classified_at": "2026-09-12T11:31:02+00:00",
-  "hash": "6f4fa9caa8661242",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "7338eaf71d20678b",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Quan2D Technologies Private Limited",
-  "note": "BIRAC's Industrial Biotechnology, Clean Energy & Environment category aligns with synthetic biology's focus on sustainable production, and Quan2D's work in industrial biotech directly matches the subsector's emphasis on engineered biological solutions for sustainable materials and energy.",
-  "project_type": "Synthetic biology solutions for sustainable fuels, chemicals and materials",
-  "sector_id": "4",
-  "subsector_id": "4.3"
+  "note": "Quan2D's graphene-based functionalized coatings and composites with large-scale synthesis methodologies align with advanced surface coating innovations applicable across multiple industrial sectors.",
+  "project_type": "Advanced surface coating and additive manufacturing for aerospace, defence, chemical, oil & gas and biomedical",
+  "sector_id": "1",
+  "source": "grants-csv",
+  "subsector_id": "1.13"
  },
  "quantanics-techserv": {
   "classified_at": "2026-09-12T12:05:06+00:00",
@@ -19124,6 +19324,18 @@
   "project_type": "Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "robential-kinetics": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "905b28fe16cfa627",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ROBENTIAL KINETICS PRIVATE LIMITED",
+  "note": "Robential Kinetics is a robotics startup at prototype stage, directly matching the modular robotic platforms project type under Intelligent Systems & Robotics.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
  },
  "roberon-technologies": {
   "classified_at": "2026-09-14T07:03:57+00:00",
@@ -20360,6 +20572,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "shivansh-solar-energy": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "7a7f947856e73d91",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SHIVANSH SOLAR ENERGY PVT LTD",
+  "note": "Shivansh Solar Energy is a scaling renewable solar energy startup focused on solar PV systems, which aligns with cost reduction and deployment of utility-scale solar solutions.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
+ },
  "shivpoojan-mahant": {
   "classified_at": "2026-09-12T12:03:16+00:00",
   "hash": "f81986c8fc2acf9f",
@@ -20631,14 +20855,15 @@
   "subsector_id": null
  },
  "silifarm-technologies": {
-  "classified_at": "2026-09-12T11:31:02+00:00",
-  "hash": "7b5d6b1d457ab967",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "dc040ce577280173",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Silifarm Technologies Private Limited",
-  "note": "Silifarm is a BIRAC-funded medical devices company, and while their specific focus is not detailed, they fit best within Medical Devices & Diagnostics (4.5), with advanced drug delivery and biocompatible materials being the most broadly applicable project type for a medical device developer.",
-  "project_type": "Advanced drug delivery systems and biocompatible materials",
+  "note": "Silifarm's Matri is a portable, rechargeable wearable electronic device for non-invasive pain relief, fitting the wearable health monitors category within medical devices.",
+  "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.5"
  },
  "simple-systems": {
@@ -22683,14 +22908,15 @@
   "subsector_id": "1.4"
  },
  "theranautilus": {
-  "classified_at": "2026-09-12T11:30:52+00:00",
-  "hash": "5a38aab1b145a572",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "5859e368c14de979",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Theranautilus Private Limited",
-  "note": "Theranautilus, a BIRAC-funded medical devices company, most likely develops wearable or implantable biosensor technologies for health monitoring, which directly aligns with the wearable health monitors and implantable biosensors project type under Medical Devices & Diagnostics.",
-  "project_type": "Wearable health monitors and implantable biosensors",
+  "note": "Theranautilus develops magnetically controlled nanorobots for targeted drug delivery and microsurgery, which directly aligns with advanced drug delivery systems, a core capability in medical devices and diagnostics.",
+  "project_type": "Advanced drug delivery systems and biocompatible materials",
   "sector_id": "4",
+  "source": "grants-csv",
   "subsector_id": "4.5"
  },
  "thermonic-sensor-and-control": {
@@ -23371,14 +23597,15 @@
   "subsector_id": "2.7"
  },
  "umarobotics-technology": {
-  "classified_at": "2026-09-12T12:03:29+00:00",
-  "hash": "c5295c2b75f47867",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "932912fa245a7255",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "UMAROBOTICS TECHNOLOGY PRIVATE LIMITED",
-  "note": "UMA Robotics develops robotics technology as a DPIIT-recognised startup, which aligns with the Intelligent Systems & Robotics sub-sector's focus on modular robotic platforms and advanced robotics systems.",
-  "project_type": "Modular robotic platforms",
+  "note": "UMA Robotics' 20+ years in machine learning, software development, and robotics aligns with subsector 2.7's focus on intelligent robotic systems with edge intelligence capabilities.",
+  "project_type": "Edge intelligence and swarm robotics",
   "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": "2.7"
  },
  "unibose-engineering-india": {
@@ -24019,6 +24246,18 @@
   "note": "VENMOZ BIO INNOVATIONS is a DPIIT-recognised biotech startup at prototype stage, but without specific information about their focus area (genomics, drug discovery, medical devices, biomanufacturing, synthetic biology, biomaterials, or therapeutics), no sub-sector can be accurately assigned.",
   "project_type": null,
   "sector_id": "4",
+  "subsector_id": null
+ },
+ "ventaria-global": {
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "fe4bcce00bc35feb",
+  "missing": "company technical specifications",
+  "model": "claude-haiku-4-5",
+  "name": "VENTARIA GLOBAL LLP",
+  "note": "Ventaria Global is a DPIIT-recognized green technology startup at validation stage, but without specific details on their core technology or focus area (e.g., renewable energy type, materials, efficiency, carbon solutions, etc.), it is impossible to map them to a particular sub-sector or project type within the energy and climate taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "veratrixai": {
@@ -25357,16 +25596,16 @@
   "subsector_id": null
  },
  "zedbee-technologies": {
-  "classified_at": "2026-09-15T01:38:55+00:00",
-  "hash": "f044b649bf715de3",
-  "missing": "industrial IoT and smart manufacturing",
+  "classified_at": "2026-09-15T08:40:37+00:00",
+  "hash": "1b68818fe828d479",
+  "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "ZEDBEE TECHNOLOGIES PRIVATE LIMITED",
-  "note": "Zedbee Technologies is an IoT company focused on manufacturing and warehouse management, which falls under industrial IoT and smart manufacturing operations rather than the deep-tech innovation categories defined in Sector 2.",
-  "project_type": null,
-  "sector_id": "2",
-  "source": "dpiit-startup-india",
-  "subsector_id": null
+  "name": "ZedBee Technologies Private Limited",
+  "note": "ZedBee's Variable Frequency Drive and sensor-integrated motor control unit for HVAC systems directly reduces electricity consumption in air conditioning through advanced power electronics and building management integration, matching the high-efficiency air conditioner innovation focus.",
+  "project_type": "High efficiency air conditioners",
+  "sector_id": "1",
+  "source": "rtbi-iitm",
+  "subsector_id": "1.10"
  },
  "zefender-innovations": {
   "classified_at": "2026-09-12T12:04:51+00:00",

@@ -184,6 +184,11 @@
   "first_capture": null,
   "outcome": "unavailable"
  },
+ "arunodayinnovations.com": {
+  "checked": "2026-09-15T08:42:37+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
  "ashvaweartech.com": {
   "checked": "2026-09-15T01:59:22+00:00",
   "first_capture": null,
@@ -193,6 +198,11 @@
   "checked": "2026-09-15T01:59:31+00:00",
   "first_capture": "2016-02-05",
   "outcome": "captured"
+ },
+ "astrophelaerospace.in": {
+  "checked": "2026-09-15T08:42:44+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
  },
  "atmosflight.com": {
   "checked": "2026-09-15T01:59:39+00:00",
@@ -206,6 +216,11 @@
  },
  "augle.ai": {
   "checked": "2026-09-15T02:00:40+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "avkalanlabs.com": {
+  "checked": "2026-09-15T08:43:15+00:00",
   "first_capture": null,
   "outcome": "timeout"
  },
@@ -239,6 +254,16 @@
   "first_capture": null,
   "outcome": "timeout"
  },
+ "bhoomicam.com": {
+  "checked": "2026-09-15T08:43:22+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "binford.io": {
+  "checked": "2026-09-15T08:43:52+00:00",
+  "first_capture": "2019-10-19",
+  "outcome": "captured"
+ },
  "biodimension.in": {
   "checked": "2026-09-15T02:03:57+00:00",
   "first_capture": null,
@@ -248,6 +273,11 @@
   "checked": "2026-09-15T02:04:04+00:00",
   "first_capture": null,
   "outcome": "unavailable"
+ },
+ "bioprimeagri.com": {
+  "checked": "2026-09-15T08:44:24+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
  },
  "bitmapper.com": {
   "checked": "2026-09-15T02:04:11+00:00",
@@ -274,8 +304,53 @@
   "first_capture": null,
   "outcome": "unavailable"
  },
+ "botloka.com": {
+  "checked": "2026-09-15T08:44:56+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
  "boviedgeresearch.com": {
   "checked": "2026-09-15T02:05:37+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "brainovativelabs.com": {
+  "checked": "2026-09-15T08:45:27+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "bramhansh.com": {
+  "checked": "2026-09-15T08:45:59+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "brsindia.com": {
+  "checked": "2026-09-15T08:46:30+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "byasbioref.in": {
+  "checked": "2026-09-15T08:47:08+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "caldorhealthtech.com": {
+  "checked": "2026-09-15T08:47:15+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "caloreon.com": {
+  "checked": "2026-09-15T08:47:21+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "cancrie.co": {
+  "checked": "2026-09-15T08:47:28+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "carbsorb.com": {
+  "checked": "2026-09-15T08:48:00+00:00",
   "first_capture": null,
   "outcome": "timeout"
  }

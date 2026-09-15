@@ -2370,6 +2370,48 @@
   "text_chars": 0,
   "website": "https://www.docswallet.com/"
  },
+ "doto-health": {
+  "careers": {
+   "roles": 0,
+   "says_none": true,
+   "titles": [],
+   "url": "https://caremother.in/company/careers"
+  },
+  "checked": "2026-09-15T08:48:05+00:00",
+  "contact_email": null,
+  "contact_page": "https://caremother.in/contact",
+  "pages": {
+   "about": {
+    "meta": "CareMother is a digital maternity platform with AI-powered NST/CTG devices and prenatal tools, helping healthcare providers to monitor high-risk pregnancies.",
+    "outcome": "thin",
+    "title": "Digital Maternity Solution for Healthcare Providers | CareMother",
+    "url": "https://caremother.in/company/about-us"
+   },
+   "careers": {
+    "meta": "CareMother helps mothers, hospitals, and healthcare providers monitor maternal, fetal, & newborn health through connected digital solutions and smart apps. Get a free demo.",
+    "outcome": "ok",
+    "title": "Digital Maternal, Fetal & Newborn Monitoring Solutions | CareMother",
+    "url": "https://caremother.in/company/careers"
+   },
+   "products": {
+    "meta": "CareMother helps mothers, hospitals, and healthcare providers monitor maternal, fetal, & newborn health through connected digital solutions and smart apps. Get a free demo.",
+    "outcome": "ok",
+    "title": "Digital Maternal, Fetal & Newborn Monitoring Solutions | CareMother",
+    "url": "https://caremother.in/offering"
+   },
+   "team": {
+    "meta": "For those with us, CareMother by Doto Health is a Femtech startup committed to creating equal opportunities for women's healthcare. […]",
+    "outcome": "ok",
+    "title": "A Day in the Life of the Product Team at Dōtō Health - CareMother",
+    "url": "https://blog.caremother.in/a-day-in-the-life-of-the-product-team-at-doto-health/index.html"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": "https://blog.caremother.in/a-day-in-the-life-of-the-product-team-at-doto-health/index.html",
+  "text_chars": 2521,
+  "website": "https://caremother.in/"
+ },
  "drona-aviation": {
   "careers": null,
   "checked": "2026-09-15T04:19:08+00:00",
@@ -3966,6 +4008,54 @@
   "text_chars": 4265,
   "website": "https://www.ikuber.in/"
  },
+ "immunoadoptive-cell-therapy": {
+  "careers": {
+   "roles": 5,
+   "says_none": false,
+   "titles": [
+    "Medical Manager - Hyderabad",
+    "Project Manager",
+    "IT Manager",
+    "Manager",
+    "Executive"
+   ],
+   "url": "https://immunoact.com/careers/"
+  },
+  "checked": "2026-09-15T08:48:08+00:00",
+  "contact_email": null,
+  "contact_page": "https://immunoact.com/contact/",
+  "pages": {
+   "about": {
+    "meta": "From inventing the world’s first humanized CAR-T therapy to achieving 98% manufacturing success rates, ImmunoACT sets new global benchmarks.",
+    "outcome": "ok",
+    "title": "About ImmunoACT | World’s first humanized CAR-T therapy",
+    "url": "https://immunoact.com/about-us"
+   },
+   "careers": {
+    "meta": "Explore biotech careers at ImmunoACT. Join India's leading CAR-T cell therapy team transforming blood cancer care.",
+    "outcome": "ok",
+    "title": "ImmunoACT Careers | Biotech Jobs in CAR-T Therapy",
+    "url": "https://immunoact.com/careers/"
+   },
+   "team": {
+    "meta": "From inventing the world’s first humanized CAR-T therapy to achieving 98% manufacturing success rates, ImmunoACT sets new global benchmarks.",
+    "outcome": "ok",
+    "title": "About ImmunoACT | World’s first humanized CAR-T therapy",
+    "url": "https://immunoact.com/about/"
+   },
+   "technology": {
+    "meta": "Explore CAR-T cell therapy research, cellular therapy innovations and scientific advances powering India’s blood cancer treatment breakthroughs.",
+    "outcome": "ok",
+    "title": "Science & Research | CAR-T Cell Therapy Innovation for Cancer Treatment",
+    "url": "https://immunoact.com/science"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": "https://immunoact.com/about/",
+  "text_chars": 9561,
+  "website": "https://www.immunoact.com/"
+ },
  "imumbai-semiconductor": {
   "careers": null,
   "checked": "2026-09-15T04:19:11+00:00",
@@ -5115,6 +5205,18 @@
   "team": null,
   "text_chars": 6117,
   "website": "https://www.mimyk.com"
+ },
+ "module-innovation": {
+  "careers": null,
+  "checked": "2026-09-15T08:48:00+00:00",
+  "contact_email": null,
+  "contact_page": null,
+  "pages": {},
+  "parked": false,
+  "repo": null,
+  "team": null,
+  "text_chars": 0,
+  "website": "https://moduleinnovations.com/"
  },
  "module-innovations": {
   "careers": null,
@@ -7796,6 +7898,52 @@
   "text_chars": 0,
   "website": "https://www.energyflow.co.in/"
  },
+ "theranautilus": {
+  "careers": {
+   "roles": 3,
+   "says_none": false,
+   "titles": [
+    "Nanorobotics Engineer",
+    "Biomedical Scientist",
+    "Software Engineer"
+   ],
+   "url": "https://theranautilus.com/career/"
+  },
+  "checked": "2026-09-15T08:48:16+00:00",
+  "contact_email": "info@theranautilus.com",
+  "contact_page": "https://theranautilus.com/contact/",
+  "pages": {
+   "about": {
+    "meta": null,
+    "outcome": "ok",
+    "title": "About – Theranautilus",
+    "url": "https://theranautilus.com/about/"
+   },
+   "careers": {
+    "meta": null,
+    "outcome": "ok",
+    "title": "Career – Theranautilus",
+    "url": "https://theranautilus.com/career/"
+   },
+   "products": {
+    "meta": null,
+    "outcome": "ok",
+    "title": "Products – Theranautilus",
+    "url": "https://theranautilus.com/products/"
+   },
+   "technology": {
+    "meta": null,
+    "outcome": "ok",
+    "title": "Research – Theranautilus",
+    "url": "https://theranautilus.com/research/"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": null,
+  "text_chars": 3377,
+  "website": "https://www.theranautilus.com/"
+ },
  "thrustworks-dynetics": {
   "careers": {
    "roles": 0,
@@ -8086,6 +8234,25 @@
  "umarobotics": {
   "careers": null,
   "checked": "2026-09-15T04:22:00+00:00",
+  "contact_email": null,
+  "contact_page": null,
+  "pages": {
+   "products": {
+    "meta": null,
+    "outcome": "ok",
+    "title": "Our Products - UMA",
+    "url": "https://umarobotics.com/content/products.html"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": null,
+  "text_chars": 764,
+  "website": "https://umarobotics.com/"
+ },
+ "umarobotics-technology": {
+  "careers": null,
+  "checked": "2026-09-15T08:48:01+00:00",
   "contact_email": null,
   "contact_page": null,
   "pages": {

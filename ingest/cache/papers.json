@@ -429,6 +429,30 @@
    }
   ]
  },
+ "ai-health-highway-india": {
+  "checked": "2026-09-15T08:53:24+00:00",
+  "count": 4,
+  "needle": "Ai Health Highway",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ai%20Health%20Highway%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Exploring Wav2vec 2.0 Model for Heart Sound Analysis",
+    "url": "https://doi.org/10.1109/embc53108.2024.10782058",
+    "year": 2024
+   },
+   {
+    "title": "E2E Multi-Scale CNN with LSTM for Murmur Detection in PCG or Noise Identification",
+    "url": "https://doi.org/10.1109/icecce61019.2023.10442725",
+    "year": 2023
+   },
+   {
+    "title": "Unsegmented Heart Sound Classification Using Hybrid CNN-LSTM Neural Networks",
+    "url": "https://doi.org/10.1109/embc46164.2021.9629596",
+    "year": 2021
+   }
+  ]
+ },
  "aibono-smart-farming": {
   "checked": "2026-09-14T16:39:42+00:00",
   "count": 0,
@@ -1246,6 +1270,14 @@
   "count": 0,
   "needle": "Bonarep Materials",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Bonarep%20Materials%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "botdynax": {
+  "checked": "2026-09-15T08:53:24+00:00",
+  "count": 0,
+  "needle": "Botdynax",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Botdynax%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },
@@ -2736,6 +2768,25 @@
    }
   ]
  },
+ "galaxeye-space-solutions": {
+  "checked": "2026-09-15T08:53:24+00:00",
+  "count": 2,
+  "needle": "Galaxeye Space Solutions",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Galaxeye%20Space%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Modified Pca for Low Altitude Drone-Based Stripmap Sar",
+    "url": "https://doi.org/10.23919/apsar64635.2025.11392335",
+    "year": 2025
+   },
+   {
+    "title": "Kalman Filtering for Improved Focus in Drone-Based Sar Imaging",
+    "url": "https://doi.org/10.23919/apsar64635.2025.11392542",
+    "year": 2025
+   }
+  ]
+ },
  "gamasusco": {
   "checked": "2026-09-14T16:39:27+00:00",
   "count": 0,
@@ -3953,6 +4004,14 @@
   "rule": 1,
   "works": []
  },
+ "lastmile-robotics": {
+  "checked": "2026-09-15T08:53:24+00:00",
+  "count": 0,
+  "needle": "Lastmile Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Lastmile%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "leofelis-instruments": {
   "checked": "2026-09-14T16:39:35+00:00",
   "count": 0,
@@ -4288,6 +4347,14 @@
   "count": 0,
   "needle": "Metalumina",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Metalumina%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "module-innovation": {
+  "checked": "2026-09-15T08:53:24+00:00",
+  "count": 0,
+  "needle": "Module Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Module%20Innovations%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },
@@ -5488,6 +5555,14 @@
   "count": 0,
   "needle": "REVY Environmental Solutions",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22REVY%20Environmental%20Solutions%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "robential-kinetics": {
+  "checked": "2026-09-15T08:53:24+00:00",
+  "count": 0,
+  "needle": "Robential Kinetics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Robential%20Kinetics%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

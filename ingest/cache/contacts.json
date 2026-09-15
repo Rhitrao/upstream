@@ -401,6 +401,12 @@
   "page": null,
   "website": "https://carimotech.com/"
  },
+ "cellsion-technologies": {
+  "checked": "2026-09-15T08:42:15+00:00",
+  "email": "info@cellsiontech.com",
+  "page": "https://cellsiontech.com/contact-us/",
+  "website": "https://cellsiontech.com/"
+ },
  "cheminpharma-products": {
   "checked": "2026-09-14T16:38:33+00:00",
   "email": "info@cheminpharma.com",
@@ -532,6 +538,12 @@
   "email": null,
   "page": null,
   "website": "https://www.docswallet.com/"
+ },
+ "doto-health": {
+  "checked": "2026-09-15T08:42:05+00:00",
+  "email": null,
+  "page": "https://caremother.in/contact",
+  "website": "https://caremother.in/"
  },
  "dr-pashu-technologies": {
   "checked": "2026-09-14T16:38:30+00:00",
@@ -1181,6 +1193,12 @@
   "page": "https://www.mimyk.com/get-in-touch/",
   "website": "https://www.mimyk.com"
  },
+ "module-innovation": {
+  "checked": "2026-09-15T08:42:14+00:00",
+  "email": "mi@moduleinnovations.com",
+  "page": null,
+  "website": "https://moduleinnovations.com/"
+ },
  "module-innovations": {
   "checked": "2026-09-15T01:42:05+00:00",
   "email": "mi@moduleinnovations.com",
@@ -1300,6 +1318,12 @@
   "email": "neha@okoicaresolutions.com",
   "page": null,
   "website": "https://okoicaresolutions.com"
+ },
+ "omnibrx-biotechnologies": {
+  "checked": "2026-09-15T08:42:14+00:00",
+  "email": "info@omnibrx.com",
+  "page": "https://www.omnibrx.com/contact-us/",
+  "website": "https://www.omnibrx.com/"
  },
  "open-medlabs": {
   "checked": "2026-09-14T16:38:34+00:00",
@@ -1456,6 +1480,12 @@
   "email": "support@qualivontechnologies.com",
   "page": null,
   "website": "https://www.qualivontechnologies.com/"
+ },
+ "quan2d-technologies": {
+  "checked": "2026-09-15T08:42:10+00:00",
+  "email": "info@quan2d.com",
+  "page": "https://www.quan2d.com/contact-us/",
+  "website": "https://www.quan2d.com/"
  },
  "quixotix-bioprinting": {
   "checked": "2026-09-15T01:42:08+00:00",
@@ -1751,6 +1781,12 @@
   "page": "https://www.tgpbio.com/contact-us/",
   "website": "https://www.tgpbio.com/"
  },
+ "theranautilus": {
+  "checked": "2026-09-15T08:42:10+00:00",
+  "email": "info@theranautilus.com",
+  "page": "https://theranautilus.com/contact/",
+  "website": "https://www.theranautilus.com/"
+ },
  "thrustworks-dynetics": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": null,
@@ -1819,6 +1855,12 @@
  },
  "umarobotics": {
   "checked": "2026-09-15T01:42:09+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://umarobotics.com/"
+ },
+ "umarobotics-technology": {
+  "checked": "2026-09-15T08:42:12+00:00",
   "email": null,
   "page": null,
   "website": "https://umarobotics.com/"
