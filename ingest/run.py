@@ -409,7 +409,7 @@ def main() -> int:
     # Before classification, because the classifier is told when a record is a
     # person's project: otherwise it writes "the company" about Aishwarya Dasare.
     for company in unique:
-        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id], company.dpiit_status)
+        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id], company.dpiit_status, company.founders)
 
     print(f"\nClassifying {len(unique)} companies")
     try:

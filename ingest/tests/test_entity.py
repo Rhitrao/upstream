@@ -16,6 +16,19 @@ class WhatARecordIs(unittest.TestCase):
         for name in ("Aishwarya Dasare", "Hariharan Sekar", "Priyanka Yasaslapu"):
             self.assertEqual(entity.assess(name, {"sine-iitb"})[0], entity.RESEARCHER_PROJECT, name)
 
+    def test_a_two_word_brand_is_not_a_person_when_the_source_names_someone_else(self):
+        self.assertEqual(entity.assess("Zerocircle Alternatives", {"venture-center"}, founders="Neha Jain"), (entity.UNVERIFIED, entity.BRAND_NOTE))
+        self.assertEqual(entity.assess("Maini Renewables", {"venture-center"}, founders="Swati Maini")[0], entity.UNVERIFIED)
+        self.assertEqual(entity.assess("Global Talent Manufacturing", {"sine-iitb"}, founders="Bhanu Pratap Singh")[0], entity.UNVERIFIED)
+
+    def test_a_person_named_among_the_founders_is_still_a_persons_project(self):
+        self.assertEqual(entity.assess("Chaithra Arun", {"sine-iitb"}, founders="Chaithra G, Naveen Gopal Krishna")[0], entity.RESEARCHER_PROJECT)
+        self.assertEqual(entity.assess("Nidhi Pandey", {"sine-iitb"}, founders="Nidhi Pandey,Prof. Jayesh Bellare")[0], entity.RESEARCHER_PROJECT)
+
+    def test_without_founders_only_a_source_that_lists_people_is_believed(self):
+        self.assertEqual(entity.assess("General Aeronautics", {"fsid-iisc"})[0], entity.UNVERIFIED)
+        self.assertEqual(entity.assess("Open Water", {"fsid-iisc"})[0], entity.UNVERIFIED)
+
     def test_a_project_name_with_no_entity_behind_it_is_unverified(self):
         for name in ("GAZE", "Plasmo-Sense", "Nirvaan", "Macvisys"):
             self.assertEqual(entity.assess(name, {"sine-iitb"})[0], entity.UNVERIFIED, name)
@@ -75,6 +88,15 @@ class TheClassifierIsToldAndOnlyTheyRerun(unittest.TestCase):
         placed = {"hash": classify._fingerprint(profile, with_entity=False), "sector_id": "2", "subsector_id": "2.7", "note": "The company builds robots."}
         self.assertTrue(classify._answered_before_entity_types(profile, placed))
 
+
+    def test_a_brand_once_read_as_a_person_keeps_its_placed_answer(self):
+        brand = Company(id="zerocircle", name="Zerocircle Alternatives", description="Seaweed packaging", source="venture-center", entity_type=entity.UNVERIFIED)
+        as_person = Company(id="zerocircle", name="Zerocircle Alternatives", description="Seaweed packaging", source="venture-center", entity_type=entity.RESEARCHER_PROJECT)
+        placed = {"hash": classify._fingerprint(as_person), "sector_id": "1", "subsector_id": "1.9", "note": "The project makes packaging."}
+        self.assertTrue(classify._answered_before_entity_types(brand, placed))
+        # A different description is a different question, whatever the type.
+        brand.description = "Seaweed packaging and films"
+        self.assertFalse(classify._answered_before_entity_types(brand, placed))
 
 
 class AStateForACity(unittest.TestCase):

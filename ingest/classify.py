@@ -424,6 +424,14 @@ def _answered_before_entity_types(company: Company, entry: dict | None) -> bool:
     """
     if entry is None or company.entity_type in (None, entity.COMPANY):
         return False
+    # A person's project and a brand are asked the same question in all but one phrase,
+    # and both are told to say "the project". A record moved between the two keeps its
+    # answer: on 15 September 2026 brands read as people (Zerocircle Alternatives) were
+    # corrected, and re-asking would have bought rewordings of reasons that already said
+    # "the project".
+    other = {entity.RESEARCHER_PROJECT: entity.UNVERIFIED, entity.UNVERIFIED: entity.RESEARCHER_PROJECT}.get(company.entity_type)
+    if other is not None and entry.get("hash") == _fingerprint(dataclasses.replace(company, entity_type=other)):
+        return True
     unchanged = entry.get("hash") == _fingerprint(company, with_entity=False)
     # Nor for a record whose only text is a register label. The answer rests on the label
     # either way, and where its reasoning still says "company" the page already says
@@ -964,7 +972,7 @@ def _companies() -> list[Company]:
     # As run.py does, because the entity type is part of a project's cache key: an
     # estimate without it would miss every record whose question just changed.
     for company in merged.values():
-        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id])
+        company.entity_type, company.entity_note = entity.assess(company.name, listed_by[company.id], founders=company.founders)
     return list(merged.values())
 
 

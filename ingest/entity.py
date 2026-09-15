@@ -74,7 +74,24 @@ def looks_like_a_person(name: str) -> bool:
 WAS_RECOGNISED = frozenset({"recognised", "expired", "cancelled"})
 
 
-def assess(name: str, sources, dpiit_status: str | None = None) -> tuple[str, str]:
+# The one source whose listings were seen to stand a person's name in for a funded project.
+PERSON_LISTING_SOURCES = frozenset({"sine-iitb"})
+
+BRAND_NOTE = "a project or brand name, with no registered entity on record"
+
+
+def _first_word(text: str) -> str:
+    words = re.sub(r"^\W*(?:prof|dr|mr|ms|mrs)\b\.?\s*", "", text.strip(), flags=re.IGNORECASE).split()
+    return re.sub(r"[^a-z]", "", words[0].lower()) if words else ""
+
+
+def named_for_a_founder(name: str, founders: str) -> bool:
+    """Whether the record's name is one of the people the source names ("Chaithra Arun" and "Chaithra G")."""
+    first = _first_word(name)
+    return bool(first) and any(_first_word(person) == first for person in re.split(r"[,;/&]|\band\b", founders) if person.strip())
+
+
+def assess(name: str, sources, dpiit_status: str | None = None, founders: str | None = None) -> tuple[str, str]:
     """The entity type for one record, and the reason in a phrase.
 
     `sources` is every source that listed it, and `dpiit_status` what the register's
@@ -92,6 +109,15 @@ def assess(name: str, sources, dpiit_status: str | None = None) -> tuple[str, st
             return UNVERIFIED, PROFILE_NOTE
     if LAB_NAME.search(name):
         return LAB, "the name is a laboratory or department's"
+    # Two capitalised words are a person's name only where the evidence says so. On 15
+    # September 2026, 104 records across the eight sources read like a person's name, and
+    # most were brands: Zerocircle Alternatives (founder Neha Jain), General Aeronautics,
+    # Open Water. Where the source names founders, the record must be named for one; where
+    # it names none, only a source seen listing people for funded projects is believed.
     if looks_like_a_person(name):
-        return RESEARCHER_PROJECT, "listed under a person's name for a funded project; no company is on record"
-    return UNVERIFIED, "a project or brand name, with no registered entity on record"
+        if founders:
+            if named_for_a_founder(name, founders):
+                return RESEARCHER_PROJECT, "listed under a person's name for a funded project; no company is on record"
+        elif PERSON_LISTING_SOURCES & set(sources or ()):
+            return RESEARCHER_PROJECT, "listed under a person's name for a funded project; no company is on record"
+    return UNVERIFIED, BRAND_NOTE
