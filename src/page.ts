@@ -2129,7 +2129,7 @@ export function renderCompanyPage(view: CompanyView): string {
 <link rel="canonical" href="${esc(`${BASE_PATH}/c/${company.id}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
 <style>${STYLES}</style>
 </head>
 <body data-company="${esc(company.id)}">
@@ -2258,7 +2258,7 @@ export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name
 <title>No company at this address &mdash; Upstream</title>
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
 <style>${STYLES}</style>
 </head>
 <body>
@@ -2280,6 +2280,11 @@ export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name
 // --- styles -----------------------------------------------------------------
 
 export const STYLES = `
+/* Metric-matched stand-ins, so the page does not reflow when the web fonts arrive: the
+   swap was the whole of a 0.22 layout shift on a phone (15 Sep 2026). Arial and Courier New
+   are scaled to Inter's and DM Mono's widths and heights. */
+@font-face { font-family: "Inter Fallback"; src: local("Arial"), local("Helvetica"), local("Liberation Sans"); ascent-override: 90.44%; descent-override: 22.52%; line-gap-override: 0%; size-adjust: 107.12%; }
+@font-face { font-family: "DM Mono Fallback"; src: local("Courier New"), local("Liberation Mono"); ascent-override: 78%; descent-override: 21%; line-gap-override: 0%; size-adjust: 106%; }
 :root {
   color-scheme: light dark;
 
@@ -2300,8 +2305,8 @@ export const STYLES = `
      that means two things means neither. */
   --mark: #ffd84a;
 
-  --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: Inter, "Inter Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", "DM Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* One ladder of space. Every margin and every pad below is a rung on it, which is
      the whole difference between a page with rhythm and a page of decisions taken one
@@ -3552,7 +3557,7 @@ export function renderPage(view: PageView): string {
 <link rel="canonical" href="${esc(`${BASE_PATH}${query(viewParams(view))}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
 <style>${STYLES}</style>
 </head>
 <body>
