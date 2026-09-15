@@ -18,10 +18,12 @@ on:
         # reviewed, and restored the same day. At zero every new company waits unclassified.
         default: "0.05"
       batch:
-        description: "Classify through Message Batches (half price, answers within the hour as a rule) — for a backfill"
+        description: "Classify through Message Batches (half price; answers usually within the hour, collected by the next run if not)"
         type: boolean
         required: false
-        default: false
+        # On by default since 15 Sep 2026: a hand-dispatched run meant as a batch ran at full
+        # price ($0.97) because the box was left unticked.
+        default: true
 
 # Never two at once. Two runs classifying the same new companies in parallel pay
 # for them twice and then race to commit the answers.
@@ -36,8 +38,9 @@ jobs:
   ingest:
     runs-on: ubuntu-latest
     # A batch run waits for its answers (up to UPSTREAM_BATCH_WAIT_MINUTES, then it
-    # leaves the batch for the next run to collect); a nightly run has nothing to wait for.
-    timeout-minutes: ${{ inputs.batch && 200 || 30 }}
+    # leaves the batch for the next run to collect). The nightly run batches too, with a
+    # shorter wait: nothing needs its answers within the hour, only within the day.
+    timeout-minutes: ${{ github.event_name == 'schedule' && 90 || (inputs.batch && 200 || 30) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -84,8 +87,9 @@ jobs:
           # instead of emptying the balance. Raise it for a one-off backfill by
           # dispatching the workflow by hand; the nightly run keeps the floor.
           UPSTREAM_MAX_COST: ${{ inputs.max_cost || '0.05' }}
-          UPSTREAM_BATCH: ${{ inputs.batch && '1' || '0' }}
-          UPSTREAM_BATCH_WAIT_MINUTES: "150"
+          # Half price. The scheduled run has no inputs, so it is named here, not left to a default.
+          UPSTREAM_BATCH: ${{ (github.event_name == 'schedule' || inputs.batch) && '1' || '0' }}
+          UPSTREAM_BATCH_WAIT_MINUTES: ${{ github.event_name == 'schedule' && '40' || '150' }}
         run: |
           set -euo pipefail
           python -m ingest.run --base-url https://rohitrao.in/upstream | tee run.log

@@ -14,6 +14,9 @@ from __future__ import annotations
 import argparse
 import re
 import dataclasses
+import functools
+import json
+import pathlib
 import traceback
 
 import requests
@@ -209,6 +212,30 @@ DESCRIBED_SOURCES = frozenset({nmicps.SOURCE, fsid.SOURCE, tides.SOURCE})
 # Who is asked first when a run's ceiling cannot cover everyone: what the older sources
 # still need, then the new portfolios from the richest descriptions to the thinnest.
 CLASSIFY_ORDER = {fsid.SOURCE: 1, tides.SOURCE: 2, nmicps.SOURCE: 3}
+
+
+# Sources whose companies are asked about only once a person has chosen which are worth
+# paying for. NM-ICPS arrived on 14 September 2026 with 663 described companies nobody has
+# classified, about $0.99 at batch prices against a $1.05 balance; unheld, every nightly run
+# would spend its whole ceiling on that backlog until the 27th. Answers already bought are
+# still used. Lift by removing the source here, or name the chosen ids in ASK_ANYWAY.
+HELD_SOURCES = frozenset({nmicps.SOURCE})
+ASK_ANYWAY_PATH = pathlib.Path(__file__).parent / "ask_anyway.json"
+
+
+def may_ask(company: Company, chosen: frozenset[str] | None = None) -> bool:
+    """Whether a company missing from the classification cache may be sent to the model."""
+    if company.source not in HELD_SOURCES:
+        return True
+    return company.id in (_ask_anyway() if chosen is None else chosen)
+
+
+@functools.cache
+def _ask_anyway() -> frozenset[str]:
+    try:
+        return frozenset(json.loads(ASK_ANYWAY_PATH.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return frozenset()
 
 
 def _is_label_or_empty(company: Company) -> bool:
@@ -413,7 +440,7 @@ def main() -> int:
 
     print(f"\nClassifying {len(unique)} companies")
     try:
-        results, usage = classifier.classify(to_classify(unique), cost_limit=args.max_cost)
+        results, usage = classifier.classify(to_classify(unique), cost_limit=args.max_cost, may_ask=may_ask)
     except classifier.ConfigurationError as error:
         # Nothing is uploaded and the job goes red. A run that cannot classify has
         # no new placements to publish, and the scraped rows are unchanged from

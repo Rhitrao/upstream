@@ -152,3 +152,30 @@ class MergingCopies(unittest.TestCase):
         real = Company(id="relsym", name="Relsym Solutions", description="Printable nanomaterial inks.", source="sine-iitb")
         self.assertTrue(run._is_label_or_empty(label))
         self.assertFalse(run._is_label_or_empty(real))
+
+
+class HoldingASourcesBacklog(unittest.TestCase):
+    def test_a_held_source_is_not_asked_unless_chosen_and_others_always_are(self):
+        from ingest import run
+
+        held = Company(id="satlabs", name="Satlabs Space Systems", description="A data relay constellation", source="nmicps-tih")
+        other = Company(id="acme", name="Acme Pvt Ltd", description="Robots", source="sine-iitb")
+        self.assertFalse(run.may_ask(held, frozenset()))
+        self.assertTrue(run.may_ask(held, frozenset({"satlabs"})))
+        self.assertTrue(run.may_ask(other, frozenset()))
+
+    def test_a_held_company_already_answered_keeps_its_answer_and_is_never_charged(self):
+        import tempfile, pathlib, json as _json
+        from unittest import mock
+
+        company = Company(id="satlabs", name="Satlabs Space Systems", description="A data relay constellation", source="nmicps-tih")
+        fresh = Company(id="new-hub-co", name="New Hub Co", description="Drones for farms", source="nmicps-tih")
+        entry = {"hash": classify._fingerprint(company), "sector_id": "2", "subsector_id": "2.5", "project_type": None, "note": "x", "missing": None, "name": company.name, "model": classify.MODEL, "classified_at": "2026-09-15"}
+        with tempfile.TemporaryDirectory() as directory:
+            cache = pathlib.Path(directory) / "classify.json"
+            cache.write_text(_json.dumps({"satlabs": entry}))
+            with mock.patch.object(classify, "CACHE_PATH", cache), mock.patch.object(classify, "OVERRIDES_PATH", pathlib.Path(directory) / "none.json"):
+                results, usage = classify.classify([company, fresh], cost_limit=0.0, batch=False, may_ask=lambda c: False)
+        self.assertEqual(results["satlabs"].subsector_id, "2.5")
+        self.assertNotIn("new-hub-co", results)
+        self.assertEqual((usage.cached, usage.held, usage.calls), (1, 1, 0))

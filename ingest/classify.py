@@ -214,6 +214,9 @@ class Usage:
     # waiting. Not lost and not billed yet: the batch id is kept, and the next run
     # collects them instead of asking again.
     pending: int = 0
+    # Not in the cache, and not asked because the run was told to hold them (a source whose
+    # backlog waits for a person to choose what is worth paying for). Asked again next run.
+    held: int = 0
     # Batch requests bill at half the price of the same request made directly.
     price_factor: float = 1.0
 
@@ -237,6 +240,8 @@ class Usage:
             said += f", {self.over_budget} left unclassified at the cost ceiling"
         if self.never_attempted:
             said += f", {self.never_attempted} never attempted"
+        if self.held:
+            said += f", {self.held} held unasked"
         if self.pending:
             said += f", {self.pending} still in a batch for the next run to collect"
         if self.price_factor != 1.0:
@@ -530,8 +535,13 @@ def classify(
     force: bool = False,
     cost_limit: float | None = None,
     batch: bool | None = None,
+    may_ask=None,
 ) -> tuple[dict[str, Classification], Usage]:
     """Classify what is not already known, up to the cost ceiling.
+
+    `may_ask`, when given, decides which companies missing from the cache may be asked
+    about at all; the rest are counted as held and skipped. A cached answer is used
+    whatever it says, so holding a source never unplaces what was already bought.
 
     A company already in the cache is never re-classified and never charged for;
     that is the only reason a daily job is affordable at all.
@@ -562,6 +572,9 @@ def classify(
         if filed_elsewhere and not force:
             results[company.id] = _from_cache(filed_elsewhere)
             usage.cached += 1
+            continue
+        if may_ask is not None and not may_ask(company):
+            usage.held += 1
             continue
         todo.append(company)
 
