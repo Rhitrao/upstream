@@ -48,7 +48,9 @@ given zaubacorp.com).
 
 ## What the existing rule would need
 
-13 of the 18 differ only by words the automatic key keeps ("India", "Technologies",
-"Innovation(s)", "and"/"&"). Stripping those from the key would fold them, but the same
-change folds any two companies sharing a first word, so it is a rule for a person to agree,
-not a default. The other 5 need hand entries in `ingest/aliases.json`.
+10 of the 18 differ only by words the automatic key keeps ("India", "Technologies",
+"Innovation(s)", "and"/"&"): Ai Health Highway, Manastik, Module, Mythyaverse, Seismic
+Hazard, Stealthera, Umarobotics, Vayunotics, Veritometrics, Vidcare. Stripping those words
+from the key would fold them, but it would also fold two different companies that share the
+rest of a name, so it is a rule for a person to agree, not a default. The other 8 need hand
+entries in `ingest/aliases.json`.
