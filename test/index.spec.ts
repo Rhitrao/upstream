@@ -1531,7 +1531,7 @@ describe('searching and one company at a time', () => {
 		expect(brief).toContain('- no url for this one — press, not dated:');
 		expect(brief).toContain(`Upstream record: ${ORIGIN}/upstream/c/kadamb-biolabs`);
 		// The critique's template: why it is here, what not to lean on, and where to go next.
-		expect(brief).toMatch(/\*\*Why it is here:\*\* \d+ public traces?, which is what the list sorts by\. Tier [ABC]: /);
+		expect(brief).toMatch(/\*\*Why it is here:\*\* \d+ public traces?(?: \([^)]+\))?, which is what the list sorts by\. Tier [ABC]: /);
 		expect(brief.indexOf('## Evidence')).toBeLessThan(brief.indexOf('## Limits of the evidence'));
 		expect(brief).toContain('- The placement is automated and nobody has reviewed it');
 		expect(brief).toMatch(/## Next step\n- (Ask |Write to |Their |No public contact route)/);
@@ -1626,6 +1626,8 @@ describe('searching and one company at a time', () => {
 		// loud rather than left to be inferred from counting chips.
 		expect(row).toContain('Benchtop assay kits for district hospitals.');
 		expect(row).toContain('2 public traces');
+		// What the two are, not only how many.
+		expect(row).toMatch(/2 public traces: [a-z ]+ and [a-z ]+</);
 		expect(row).toContain('website');
 		expect(row).toContain('incubator listing Jan 2026');
 		expect(row).toContain('added to Upstream today');
@@ -2313,6 +2315,16 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 		expect(after).not.toContain('Domain registered');
 		expect(after).not.toContain('First archived');
 		expect(after).toContain('Prof. A Rao, B Shah');
+	});
+});
+
+describe('what the traces are', () => {
+	it('names each kind once, counts repeats, and leaves out what is not a trace', async () => {
+		const { traceShape } = await import('../src/page');
+		const sig = (type: string) => ({ type, label: type, url: null, date: null });
+		expect(traceShape({ signals: [sig('grant')] })).toBe('a grant');
+		expect(traceShape({ signals: [sig('website'), sig('grant'), sig('incubator'), sig('grant')] })).toBe('an incubator listing, 2 grants and a live website');
+		expect(traceShape({ signals: [sig('patent'), sig('incorporation')] })).toBe('');
 	});
 });
 

@@ -1035,8 +1035,36 @@ function controls(view: PageView): string {
 function traceLine(company: Company): string {
 	const n = company.trace_count;
 	const said = n === 0 ? 'no public trace' : n === 1 ? '1 public trace' : `${n} public traces`;
+	const shape = traceShape(company);
 	// Emphasised only where it is the finding. At five traces it is just a number.
-	return `<span class="traces${n <= 1 ? ' quiet' : ''}">${said}</span>`;
+	return `<span class="traces${n <= 1 ? ' quiet' : ''}">${said}${shape ? `: ${esc(shape)}` : ''}</span>`;
+}
+
+/** Each kind of trace in words, one and many, in the order a reader weighs them. */
+const TRACE_WORDS: [type: string, one: string, many: string][] = [
+	['incubator', 'an incubator listing', 'incubator listings'],
+	['grant', 'a grant', 'grants'],
+	['award', 'an award', 'awards'],
+	['dpiit', 'a DPIIT register record', 'DPIIT register records'],
+	['press', 'a press mention', 'press mentions'],
+	['website', 'a live website', 'live websites'],
+];
+
+/**
+ * What the traces are, not only how many. Two incubator listings are two programmes that
+ * took the company in; an incubator listing and a grant are a programme and a funder,
+ * which is a different story at the same count. Built from the signals the row already
+ * carries, so it says nothing the evidence list does not.
+ */
+export function traceShape(company: Pick<Company, 'signals'>): string {
+	const counts = new Map<string, number>();
+	for (const signal of company.signals ?? []) counts.set(signal.type, (counts.get(signal.type) ?? 0) + 1);
+	const parts = TRACE_WORDS.filter(([type]) => counts.has(type)).map(([type, one, many]) => {
+		const n = counts.get(type)!;
+		return n === 1 ? one : `${n} ${many}`;
+	});
+	if (parts.length <= 1) return parts.join('');
+	return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
 }
 
 /** Said beside the name of anything that is not, on the record, a company. */
@@ -1715,7 +1743,8 @@ function siteLine(company: Company): string | null {
 
 /** Why the company is on this list and where the ranking puts it, in one line. */
 function whyHere(company: Company): string {
-	const traces = `${company.trace_count} public ${company.trace_count === 1 ? 'trace' : 'traces'}`;
+	const shape = traceShape(company);
+	const traces = `${company.trace_count} public ${company.trace_count === 1 ? 'trace' : 'traces'}${shape ? ` (${shape})` : ''}`;
 	let reason: string;
 	if (company.tier === 'A') reason = 'found by a run under 90 days ago, with at most two public traces and nothing older on record';
 	else if (company.tier === 'B') reason = 'on record under 180 days, with at most five public traces';
