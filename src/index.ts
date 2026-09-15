@@ -58,6 +58,7 @@ import {
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { FAVICON_SVG, OG_PNG_BASE64 } from './og';
+import { organisationsOf, programmesOf, type ProgrammeSignal } from './programmes';
 import { accessConfig, identify } from './access';
 import { anthropicCreate, askMode, handleAsk, queryAskLog, renderAskLog } from './ask';
 import { PRIVATE_HEADERS, renderNotebook, renderNoteEditor } from './notes';
@@ -1095,7 +1096,8 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 
 	for (const group of chunk(ids, BIND_CHUNK)) {
 		const { results } = await env.DB.prepare(
-			`SELECT c.id, c.first_seen, c.first_seen_basis, c.origin_year, c.classify_basis,
+			`SELECT c.id, c.first_seen, c.first_seen_basis, c.origin_year, c.classify_basis, c.dpiit_status,
+			   (SELECT json_group_array(json_object('type', s.type, 'label', s.label, 'source', s.source)) FROM signals s WHERE s.company_id = c.id) AS signals,
 			   (SELECT COUNT(*) FROM signals s
 			     WHERE s.company_id = c.id
 			       AND s.type IN (${placeholders(TRACE_TYPES.length)})) AS trace_count,
@@ -1109,11 +1111,30 @@ async function recomputeRanking(env: Env, ids: string[], nowIso: string, now: Da
 				first_seen_basis: string | null;
 				origin_year: number | null;
 				classify_basis: string | null;
+				dpiit_status: string | null;
+				signals: string;
 				trace_count: number;
 				earliest_signal: string | null;
 			}>();
 
 		for (const row of results) {
+			// Programmes are read from every signal stored, not only this upload's, so a source that
+			// failed tonight cannot make a company's count drop.
+			let signals: ProgrammeSignal[] = [];
+			try {
+				signals = JSON.parse(row.signals) as ProgrammeSignal[];
+			} catch {
+				signals = [];
+			}
+			const programmes = programmesOf(signals, row.dpiit_status);
+			updates.push(
+				env.DB.prepare('UPDATE companies SET programmes = ?1, programme_count = ?2, organisation_count = ?3 WHERE id = ?4').bind(
+					JSON.stringify(programmes),
+					programmes.length,
+					organisationsOf(signals, row.dpiit_status).length,
+					row.id,
+				),
+			);
 			updates.push(
 				env.DB.prepare('UPDATE companies SET trace_count = ?1, tier = ?2, updated_at = ?3 WHERE id = ?4').bind(
 					row.trace_count,
@@ -1189,6 +1210,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		sort: parseSort(url.searchParams.get('sort')),
 		ids: parseIds(url.searchParams.get('ids')),
 		noticedOnce: url.searchParams.get('noticed') === '1',
+		programmesAtLeast: ['2', '3'].includes(url.searchParams.get('programmes') ?? '') ? Number(url.searchParams.get('programmes')) : null,
+		alone: url.searchParams.get('alone') === '1',
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
 		minOriginYear: age === 'all' ? null : minOriginYear(now),
@@ -1284,7 +1307,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// The chosen half on its own, so the result line counts out of it.
 		demo
 			? Promise.resolve(null)
-			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null }),
+			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null, programmesAtLeast: null, alone: false, noticedOnce: false }),
 	]);
 	const ask = askMode(env);
 	// Only when the list came back empty: the same question over every record, so the empty
@@ -1322,6 +1345,8 @@ async function page(url: URL, env: Env): Promise<Response> {
 		dpiit: ranked.dpiit ?? null,
 		build: ranked.build ?? null,
 		noticed: ranked.noticedOnce ? '1' : null,
+		programmes: ranked.programmesAtLeast ? String(ranked.programmesAtLeast) : null,
+		alone: ranked.alone ? '1' : null,
 		domain: ranked.domain ?? null,
 		substance,
 		findings,
@@ -1394,6 +1419,9 @@ const CSV_COLUMNS = [
 	'web_first_capture',
 	'build_tags',
 	'domain_tags',
+	'public_programmes',
+	'programme_count',
+	'publishing_organisations',
 	'hiring_roles',
 	'team_page',
 	'site_versions_2y',
@@ -1456,6 +1484,9 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			c.website_identity === 'verified' ? c.web_first_capture : '',
 			tagsOf(c.build_tags).join('; '),
 			tagsOf(c.domain_tags).join('; '),
+			tagsOf(c.programmes).join('; '),
+			c.programme_count ?? 0,
+			c.organisation_count ?? 0,
 			siteSignalsOf(c.site_signals)?.roles ?? '',
 			siteSignalsOf(c.site_signals)?.team ?? '',
 			siteSignalsOf(c.site_signals)?.versions ?? '',

@@ -90,6 +90,9 @@ export interface PageView {
 	domain: string | null;
 	/** '1' when the list is narrowed to companies exactly one outside source has noticed. */
 	noticed?: string | null;
+	/** '2' or '3' when narrowed to companies in at least that many public programmes; alone '1' for no other trace. */
+	programmes?: string | null;
+	alone?: string | null;
 	/** The page's two halves, counted over every record. */
 	substance: Substance;
 	/** The numbers behind the findings under the masthead. null for the sample data. */
@@ -487,6 +490,34 @@ function widgets(view: PageView): string {
 
 	const plural = (k: number, one: string, many: string) => (k === 1 ? one : many);
 
+	// 0. The quality signal no commercial database models: public programmes that selected a company,
+	// and how many of those have no other public trace. Counted, never ranked.
+	const pg = w.programmes;
+	const progWidget = `
+  <div class="widget widget-lead" aria-labelledby="w-programmes">
+    ${head(
+			'w-programmes',
+			'Selected by public programmes',
+			pg.twoPlus
+				? `<strong>${pg.twoPlus}</strong> ${plural(pg.twoPlus, 'company here has', 'companies here have')} been selected into two or more public support programmes &mdash; incubation, DPIIT recognition, BIRAC, DST, MeitY, TDB or iDEX. <a href="${esc(`${BASE_PATH}${query(viewParams(view, { programmes: '2', alone: '1' }))}#list`)}"><strong>${pg.twoPlusAlone}</strong> of them</a> have no other public trace: no website of their own and no press.`
+				: 'No company in this view has been selected into two or more public programmes.',
+		)}
+    <div class="grid seg-grid">
+      ${cell({ key: 'programmes', value: '2', n: pg.twoPlus, of: pg.total, name: 'two or more' })}
+      ${cell({ key: 'programmes', value: '3', n: pg.three, of: pg.total, name: 'three or more' })}
+      ${(() => {
+				// Two filters at once: in two or more programmes, and nothing else public.
+				const on = view.alone === '1' && view.programmes === '2';
+				const href = `${BASE_PATH}${query(viewParams(view, on ? { programmes: null, alone: null } : { programmes: '2', alone: '1' }))}#widgets`;
+				return `<a class="cell seg ${pg.twoPlusAlone > 0 ? 'filled' : 'empty'}${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''} title="Two or more public programmes, and no website or press: ${pg.twoPlusAlone}">
+        <span class="cell-head"><span class="cell-id"></span><span class="cell-n">${pg.twoPlusAlone}</span></span>
+        <span class="cell-name">nothing else public</span>
+        <span class="share" style="width:${share(pg.twoPlusAlone, pg.total)}%" aria-hidden="true"></span>
+      </a>`;
+			})()}
+    </div>
+  </div>`;
+
 	// 1. Can I form a view on these? The same count as "what they build", in the reader's terms.
 	const d = w.described;
 	const said = d.own + d.source;
@@ -577,6 +608,7 @@ function widgets(view: PageView): string {
 
 	return `
 <section class="widgets" id="widgets" aria-label="The companies in view, stated and filterable">
+  ${progWidget}
   <div class="widget-row">
   ${view1}
   ${traces}
@@ -653,6 +685,14 @@ function findingsSection(view: PageView): string {
 	const f = view.findings;
 	if (!f) return '';
 	const items: string[] = [];
+
+	// The finding this project exists for: a quality signal read from public records alone.
+	if (f.programmes.twoPlus > 0) {
+		const programmeLink = `${BASE_PATH}${query({ programmes: '2', age: 'all' })}#list`;
+		const aloneLink = `${BASE_PATH}${query({ programmes: '2', alone: '1', age: 'all' })}#list`;
+		items.push(`<li class="finding-lead"><strong><a href="${esc(programmeLink)}">${f.programmes.twoPlus} companies</a> here have been selected into two or more public support programmes. <a href="${esc(aloneLink)}">${f.programmes.alone} of them</a> have no other public trace: no website of their own, and no press.</strong>
+      The programmes are incubation, DPIIT recognition, BIRAC, DST, MeitY, TDB and iDEX; ${f.programmes.three} companies are in three or more. They are counted, not ranked, and they are not all independent: an incubator often runs a scheme&rsquo;s selection. Counting only organisations that each published their own decision, ${f.programmes.orgs} companies have two or more.</li>`);
+	}
 
 	// What the scatter would have shown, said instead: its trace axis had one value for most rows.
 	if (f.noticed.companies > 0 && f.noticed.once > 0) {
@@ -865,6 +905,8 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		build: view.build,
 		domain: view.domain,
 		noticed: view.noticed ?? null,
+		programmes: view.programmes ?? null,
+		alone: view.alone ?? null,
 		sort: view.sort === 'quietest' || view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -894,6 +936,7 @@ const SOURCE_LABELS: Record<string, string> = {
 const SORT_LABELS: Record<SortChoice, string> = {
 	quietest: 'Least traced',
 	described: 'Most described',
+	programmes: 'Most public programmes',
 	newest: 'Newest on record',
 	name: 'Name',
 	obscurity: 'Least traced',
@@ -940,6 +983,8 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		],
 		['kind', view.kind === 'company' ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
+		['programmes', view.programmes ? `Public programmes: ${view.programmes} or more` : null],
+		['alone', view.alone ? 'No website or press' : null],
 		['noticed', view.noticed ? 'Noticed by: one outside source' : null],
 		['build', view.build ? `Builds: ${view.build}` : null],
 		['domain', view.domain ? `Used in: ${view.domain}` : null],
@@ -1053,7 +1098,7 @@ function controls(view: PageView): string {
 	const siteOptions = [option('', 'Website or not', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
 	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
 	// In the reader's words, and no tier letters: the order a reader chooses, not our rule's name.
-	const sortOptions = (['quietest', 'described', 'newest', 'name'] as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
+	const sortOptions = (['quietest', 'programmes', 'described', 'newest', 'name'] as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
 	const traceOptions = [option('', 'Any number', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
 	const describedNow = view.described === 'said' ? '' : (view.described ?? 'all');
 	const describedOptions = [option('', DESCRIBED_LABELS.said, describedNow)]
@@ -1095,6 +1140,8 @@ function controls(view: PageView): string {
         <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
         <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
         <input type="hidden" name="noticed" value="${esc(view.noticed ?? '')}">
+        <input type="hidden" name="programmes" value="${esc(view.programmes ?? '')}">
+        <input type="hidden" name="alone" value="${esc(view.alone ?? '')}">
         <button type="submit" class="apply">Apply</button>
       </div>
     </details>
@@ -1327,6 +1374,8 @@ function companyRow(company: Company, now: Date, origin: string): string {
 	const facts = [
 		kinds.length ? `<span class="f-kind">${esc(kinds.join(' + '))}</span>` : '',
 		company.dpiit_stage ? `<span class="f-stage" title="The stage the company chose on its DPIIT profile">${esc(stageWords(company.dpiit_stage))}</span>` : '',
+		// Selected into two or more public programmes: counted, never ranked, named on its page.
+		company.programme_count >= 2 ? `<span class="f-prog" title="${esc(tagsOf(company.programmes).join(', '))}">${company.programme_count} public programmes</span>` : '',
 		`<span class="f-age${dated ? '' : ' undated'}">${esc(eventPhrase(company) ?? 'no source dates it')}</span>`,
 	].filter(Boolean);
 	const trail = traceTrail(company);
@@ -1871,6 +1920,14 @@ function whoLines(company: Company): { label: string; text: string; note: string
 			text: shortDate(company.web_first_capture),
 			note: 'the Wayback Machine’s oldest copy of their homepage: when the public web first noticed the page, not when the company began',
 			href: `https://web.archive.org/web/*/${new URL(site).hostname}`,
+		});
+	}
+	const named = tagsOf(company.programmes);
+	if (named.length) {
+		out.push({
+			label: 'Public programmes',
+			text: named.join(' · '),
+			note: `${named.length} ${named.length === 1 ? 'programme' : 'programmes'} that selected them, counted and not ranked; an incubator often runs a scheme's selection, so they are not all independent`,
 		});
 	}
 	// Signs of activity, read off their own site and the web archive. Facts about the site, not
@@ -3081,6 +3138,12 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .trace-shape { font-size: var(--t-micro); line-height: 1.35; }
 /* On a company's page the count and what it is read as one fact in the line. */
 .facts .traces { display: inline; }
+.f-prog { font-weight: 600; }
+.widget-lead { border: 1px solid var(--rule-strong); border-radius: var(--radius); padding: var(--s4); background: var(--raise); margin-bottom: var(--s5); }
+.widget-lead .widget-meta { font-size: var(--t-body); color: var(--ink); max-width: var(--measure); }
+.widget-lead .widget-meta a { color: inherit; text-underline-offset: 3px; }
+.finding-lead { font-size: var(--t-body); }
+.finding-lead a { color: inherit; }
 .facts-row { display: flex; flex-wrap: wrap; gap: 0 var(--s2); margin: 0 0 var(--s0h); font-size: var(--t-xs); color: var(--ink); }
 .facts-row > span + span::before { content: '·'; margin-right: var(--s2); color: var(--muted); }
 .f-kind { font-weight: 500; }

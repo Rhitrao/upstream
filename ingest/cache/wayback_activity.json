@@ -69,5 +69,498 @@
   "outcome": "captured",
   "since": "2024-09-15",
   "versions": 52
+ },
+ "agnitsemi.com": {
+  "checked": "2026-09-15T04:28:18+00:00",
+  "last_change": "2026-07-11",
+  "outcome": "captured",
+  "since": "2024-09-15",
+  "versions": 15
+ },
+ "agrijoy.in": {
+  "checked": "2026-09-15T04:28:52+00:00",
+  "last_change": "2026-06-14",
+  "outcome": "captured",
+  "since": "2024-09-15",
+  "versions": 15
+ },
+ "agrikhet.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:28:59+00:00",
+  "outcome": "unavailable"
+ },
+ "ahammune.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:29:31+00:00",
+  "outcome": "timeout"
+ },
+ "aibono.com": {
+  "checked": "2026-09-15T04:29:44+00:00",
+  "last_change": "2024-10-14",
+  "outcome": "captured",
+  "since": "2024-09-15",
+  "versions": 2
+ },
+ "aisense.co.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:29:52+00:00",
+  "outcome": "unavailable"
+ },
+ "albatross-energetics.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:30:23+00:00",
+  "outcome": "timeout"
+ },
+ "algobotix.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:30:55+00:00",
+  "outcome": "timeout"
+ },
+ "algosurg.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:31:26+00:00",
+  "outcome": "timeout"
+ },
+ "amaterasu.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:31:58+00:00",
+  "outcome": "timeout"
+ },
+ "ambiator.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:32:30+00:00",
+  "outcome": "timeout"
+ },
+ "amelioratebiotech.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:33:02+00:00",
+  "outcome": "timeout"
+ },
+ "ameyaunisys.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:33:10+00:00",
+  "outcome": "unavailable"
+ },
+ "amylo.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:33:35+00:00",
+  "outcome": "unavailable"
+ },
+ "amyscan.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:34:07+00:00",
+  "outcome": "timeout"
+ },
+ "anaghapures.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:34:38+00:00",
+  "outcome": "timeout"
+ },
+ "anatomech.co": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:35:10+00:00",
+  "outcome": "timeout"
+ },
+ "angirusind.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:35:41+00:00",
+  "outcome": "timeout"
+ },
+ "annoviant.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:36:13+00:00",
+  "outcome": "timeout"
+ },
+ "apratima.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:36:45+00:00",
+  "outcome": "timeout"
+ },
+ "arishti.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:37:16+00:00",
+  "outcome": "timeout"
+ },
+ "arkashine-innovations.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:37:48+00:00",
+  "outcome": "timeout"
+ },
+ "arkleenergy.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:38:19+00:00",
+  "outcome": "timeout"
+ },
+ "artpvindia.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:38:51+00:00",
+  "outcome": "timeout"
+ },
+ "arunodayinnovations.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:38:58+00:00",
+  "outcome": "unavailable"
+ },
+ "ashvaweartech.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:39:06+00:00",
+  "outcome": "unavailable"
+ },
+ "astrome.co": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:39:14+00:00",
+  "outcome": "unavailable"
+ },
+ "astrophelaerospace.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:39:21+00:00",
+  "outcome": "unavailable"
+ },
+ "atmosflight.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:39:53+00:00",
+  "outcome": "timeout"
+ },
+ "atreyainnovations.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:40:00+00:00",
+  "outcome": "unavailable"
+ },
+ "augle.ai": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:40:07+00:00",
+  "outcome": "unavailable"
+ },
+ "avkalanlabs.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:40:15+00:00",
+  "outcome": "unavailable"
+ },
+ "ayatidevices.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:40:22+00:00",
+  "outcome": "unavailable"
+ },
+ "ayudevices.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:40:29+00:00",
+  "outcome": "unavailable"
+ },
+ "baas.co.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:41:01+00:00",
+  "outcome": "timeout"
+ },
+ "banofileather.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:41:32+00:00",
+  "outcome": "timeout"
+ },
+ "baudresources.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:42:04+00:00",
+  "outcome": "timeout"
+ },
+ "bellatrixaerospace.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:42:36+00:00",
+  "outcome": "timeout"
+ },
+ "bhoomicam.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:43:07+00:00",
+  "outcome": "timeout"
+ },
+ "binford.io": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:43:33+00:00",
+  "outcome": "unavailable"
+ },
+ "biodimension.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:43:59+00:00",
+  "outcome": "unavailable"
+ },
+ "biomarkiq.com": {
+  "checked": "2026-09-15T04:44:30+00:00",
+  "last_change": "2026-01-15",
+  "outcome": "captured",
+  "since": "2024-09-15",
+  "versions": 4
+ },
+ "bioprimeagri.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:44:37+00:00",
+  "outcome": "unavailable"
+ },
+ "bitmapper.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:44:44+00:00",
+  "outcome": "unavailable"
+ },
+ "bleetech.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:44:51+00:00",
+  "outcome": "unavailable"
+ },
+ "blurgs.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:44:59+00:00",
+  "outcome": "unavailable"
+ },
+ "bodhiverse.co.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:45:06+00:00",
+  "outcome": "unavailable"
+ },
+ "boltzmann.co": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:45:38+00:00",
+  "outcome": "timeout"
+ },
+ "botloka.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:46:09+00:00",
+  "outcome": "timeout"
+ },
+ "boviedgeresearch.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:46:41+00:00",
+  "outcome": "timeout"
+ },
+ "brainovativelabs.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:47:13+00:00",
+  "outcome": "timeout"
+ },
+ "bramhansh.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:47:44+00:00",
+  "outcome": "timeout"
+ },
+ "brsindia.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:48:16+00:00",
+  "outcome": "timeout"
+ },
+ "byasbioref.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:48:47+00:00",
+  "outcome": "timeout"
+ },
+ "caldorhealthtech.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:49:19+00:00",
+  "outcome": "timeout"
+ },
+ "caloreon.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:49:26+00:00",
+  "outcome": "unavailable"
+ },
+ "cancrie.co": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:49:33+00:00",
+  "outcome": "unavailable"
+ },
+ "carbsorb.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:49:41+00:00",
+  "outcome": "unavailable"
+ },
+ "cardiotrack.io": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:50:13+00:00",
+  "outcome": "timeout"
+ },
+ "carimotech.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:50:21+00:00",
+  "outcome": "unavailable"
+ },
+ "cellsiontech.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:50:28+00:00",
+  "outcome": "unavailable"
+ },
+ "cheminpharma.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:51:00+00:00",
+  "outcome": "timeout"
+ },
+ "circularecotech.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:51:32+00:00",
+  "outcome": "timeout"
+ },
+ "claritybiosystems.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:52:03+00:00",
+  "outcome": "timeout"
+ },
+ "collcraft.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:52:35+00:00",
+  "outcome": "timeout"
+ },
+ "combatroboticsindia.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:53:06+00:00",
+  "outcome": "timeout"
+ },
+ "craste.co": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:53:38+00:00",
+  "outcome": "timeout"
+ },
+ "creaidlabs.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:54:09+00:00",
+  "outcome": "timeout"
+ },
+ "ctechlab.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:54:41+00:00",
+  "outcome": "timeout"
+ },
+ "cure.link": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:54:48+00:00",
+  "outcome": "unavailable"
+ },
+ "curexel.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:54:56+00:00",
+  "outcome": "unavailable"
+ },
+ "cvit.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:55:03+00:00",
+  "outcome": "unavailable"
+ },
+ "cyclopsmedtech.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:55:10+00:00",
+  "outcome": "unavailable"
+ },
+ "cygenica.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:55:17+00:00",
+  "outcome": "unavailable"
+ },
+ "cygni.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:55:49+00:00",
+  "outcome": "timeout"
+ },
+ "darukaa.earth": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:55:56+00:00",
+  "outcome": "unavailable"
+ },
+ "deedeelabs.org": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:56:04+00:00",
+  "outcome": "unavailable"
+ },
+ "deepaarogya.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:56:11+00:00",
+  "outcome": "unavailable"
+ },
+ "deltabotanicals.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:56:18+00:00",
+  "outcome": "unavailable"
+ },
+ "denovotech.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:56:50+00:00",
+  "outcome": "timeout"
+ },
+ "desintoxtech.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:57:22+00:00",
+  "outcome": "timeout"
+ },
+ "dfinebio.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:57:53+00:00",
+  "outcome": "timeout"
+ },
+ "diagopreutic.co.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:58:25+00:00",
+  "outcome": "timeout"
+ },
+ "digantara.co.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:58:56+00:00",
+  "outcome": "timeout"
+ },
+ "divisha.io": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T04:59:28+00:00",
+  "outcome": "timeout"
+ },
+ "docsapp.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:59:35+00:00",
+  "outcome": "unavailable"
+ },
+ "docswallet.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:59:43+00:00",
+  "outcome": "unavailable"
+ },
+ "dronaaviation.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:59:51+00:00",
+  "outcome": "unavailable"
+ },
+ "drpashu.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T04:59:58+00:00",
+  "outcome": "unavailable"
+ },
+ "dtownrobotics.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T05:00:05+00:00",
+  "outcome": "unavailable"
+ },
+ "durjeya.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T05:00:12+00:00",
+  "outcome": "unavailable"
+ },
+ "duuet.care": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T05:00:38+00:00",
+  "outcome": "unavailable"
+ },
+ "edhaainnovations.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T05:00:46+00:00",
+  "outcome": "unavailable"
+ },
+ "ednams.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T05:01:18+00:00",
+  "outcome": "timeout"
+ },
+ "efeed.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-15T05:01:25+00:00",
+  "outcome": "unavailable"
+ },
+ "ekosight.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T05:01:57+00:00",
+  "outcome": "timeout"
+ },
+ "electica.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-15T05:02:29+00:00",
+  "outcome": "timeout"
  }
 }

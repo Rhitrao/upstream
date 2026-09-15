@@ -2370,8 +2370,8 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 
 		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
 		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
-		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","build_tags","domain_tags","hiring_roles","team_page","site_versions_2y","parked_homepage","papers_found"');
-		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","","","","","","","2"');
+		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","build_tags","domain_tags","public_programmes","programme_count","publishing_organisations","hiring_roles","team_page","site_versions_2y","parked_homepage","papers_found"');
+		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","","","incubation at SINE, IIT Bombay","1","1","","","","","2"');
 
 		// An address later found not to be theirs takes what was read off it with it.
 		await post({ source: 'sine-iitb', companies: [{ id: 'kadamb-biolabs', name: 'Kadamb Biolabs Pvt Ltd', website: 'https://kadamb.example', website_identity: 'discovered' }] });
@@ -2478,6 +2478,59 @@ describe('signs of activity on their own site', () => {
 		// Found not to be theirs, and what was read off it goes.
 		await post({ source: 'sine-iitb', companies: [{ id: 'act-co', name: 'Act Co', website: 'https://act.example', website_identity: 'discovered' }] });
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/act-co`)).text()).not.toContain('roles listed');
+	});
+});
+
+describe('public programmes, counted and not ranked', () => {
+	it('computes the same programmes and organisations as the ingest module', async () => {
+		const { programmesOf, organisationsOf } = await import('../src/programmes');
+		const signals = [
+			{ type: 'incubator', label: 'SINE IIT Bombay incubatee', source: 'sine-iitb' },
+			{ type: 'grant', label: 'SINE IIT Bombay DST NIDHI PRAYAS, Cohort 5', source: 'sine-iitb' },
+			{ type: 'grant', label: 'BIRAC BIG 21', source: 'grants-csv' },
+			{ type: 'grant', label: 'SINE IIT Bombay seed investment, MeitY-SAMRIDH', source: 'sine-iitb' },
+			{ type: 'website', label: 'website live', source: 'sine-iitb' },
+		];
+		expect(programmesOf(signals, 'recognised')).toEqual(['BIRAC', 'DPIIT recognition', 'DST', 'MeitY', 'incubation at SINE, IIT Bombay']);
+		expect(organisationsOf(signals, 'recognised')).toEqual(['BIRAC', 'DPIIT', 'SINE, IIT Bombay']);
+	});
+
+	it('stores them on ingest, and makes them a row field, a filter, a sort, a lead widget and the first finding', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'many-co', name: 'Many Co', description: 'Neonatal warmers.', dpiit_status: 'recognised' },
+				{ id: 'site-co', name: 'Site Co', description: 'Soil sensors.', website: 'https://site.example', website_identity: 'verified', website_identity_note: 'name in the domain' },
+				{ id: 'one-co', name: 'One Co', description: 'Drone batteries.' },
+			],
+			signals: [
+				{ company_id: 'many-co', type: 'incubator', label: 'SINE IIT Bombay incubatee' },
+				{ company_id: 'many-co', type: 'grant', label: 'SINE IIT Bombay DST NIDHI PRAYAS, Cohort 5' },
+				{ company_id: 'site-co', type: 'incubator', label: 'SINE IIT Bombay incubatee' },
+				{ company_id: 'site-co', type: 'grant', label: 'SINE IIT Bombay BIG, Cohort 3' },
+				{ company_id: 'site-co', type: 'website', label: 'website live' },
+				{ company_id: 'one-co', type: 'incubator', label: 'SINE IIT Bombay incubatee' },
+			],
+		});
+		const stored = await env.DB.prepare('SELECT id, programme_count, organisation_count FROM companies ORDER BY id').all<any>();
+		expect(stored.results).toEqual([
+			{ id: 'many-co', programme_count: 3, organisation_count: 2 },
+			{ id: 'one-co', programme_count: 1, organisation_count: 1 },
+			{ id: 'site-co', programme_count: 2, organisation_count: 1 },
+		]);
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all`)).text();
+		expect(html).toMatch(/<strong>2<\/strong> companies here have been selected into two or more public support programmes/);
+		expect(html).toMatch(/<strong>1<\/strong> of them<\/a> have no other public trace: no website of their own and no press\./);
+		expect(html).toMatch(/>2 companies<\/a> here have been selected into two or more public support programmes\. <a href="[^"]+">1 of them<\/a> have no other public trace/);
+		expect(html.indexOf('id="w-programmes"')).toBeLessThan(html.indexOf('id="w-view"'));
+		const row = html.slice(html.indexOf('id="c-many-co"'), html.indexOf('</li>', html.indexOf('id="c-many-co"')));
+		expect(row).toContain('>3 public programmes</span>');
+
+		const ids = (h: string) => [...h.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]);
+		expect(ids(await (await SELF.fetch(`${ORIGIN}/upstream?age=all&programmes=2`)).text()).sort()).toEqual(['many-co', 'site-co']);
+		expect(ids(await (await SELF.fetch(`${ORIGIN}/upstream?age=all&programmes=2&alone=1`)).text())).toEqual(['many-co']);
+		expect(ids(await (await SELF.fetch(`${ORIGIN}/upstream?age=all&sort=programmes`)).text())[0]).toBe('many-co');
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/many-co`)).text()).toContain('<dt>Public programmes</dt>');
 	});
 });
 

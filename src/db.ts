@@ -81,6 +81,10 @@ export interface Company {
 	build_tags: string | null;
 	/** JSON: careers url and roles, team page, code account, parked, homepage versions over two years. */
 	site_signals: string | null;
+	/** JSON list of public programmes (src/programmes.ts), their count, and publishing organisations. */
+	programmes: string | null;
+	programme_count: number;
+	organisation_count: number;
 	domain_tags: string | null;
 	/** JSON: {count, works: [{title, year, url}], query_url} from OpenAlex affiliations. */
 	papers: string | null;
@@ -127,6 +131,10 @@ export interface Filters {
 	kind?: KindChoice | null;
 	/** What the DPIIT register's record says — see DPIIT_STATUS_PHRASES. null for any. */
 	dpiit?: string | null;
+	/** At least this many public programmes: 2 or 3. */
+	programmesAtLeast?: number | null;
+	/** No public trace beyond the programmes' own lists: no website of their own, no press. */
+	alone?: boolean;
 	/** Only companies exactly one outside source has noticed (their own website not counted). */
 	noticedOnce?: boolean;
 	/** Exactly these ids, as a shortlist export asks for them. */
@@ -154,7 +162,7 @@ export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-i
  */
 export type SiteState = 'has' | 'none';
 
-export type SortChoice = 'obscurity' | 'newest' | 'quietest' | 'described' | 'name';
+export type SortChoice = 'obscurity' | 'newest' | 'quietest' | 'described' | 'programmes' | 'name';
 
 /**
  * Trace counts in the three groups the page draws. "One or none" is one group because
@@ -330,6 +338,8 @@ export const SORTS: Record<SortChoice, string> = {
 	  + CASE WHEN COALESCE(c.founders, '') <> '' THEN 1 ELSE 0 END
 	  + CASE WHEN COALESCE(c.contact_email, '') <> '' OR COALESCE(c.contact_page, '') <> '' THEN 1 ELSE 0 END
 	  + CASE WHEN c.first_seen IS NOT NULL THEN 1 ELSE 0 END) DESC, c.trace_count ASC, c.name ASC`,
+	// Most public programmes first; among equals, the least traced.
+	programmes: 'c.programme_count DESC, c.trace_count ASC, c.name ASC',
 	name: 'c.name ASC',
 };
 
@@ -505,6 +515,11 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 		clauses.push('c.dpiit_status = ?');
 		binds.push(filters.dpiit);
 	}
+	if (filters.programmesAtLeast) {
+		clauses.push('c.programme_count >= ?');
+		binds.push(filters.programmesAtLeast);
+	}
+	if (filters.alone) clauses.push("NOT EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.type IN ('website', 'press'))");
 	if (filters.noticedOnce) clauses.push("(SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1");
 	if (filters.ids?.length) {
 		clauses.push(`c.id IN (${filters.ids.map(() => '?').join(', ')})`);
@@ -1048,6 +1063,8 @@ export interface Widgets {
 	traces: Record<TraceBucket, number>;
 	described: Record<DescribedState, number>;
 	sources: { source: string; n: number }[];
+	/** Programme counts over the view without the programme filters: 1, 2, 3 or more, and the quiet ones. */
+	programmes: { one: number; two: number; three: number; twoPlus: number; twoPlusAlone: number; twoPlusOrgs: number; total: number };
 	/** Keyword tags, each counted over the view without the tag filters. */
 	build: Record<string, number>;
 	domain: Record<string, number>;
@@ -1070,9 +1087,10 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 	const said = without({ described: null });
 	const source = without({ source: null });
 	const tag = without({ build: null, domain: null });
+	const prog = without({ programmesAtLeast: null, alone: false });
 	const everything = without({});
 
-	const [placeRows, sectorRows, traceRow, saidRows, sourceRow, totalRow, tagRow, subRows] = await Promise.all([
+	const [placeRows, sectorRows, traceRow, saidRows, sourceRow, totalRow, tagRow, subRows, progRow] = await Promise.all([
 		all<{ state: string; city: string; n: number; dated: number }>(
 			`SELECT COALESCE(c.state, '') AS state, COALESCE(c.city, '') AS city, COUNT(*) AS n, SUM(c.first_seen IS NOT NULL) AS dated
 			 FROM companies c ${whereSql(place.clauses)} GROUP BY 1, 2`,
@@ -1108,6 +1126,14 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 			.bind(...tag.binds)
 			.first<Record<string, number | null>>(),
 		all<{ subsector_id: string | null; n: number }>(`SELECT c.subsector_id, COUNT(*) AS n FROM companies c ${whereSql(sector.clauses)} GROUP BY 1`, sector),
+		env.DB.prepare(
+			`SELECT COUNT(*) AS total, SUM(c.programme_count = 1) AS one, SUM(c.programme_count = 2) AS two, SUM(c.programme_count >= 3) AS three,
+			   SUM(c.programme_count >= 2) AS two_plus, SUM(c.programme_count >= 2 AND c.organisation_count >= 2) AS two_plus_orgs,
+			   SUM(c.programme_count >= 2 AND NOT EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.type IN ('website', 'press'))) AS two_plus_alone
+			 FROM companies c ${whereSql(prog.clauses)}`,
+		)
+			.bind(...prog.binds)
+			.first<Record<string, number | null>>(),
 	]);
 
 	const byState = new Map<string, { state: string; n: number; dated: number; districts: { name: string; n: number }[] }>();
@@ -1149,6 +1175,15 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 		build: Object.fromEntries(BUILD_TAGS.map((t, i) => [t, Number(tagRow?.[`b${i}`] ?? 0)])),
 		domain: Object.fromEntries(DOMAIN_TAGS.map((t, i) => [t, Number(tagRow?.[`d${i}`] ?? 0)])),
 		untagged: Number(tagRow?.untagged ?? 0),
+		programmes: {
+			one: Number(progRow?.one ?? 0),
+			two: Number(progRow?.two ?? 0),
+			three: Number(progRow?.three ?? 0),
+			twoPlus: Number(progRow?.two_plus ?? 0),
+			twoPlusAlone: Number(progRow?.two_plus_alone ?? 0),
+			twoPlusOrgs: Number(progRow?.two_plus_orgs ?? 0),
+			total: Number(progRow?.total ?? 0),
+		},
 		subsectors: Object.fromEntries(subRows.results.filter((r) => r.subsector_id).map((r) => [r.subsector_id as string, r.n])),
 		totals: {
 			tags: Number(tagRow?.total ?? 0),
@@ -1250,6 +1285,8 @@ export interface Findings {
 	recognition: { withStatus: number; profile: number };
 	/** Described companies, and those only one outside source has noticed (their own website not counted). */
 	noticed: { companies: number; once: number };
+	/** Described companies in two or more public programmes, those with no other trace, and by publishing organisations. */
+	programmes: { twoPlus: number; alone: number; orgs: number; three: number };
 }
 
 /** The gap group for companies the classifier put outside the RDI scheme altogether. */
@@ -1272,7 +1309,12 @@ export async function queryFindings(env: Env): Promise<Findings> {
 			   (SELECT COUNT(*) FROM companies WHERE dpiit_status = 'profile') AS profile,
 			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company') AS companies_said,
 			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company'
-			      AND (SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1) AS noticed_once`,
+			      AND (SELECT COUNT(*) FROM signals s WHERE s.company_id = c.id AND s.type <> 'website') = 1) AS noticed_once,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 2) AS prog_two,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 3) AS prog_three,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.organisation_count >= 2) AS prog_orgs,
+			   (SELECT COUNT(*) FROM companies c WHERE ${saidRow} AND COALESCE(c.entity_type, 'company') = 'company' AND c.programme_count >= 2
+			      AND NOT EXISTS (SELECT 1 FROM signals s WHERE s.company_id = c.id AND s.type IN ('website', 'press'))) AS prog_alone`,
 		)
 			.bind(REGISTER_SOURCE, NO_GAP_NAMED)
 			.first<Record<string, number | null>>(),
@@ -1290,5 +1332,6 @@ export async function queryFindings(env: Env): Promise<Findings> {
 		described: { total: n('rows_said') + n('gaps_said'), unmapped: n('gaps_said_unmapped'), holes: holes.results },
 		recognition: { withStatus: n('with_status'), profile: n('profile') },
 		noticed: { companies: n('companies_said'), once: n('noticed_once') },
+		programmes: { twoPlus: n('prog_two'), alone: n('prog_alone'), orgs: n('prog_orgs'), three: n('prog_three') },
 	};
 }
