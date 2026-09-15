@@ -2542,8 +2542,9 @@ section > h2 {
   .sector > summary { min-height: 44px; display: flex; align-items: center; }
   .sector > summary h3 { margin: 0; width: 100%; }
   .sector > summary h3::after { content: '+'; margin-left: auto; color: var(--muted); }
-  .sector[open] > summary h3::after { content: '–'; }
-  .sector[open] > .grid { padding-bottom: var(--s3); }
+  .sector.unfolded > summary h3::after, .sector[data-chosen] > summary h3::after { content: '–'; }
+  .sector:not(.unfolded):not([data-chosen]) > .grid { display: none; }
+  .sector > .grid { padding-bottom: var(--s3); }
 }
 .sector-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: var(--s1); }
 .sector-link:hover, .sector-link.active { text-decoration: underline; text-underline-offset: 3px; }
@@ -3566,18 +3567,14 @@ export const LIST_SCRIPT = `
   }
 
   // On a phone the map folds to its five sectors, keeping open the one a filter is in.
-  function foldMap() {
-    if (!window.matchMedia || !window.matchMedia('(max-width: 34rem)').matches) return;
-    var sectors = document.querySelectorAll('#coverage details.sector');
-    for (var i = 0; i < sectors.length; i++) sectors[i].open = sectors[i].hasAttribute('data-chosen');
-  }
-  foldMap();
-  var observerTarget = document.querySelector('.wrap');
-  if (observerTarget && 'MutationObserver' in window) {
-    new MutationObserver(function (changes) {
-      for (var c = 0; c < changes.length; c++) for (var a = 0; a < changes[c].addedNodes.length; a++) if (changes[c].addedNodes[a].id === 'coverage') foldMap();
-    }).observe(observerTarget, { childList: true });
-  }
+  // The fold itself is CSS, so nothing moves after the first paint; a tap on a sector's
+  // summary (not its link) unfolds it.
+  document.addEventListener('click', function (event) {
+    var summary = event.target.closest ? event.target.closest('#coverage details.sector > summary') : null;
+    if (!summary || event.target.closest('a') || !window.matchMedia || !window.matchMedia('(max-width: 34rem)').matches) return;
+    event.preventDefault();
+    summary.parentNode.classList.toggle('unfolded');
+  });
 
   // A link into the reference half opens the section that holds its target.
   function openFor(hash) {
