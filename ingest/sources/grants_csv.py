@@ -31,6 +31,13 @@ CSV_PATH = pathlib.Path(__file__).parent / "grants.csv"
 # format would be a strange kind of tidiness.
 FIELDS = ["company_name", "scheme", "award_date", "project_summary", "url", "website", "city"]
 
+# What BIRAC's BIG lists print where a project title would be: the category the award was
+# filed under. Typed into project_summary like a summary, but it is a label picked from six
+# values, not a sentence about the company. On 15 September 2026, 87 companies on the page
+# counted as described on nothing more; they are labels now, judged the way the DPIIT
+# register's dropdown is (ingest/register_labels.py).
+CATEGORY_LINE = re.compile(r"BIRAC Biotechnology Ignition Grant awardee, category: [^.]+\.")
+
 
 def data_as_of() -> str | None:
     """The newest award date in the file: how current this source is.
@@ -69,6 +76,7 @@ def scrape() -> tuple[list[Company], list[Signal]]:
             company = Company.named(
                 name,
                 description=clean(row["project_summary"]),
+                description_is_label=bool(CATEGORY_LINE.fullmatch(clean(row["project_summary"]) or "")),
                 website=website(row["website"]),
                 city=clean(row["city"]),
                 origin_year=_year(row["award_date"]),

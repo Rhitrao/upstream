@@ -50,6 +50,7 @@ import {
 	queryFindings,
 	papersOf,
 	registerText,
+	labelSql,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { accessConfig, identify } from './access';
@@ -426,15 +427,15 @@ ON CONFLICT(id) DO UPDATE SET
   -- A register label never replaces a real description; a real one replaces a label.
   description   = CASE
                     WHEN excluded.description IS NULL THEN companies.description
-                    WHEN substr(excluded.description, 1, 35) = 'DPIIT-recognised startup. Industry:'
+                    WHEN ${labelSql('excluded.description')}
                      AND companies.description IS NOT NULL
-                     AND substr(companies.description, 1, 35) <> 'DPIIT-recognised startup. Industry:' THEN companies.description
+                     AND NOT ${labelSql('companies.description')} THEN companies.description
                     ELSE excluded.description END,
   description_source = CASE
                     WHEN excluded.description IS NULL THEN companies.description_source
-                    WHEN substr(excluded.description, 1, 35) = 'DPIIT-recognised startup. Industry:'
+                    WHEN ${labelSql('excluded.description')}
                      AND companies.description IS NOT NULL
-                     AND substr(companies.description, 1, 35) <> 'DPIIT-recognised startup. Industry:' THEN companies.description_source
+                     AND NOT ${labelSql('companies.description')} THEN companies.description_source
                     ELSE COALESCE(excluded.description_source, companies.description_source) END,
   -- A checked address replaces whatever was there, including with nothing: COALESCE
   -- would keep HyperVerge's address on Grinntech for ever once the parser stopped

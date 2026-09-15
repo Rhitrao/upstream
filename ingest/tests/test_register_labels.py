@@ -20,6 +20,26 @@ def label(industry: str, sectors: list[str], stage: str = "Prototype") -> str:
     return dpiit._description({"sectors": sectors, "stages": [stage]}, industry)
 
 
+class AGrantCategoryIsALabel(unittest.TestCase):
+    def test_the_grants_list_marks_a_category_line_as_a_label_and_a_summary_as_a_description(self):
+        from ingest.sources import grants_csv
+
+        companies, _ = grants_csv.scrape()
+        by_label = {c.description_is_label for c in companies if (c.description or "").startswith("BIRAC Biotechnology Ignition Grant awardee, category:")}
+        self.assertEqual(by_label, {True})
+        self.assertTrue(any(c.description and not c.description_is_label for c in companies))
+
+    def test_a_category_places_a_company_only_where_it_names_the_sub_sector(self):
+        line = "BIRAC Biotechnology Ignition Grant awardee, category: {}."
+        self.assertTrue(register_labels.supports(line.format("Medical Devices"), "4.5"))
+        self.assertTrue(register_labels.supports(line.format("Drugs and related areas"), "4.4"))
+        self.assertFalse(register_labels.supports(line.format("Drugs and related areas"), "4.7"))
+        self.assertTrue(register_labels.supports(line.format("Industrial Biotechnology, Clean Energy & Environment"), "4.3"))
+        self.assertFalse(register_labels.supports(line.format("Industrial Biotechnology, Clean Energy & Environment"), "4.2"))
+        self.assertFalse(register_labels.supports(line.format("Agriculture and allied areas"), "4.7"))
+        self.assertIn("The grant list's labels (agriculture and allied areas)", register_labels.unsupported_note(line.format("Agriculture and allied areas"), "4.7", "Advanced Therapeutics and Biologics"))
+
+
 class WhatALabelNames(unittest.TestCase):
     def test_nlp_is_not_healthcare(self):
         # ZELBYX, CAMPSUM, URBISAGE, MENULA, CAFIYN: all in 3.2 on 14 September 2026.

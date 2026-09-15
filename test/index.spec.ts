@@ -862,6 +862,40 @@ describe('GET /upstream (the page)', () => {
 		expect(ranked).not.toContain('Undated Co');
 	});
 
+	it('calls a grant list category a label, not a description, and says whose label it is', async () => {
+		await post({
+			source: 'grants-csv',
+			mode: 'live',
+			companies: [
+				{
+					id: 'dverse',
+					name: 'Dverse Technologies Private Limited',
+					description: 'BIRAC Biotechnology Ignition Grant awardee, category: Medical Devices.',
+					description_source: 'grants-csv',
+					sector_id: '4',
+					subsector_id: '4.5',
+					classify_basis: 'register-label',
+				},
+			],
+		});
+		const list = await page('?tier=all&age=all&described=all&kind=all');
+		const row = list.slice(list.indexOf('id="c-dverse"'), list.indexOf('</li>', list.indexOf('id="c-dverse"')));
+		expect(row).toContain('No description published');
+		expect(row).toContain('grant category only');
+		expect(row).not.toContain('register label only');
+		const html = await detail('dverse');
+		expect(html).toContain('The category a grant list filed the award under, one of six, not a description.');
+		expect(html).toContain('the category a grant list filed its award under, one of six. That supports this sub-sector and nothing narrower.');
+		// Counted with the labels, not with the companies that say what they build.
+		expect(await page('?tier=all&age=all&described=said&kind=all')).not.toContain('id="c-dverse"');
+		expect(await page('?tier=all&age=all&described=label&kind=all')).toContain('id="c-dverse"');
+
+		// And a label arriving later never replaces a real description.
+		await post({ source: 'sine-iitb', companies: [{ id: 'dverse', name: 'Dverse Technologies Private Limited', description: 'Portable neonatal warmers for district hospitals.', description_source: 'sine-iitb' }] });
+		await post({ source: 'grants-csv', companies: [{ id: 'dverse', name: 'Dverse Technologies Private Limited', description: 'BIRAC Biotechnology Ignition Grant awardee, category: Medical Devices.', description_source: 'grants-csv' }] });
+		expect(await detail('dverse')).toContain('Portable neonatal warmers for district hospitals.');
+	});
+
 	it('marks a sub-sector that came from a register label, and only that one', async () => {
 		await post({
 			source: 'test',
@@ -1888,10 +1922,10 @@ describe('what they build, and how many traces', () => {
 	it('filters by whose words say what a company builds, and says how many have none', async () => {
 		await seed();
 		const all = await text('?tier=all&age=all');
-		expect(all).toContain("<strong>1 of 3</strong> have no sentence saying so, only the DPIIT register's dropdown label.");
+		expect(all).toContain("<strong>1 of 3</strong> have no sentence saying so, only a list's label: the DPIIT register's dropdown or a grant list's category.");
 		expect(rows(await text('?tier=all&age=all&described=label'))).toEqual(['label-co']);
 		expect(rows(await text('?tier=all&age=all&described=source'))).toEqual(['loud-co', 'said-co']);
-		expect(await text('?tier=all&age=all&described=label')).toContain('What it builds: register label only');
+		expect(await text('?tier=all&age=all&described=label')).toContain('What it builds: a list’s label only');
 		const api = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=all&age=all&undated=1&described=label`)).json<any>();
 		expect(api.companies.map((c: any) => c.id)).toEqual(['label-co']);
 		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?described=vibes`)).status).toBe(400);

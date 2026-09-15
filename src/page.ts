@@ -25,7 +25,7 @@ import {
 	type Widgets,
 	type TraceBucket,
 	type DescribedState,
-	REGISTER_LABEL_PREFIX,
+	labelKind,
 	TRACE_BUCKETS,
 	DESCRIBED_STATES,
 	DPIIT_STATUS_PHRASES,
@@ -513,9 +513,9 @@ function widgets(view: PageView): string {
 			'What they build',
 			`<strong>${t.described - sentence} of ${t.described}</strong> have no sentence saying so${
 				w.described.label === t.described - sentence && w.described.label
-					? ", only the DPIIT register's dropdown label"
+					? ", only a list's label: the DPIIT register's dropdown or a grant list's category"
 					: w.described.label
-						? `: ${w.described.label} carry only the DPIIT register's dropdown label`
+						? `: ${w.described.label} carry only a list's label, the DPIIT register's dropdown or a grant list's category`
 						: ''
 			}.`,
 		)}
@@ -836,7 +836,7 @@ const DESCRIBED_LABELS: Record<DescribedChoice, string> = {
 	unsaid: 'Says nothing about what it builds',
 	own: 'Their own homepage says',
 	source: 'A source describes it',
-	label: 'Register label only',
+	label: 'A list’s label only',
 	none: 'Nothing at all',
 };
 const KIND_LABELS: Record<KindChoice, string> = { company: 'Companies', other: 'Research projects and unverified names' };
@@ -1082,8 +1082,32 @@ function entityTag(company: Company): string {
 /** What a sub-sector placement rests on, in three words, for beside the placement. */
 function basisTag(company: Company): string {
 	return company.classify_basis === 'register-label'
-		? ' <span class="basis-tag weak">register label only</span>'
+		? ` <span class="basis-tag weak">${labelWords(company).tag}</span>`
 		: ' <span class="basis-tag">from its description</span>';
+}
+
+/**
+ * How to name the label a placement or a row rests on. The register's dropdown and a grant
+ * list's award category are both labels picked from a fixed list, and are judged the same;
+ * the page says which one it is, since only one of them comes from a register.
+ */
+const LABEL_WORDS = {
+	register: {
+		tag: 'register label only',
+		one: "a register's dropdown label",
+		excerpt: 'A register&rsquo;s dropdown choices, not a description.',
+		placed: "a register's industry label, picked by the founder from a fixed list",
+	},
+	grant: {
+		tag: 'grant category only',
+		one: 'the category a grant list filed its award under',
+		excerpt: 'The category a grant list filed the award under, one of six, not a description.',
+		placed: 'the category a grant list filed its award under, one of six',
+	},
+} as const;
+
+function labelWords(company: Pick<Company, 'description'>) {
+	return LABEL_WORDS[labelKind(company.description) ?? 'register'];
 }
 
 /** Short names for evidence on a row, where there is room for one word each. */
@@ -1126,7 +1150,7 @@ function monthYear(iso: string): string {
  * September 2026. The shape is the one ingest/sources/dpiit.py writes.
  */
 function describedBySource(company: Company): boolean {
-	return Boolean(company.description && !company.description.startsWith(REGISTER_LABEL_PREFIX));
+	return Boolean(company.description && !labelKind(company.description));
 }
 
 /**
@@ -1180,7 +1204,7 @@ function companyRow(company: Company, now: Date, origin: string): string {
 	// is a weaker claim than one read off a paragraph about the product.
 	const placement = sub
 		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>${
-				company.classify_basis === 'register-label' ? ' <span class="basis-tag weak">register label only</span>' : ''
+				company.classify_basis === 'register-label' ? ` <span class="basis-tag weak">${labelWords(company).tag}</span>` : ''
 			}`
 		: '<span class="rdi unclassified">not yet classified</span>';
 
@@ -1559,7 +1583,7 @@ function methodology(view: PageView): string {
     <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Early, some visibility.</li>
     <li><span class="tier tc">Tier C</span> Everything else. Known territory &mdash; listed, not promoted.</li>
   </ul>
-  <p>Neither A nor B is open to a company whose only description is a register's dropdown label. That is enough to
+  <p>Neither A nor B is open to a company whose only description is a list's label &mdash; the DPIIT register's dropdown, or the category a BIRAC grant list filed its award under. That is enough to
     list a company and to place it where the label names a sub-sector outright; it is not enough to call it a find.</p>
   <p>This will sometimes put a company nobody has heard of above a famous one. That is the point, not a bug.</p>
 
@@ -1623,7 +1647,7 @@ export function unknowns(company: Company): string[] {
 
 	if (company.entity_type === 'unverified') out.push('Whether a company exists behind this name: nothing on record shows one');
 	if (company.entity_type === 'researcher-project') out.push('Whether a company has been formed: the record is a researcher’s project');
-	if (!described) out.push('What it builds: no source describes it, and a register’s dropdown label is not a description');
+	if (!described) out.push(`What it builds: no source describes it, and ${labelWords(company).one} is not a description`);
 	else if (!productKnown) out.push('What it says about itself: no homepage of theirs has been read');
 	if (sub && !company.project_type) out.push(`What kind of product it is, within ${sub.subsector_id} ${sub.subsector}`);
 	if (!ageKnown(company)) out.push('When it was founded: no source gives a founding or incubation year');
@@ -1749,7 +1773,7 @@ function whyHere(company: Company): string {
 	if (company.tier === 'A') reason = 'found by a run under 90 days ago, with at most two public traces and nothing older on record';
 	else if (company.tier === 'B') reason = 'on record under 180 days, with at most five public traces';
 	else if (company.first_seen === null) reason = 'no source dates it, so it cannot be called an early find';
-	else if (company.classify_basis === 'register-label') reason = 'only a register label says what it does, so it is listed, not promoted';
+	else if (company.classify_basis === 'register-label') reason = `only ${labelWords(company).one} says what it does, so it is listed, not promoted`;
 	else if (company.first_seen_basis === 'cohort') reason = 'dated from a year its source published, not found by a run of ours';
 	else reason = 'on record for more than 180 days, or with more than five public traces';
 	return `${traces}, which is what the list sorts by. Tier ${company.tier}: ${reason}.`;
@@ -1765,8 +1789,8 @@ function evidenceLimits(company: Company): string[] {
 	const productKnown = Boolean(company.product && company.website_identity === 'verified');
 	if (productKnown) out.push('What it builds is quoted from its own homepage; the name on the site was checked, the claims on it were not');
 	else if (describedBySource(company)) out.push('What it builds is a source’s description of it, not checked against the company');
-	else out.push('Nothing published says what it builds; only a register’s dropdown label exists');
-	if (company.classify_basis === 'register-label') out.push('Its sub-sector rests on a register label alone, which supports nothing narrower');
+	else out.push(`Nothing published says what it builds; only ${labelWords(company).one} exists`);
+	if (company.classify_basis === 'register-label') out.push(`Its sub-sector rests on ${labelWords(company).one} alone, which supports nothing narrower`);
 	if (site && company.website_identity !== 'verified') out.push('Its website is not confirmed as theirs, so nothing on it is used');
 	if (company.entity_type && company.entity_type !== 'company') out.push(`Not shown to be a company: ${company.entity_note ?? 'nothing on record shows one'}`);
 	if (company.dpiit_status === 'profile' || company.dpiit_status === 'pending') out.push('On Startup India with a profile DPIIT has not recognised');
@@ -1812,7 +1836,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 		lines.push(`**What it builds:** ${company.description} _(as ${SOURCE_LABELS[company.description_source ?? ''] ?? 'a source'} described it)_`);
 	} else {
 		lines.push('**What it builds:** Unknown. No source describes it.');
-		if (company.description) lines.push(`The only published line is a register label: ${registerText(company.description, company.dpiit_status)}`);
+		if (company.description) lines.push(`The only published line is ${labelWords(company).one}: ${registerText(company.description, company.dpiit_status)}`);
 	}
 	if (company.product && site && describedBySource(company)) {
 		lines.push(`**As a source described it:** ${company.description}`);
@@ -1849,7 +1873,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	if (sub) {
 		lines.push(
 			`- RDI ${sub.subsector_id} ${sub.subsector}, placed ${
-				company.classify_basis === 'register-label' ? 'from a register label only, which supports nothing narrower' : 'from its description'
+				company.classify_basis === 'register-label' ? `from ${labelWords(company).one} only, which supports nothing narrower` : 'from its description'
 			}${company.project_type ? `; project type: ${company.project_type}` : ''}`,
 		);
 	} else {
@@ -1879,7 +1903,7 @@ function whyTier(company: Company): string {
       however new it looks. A row with no date is Tier C by the rule, not by judgement.`;
 	}
 	if (company.classify_basis === 'register-label') {
-		return `The only thing any source says about what this company does is a register's dropdown label. That is
+		return `The only thing any source says about what this company does is ${labelWords(company).one}. That is
       enough to list it, not to call it an early find, so it is Tier C until a source describes what it builds.`;
 	}
 	if (company.first_seen_basis === 'cohort') {
@@ -1985,7 +2009,7 @@ export function renderCompanyPage(view: CompanyView): string {
 		: `<p class="unknown-value">Unknown</p>${productDetail(company)}`;
 	const excerpt = company.description
 		? !describedBySource(company)
-			? `<p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">A register&rsquo;s dropdown choices, not a description. Nothing here says what the company makes.</p>`
+			? `<p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt} Nothing here says what the company makes.</p>`
 			: `<p class="desc">${esc(company.description)}<span class="says">as ${esc(SOURCE_LABELS[company.description_source ?? ''] ?? 'the source')} described it</span></p>`
 		: '<p class="unknown-value">Unknown</p><p class="provenance">No source published a description.</p>';
 
@@ -2116,7 +2140,7 @@ export function renderCompanyPage(view: CompanyView): string {
 				? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
       <p class="provenance basis">${
 				company.classify_basis === 'register-label'
-					? `<span class="basis-tag weak">register label only</span> The only thing placing it here is a register's industry label, picked by the founder from a fixed list. That supports this sub-sector and nothing narrower.`
+					? `<span class="basis-tag weak">${labelWords(company).tag}</span> The only thing placing it here is ${labelWords(company).placed}. That supports this sub-sector and nothing narrower.`
 					: '<span class="basis-tag">from its description</span> Placed from the description above.'
 			}</p>
       <p class="provenance">Project type: ${

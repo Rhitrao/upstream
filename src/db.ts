@@ -180,6 +180,25 @@ export type DescribedChoice = (typeof DESCRIBED_CHOICES)[number];
 export const KIND_CHOICES = ['company', 'other'] as const;
 export type KindChoice = (typeof KIND_CHOICES)[number];
 export const REGISTER_LABEL_PREFIX = 'DPIIT-recognised startup. Industry:';
+/**
+ * What BIRAC's BIG lists print where a project title would be: the category the award was
+ * filed under (ingest/sources/grants_csv.py). A label from a fixed list of six, like the
+ * register's dropdown, and treated as one everywhere a description is judged.
+ */
+export const GRANT_LABEL_PREFIX = 'BIRAC Biotechnology Ignition Grant awardee, category:';
+
+/** Which kind of list label a description is, or null for a real description. */
+export function labelKind(description: string | null): 'register' | 'grant' | null {
+	if (!description) return null;
+	if (description.startsWith(REGISTER_LABEL_PREFIX)) return 'register';
+	if (description.startsWith(GRANT_LABEL_PREFIX)) return 'grant';
+	return null;
+}
+
+/** The same test in SQL, for a description column. */
+export function labelSql(column: string): string {
+	return `(substr(${column}, 1, ${REGISTER_LABEL_PREFIX.length}) = '${REGISTER_LABEL_PREFIX}' OR substr(${column}, 1, ${GRANT_LABEL_PREFIX.length}) = '${GRANT_LABEL_PREFIX}')`;
+}
 
 /**
  * What the register's record says about recognition, in a phrase. The stored label
@@ -220,7 +239,7 @@ export function papersOf(raw: string | null): PapersFound | null {
 }
 const DESCRIBED_SQL = `CASE
   WHEN COALESCE(c.product, '') <> '' AND c.website_identity = 'verified' THEN 'own'
-  WHEN COALESCE(c.description, '') <> '' AND substr(c.description, 1, ${REGISTER_LABEL_PREFIX.length}) <> '${REGISTER_LABEL_PREFIX}' THEN 'source'
+  WHEN COALESCE(c.description, '') <> '' AND NOT ${labelSql('c.description')} THEN 'source'
   WHEN COALESCE(c.description, '') <> '' THEN 'label'
   ELSE 'none' END`;
 
@@ -1124,7 +1143,7 @@ export const OUTSIDE_TAXONOMY = 'outside this taxonomy';
 
 export async function queryFindings(env: Env): Promise<Findings> {
 	const saidRow = `${DESCRIBED_SQL} IN ('own', 'source')`;
-	const saidGap = `COALESCE(g.description, '') <> '' AND substr(g.description, 1, ${REGISTER_LABEL_PREFIX.length}) <> '${REGISTER_LABEL_PREFIX}'`;
+	const saidGap = `COALESCE(g.description, '') <> '' AND NOT ${labelSql('g.description')}`;
 	const [row, holes] = await Promise.all([
 		env.DB.prepare(
 			`SELECT

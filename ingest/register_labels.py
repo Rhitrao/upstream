@@ -1,4 +1,5 @@
-"""Which RDI sub-sectors a DPIIT register label can put a company in, by itself.
+"""Which RDI sub-sectors a list's label can put a company in, by itself: a DPIIT register
+label, or the category a BIRAC grant list filed an award under.
 
 A register record is a name, an industry the founder picked from a dropdown, a
 sector picked from a second one, and a stage. Given that and nothing else, the
@@ -50,6 +51,16 @@ SUPPORTS: dict[str, frozenset[str]] = {
     "agri-tech": frozenset({"5.2"}),
     # 4.4 Pharmaceuticals & Drug Development.
     "pharmaceutical": frozenset({"4.4"}),
+    # BIRAC BIG award categories (grants_csv.CATEGORY_LINE), judged the same way on 15 Sep 2026.
+    # 4.5 Medical Devices & Diagnostics, by name.
+    "medical devices": frozenset({"4.5"}),
+    "diagnostics": frozenset({"4.5"}),
+    "medical devices and diagnostics": frozenset({"4.5"}),
+    # 4.4 Pharmaceuticals & Drug Development. Not 4.7: "drugs" does not name biologics.
+    "drugs and related areas": frozenset({"4.4"}),
+    # 4.3 Synthetic Biology & Industrial Biotech names the first of the three; clean energy
+    # and environment each span a dozen sub-sectors, so they name none.
+    "industrial biotechnology, clean energy & environment": frozenset({"4.3"}),
 }
 
 # Read by a person and judged to name no sub-sector. Not consulted — anything absent
@@ -85,6 +96,8 @@ NAMES_NOTHING: frozenset[str] = frozenset(
         "ooh media",
         "skill development",
         "microbrewery",
+        # BIRAC: agriculture is a field of application with sub-sectors in three sectors.
+        "agriculture and allied areas",
     }
 )
 
@@ -92,6 +105,7 @@ NAMES_NOTHING: frozenset[str] = frozenset(
 # fields, so the one string the classifier saw is the one string judged.
 _INDUSTRY = re.compile(r"Industry: (.+?)\.(?: Sector:| Stage:|$)")
 _SECTOR = re.compile(r"Sector: (.+?)\.(?: Stage:|$)")
+_CATEGORY = re.compile(r"awardee, category: (.+?)\.$")
 
 
 def labels(description: str | None) -> list[str]:
@@ -103,6 +117,9 @@ def labels(description: str | None) -> list[str]:
         found.append(match.group(1).strip().lower())
     if match := _SECTOR.search(description):
         found.extend(s.strip().lower() for s in match.group(1).split(", ") if s.strip())
+    # A grant category is one label, commas and all: "Industrial Biotechnology, Clean Energy & Environment".
+    if match := _CATEGORY.search(description.strip()):
+        found.append(match.group(1).strip().lower())
     return found
 
 
@@ -121,6 +138,6 @@ def supports(description: str | None, subsector_id: str | None) -> bool:
 def unsupported_note(description: str | None, subsector_id: str, subsector_name: str) -> str:
     said = " / ".join(labels(description)) or "nothing"
     return (
-        f"The register's labels ({said}) do not name {subsector_id} {subsector_name}. The classifier picked it "
+        f"{'The grant list' if _CATEGORY.search((description or '').strip()) else 'The register'}'s labels ({said}) do not name {subsector_id} {subsector_name}. The classifier picked it "
         f"from the label alone; that is a guess, so the company is left unplaced rather than published there."
     )
