@@ -2351,6 +2351,7 @@ export const STYLES = `
      has to go below the smallest size the prose is allowed to use. */
   --t-nano: 0.66rem;
 
+  --measure: 70ch;
   --radius: 10px;
 }
 @media (prefers-color-scheme: dark) {
@@ -2381,7 +2382,8 @@ body {
 .wrap { max-width: 60rem; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
 a { color: inherit; }
 h1, h2, h3 { line-height: 1.2; letter-spacing: -0.015em; }
-p { margin: 0 0 var(--s3); }
+/* One measure for running text, about 70 characters, wherever a paragraph sits. */
+p { margin: 0 0 var(--s3); max-width: var(--measure); }
 /* Long unbroken scraped names stay inside their column; headings break where a
    reader would rather they did. */
 h1, h2, h3, .hook, .note { text-wrap: pretty; }
@@ -2440,12 +2442,12 @@ h1, h2, h3, .hook, .note { text-wrap: pretty; }
 .stats dd a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule-strong); text-decoration-thickness: 2px; text-underline-offset: 5px; }
 .stats dd a:hover { text-decoration-color: currentColor; }
 /* What the headline leaves out, said directly under it rather than in a footnote. */
-.set-aside { font-size: var(--t-sm); color: var(--muted); max-width: 60ch; margin: var(--s4) 0 0; }
+.set-aside { font-size: var(--t-sm); color: var(--muted); max-width: var(--measure); margin: var(--s4) 0 0; }
 .set-aside a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .set-aside strong { font-family: var(--mono); font-weight: 500; }
 /* The findings: the page's argument, numbered, each number a link to its proof. */
 .findings { margin: 0 0 var(--s6); }
-.finding-list { margin: 0; padding: 0; list-style: none; counter-reset: finding; display: grid; gap: var(--s4); max-width: 68ch; }
+.finding-list { margin: 0; padding: 0; list-style: none; counter-reset: finding; display: grid; gap: var(--s4); max-width: var(--measure); }
 .finding-list li { counter-increment: finding; position: relative; padding-left: var(--s6); line-height: 1.55; }
 .finding-list li::before { content: counter(finding); position: absolute; left: 0; top: 0.1em; font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); }
 .finding-list strong { font-weight: 600; }
@@ -2453,7 +2455,7 @@ h1, h2, h3, .hook, .note { text-wrap: pretty; }
 .finding-list a:hover { text-decoration-color: currentColor; }
 /* Only rendered when it is not zero, so this is always news. */
 .fresh { font-size: var(--t-xs); color: var(--muted); margin: var(--s4) 0 0; }
-.funnel-note { color: var(--muted); font-size: var(--t-xs); max-width: 46ch; margin: var(--s5) 0 0; }
+.funnel-note { color: var(--muted); font-size: var(--t-xs); max-width: var(--measure); margin: var(--s5) 0 0; }
 
 /* section furniture */
 section { margin: 0 0 var(--s7); }
@@ -2480,7 +2482,7 @@ section > h2 {
   padding-bottom: var(--s3);
   border-bottom-color: var(--rule-strong);
 }
-.note { color: var(--muted); font-size: var(--t-xs); max-width: 52ch; margin-bottom: var(--s4); }
+.note { color: var(--muted); font-size: var(--t-xs); max-width: var(--measure); margin-bottom: var(--s4); }
 
 /* coverage map */
 .sector { margin-bottom: var(--s5); }
@@ -2673,7 +2675,7 @@ li.company { scroll-margin-top: 10rem; }
 .company .builds {
   font-size: var(--t-sm);
   margin: 0 0 var(--s1);
-  max-width: 66ch;
+  max-width: var(--measure);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -2815,7 +2817,7 @@ a.ev:hover { border-color: var(--ink); }
    because on most rows it is the only concrete sentence there — and set in ink
    rather than muted, so a row that has one reads differently at a glance from a
    row that does not. */
-.builds { margin: 0 0 var(--s0h); max-width: 56ch; color: var(--ink); }
+.builds { margin: 0 0 var(--s0h); max-width: var(--measure); color: var(--ink); }
 /* The attribution is not decoration. This line is the company's own account of
    itself and the row must never let it read as something we checked. */
 .says {
@@ -2826,7 +2828,7 @@ a.ev:hover { border-color: var(--ink); }
   letter-spacing: 0.07em;
   white-space: nowrap;
 }
-.desc { margin: 0 0 var(--s0h); max-width: 56ch; color: var(--muted); font-size: var(--t-sm); }
+.desc { margin: 0 0 var(--s0h); max-width: var(--measure); color: var(--muted); font-size: var(--t-sm); }
 .rdi {
   font-family: var(--mono);
   font-size: var(--t-micro);
@@ -2908,7 +2910,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .widget { min-width: 0; border-top: 1px solid var(--rule); padding-top: var(--s3); }
 .widget-head { margin: 0 0 var(--s2); }
 .widget-head h2 { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s1); }
-.widget-meta { margin: 0; font-size: var(--t-xs); color: var(--muted); max-width: 60ch; }
+.widget-meta { margin: 0; font-size: var(--t-xs); color: var(--muted); max-width: var(--measure); }
 .widget-meta strong { color: var(--ink); font-weight: 500; }
 .widget-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
 @media (min-width: 46rem) { .widget-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -2957,7 +2959,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .ask-bar input { flex: 1 1 auto; min-width: 0; font: inherit; font-size: var(--t-sm); padding: var(--s2) var(--s3); border: 1px solid var(--rule-strong); border-radius: var(--radius); background: var(--raise); color: var(--ink); }
 .ask-bar button { font: inherit; font-size: var(--t-sm); padding: var(--s2) var(--s4); border: 1px solid var(--ink); border-radius: var(--radius); background: var(--ink); color: var(--paper); cursor: pointer; }
 .ask-bar button:disabled { opacity: 0.5; cursor: wait; }
-.ask-note { font-size: var(--t-xs); color: var(--muted); margin: var(--s1) 0 0; max-width: 64ch; }
+.ask-note { font-size: var(--t-xs); color: var(--muted); margin: var(--s1) 0 0; max-width: var(--measure); }
 .ask-out:empty { display: none; }
 .ask-out { margin-top: var(--s3); border-left: 2px solid var(--rule-strong); padding-left: var(--s3); }
 .ask-answer { margin: 0 0 var(--s1); }
@@ -3061,7 +3063,7 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
 .detail .eyebrow a:hover { color: var(--ink); }
 /* Why a thing is what it is. Muted, because it is always explaining something else
    on the page rather than being the thing itself. */
-.provenance { font-size: var(--t-sm); color: var(--muted); max-width: 60ch; }
+.provenance { font-size: var(--t-sm); color: var(--muted); max-width: var(--measure); }
 /* The classifier's reasoning, printed as written. Set apart so it cannot be mistaken
    for the page speaking in its own voice. */
 .note-verbatim {
@@ -3070,7 +3072,7 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
   border-left: 2px solid var(--rule-strong);
   background: var(--raise);
   font-size: var(--t-sm);
-  max-width: 60ch;
+  max-width: var(--measure);
 }
 .rdi-full { font-family: var(--mono); font-size: var(--t-sm); margin: 0 0 var(--s2); }
 .evidence { list-style: none; margin: 0; padding: 0; }
@@ -3176,7 +3178,7 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 /* methodology */
 .method h3 { font-size: var(--t-body); margin: var(--s5) 0 var(--s2); }
-.method p, .method li { font-size: var(--t-sm); color: var(--muted); max-width: 56ch; }
+.method p, .method li { font-size: var(--t-sm); color: var(--muted); max-width: var(--measure); }
 .method a { color: var(--ink); }
 .rules { list-style: none; margin: 0 0 var(--s4); padding: 0; }
 .rules li { margin-bottom: var(--s0h); display: flex; gap: var(--s2); align-items: baseline; }
