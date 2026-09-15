@@ -1693,7 +1693,7 @@ describe('searching and one company at a time', () => {
 		expect(row).toContain('Benchtop assay kits for district hospitals.');
 		expect(row).toContain('2 public traces');
 		// What the two are, not only how many.
-		expect(row).toMatch(/2 public traces: [a-z ]+ and [a-z ]+</);
+		expect(row).toMatch(/2 public traces<\/span><span class="trace-shape">[a-z ]+ and [a-z ]+</);
 		expect(row).toContain('website');
 		expect(row).toContain('incubator listing Jan 2026');
 		expect(row).toContain('added to Upstream today');

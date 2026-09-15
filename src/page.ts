@@ -1053,7 +1053,9 @@ function traceLine(company: Company): string {
 	const said = n === 0 ? 'no public trace' : n === 1 ? '1 public trace' : `${n} public traces`;
 	const shape = traceShape(company);
 	// Emphasised only where it is the finding. At five traces it is just a number.
-	return `<span class="traces${n <= 1 ? ' quiet' : ''}">${said}${shape ? `: ${esc(shape)}` : ''}</span>`;
+	// The count is the sort key and keeps the mono; what the traces are is read, not scanned,
+	// so it sits under the count in the body face and wraps inside the side column.
+	return `<span class="traces${n <= 1 ? ' quiet' : ''}"><span class="trace-n">${said}</span>${shape ? `<span class="trace-shape">${esc(shape)}</span>` : ''}</span>`;
 }
 
 /** Each kind of trace in words, one and many, in the order a reader weighs them. */
@@ -2616,7 +2618,8 @@ a.ev:hover { border-color: var(--ink); }
 /* Undated and unlocated are said, and said in the voice of an absence. */
 .meta-when.undated, .meta-where.unknown { font-style: italic; }
 .row-side {
-  flex: 0 0 auto;
+  /* A fixed width, so every row's name and description start and end on the same lines. */
+  flex: 0 0 13.5rem;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -2651,7 +2654,8 @@ a.ev:hover { border-color: var(--ink); }
 .only-shortlisted .company:not(.is-shortlisted) { display: none; }
 @media (max-width: 34rem) {
   .company { flex-direction: column; gap: var(--s1); }
-  .row-side { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .row-side { flex: 0 0 auto; flex-direction: row; align-items: center; flex-wrap: wrap; text-align: left; }
+  .row-side .traces { flex-basis: 100%; align-items: flex-start; }
 }
 
 /* coverage map, folded after the list */
@@ -2791,7 +2795,13 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .facts > * { white-space: nowrap; }
 /* The number the list is sorted by. Set in ink at one trace or none, because that
    is the claim; at five it is just a number and stays muted. */
-.traces { font-family: var(--mono); }
+.traces { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s0); }
+.trace-n { font-family: var(--mono); white-space: nowrap; }
+.trace-shape { font-size: var(--t-micro); line-height: 1.35; }
+/* On a company's page the count and what it is read as one fact in the line. */
+.facts .traces { display: inline; }
+.facts .trace-shape { font-size: inherit; }
+.facts .trace-shape::before { content: ': '; }
 .traces.quiet { color: var(--ink); }
 /* The page's one yellow, and the same meaning it has always had: nobody has noticed
    this company yet. It moved off a pill and onto the fact itself, which is a
