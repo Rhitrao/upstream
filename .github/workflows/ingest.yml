@@ -177,8 +177,11 @@ jobs:
           git add -A -- $paid
           git commit -m "cache: answers from $(date -u +%Y-%m-%d)"
 
-          # One rebase attempt, because a human may have pushed while this ran.
-          # Anything past that is a real conflict and wants a person.
-          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          # One rebase attempt, because a human may have pushed while this ran. This
+          # commit holds nothing but cache files, and a conflict in one (wayback.json on
+          # 15 September 2026, when a person had committed lookups made by hand) is
+          # settled in favour of this run's copy rather than leaving $0.97 of answers
+          # in an artifact: during a rebase, "theirs" is the commit being replayed.
+          git pull --rebase --autostash -X theirs origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
           echo "Committed $(git rev-parse --short HEAD)."
