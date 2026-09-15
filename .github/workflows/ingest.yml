@@ -103,6 +103,7 @@ jobs:
             ingest/cache/products.json
             ingest/cache/contacts.json
             ingest/cache/rdap.json
+            ingest/cache/wayback.json
             ingest/cache/papers.json
             ingest/cache/batch_pending.json
             run.log
@@ -156,10 +157,10 @@ jobs:
           # on the map, product descriptions say what it builds, and both were paid
           # for in dollars. Leaving either behind means re-buying it tomorrow.
           paid="ingest/cache/classify.json ingest/cache/products.json"
-          # And three that cost no dollars but real time: a contact line, a domain's
-          # registration date and a company's papers, each looked up once and refreshed
+          # And four that cost no dollars but real time: a contact line, a domain's
+          # registration date, its first archived copy and a company's papers, each looked up once and refreshed
           # monthly. Not committed, every night would ask every registry again.
-          paid="$paid ingest/cache/contacts.json ingest/cache/rdap.json ingest/cache/papers.json"
+          paid="$paid ingest/cache/contacts.json ingest/cache/rdap.json ingest/cache/wayback.json ingest/cache/papers.json"
           # A batch the run stopped waiting for: its id, so the next run collects the
           # answers instead of paying for them twice. Removed once collected.
           if [ -f ingest/cache/batch_pending.json ] || git ls-files --error-unmatch ingest/cache/batch_pending.json >/dev/null 2>&1; then

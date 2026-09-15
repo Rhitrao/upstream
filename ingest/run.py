@@ -21,7 +21,7 @@ import requests
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap
+from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap, wayback
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, fsid, grants_csv, nmicps, rtbi, sine, tides, venture_center
@@ -478,6 +478,7 @@ def main() -> int:
     # cached in the repo, so a night only asks about what is new or a month old.
     contacts = contact.lookup(on_map, max_seconds=300)
     registered = rdap.lookup(on_map, max_seconds=300)
+    captured = wayback.lookup(on_map, max_seconds=300)
     # By the name the page prints, which is the name the cache was filled with: a
     # capitalised register name reads differently to the rule that skips people's names.
     found_papers = papers.lookup([dataclasses.replace(c, name=names.display(c.name)) for c in on_map], max_seconds=600)
@@ -486,6 +487,7 @@ def main() -> int:
         if found is not None:
             company.contact_email, company.contact_page = found.email, found.page
         company.domain_registered = registered.get(company.id)
+        company.web_first_capture = captured.get(company.id)
         paper = found_papers.get(company.id)
         if paper is not None:
             company.papers = {
@@ -496,6 +498,7 @@ def main() -> int:
     print(
         f"  {sum(1 for c in contacts.values() if c.email or c.page)} verified sites give a contact route; "
         f"{len(registered)} domains have a registration date; "
+        f"{len(captured)} homepages have a first archived copy; "
         f"{sum(1 for p in found_papers.values() if p.count)} companies are named as an author affiliation"
     )
 
@@ -572,6 +575,7 @@ def main() -> int:
                         "contact_email": enriched.get(company.id, company).contact_email,
                         "contact_page": enriched.get(company.id, company).contact_page,
                         "domain_registered": enriched.get(company.id, company).domain_registered,
+                        "web_first_capture": enriched.get(company.id, company).web_first_capture,
                         "papers": enriched.get(company.id, company).papers,
                     }
                 )

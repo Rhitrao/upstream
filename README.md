@@ -100,7 +100,11 @@ Measured, not guessed.
 - **Contact and domain age only from a website checked to be theirs.** An address on the company's
   own domain or a contact page, from 143 of 190 readable verified homepages, and the domain's RDAP
   registration date for 208 of 220 domains. A domain's age is not the company's. .co and .io have no
-  public RDAP service, so those domains have no date.
+  public RDAP service, so those domains have no date. The Wayback Machine's first copy of the homepage
+  is shown the same way, as when the public web noticed the page; neither date ever dates the row
+  (98 of 170 undated rows have a domain date on 15 September, and none of those domains is recent
+  enough to reach Tier B if it did). The archive is often down, so a failed lookup is kept as a failure
+  and asked again, never as "not archived".
 - **Most rows cannot say what the company builds.** Only a homepage checked to be theirs is read, and
   what it says is quoted as their words. 115 of 607 rows have such a sentence; 252 publish a website
   at all. ([009](docs/decisions/009-homepage-product-read.md))

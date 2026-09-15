@@ -1653,6 +1653,15 @@ function whoLines(company: Company): { label: string; text: string; note: string
 			note: 'from the domain registry (RDAP); the domain’s age, not the company’s — a domain can be bought years earlier, or second-hand',
 		});
 	}
+	const site = verified ? safeUrl(company.website) : null;
+	if (site && company.web_first_capture) {
+		out.push({
+			label: 'First archived',
+			text: shortDate(company.web_first_capture),
+			note: 'the Wayback Machine’s oldest copy of their homepage: when the public web first noticed the page, not when the company began',
+			href: `https://web.archive.org/web/*/${new URL(site).hostname}`,
+		});
+	}
 	return out;
 }
 

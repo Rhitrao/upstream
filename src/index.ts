@@ -342,6 +342,7 @@ interface CompanyInput {
 	contact_email?: string | null;
 	contact_page?: string | null;
 	domain_registered?: string | null;
+	web_first_capture?: string | null;
 	/** {count, works, query_url}; stored as JSON. */
 	papers?: unknown;
 }
@@ -417,9 +418,9 @@ INSERT INTO companies (
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
   website_identity, website_identity_note, entity_type, entity_note, source_year, source_year_type,
   founders, founders_source, dpiit_status, dpiit_stage, contact_email, contact_page, domain_registered, papers,
-  description_source, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
+  description_source, web_first_capture, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
 ) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28,
-  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?14, ?15, ?16, 0, 'C', ?17)
+  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   -- A register label never replaces a real description; a real one replaces a label.
@@ -457,6 +458,8 @@ ON CONFLICT(id) DO UPDATE SET
                            ELSE COALESCE(excluded.contact_page, companies.contact_page) END,
   domain_registered = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
                            ELSE COALESCE(excluded.domain_registered, companies.domain_registered) END,
+  web_first_capture = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
+                           ELSE COALESCE(excluded.web_first_capture, companies.web_first_capture) END,
   papers        = COALESCE(excluded.papers,        companies.papers),
   website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
   website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
@@ -657,13 +660,15 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		}
 		// Read off a homepage, so held to the product line's gate: an address whose
 		// identity was not confirmed cannot give a reader someone else's inbox.
-		for (const field of ['contact_email', 'contact_page', 'domain_registered'] as const) {
+		for (const field of ['contact_email', 'contact_page', 'domain_registered', 'web_first_capture'] as const) {
 			if (str(c[field]) !== null && identity !== 'verified') {
 				return json({ error: `companies[${i}].${field} needs website_identity 'verified'` }, 400);
 			}
 		}
-		if (str(c.domain_registered) !== null && !/^\d{4}-\d{2}-\d{2}$/.test(str(c.domain_registered)!)) {
-			return json({ error: `companies[${i}].domain_registered must be a YYYY-MM-DD date` }, 400);
+		for (const field of ['domain_registered', 'web_first_capture'] as const) {
+			if (str(c[field]) !== null && !/^\d{4}-\d{2}-\d{2}$/.test(str(c[field])!)) {
+				return json({ error: `companies[${i}].${field} must be a YYYY-MM-DD date` }, 400);
+			}
 		}
 		if (c.papers !== undefined && c.papers !== null && (typeof c.papers !== 'object' || Array.isArray(c.papers) || typeof (c.papers as { count?: unknown }).count !== 'number')) {
 			return json({ error: `companies[${i}].papers must be an object with a count` }, 400);
@@ -890,6 +895,7 @@ async function applyIngest(
 			str(c.domain_registered),
 			c.papers ? JSON.stringify(c.papers) : null,
 			str(c.description) ? str(c.description_source) : null,
+			str(c.web_first_capture),
 		);
 	});
 
@@ -1275,6 +1281,7 @@ const CSV_COLUMNS = [
 	'contact_email',
 	'contact_page',
 	'domain_registered',
+	'web_first_capture',
 	'papers_found',
 	'city',
 	'state',
@@ -1330,6 +1337,7 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			c.website_identity === 'verified' ? c.contact_email : '',
 			c.website_identity === 'verified' ? c.contact_page : '',
 			c.website_identity === 'verified' ? c.domain_registered : '',
+			c.website_identity === 'verified' ? c.web_first_capture : '',
 			papersOf(c.papers)?.count ?? '',
 			c.city,
 			c.state,

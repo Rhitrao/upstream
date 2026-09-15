@@ -2260,7 +2260,7 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 		expect(await res.text()).toContain("contact_email needs website_identity 'verified'");
 	});
 
-	it('shows founders with their source, contact and domain age from a verified site, and papers outside the trace count', async () => {
+	it('shows founders with their source, contact, domain age and first archived copy from a verified site, and papers outside the trace count', async () => {
 		const papers = {
 			count: 2,
 			works: [{ title: 'Graphene membranes for desalination', year: 2025, url: 'https://doi.org/10.1000/xyz' }],
@@ -2283,6 +2283,7 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 					contact_email: 'hello@kadamb.example',
 					contact_page: 'https://kadamb.example/contact',
 					domain_registered: '2016-03-02',
+					web_first_capture: '2019-07-14',
 					papers,
 				},
 			],
@@ -2293,6 +2294,8 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 		expect(html).toContain('<a href="mailto:hello@kadamb.example" rel="noopener nofollow">hello@kadamb.example</a>');
 		expect(html).toContain('<dt>Domain registered</dt><dd>2 Mar 2016</dd>');
 		expect(html).toContain('the domain’s age, not the company’s');
+		expect(html).toContain('<dt>First archived</dt><dd><a href="https://web.archive.org/web/*/kadamb.example" rel="noopener nofollow">14 Jul 2019</a></dd>');
+		expect(html).toContain('not when the company began');
 		expect(html).toContain('2 works list this company as an author affiliation, in OpenAlex');
 		expect(html).toContain('Graphene membranes for desalination');
 		expect(html).not.toContain('Founders: no source this page reads names them');
@@ -2300,14 +2303,15 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 
 		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
 		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
-		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","papers_found"');
-		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2"');
+		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","papers_found"');
+		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","2"');
 
 		// An address later found not to be theirs takes what was read off it with it.
 		await post({ source: 'sine-iitb', companies: [{ id: 'kadamb-biolabs', name: 'Kadamb Biolabs Pvt Ltd', website: 'https://kadamb.example', website_identity: 'discovered' }] });
 		const after = await page('kadamb-biolabs');
 		expect(after).not.toContain('hello@kadamb.example');
 		expect(after).not.toContain('Domain registered');
+		expect(after).not.toContain('First archived');
 		expect(after).toContain('Prof. A Rao, B Shah');
 	});
 });

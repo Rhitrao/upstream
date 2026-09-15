@@ -105,6 +105,9 @@ class Company:
     contact_email: str | None = None
     contact_page: str | None = None
     domain_registered: str | None = None
+    # The Internet Archive's first copy of the homepage: when the public web noticed
+    # the page, not when the company began. See ingest/wayback.py.
+    web_first_capture: str | None = None
     papers: dict | None = None
     city: str | None = None
     state: str | None = None

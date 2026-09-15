@@ -75,6 +75,8 @@ export interface Company {
 	contact_page: string | null;
 	/** The website domain's RDAP registration date. The domain's age, not the company's. */
 	domain_registered: string | null;
+	/** The Wayback Machine's first copy of the homepage. When the web noticed the page, not the company's age. */
+	web_first_capture: string | null;
 	/** JSON: {count, works: [{title, year, url}], query_url} from OpenAlex affiliations. */
 	papers: string | null;
 	first_seen: string | null;
