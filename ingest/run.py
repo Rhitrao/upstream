@@ -21,7 +21,7 @@ import requests
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap, wayback
+from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap, tags, wayback
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, fsid, grants_csv, nmicps, rtbi, sine, tides, venture_center
@@ -488,6 +488,11 @@ def main() -> int:
             company.contact_email, company.contact_page = found.email, found.page
         company.domain_registered = registered.get(company.id)
         company.web_first_capture = captured.get(company.id)
+        # Read from the words a reader is shown, so a tag never rests on a label or on a
+        # homepage nobody confirmed is theirs.
+        company.build_tags, company.domain_tags = tags.tags(
+            tags.described_text(company.product, company.website_identity == "verified", company.description, company.description_is_label)
+        )
         paper = found_papers.get(company.id)
         if paper is not None:
             company.papers = {
@@ -576,6 +581,8 @@ def main() -> int:
                         "contact_page": enriched.get(company.id, company).contact_page,
                         "domain_registered": enriched.get(company.id, company).domain_registered,
                         "web_first_capture": enriched.get(company.id, company).web_first_capture,
+                        "build_tags": enriched.get(company.id, company).build_tags,
+                        "domain_tags": enriched.get(company.id, company).domain_tags,
                         "papers": enriched.get(company.id, company).papers,
                     }
                 )

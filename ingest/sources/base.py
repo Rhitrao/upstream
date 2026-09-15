@@ -108,6 +108,9 @@ class Company:
     # The Internet Archive's first copy of the homepage: when the public web noticed
     # the page, not when the company began. See ingest/wayback.py.
     web_first_capture: str | None = None
+    # Keyword tags from a real description (ingest/tags.py): what it builds, where it is used.
+    build_tags: list[str] | None = None
+    domain_tags: list[str] | None = None
     papers: dict | None = None
     city: str | None = None
     state: str | None = None

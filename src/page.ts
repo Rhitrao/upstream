@@ -36,6 +36,9 @@ import {
 	type Substance,
 	type Findings,
 	OUTSIDE_TAXONOMY,
+	BUILD_TAGS,
+	DOMAIN_TAGS,
+	tagsOf,
 } from './db';
 
 /**
@@ -81,6 +84,9 @@ export interface PageView {
 	kind: KindChoice | null;
 	/** A register status the list is filtered to, or null. */
 	dpiit: string | null;
+	/** Keyword tags the list is filtered to: what it builds, where it is used. */
+	build: string | null;
+	domain: string | null;
 	/** The page's two halves, counted over every record. */
 	substance: Substance;
 	/** The numbers behind the findings under the masthead. null for the sample data. */
@@ -793,6 +799,8 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		described: view.described === 'said' ? null : (view.described ?? 'all'),
 		kind: view.kind === 'company' ? null : (view.kind ?? 'all'),
 		dpiit: view.dpiit,
+		build: view.build,
+		domain: view.domain,
 		sort: view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -867,6 +875,8 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		],
 		['kind', view.kind === 'company' ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
+		['build', view.build ? `Builds: ${view.build}` : null],
+		['domain', view.domain ? `Used in: ${view.domain}` : null],
 		['age', view.age !== 'recent' ? `Started: ${AGE_LABELS[view.age].toLowerCase()}` : null],
 	];
 	return named
@@ -980,6 +990,10 @@ function controls(view: PageView): string {
 		.concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], describedNow)))
 		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'Described or not', describedNow)])
 		.join('');
+	// Keyword tags, and said to be keywords in the label: a filter a reader cannot tell was
+	// read off the words would pass for someone's judgement.
+	const buildOptions = [option('', 'Anything', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.build ?? ''))).join('');
+	const domainOptions = [option('', 'Anywhere', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.domain ?? ''))).join('');
 	const count = activeFilters(view).filter((f) => f.key !== 'q').length;
 
 	const field = (id: string, label: string, options: string) =>
@@ -1005,6 +1019,8 @@ function controls(view: PageView): string {
         ${field('age', 'Started', ageOptions)}
         ${field('traces', 'Public traces', traceOptions)}
         ${field('described', 'What it builds', describedOptions)}
+        ${field('build', 'Builds (by keyword)', buildOptions)}
+        ${field('domain', 'Used in (by keyword)', domainOptions)}
         <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
         <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
         <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
@@ -1077,6 +1093,26 @@ const ENTITY_LABELS: Record<string, string> = {
 function entityTag(company: Company): string {
 	const label = company.entity_type ? ENTITY_LABELS[company.entity_type] : undefined;
 	return label ? ` <span class="entity-tag">${label}</span>` : '';
+}
+
+/**
+ * The keyword tags, each a link to the list filtered by it, and said to be keywords. Where a
+ * description exists and no word matched, it says so; where none exists, nothing is claimed.
+ */
+function tagLine(company: Company): string {
+	const builds = tagsOf(company.build_tags);
+	const domains = tagsOf(company.domain_tags);
+	// Nothing to read, nothing to say: tags are only ever read from a real description.
+	if ((company.build_tags === null && company.domain_tags === null) || !(describedBySource(company) || (company.product && company.website_identity === 'verified'))) return '';
+	const link = (key: 'build' | 'domain', tag: string) => `<a href="${esc(`${BASE_PATH}${query({ [key]: tag })}`)}#list">${esc(tag)}</a>`;
+	if (!builds.length && !domains.length) {
+		return '<p class="provenance tags">By keyword: no tag. Nothing in its description matched the words the tags are read from.</p>';
+	}
+	const parts = [
+		builds.length ? `builds ${builds.map((t) => link('build', t)).join(', ')}` : null,
+		domains.length ? `used in ${domains.map((t) => link('domain', t)).join(', ')}` : null,
+	].filter(Boolean);
+	return `<p class="provenance tags">By keyword: ${parts.join('; ')}. Matched from the words of its description, not checked.</p>`;
 }
 
 /** What a sub-sector placement rests on, in three words, for beside the placement. */
@@ -2165,6 +2201,7 @@ export function renderCompanyPage(view: CompanyView): string {
 			}`
 				: '<p class="provenance">Not placed in any sub-sector.</p>'
 		}
+    ${tagLine(company)}
   </section>
 
   <section>

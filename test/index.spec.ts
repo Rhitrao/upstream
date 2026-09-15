@@ -862,6 +862,38 @@ describe('GET /upstream (the page)', () => {
 		expect(ranked).not.toContain('Undated Co');
 	});
 
+	it('filters by keyword tags, says they are keywords, and refuses a tag outside the vocabulary', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'drone-co', name: 'Drone Co', description: 'Agricultural drones for crop spraying.', sector_id: '2', subsector_id: '2.7', build_tags: ['hardware'], domain_tags: ['agriculture & food', 'space & aerospace'] },
+				{ id: 'ledger-co', name: 'Ledger Co', description: 'A blockchain document locker.', sector_id: '5', subsector_id: '5.1', build_tags: ['software'], domain_tags: [] },
+				{ id: 'quiet-co', name: 'Quiet Co', description: 'Superposition, thoughtfully.', sector_id: '2', subsector_id: '2.1', build_tags: [], domain_tags: [] },
+			],
+		});
+		const hardware = await page('?tier=all&age=all&build=hardware');
+		expect(hardware).toContain('id="c-drone-co"');
+		expect(hardware).not.toContain('id="c-ledger-co"');
+		expect(hardware).toContain('Builds: hardware');
+		const farms = await page('?tier=all&age=all&domain=agriculture+%26+food');
+		expect(farms).toContain('id="c-drone-co"');
+		expect(farms).not.toContain('id="c-quiet-co"');
+		// An unknown tag is ignored rather than filtering to an empty list that looks like no matches.
+		expect(await page('?tier=all&age=all&build=spaceships')).toContain('id="c-ledger-co"');
+
+		const detail1 = await detail('drone-co');
+		expect(detail1).toContain('By keyword: builds <a href="/upstream?build=hardware#list">hardware</a>; used in');
+		expect(detail1).toContain('Matched from the words of its description, not checked.');
+		expect(await detail('quiet-co')).toContain('By keyword: no tag.');
+
+		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all&build=hardware`)).text();
+		expect(csv).toContain('"hardware","agriculture & food; space & aerospace"');
+
+		const refused = await post({ source: 'sine-iitb', companies: [{ id: 'x', name: 'X', build_tags: ['spaceships'] }] });
+		expect(refused.status).toBe(400);
+		expect(await refused.text()).toContain('build_tags must be a list drawn from');
+	});
+
 	it('calls a grant list category a label, not a description, and says whose label it is', async () => {
 		await post({
 			source: 'grants-csv',
@@ -2339,8 +2371,8 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 
 		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
 		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
-		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","papers_found"');
-		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","2"');
+		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","builds","used_in","papers_found"');
+		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","","","2"');
 
 		// An address later found not to be theirs takes what was read off it with it.
 		await post({ source: 'sine-iitb', companies: [{ id: 'kadamb-biolabs', name: 'Kadamb Biolabs Pvt Ltd', website: 'https://kadamb.example', website_identity: 'discovered' }] });

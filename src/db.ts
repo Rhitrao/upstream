@@ -77,6 +77,9 @@ export interface Company {
 	domain_registered: string | null;
 	/** The Wayback Machine's first copy of the homepage. When the web noticed the page, not the company's age. */
 	web_first_capture: string | null;
+	/** JSON arrays of keyword tags read from a real description (ingest/tags.py). NULL: not computed yet. */
+	build_tags: string | null;
+	domain_tags: string | null;
 	/** JSON: {count, works: [{title, year, url}], query_url} from OpenAlex affiliations. */
 	papers: string | null;
 	first_seen: string | null;
@@ -122,6 +125,10 @@ export interface Filters {
 	kind?: KindChoice | null;
 	/** What the DPIIT register's record says — see DPIIT_STATUS_PHRASES. null for any. */
 	dpiit?: string | null;
+	/** A keyword tag for what it builds (BUILD_TAGS), or null for any. */
+	build?: string | null;
+	/** A keyword tag for where it is used (DOMAIN_TAGS), or null for any. */
+	domain?: string | null;
 	/** How the list is ordered. See SORTS. */
 	sort: SortChoice;
 	limit: number;
@@ -179,6 +186,36 @@ export type DescribedChoice = (typeof DESCRIBED_CHOICES)[number];
 
 export const KIND_CHOICES = ['company', 'other'] as const;
 export type KindChoice = (typeof KIND_CHOICES)[number];
+/**
+ * The keyword vocabularies ingest/tags.py writes, in its order. Kept here so a filter can refuse
+ * a value no row can carry rather than quietly return nothing.
+ */
+export const BUILD_TAGS = ['hardware', 'software', 'biological or chemical'] as const;
+export const DOMAIN_TAGS = [
+	'health',
+	'agriculture & food',
+	'energy',
+	'mobility',
+	'space & aerospace',
+	'defence & security',
+	'water & environment',
+	'manufacturing & industry',
+	'buildings & construction',
+	'education',
+	'finance',
+] as const;
+
+/** A stored tag list, or [] for a missing or malformed one. */
+export function tagsOf(raw: string | null | undefined): string[] {
+	if (!raw) return [];
+	try {
+		const parsed: unknown = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed.filter((t): t is string => typeof t === 'string') : [];
+	} catch {
+		return [];
+	}
+}
+
 export const REGISTER_LABEL_PREFIX = 'DPIIT-recognised startup. Industry:';
 /**
  * What BIRAC's BIG lists print where a project title would be: the category the award was
@@ -429,6 +466,14 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 	if (filters.dpiit) {
 		clauses.push('c.dpiit_status = ?');
 		binds.push(filters.dpiit);
+	}
+	if (filters.build) {
+		clauses.push('EXISTS (SELECT 1 FROM json_each(c.build_tags) WHERE json_each.value = ?)');
+		binds.push(filters.build);
+	}
+	if (filters.domain) {
+		clauses.push('EXISTS (SELECT 1 FROM json_each(c.domain_tags) WHERE json_each.value = ?)');
+		binds.push(filters.domain);
 	}
 
 	if (filters.site === 'has') clauses.push("c.website IS NOT NULL AND c.website <> ''");

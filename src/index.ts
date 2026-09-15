@@ -51,6 +51,9 @@ import {
 	papersOf,
 	registerText,
 	labelSql,
+	BUILD_TAGS,
+	DOMAIN_TAGS,
+	tagsOf,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { accessConfig, identify } from './access';
@@ -172,6 +175,11 @@ function parseDescribedChoice(raw: string | null): DescribedChoice | null {
 function parseKind(raw: string | null): KindChoice | null {
 	if (raw === 'all') return null;
 	return raw === 'other' ? 'other' : 'company';
+}
+
+/** A tag from its vocabulary, or null: an unknown one would filter to nothing and look like no matches. */
+function parseTag(raw: string | null, vocabulary: readonly string[]): string | null {
+	return raw && vocabulary.includes(raw) ? raw : null;
 }
 
 function parseDpiit(raw: string | null): string | null {
@@ -344,6 +352,9 @@ interface CompanyInput {
 	contact_page?: string | null;
 	domain_registered?: string | null;
 	web_first_capture?: string | null;
+	/** Keyword tags from ingest/tags.py; an empty list is an answer, a missing one is not. */
+	build_tags?: unknown;
+	domain_tags?: unknown;
 	/** {count, works, query_url}; stored as JSON. */
 	papers?: unknown;
 }
@@ -419,9 +430,9 @@ INSERT INTO companies (
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
   website_identity, website_identity_note, entity_type, entity_note, source_year, source_year_type,
   founders, founders_source, dpiit_status, dpiit_stage, contact_email, contact_page, domain_registered, papers,
-  description_source, web_first_capture, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
+  description_source, web_first_capture, build_tags, domain_tags, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
 ) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28,
-  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?14, ?15, ?16, 0, 'C', ?17)
+  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?39, ?40, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   -- A register label never replaces a real description; a real one replaces a label.
@@ -462,6 +473,10 @@ ON CONFLICT(id) DO UPDATE SET
   web_first_capture = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
                            ELSE COALESCE(excluded.web_first_capture, companies.web_first_capture) END,
   papers        = COALESCE(excluded.papers,        companies.papers),
+  -- Recomputed by every run from the row's current words, so an answer replaces the old one
+  -- (an empty list included: a description that became a label takes its tags with it).
+  build_tags    = COALESCE(excluded.build_tags,    companies.build_tags),
+  domain_tags   = COALESCE(excluded.domain_tags,   companies.domain_tags),
   website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
   website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
   -- One source that publishes websites is enough to have looked.
@@ -669,6 +684,16 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 		for (const field of ['domain_registered', 'web_first_capture'] as const) {
 			if (str(c[field]) !== null && !/^\d{4}-\d{2}-\d{2}$/.test(str(c[field])!)) {
 				return json({ error: `companies[${i}].${field} must be a YYYY-MM-DD date` }, 400);
+			}
+		}
+		for (const [field, allowed] of [
+			['build_tags', BUILD_TAGS],
+			['domain_tags', DOMAIN_TAGS],
+		] as const) {
+			const value = c[field];
+			if (value === undefined || value === null) continue;
+			if (!Array.isArray(value) || value.some((t) => !(allowed as readonly string[]).includes(t as string))) {
+				return json({ error: `companies[${i}].${field} must be a list drawn from ${allowed.join(', ')}` }, 400);
 			}
 		}
 		if (c.papers !== undefined && c.papers !== null && (typeof c.papers !== 'object' || Array.isArray(c.papers) || typeof (c.papers as { count?: unknown }).count !== 'number')) {
@@ -897,6 +922,8 @@ async function applyIngest(
 			c.papers ? JSON.stringify(c.papers) : null,
 			str(c.description) ? str(c.description_source) : null,
 			str(c.web_first_capture),
+			Array.isArray(c.build_tags) ? JSON.stringify(c.build_tags) : null,
+			Array.isArray(c.domain_tags) ? JSON.stringify(c.domain_tags) : null,
 		);
 	});
 
@@ -1131,6 +1158,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		described: parseDescribedChoice(url.searchParams.get('described')),
 		kind: parseKind(url.searchParams.get('kind')),
 		dpiit: parseDpiit(url.searchParams.get('dpiit')),
+		build: parseTag(url.searchParams.get('build'), BUILD_TAGS),
+		domain: parseTag(url.searchParams.get('domain'), DOMAIN_TAGS),
 		// Bound as a value, never spliced, so any string is safe; one that names no
 		// state simply matches nothing and the list says so.
 		state: (url.searchParams.get('state') || '').trim().slice(0, 60) || null,
@@ -1189,7 +1218,7 @@ async function page(url: URL, env: Env): Promise<Response> {
 		// The chosen half on its own, so the result line counts out of it.
 		demo
 			? Promise.resolve(null)
-			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null }),
+			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null }),
 	]);
 	const ask = askMode(env);
 
@@ -1214,6 +1243,8 @@ async function page(url: URL, env: Env): Promise<Response> {
 		described: ranked.described ?? null,
 		kind: ranked.kind ?? null,
 		dpiit: ranked.dpiit ?? null,
+		build: ranked.build ?? null,
+		domain: ranked.domain ?? null,
 		substance,
 		findings,
 		origin: url.origin,
@@ -1283,6 +1314,8 @@ const CSV_COLUMNS = [
 	'contact_page',
 	'domain_registered',
 	'web_first_capture',
+	'builds',
+	'used_in',
 	'papers_found',
 	'city',
 	'state',
@@ -1339,6 +1372,8 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			c.website_identity === 'verified' ? c.contact_page : '',
 			c.website_identity === 'verified' ? c.domain_registered : '',
 			c.website_identity === 'verified' ? c.web_first_capture : '',
+			tagsOf(c.build_tags).join('; '),
+			tagsOf(c.domain_tags).join('; '),
 			papersOf(c.papers)?.count ?? '',
 			c.city,
 			c.state,
