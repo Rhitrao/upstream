@@ -2401,6 +2401,21 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 	});
 });
 
+describe('what a shared link shows', () => {
+	it('serves a share card and a favicon, and names them in the head of the list and a company page', async () => {
+		const card = await SELF.fetch(`${ORIGIN}/upstream/og.png`);
+		expect(card.status).toBe(200);
+		expect(card.headers.get('content-type')).toBe('image/png');
+		expect(new Uint8Array(await card.arrayBuffer()).slice(1, 4)).toEqual(new Uint8Array([0x50, 0x4e, 0x47]));
+		expect((await SELF.fetch(`${ORIGIN}/upstream/favicon.svg`)).headers.get('content-type')).toBe('image/svg+xml');
+		const list = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		expect(list).toContain(`<meta property="og:image" content="${ORIGIN}/upstream/og.png">`);
+		expect(list).toContain('<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">');
+		await post({ source: 'test', companies: [{ id: 'card-co', name: 'Card Co' }] });
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/card-co`)).text()).toContain('<meta property="og:title" content="Card Co — Upstream">');
+	});
+});
+
 describe('what the traces are', () => {
 	it('names each kind once, counts repeats, and leaves out what is not a trace', async () => {
 		const { traceShape } = await import('../src/page');

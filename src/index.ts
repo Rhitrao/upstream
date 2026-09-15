@@ -56,6 +56,7 @@ import {
 	tagsOf,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
+import { FAVICON_SVG, OG_PNG_BASE64 } from './og';
 import { accessConfig, identify } from './access';
 import { anthropicCreate, askMode, handleAsk, queryAskLog, renderAskLog } from './ask';
 import { PRIVATE_HEADERS, renderNotebook, renderNoteEditor } from './notes';
@@ -1558,6 +1559,14 @@ export default {
 		switch (path) {
 			case BASE:
 				return isRead ? page(url, env) : methodNotAllowed('GET, HEAD');
+
+			case `${BASE}/og.png`:
+				return new Response(Uint8Array.from(atob(OG_PNG_BASE64), (c) => c.charCodeAt(0)), {
+					headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=604800' },
+				});
+
+			case `${BASE}/favicon.svg`:
+				return new Response(FAVICON_SVG, { headers: { 'content-type': 'image/svg+xml', 'cache-control': 'public, max-age=604800' } });
 
 			case `${BASE}/export.csv`:
 				return isRead ? exportCsv(url, env) : methodNotAllowed('GET, HEAD');

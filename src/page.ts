@@ -2126,6 +2126,16 @@ export function renderCompanyPage(view: CompanyView): string {
 <title>${esc(company.name)} &mdash; Upstream</title>
 <meta name="description" content="${esc(company.product ?? registerText(company.description, company.dpiit_status) ?? company.name)}">
 <meta name="color-scheme" content="light dark">
+<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Upstream">
+<meta property="og:title" content="${esc(company.name)} — Upstream">
+<meta property="og:description" content="${esc(company.product ?? registerText(company.description, company.dpiit_status) ?? company.name)}">
+<meta property="og:url" content="${esc(pageUrl)}">
+<meta property="og:image" content="${esc(`${new URL(pageUrl).origin}${BASE_PATH}/og.png`)}">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="${esc(`${BASE_PATH}/c/${company.id}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2258,6 +2268,7 @@ export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name
 <title>No company at this address &mdash; Upstream</title>
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
+<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
 <style>${STYLES}</style>
 </head>
@@ -3552,6 +3563,18 @@ export function renderPage(view: PageView): string {
 <title>Upstream &mdash; Indian deep tech, ranked by obscurity</title>
 <meta name="description" content="Every other list ranks by how impressive a company looks, which is why every fund keeps finding the same twenty names. ${view.tracked} early-stage Indian deep-tech companies, sorted by obscurity, with the evidence on every row.">
 <meta name="color-scheme" content="light dark">
+<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Upstream">
+<meta property="og:title" content="Upstream — Indian deep tech, ranked by obscurity">
+<meta property="og:description" content="Indian deep-tech companies that say what they build, sorted so the least-noticed come first, with the evidence on every row.">
+<meta property="og:url" content="${esc(`${view.origin}${BASE_PATH}`)}">
+<meta property="og:image" content="${esc(`${view.origin}${BASE_PATH}/og.png`)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <!-- The same list is reachable by several orderings of the same parameters, and by
      parameters sitting at their defaults. This is the one spelling of it. -->
 <link rel="canonical" href="${esc(`${BASE_PATH}${query(viewParams(view))}`)}">
