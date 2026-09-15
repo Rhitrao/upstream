@@ -703,6 +703,18 @@
   "source": "venture-center",
   "subsector_id": "4.5"
  },
+ "aeroforge-labs": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "ce5f8031436554dc",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Aeroforge Labs Private Limited",
+  "note": "Aeroforge's indigenous AI-powered drones with edge-AI, autonomous flight capabilities, and real-time perception systems for asset inspection align with autonomous navigation and perception technologies in the Intelligent Systems & Robotics sub-sector.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "aerofuture-technologies": {
   "classified_at": "2026-09-12T12:04:03+00:00",
   "hash": "a75d1646cd4305de",
@@ -801,6 +813,18 @@
   "project_type": "Advanced and reusable launch vehicles, propulsion innovation (cryogenic / green propellants)",
   "sector_id": "2",
   "subsector_id": "2.5"
+ },
+ "aeroworks-drone-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "258285365d4239a9",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Aeroworks Drone Technologies Private Limited",
+  "note": "Aeroworks develops UAV systems with autonomous navigation capabilities and real-time imaging for field operations, directly addressing the autonomous navigation and perception project type under Intelligent Systems & Robotics.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
  },
  "aethera-aero-works": {
   "classified_at": "2026-09-12T12:04:20+00:00",
@@ -1020,6 +1044,18 @@
   "source": "tides-iitr",
   "subsector_id": "5.2"
  },
+ "agrivision4u": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "9726554ad6fc9c35",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Agrivision4U Private Limited",
+  "note": "Agrivision4U is an education platform delivering online learning programs, certification courses, and mentorship in agriculture and related fields, which directly aligns with digital skilling and workforce development in vernacular accessibility.",
+  "project_type": "Vernacular content platforms for digital skilling and literacy",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.6"
+ },
  "agrivista-ai": {
   "classified_at": "2026-09-15T01:40:05+00:00",
   "hash": "cf3c9ad73f336937",
@@ -1067,6 +1103,18 @@
   "source": "nmicps-tih",
   "subsector_id": null
  },
+ "agronest-ventures": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "20103031535d3aed",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AgroNest Ventures Private Limited",
+  "note": "AgroNest's AI-enabled smart fertilizer dispenser automates precise nutrient application based on crop and field conditions, directly matching the fertilization management focus within this project type.",
+  "project_type": "AI-driven soil, irrigation and fertilization management",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
+ },
  "agrotick": {
   "classified_at": "2026-09-15T01:40:26+00:00",
   "hash": "a85b5df95f48a3ce",
@@ -1089,6 +1137,30 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "agrozee-organics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "eab4587b686858b6",
+  "missing": "food processing and shelf-life extension",
+  "model": "claude-haiku-4-5",
+  "name": "Agrozee Organics Pvt Ltd",
+  "note": "Agrozee Organics addresses food preservation and nutritional fortification of millet products, which falls outside the biotechnology and biomanufacturing taxonomy that focuses on synthetic biology, pharmaceuticals, medical devices, and advanced therapeutics.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
+ "agsync": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "519a6246d3562e85",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Agsync Private Limited",
+  "note": "AgSync uses multispectral satellite data and AI models to detect crop stress, disease, and pest pressure early and deliver actionable interventions, directly matching disease and pest prediction through remote sensing and data analytics.",
+  "project_type": "Disease and pest prediction through computer vision and sensors",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
  },
  "ahammune-biosolutions": {
   "classified_at": "2026-09-15T01:39:02+00:00",
@@ -1201,6 +1273,18 @@
   "note": "Air OK Technologies develops indoor air purification and air quality management solutions, which are environmental monitoring and pollution control technologies, not energy transition or climate action technologies.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "air-sight": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "6f0158060726e555",
+  "missing": "air quality monitoring and analytics",
+  "model": "claude-haiku-4-5",
+  "name": "Air Sight Pvt. Ltd.",
+  "note": "Air Sight's work is in environmental monitoring and air quality assessment, which supports climate action but does not develop energy, materials, or climate technologies themselves.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "airbotix-technology": {
@@ -1422,6 +1506,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "al-zhiemers": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "9450377cc15be40e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AL - zhiemers Pvt Ltd",
+  "note": "AL-zhiemers has developed an AI-based early screening platform for Alzheimer's disease using predictive models for early detection, which directly aligns with the early disease detection project type in AI Healthcare.",
+  "project_type": "Early disease detection for cancer, TB, diabetes using predictive models",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.2"
+ },
  "al-zira-technology": {
   "classified_at": "2026-09-12T12:01:54+00:00",
   "hash": "bf53e8aa071a463c",
@@ -1614,6 +1710,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "altersage-innovations": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "2c23fc361e918173",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Altersage Innovations Pvt Ltd",
+  "note": "CoCo Bot is a specialized robotic platform designed for autonomous coconut harvesting with modular deployment across multiple locations.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "alterx": {
   "classified_at": "2026-09-12T12:06:52+00:00",
   "hash": "3dd2df10533dc83a",
@@ -1624,6 +1732,18 @@
   "project_type": null,
   "sector_id": "3",
   "subsector_id": null
+ },
+ "altie-reality": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "f82832df3909628f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Altie Reality Private Limited",
+  "note": "LearnXR's XR platform for immersive teaching and learning directly aligns with creating virtual environments that enable experiential STEM education, though the platform's educational focus is broader than STEM alone.",
+  "project_type": "Virtual labs and STEM simulations",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.3"
  },
  "altravia-global": {
   "classified_at": "2026-09-12T12:01:32+00:00",
@@ -2164,6 +2284,18 @@
   "source": "tides-iitr",
   "subsector_id": null
  },
+ "aquax": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "11b2866c63eb1720",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Aquax Pvt.Ltd",
+  "note": "Aquax's IoT Aqua Eye ecosystem uses real-time pond monitoring with IoT sensors and data analytics to optimize fish growth and feed efficiency, directly matching the smart farming systems category adapted for aquaculture.",
+  "project_type": "Smart farming systems leveraging IoT, AI and remote sensing",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
+ },
  "ar2vi-tech": {
   "classified_at": "2026-09-12T10:55:14+00:00",
   "hash": "36a00da85bc56837",
@@ -2401,6 +2533,18 @@
   "note": "Arteq AI's specific focus and application domain cannot be determined from the information provided; the company description lacks details about whether they work in agriculture, healthcare, education, or cross-domain applications.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "arthimend-herbals": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "0438be748e62463d",
+  "missing": "water purification technology",
+  "model": "claude-haiku-4-5",
+  "name": "Arthimend Herbals LLP",
+  "note": "Arthimend Herbals' work is primarily a water purification and aquaculture management solution using biochar and probiotics, which does not align with the energy security, transition, or climate action focus of Sector 1. While the company does address environmental restoration and sustainability, these are secondary benefits rather than its core technical innovation.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "artificial-grrow": {
@@ -2671,6 +2815,18 @@
   "project_type": "Autonomous navigation and perception",
   "sector_id": "2",
   "subsector_id": "2.7"
+ },
+ "atkalapa-biotechnology": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "e3e2f2bb546ffbbc",
+  "missing": "botanical cosmetics and natural personal care formulation",
+  "model": "claude-haiku-4-5",
+  "name": "Atkalapa Biotechnology LLP",
+  "note": "Atkalapa develops cosmetic and personal care formulations from natural botanical ingredients, which falls outside the biotechnology taxonomy's focus on life sciences R&D, biomanufacturing, pharmaceuticals, medical devices, and advanced therapeutics.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "atlast-motogen": {
   "classified_at": "2026-09-14T07:04:40+00:00",
@@ -3310,6 +3466,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "barigarh-krishisakti": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "d229d129a3c18157",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Barigarh Krishisakti Private Limited",
+  "note": "Mushroom Kothi uses IoT and AI to automate climate control (temperature, humidity, light) for optimized cultivation, exemplifying AI-driven precision farming that enhances yield and resource efficiency.",
+  "project_type": "Precision farming techniques using AI",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
+ },
  "barox-oxytec": {
   "classified_at": "2026-09-12T12:01:58+00:00",
   "hash": "474b215cb3aba96f",
@@ -3596,6 +3764,18 @@
   "source": "venture-center",
   "subsector_id": "4.6"
  },
+ "biofusion-agre-tech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "c059d51cae3c8c0b",
+  "missing": "agricultural biotechnology and biopesticides",
+  "model": "claude-haiku-4-5",
+  "name": "Biofusion Agre-Tech Private Limited",
+  "note": "Biofusion Agre-Tech develops biofertilizers using microbial consortia for agricultural soil health and crop nutrition, which falls outside the scope of Sector 4's human-centric focus (pharma, medical devices, diagnostics) and industrial biotech applications.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "bioinnovatiq-lifescience": {
   "classified_at": "2026-09-12T11:31:04+00:00",
   "hash": "8ca93d86599dff77",
@@ -3765,6 +3945,18 @@
   "project_type": "Wearable health monitors and implantable biosensors",
   "sector_id": "4",
   "subsector_id": "4.5"
+ },
+ "blu-cocoon-digital": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "5bca747e3de5d505",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Blu Cocoon Digital Limited",
+  "note": "Blu Cocoon's ML models deliver irrigation and nutrition optimization recommendations to farmers daily, which is the core function of soil, irrigation and fertilization management systems.",
+  "project_type": "AI-driven soil, irrigation and fertilization management",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
  },
  "blue-heart-robotics": {
   "classified_at": "2026-09-12T12:03:39+00:00",
@@ -4035,6 +4227,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "bravecore": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "ca44d1e48d1a70df",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Bravecore Pvt. Ltd",
+  "note": "Bravecore's Mantis Swarm Drone System directly aligns with swarm robotics development, a core focus area under Intelligent Systems & Robotics.",
+  "project_type": "Edge intelligence and swarm robotics",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "breeze-innovations": {
   "classified_at": "2026-09-12T12:07:20+00:00",
   "hash": "03266e074c0043c9",
@@ -4067,6 +4271,18 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "briota-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "24d8c31f1be101c5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Briota Technologies Pvt Ltd",
+  "note": "Briota's SURAKSHA POCT platform is an indigenous point-of-care diagnostic kit designed for rapid, multiplexed screening of 12 major NCDs in resource-limited primary and community care settings across India.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.5"
  },
  "bulfro-monitech": {
   "classified_at": "2026-09-12T11:59:54+00:00",
@@ -4291,6 +4507,18 @@
   "note": "CamCom's AI application to automotive defect and damage assessment does not align with any of the defined sub-sectors, which target agriculture, healthcare, education, or cross-domain applications serving Indian social problems.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "camo-mobility": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "a05a9cf473aa6fda",
+  "missing": "electric vehicle manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "Camo Mobility Private Limited",
+  "note": "Camo Mobility manufactures electric vehicles for defence and off-road applications, which is end-use electrification rather than energy generation, storage, or enabling technology development covered by this taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "campsum": {
@@ -4632,6 +4860,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "chematico-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "2d4d1cc9ea008510",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Chematico Technologies Private Limited",
+  "note": "Chematico's hydrodynamic cavitation system for zero liquid discharge, sludge reduction, and water reuse directly addresses decarbonized desalination and industrial wastewater treatment as part of comprehensive climate action.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": "1.16"
+ },
  "chemgreen-innovations": {
   "classified_at": "2026-09-12T11:31:14+00:00",
   "hash": "3c35121d1a14a4e3",
@@ -4823,6 +5063,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "climagro-analytics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "7a659da6183c64d9",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Climagro Analytics Private Limited",
+  "note": "ClimAgro's AgRI.ai platform delivers crop- and location-specific yield projections using climate data analytics across Indian districts, directly matching yield estimation through data analytics for agricultural decision-making.",
+  "project_type": "Yield estimation with satellite / drone imagery and data analytics",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
+ },
  "climajo": {
   "classified_at": "2026-09-15T01:39:36+00:00",
   "hash": "86ea1b8e3c486d79",
@@ -4845,6 +5097,30 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "climmatech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "bfa7c875ddf71dbf",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ClimMaTech Private Limited",
+  "note": "ClimMaTech's integrated early-warning system with sensors, AI forecasting, digital twins, and community alerts directly enables climate-resilient infrastructure by improving flood disaster readiness and protecting vulnerable populations through hyperlocal, actionable risk communication.",
+  "project_type": "Climate-resilient infrastructure (smart cities, sustainable drainage, heat-resilient materials)",
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": "1.16"
+ },
+ "climmatech-pvt-ltd-visiflow": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "42c69cc0740d5bf7",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ClimMaTech Pvt Ltd (Visiflow)",
+  "note": "ClimMaTech's vision-based flood monitoring and early warning system using AI and digital twin technology directly supports climate-resilient infrastructure by enabling proactive disaster management through real-time environmental monitoring.",
+  "project_type": "Climate-resilient infrastructure (smart cities, sustainable drainage, heat-resilient materials)",
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": "1.16"
  },
  "clockwise-engineering": {
   "classified_at": "2026-09-12T12:07:22+00:00",
@@ -4912,6 +5188,18 @@
   "project_type": null,
   "sector_id": null,
   "source": "tides-iitr",
+  "subsector_id": null
+ },
+ "codepulse-robotics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "550f2399a5439b38",
+  "missing": "ai-powered vehicle safety systems",
+  "model": "claude-haiku-4-5",
+  "name": "Codepulse Robotics Pvt Ltd",
+  "note": "Codepulse Robotics develops AI-powered safety systems for two-wheeler accident prevention, which falls outside the defined scope of Sector 3 that focuses specifically on agriculture, health, and education applications.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "coding-super-kings": {
@@ -5248,6 +5536,42 @@
   "sector_id": "4",
   "subsector_id": "4.3"
  },
+ "cropcoin-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "4be2d39b137ea842",
+  "missing": "agricultural waste valorization and circular agriculture",
+  "model": "claude-haiku-4-5",
+  "name": "Cropcoin Technologies Private Limited",
+  "note": "Cropcoin's work is agricultural waste-to-fertilizer processing, which addresses circular economy and soil health but does not fit the energy security, renewable energy generation, energy storage, carbon capture, nuclear, or industrial decarbonization focus of Sector 1.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
+ "cropsync": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "bfb552018d06af38",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "CropSync Private Limited",
+  "note": "CropSync integrates soil tests with AI-driven advisory for personalized agronomy guidance, directly matching the digital soil health monitoring and advisory systems project type within Digital Agriculture.",
+  "project_type": "Digital soil health monitoring and advisory systems",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
+ },
+ "curacraft-design": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "f6a1b95510ec28b6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Curacraft Design Pvt Ltd",
+  "note": "Curacraft develops customizable prosthetic feet with innovative biomechanical design and materials, directly matching the smart prosthetics and rehabilitation technologies project type under Medical Devices & Diagnostics.",
+  "project_type": "Smart prosthetics and rehabilitation technologies",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.5"
+ },
  "curelink": {
   "classified_at": "2026-09-15T01:39:41+00:00",
   "hash": "142272d6d322285a",
@@ -5539,6 +5863,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "datacorp-engineering-innovations": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "70978c4cb766d977",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "DataCorp Engineering Innovations Private Limited",
+  "note": "DataCorp develops unmanned ground vehicles (UGVs) for autonomous farm equipment with embedded software and hardware for navigation and task execution, directly matching autonomous navigation and perception capabilities in intelligent systems.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "datalyca-technologies": {
   "classified_at": "2026-09-12T12:02:57+00:00",
   "hash": "eb706ec78bde2600",
@@ -5572,6 +5908,18 @@
   "sector_id": "3",
   "source": "dpiit-startup-india",
   "subsector_id": null
+ },
+ "dayu-robotics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "70f0b8fa8d2a4c87",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Dayu Robotics Pvt Ltd",
+  "note": "Dayu Robotics develops autonomous robotic systems using multi-modal sensing and AI-driven mapping for mineral exploration, which directly aligns with autonomous navigation and perception capabilities in intelligent robotic systems.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
  },
  "db-potential": {
   "classified_at": "2026-09-12T10:55:28+00:00",
@@ -6317,6 +6665,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "dola-sundeep-drones": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "d7c0535e06e9c528",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Dola Sundeep Drones Private Limited",
+  "note": "Dola Sundeep Drones directly matches this project type through their multispectral/thermal imaging drones for crop health monitoring and automated spraying systems integrated with AI-based image processing and GIS mapping.",
+  "project_type": "Drone-based solutions for crop monitoring, spraying and land mapping",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
+ },
  "dony-john-kuttappassery": {
   "classified_at": "2026-09-12T10:55:31+00:00",
   "hash": "b32fd0fb8ecd39f0",
@@ -6460,6 +6820,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "drufarm-technology": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "cbf717da24fd198a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Drufarm Technology Private Limited",
+  "note": "Drufarm's platform synthesizes agronomy, weather, and market dynamics to guide crop planning, input optimization, and selling decisions for farmers and FPOs, directly addressing market linkage and supply chain coordination through AI-driven advisory.",
+  "project_type": "AI-driven market linkage and agri-supply chain optimization",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
+ },
  "drumlin-water-technology": {
   "classified_at": "2026-09-15T02:47:40+00:00",
   "hash": "430854da92ef9644",
@@ -6471,6 +6843,18 @@
   "sector_id": null,
   "source": "nmicps-tih",
   "subsector_id": null
+ },
+ "drutam-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "5faf329d4869369f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Drutam Technologies Private Limited",
+  "note": "Drutam designs indigenously developed semiconductor chips specifically optimized for edge AI applications, enabling high-performance artificial intelligence on compact, energy-efficient hardware devices.",
+  "project_type": "Edge AI accelerators",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.8"
  },
  "dtown-robotics": {
   "classified_at": "2026-09-12T11:31:31+00:00",
@@ -6493,6 +6877,18 @@
   "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
   "sector_id": "1",
   "subsector_id": "1.16"
+ },
+ "dumfries-visionostics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "2c72e84230622383",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Dumfries Visionostics Pvt. Ltd.",
+  "note": "Dumfries Visionostics develops Seemos, an AI-driven eye diagnostic device for early detection of eye conditions, which directly matches the AI/ML-powered diagnostic and imaging devices category within Medical Devices & Diagnostics.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.5"
  },
  "durjeya-solutions": {
   "classified_at": "2026-09-12T11:59:14+00:00",
@@ -6824,6 +7220,18 @@
   "sector_id": "3",
   "subsector_id": "3.3"
  },
+ "edumeasy": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "e34295e2343890a7",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Edumeasy Private Limited",
+  "note": "Edumeasy's pre-made digital twins with learning modules for college curriculum directly align with virtual labs and STEM simulations, providing immersive practical experience for complex systems education.",
+  "project_type": "Virtual labs and STEM simulations",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.3"
+ },
  "eduphiser-services": {
   "classified_at": "2026-09-15T01:39:54+00:00",
   "hash": "9930c14990483007",
@@ -6968,6 +7376,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "elclassico-sportstech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "b3118e8d09b70f6a",
+  "missing": "sports technology and analytics",
+  "model": "claude-haiku-4-5",
+  "name": "Elclassico Sportstech Private Limited",
+  "note": "Elclassico's cricket analysis platform using AI for sports technology does not align with Sector 3's focus on agriculture, health, and education applications of AI to Indian problems.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "elcome-integrated-systems": {
@@ -7468,6 +7888,18 @@
   "project_type": null,
   "sector_id": "5",
   "subsector_id": null
+ },
+ "enrgenv-smart-chemicals-and-materials": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "c5805e0f0f717554",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "EnrgEnv Smart Chemicals and Materials Pvt.Ltd",
+  "note": "EnrgEnv's low-cost LLZO solid electrolyte synthesis directly enables all-solid-state lithium-ion batteries with reduced production costs and domestic supply chain resilience.",
+  "project_type": "Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)",
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": "1.4"
  },
  "ensafe-enviro-projects": {
   "classified_at": "2026-09-12T12:05:51+00:00",
@@ -8382,6 +8814,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "folium-sensing": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "ee96e84a2a6af11a",
+  "missing": "fiber-optic sensing systems",
+  "model": "claude-haiku-4-5",
+  "name": "Folium Sensing Private Limited",
+  "note": "Folium Sensing develops distributed fiber-optic sensing systems (DAS, DTS, DSS) for industrial monitoring applications, which is a sensing technology application rather than a deep-tech component or capability aligned with the sub-sectors listed.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "fonsvitae": {
   "classified_at": "2026-09-12T12:01:31+00:00",
   "hash": "86888ac6ad89674c",
@@ -8492,6 +8936,18 @@
   "note": "FREESPEED is an aeronautics/aviation company, but the taxonomy's space technologies subsector (2.5) focuses on satellites, launch vehicles, propulsion, and space missions\u2014not aircraft design, avionics, or general aviation systems.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "fruvetech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "62ac0573a414fd20",
+  "missing": "agricultural biotech and post-harvest technology",
+  "model": "claude-haiku-4-5",
+  "name": "Fruvetech Private Limited",
+  "note": "Fruvetech develops post-harvest produce preservation technology through a bioactive gel formulation, which operates at the intersection of agricultural biotechnology and food supply chain management rather than within any of the listed sub-sector categories.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "fubotics": {
@@ -8683,6 +9139,18 @@
   "note": "GATEX INNOVATIONS is described only as an AI/Machine Learning startup at validation stage with no detail about which problem domain it addresses\u2014agriculture, health, education, or cross-domain enabling\u2014making it impossible to assign a specific sub-sector or project type without speculation.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "gatisheel-agritech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "0078167787586371",
+  "missing": "water infrastructure automation and SCADA systems",
+  "model": "claude-haiku-4-5",
+  "name": "Gatisheel Agritech Private Limited",
+  "note": "Gatisheel's SCADA-based automation for irrigation and water infrastructure\u2014including pump/valve control, sensor networks, fault detection, and water/energy analytics\u2014is a specialized operational technology platform for critical water systems management, not a digital agriculture, financial, governance, health, data, or emerging economy application.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "gaucello": {
@@ -9366,6 +9834,18 @@
   "source": "venture-center",
   "subsector_id": "1.4"
  },
+ "gunsutra": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "eb7e3b1710004a98",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Gunsutra Pvt. Ltd.",
+  "note": "Gunsutra develops point-of-care diagnostic devices in benchtop and handheld form factors, directly aligning with indigenous diagnostic kit development for rapid detection.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.5"
+ },
  "gururaya-solutions": {
   "classified_at": "2026-09-12T11:59:19+00:00",
   "hash": "9305029bb87b6312",
@@ -9647,6 +10127,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "hayedrone-flying-academy": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "d720387fc96784af",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Hayedrone Flying Academy Private Limited",
+  "note": "The hybrid aerial-surface drone system demonstrates autonomous navigation capabilities across two domains (air and water) with integrated perception through multiple camera configurations for surveillance and monitoring applications.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "haystack-analytics": {
   "classified_at": "2026-09-12T11:59:19+00:00",
   "hash": "d900b371acfd02b8",
@@ -9774,6 +10266,18 @@
   "sector_id": "2",
   "source": "fsid-iisc",
   "subsector_id": "2.3"
+ },
+ "heuronics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "b7e1eaa07119c477",
+  "missing": "aquaculture and fisheries automation",
+  "model": "claude-haiku-4-5",
+  "name": "Heuronics Private Limited",
+  "note": "Heuronics builds aquaculture automation with IoT, sensors, and AI analytics, but aquaculture (fisheries/blue economy) is not covered by the digital agriculture or any other sub-sector in Sector 5, which focuses on crop agriculture, digital financial systems, governance, and core digital infrastructure.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "hexcarb-advanced-materials": {
   "classified_at": "2026-09-12T12:01:24+00:00",
@@ -10816,6 +11320,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "innect-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "e6181bfb93a94c5d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Innect Technologies Private Limited",
+  "note": "Innect's real-time environmental sensing, IoT control units, and AI analytics for optimizing temperature, humidity, CO\u2082, and nutrient flow in controlled environment agriculture directly matches the smart farming systems project type that combines IoT, AI, and data-driven optimization for precision crop production.",
+  "project_type": "Smart farming systems leveraging IoT, AI and remote sensing",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
+ },
  "innobrahmashakti-solutions": {
   "classified_at": "2026-09-14T07:03:59+00:00",
   "hash": "44314874539b6eea",
@@ -10950,6 +11466,18 @@
   "sector_id": null,
   "source": "nmicps-tih",
   "subsector_id": null
+ },
+ "integlia-technology-solution": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "9f6391072d70e59f",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Integlia Technology Solution Private Limited",
+  "note": "Integlia's SoilLink multi-parameter sensors (moisture, temperature, EC, pH, NPK) combined with satellite indices and AI advisory engine directly deliver real-time soil monitoring and targeted fertilizer/irrigation guidance to farmers.",
+  "project_type": "Digital soil health monitoring and advisory systems",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
  },
  "integrated-maritime-exchange": {
   "classified_at": "2026-09-15T01:39:35+00:00",
@@ -11625,6 +12153,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "jiyaxo-g-techno": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "4f2d7b0f67e26b10",
+  "missing": "agricultural equipment electrification",
+  "model": "claude-haiku-4-5",
+  "name": "Jiyaxo G Techno Private Limited",
+  "note": "Jiyaxo's work is in agricultural mechanization and farm equipment electrification, which falls outside the energy security and transition taxonomy despite using batteries and reducing emissions.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "jmv-bharat": {
   "classified_at": "2026-09-15T01:40:03+00:00",
   "hash": "39a28fc889c82e69",
@@ -12163,6 +12703,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "kibbutz-agrifood": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "85d8190dfb480ad3",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Kibbutz Agrifood Private Limited",
+  "note": "Kibbutz's real-time soil nutrient and moisture sensing via IoT probes, combined with AI-driven advisories for irrigation and fertilization, directly aligns with digital soil health monitoring; the multispectral crop stress detection and precision input optimization extend into the platform's broader advisory scope.",
+  "project_type": "Digital soil health monitoring and advisory systems",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
+ },
  "kidyfit-care": {
   "classified_at": "2026-09-12T10:55:48+00:00",
   "hash": "e13dd7058e23b1cc",
@@ -12321,6 +12873,18 @@
   "source": "venture-center",
   "subsector_id": "4.5"
  },
+ "kraftoverse-three-d": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "7cbf7f28bfd49b89",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Kraftoverse Three D Private Limited",
+  "note": "Kraftoverse's binder jetting and material jetting 3D printing technologies for manufacturing scalable, cost-effective solutions directly align with advanced manufacturing capabilities for producing hybrid metal and multi-material components.",
+  "project_type": "Metal / multi-material 3D printing for next-gen hybrid components",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.3"
+ },
  "kramarine": {
   "classified_at": "2026-09-12T12:07:28+00:00",
   "hash": "7456ebcd21d7f914",
@@ -12331,6 +12895,18 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "krashak-innovative-solution": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "01d1a0ccfac03113",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Krashak Innovative Solution Private Limited",
+  "note": "Krashak's integrated system of soil testing, autonomous rovers, and hyperspectral UAVs directly aligns with drone-based crop monitoring and variable-rate spraying, exemplifying smart farming through IoT, AI, and remote sensing for precision agriculture.",
+  "project_type": "Drone-based solutions for crop monitoring, spraying and land mapping",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
  },
  "kreative-chat": {
   "classified_at": "2026-09-12T12:06:47+00:00",
@@ -12475,6 +13051,18 @@
   "project_type": null,
   "sector_id": "3",
   "subsector_id": null
+ },
+ "kvgai-tech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "54a87dd2227ea5c8",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Kvgai Tech Pvt Ltd",
+  "note": "SmartQnA directly addresses automated evaluation of handwritten answer scripts using computer vision and LLMs to apply rubric-based grading, which is the core function of automated assessment tools in education.",
+  "project_type": "Automated grading and assessment",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.3"
  },
  "kwatt-solutions": {
   "classified_at": "2026-09-12T11:59:27+00:00",
@@ -12723,6 +13311,18 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "lightprobe": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "1d88604b49e57c19",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "LightProbe Private ltd.,",
+  "note": "LightProbe's focus on optical instruments and specialized imaging/sensing/metrology hardware aligns with photonics and optoelectronics, and optical imaging applications represent a core capability within that sub-sector.",
+  "project_type": "Optical imaging of the nervous system, photonic-enabled synthetic fuels and energy storage",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.4"
  },
  "lignopura-agrotech": {
   "classified_at": "2026-09-12T12:05:50+00:00",
@@ -14045,6 +14645,18 @@
   "source": "fsid-iisc",
   "subsector_id": null
  },
+ "mkelly-biotech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "8eca0ba432fbf8fa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Mkelly Biotech Private Limited",
+  "note": "Mkelly's solid-substrate fermentation using millets and Cordyceps militaris with downstream processing to create functional food proteins directly matches advanced fermentation technologies applied to bioengineering and biomanufacturing.",
+  "project_type": "Advanced fermentation technologies and downstream processing",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.2"
+ },
  "ml0-ai": {
   "classified_at": "2026-09-15T01:40:00+00:00",
   "hash": "361c1d189e94021d",
@@ -14328,6 +14940,18 @@
   "note": "Mwin Fintech's AI application is for payment optimization and financial technology, which falls outside the scope of Sector 3's focus on AI for agriculture, healthcare, education, and cross-domain applications to Indian societal problems.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "my-irigacio-world": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "2fbefe30f104349d",
+  "missing": "irrigation equipment manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "My Irigacio World Private Limited",
+  "note": "MY Irigacio manufactures physical irrigation hardware (sprinklers, micro-sprayers, filters, valves, controllers) rather than developing digital technologies, software platforms, or sensor-based digital agriculture solutions.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "mydentist-ai": {
@@ -14817,6 +15441,18 @@
   "project_type": "Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "nehkhilesh-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "2230431cd26770ea",
+  "missing": "autonomous marine systems",
+  "model": "claude-haiku-4-5",
+  "name": "Nehkhilesh Technologies Private Limited",
+  "note": "Nehkhilesh develops USVs and electric marine propulsion for hydrographic surveys, ISR, surveillance, and SAR\u2014autonomous marine robotics and clean maritime mobility\u2014which does not align with the deep-technology focus of Sector 2 (quantum, semiconductors, photonics, space, advanced materials, neuromorphic systems).",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "neo-avishkars": {
   "classified_at": "2026-09-12T11:31:21+00:00",
@@ -15729,6 +16365,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "one2x-tech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "fdc84cb1af15ec7a",
+  "missing": "enterprise AI and business process automation",
+  "model": "claude-haiku-4-5",
+  "name": "One2X tech Pvt. Ltd.",
+  "note": "One2X Tech's Fixit platform is a general-purpose conversational AI and call center analytics tool designed for enterprise customer service optimization across any industry, not specifically targeting agriculture, healthcare, education, or Indian-centric problems.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "oneaica": {
   "classified_at": "2026-09-12T12:07:07+00:00",
   "hash": "a88abff9236c4300",
@@ -16044,6 +16692,18 @@
   "project_type": "Biomanufacturing of diagnostics, vaccines and therapeutic proteins",
   "sector_id": "4",
   "subsector_id": "4.2"
+ },
+ "palanam-technology": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "a7af7f201f2f31fc",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Palanam Technology Private Limited",
+  "note": "Palanam's hydroponics AI app delivers real-time crop monitoring with predictive analytics and intelligent scheduling for irrigation, nutrients, and light\u2014core components of soil, irrigation, and fertilization management adapted for controlled environment agriculture.",
+  "project_type": "AI-driven soil, irrigation and fertilization management",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
  },
  "paleru-technologies": {
   "classified_at": "2026-09-15T01:39:54+00:00",
@@ -16698,6 +17358,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "power-research-consulting": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "e0dd1df0b366511b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Power Research Consulting",
+  "note": "The project develops an autonomous dual-mode aquatic drone with sensors and real-time environmental monitoring capabilities, demonstrating autonomous navigation and perception systems for water-quality assessment.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "powerepex-systems": {
   "classified_at": "2026-09-14T07:04:25+00:00",
   "hash": "985b8c9be37052a4",
@@ -16779,6 +17451,18 @@
   "sector_id": "4",
   "source": "venture-center",
   "subsector_id": "4.5"
+ },
+ "pragnya-smart-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "76d11df674594c0b",
+  "missing": "agricultural emissions reduction",
+  "model": "claude-haiku-4-5",
+  "name": "Pragnya Smart Technologies LLP",
+  "note": "SmartFeed+ is an agricultural methane-reduction technology via livestock nutrition optimization and monitoring, not an energy infrastructure or climate tech solution that falls under any listed sub-sector.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "prameela-life-sciences": {
   "classified_at": "2026-09-12T12:00:10+00:00",
@@ -16896,6 +17580,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "predictml-aidatatech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "75d2439f7a9e7665",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "PredictMl AiDatatech Private Limited",
+  "note": "The AI humanoid robot is designed to support teachers and create intelligent classrooms, directly aligning with tools that assist teachers in their pedagogical functions.",
+  "project_type": "Teacher-assist AI tools for curriculum and classroom support",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.3"
+ },
  "preksha-eye-yoga": {
   "classified_at": "2026-09-15T01:40:14+00:00",
   "hash": "e290fd1317ddf0f2",
@@ -16907,6 +17603,18 @@
   "sector_id": null,
   "source": "tides-iitr",
   "subsector_id": null
+ },
+ "prenishq": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "6881aec9b8bb1edd",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Prenishq Pvt. Ltd.",
+  "note": "Prenishq's narrow linewidth lasers are enabling hardware for quantum communication systems including QKD and secure quantum networks, falling directly under quantum technologies infrastructure.",
+  "project_type": "Quantum communication: QKD over fibre and free space, quantum repeaters, satellite-based quantum communication",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.1"
  },
  "prevalent-automotive": {
   "classified_at": "2026-09-15T01:40:10+00:00",
@@ -17855,6 +18563,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "reagvis-labs": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "184c74d6263eb9d4",
+  "missing": "ai for content authenticity and fraud prevention",
+  "model": "claude-haiku-4-5",
+  "name": "Reagvis Labs Private Limited",
+  "note": "Reagvis Labs' deepfake detection platform addresses fraud detection, KYC verification, and media authentication\u2014critical for trust and security but outside the sector's focus on agriculture, health, and education applications.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "realestating": {
   "classified_at": "2026-09-15T01:40:01+00:00",
   "hash": "5ba1fdb2c368ca40",
@@ -17926,6 +18646,18 @@
   "sector_id": null,
   "source": "tides-iitr",
   "subsector_id": null
+ },
+ "red-black-trust": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "5d85bbfcce8ae3d1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Red Black Trust",
+  "note": "The project's robotics application stack enabling real-time feedback between virtual and physical workspaces to support seamless robot operation in dynamic environments directly addresses autonomous navigation and perception capabilities.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
  },
  "redcherry-analytics": {
   "classified_at": "2026-09-12T12:00:12+00:00",
@@ -18061,6 +18793,18 @@
   "project_type": null,
   "sector_id": "1",
   "subsector_id": null
+ },
+ "renify-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "28ad637a5af2260a",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Renify Technologies Pvt Ltd",
+  "note": "Renify's smart sensor-based real-time monitoring solutions with AI-driven insights for ICU kidney health management directly align with AI/ML-powered diagnostic devices, though the renal care focus could also fit the devices for renal care category.",
+  "project_type": "AI/ML-powered diagnostic and imaging devices",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.5"
  },
  "renkube": {
   "classified_at": "2026-09-12T10:56:09+00:00",
@@ -18288,6 +19032,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "rhema-innovations": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "7a6099c799868bdc",
+  "missing": "assistive technology and accessibility devices",
+  "model": "claude-haiku-4-5",
+  "name": "Rhema Innovations Pvt. Ltd.",
+  "note": "Rhema Innovations develops a wearable sensory substitution device for accessibility, which is neither a biotechnology intervention nor a medical device in the conventional sense\u2014it is an assistive technology that converts sound to tactile patterns.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "rhythm-shah": {
@@ -18550,6 +19306,18 @@
   "source": "sine-iitb",
   "subsector_id": "4.5"
  },
+ "rowbotix-agtech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "6af8e8ff95bf655b",
+  "missing": "precision farm machinery and equipment",
+  "model": "claude-haiku-4-5",
+  "name": "Rowbotix Agtech Private Limited",
+  "note": "Rowbotix's Kropter K9 is a mechanical precision seeding implement\u2014a physical farm equipment device with electronic controls for seed placement. While it supports climate-resilient agriculture, it is hardware-focused farm machinery, not a digital agriculture platform, software system, or data analytics solution.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "rowline": {
   "classified_at": "2026-09-12T12:04:11+00:00",
   "hash": "3d5998e89f078eb3",
@@ -18603,6 +19371,18 @@
   "note": "RUBISCOBLACK's name and focus on environmental technologies suggests work in waste management, recycling, or circular economy, but without specific information about their technology platform, it cannot be accurately placed into the available energy security and climate action sub-sectors.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "rudranjali-innovative-agritech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "74fd40800061881c",
+  "missing": "agricultural machinery and equipment",
+  "model": "claude-haiku-4-5",
+  "name": "Rudranjali Innovative Agritech Private Limited",
+  "note": "Rudranjali's mini sugarcane harvester is a mechanical farm equipment solution that does not fit the digital economy taxonomy\u2014it is hardware-focused agricultural machinery without digital, IoT, AI, or data analytics components.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "rudraxn-energy-solutions": {
@@ -19000,6 +19780,18 @@
   "source": "venture-center",
   "subsector_id": null
  },
+ "sarvadhara-tech-innovations": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "b84c19cb1bb9abe5",
+  "missing": "aquaculture and fisheries processing",
+  "model": "claude-haiku-4-5",
+  "name": "Sarvadhara Tech Innovations Private Limited",
+  "note": "Sarvadhara's solution automates post-harvest quality grading in aquaculture, a livestock product processing task that falls outside agriculture production, health, education, and cross-domain enabling technologies.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "sarvosadhi-biotech": {
   "classified_at": "2026-09-15T01:39:00+00:00",
   "hash": "b5b75b3efd9eb734",
@@ -19021,6 +19813,18 @@
   "note": "Sarvottam AI's focus on 3D printing technology directly aligns with the advanced manufacturing capability of producing metal and multi-material components for next-generation hybrid applications.",
   "project_type": "Metal / multi-material 3D printing for next-gen hybrid components",
   "sector_id": "2",
+  "subsector_id": "2.3"
+ },
+ "sasha-innoworks": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "be39e3e97f4cc4d1",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Sasha Innoworks Pvt. Ltd.",
+  "note": "Sasha Innoworks develops IoT-based automated systems for quality control and defect detection in manufacturing, which directly aligns with advanced automation and control systems for assembly lines.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "source": "nmicps-tih",
   "subsector_id": "2.3"
  },
  "saswat-pattnaik": {
@@ -19113,6 +19917,18 @@
   "project_type": null,
   "sector_id": "3",
   "subsector_id": null
+ },
+ "sbb-energy": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "33f099a6e15a9465",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SBB Energy Private Limited",
+  "note": "SBB Energy's ThoR BESS is a battery energy storage system designed for scalable deployment (2 kW to 50 MW) that stores renewable energy for 24/7 access, directly addressing the energy storage sub-sector's focus on systems with high energy density and extended operational life cycles.",
+  "project_type": "High energy density, long cycle life",
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": "1.4"
  },
  "sbh-electrocloud": {
   "classified_at": "2026-09-12T10:56:15+00:00",
@@ -20005,6 +20821,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "skyflock-uaviation": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "3f4ffefc1b5f46e2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Skyflock Uaviation Private Limited",
+  "note": "Skyflock's automated aerial spraying, crop health imaging, and GIS-AI analytics directly align with drone-based agricultural solutions under Digital Agriculture.",
+  "project_type": "Drone-based solutions for crop monitoring, spraying and land mapping",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.2"
+ },
  "skylark-drones": {
   "classified_at": "2026-09-12T11:31:46+00:00",
   "hash": "e9f08aae9a5e2bf2",
@@ -20048,6 +20876,18 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "small-signals-india": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "ecfb36d7b7cf78fa",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Small Signals India Private Limited",
+  "note": "Small Signals India develops a modular agricultural robot with interchangeable modules for multiple farming tasks, which directly aligns with the modular robotic platforms category under Intelligent Systems & Robotics.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
  },
  "smart-walking-cane": {
   "classified_at": "2026-09-15T01:40:15+00:00",
@@ -20116,6 +20956,18 @@
   "note": "SNELLCART's IoT solutions for manufacturing and warehouse management are operational technology applications rather than deep technology development.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "snl-innovations": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "f0393095ae2aff13",
+  "missing": "agri-mechanization equipment",
+  "model": "claude-haiku-4-5",
+  "name": "SNL Innovations Private Limited",
+  "note": "SNL Innovations develops physical agri-mechanization equipment (machinery, tools) for manual labor reduction and farm operations, which is hardware-focused mechanization rather than digital agriculture or precision agriculture technology.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "snoring-owl-by-doctek-innovation": {
@@ -20391,6 +21243,18 @@
   "sector_id": "4",
   "source": "dpiit-startup-india",
   "subsector_id": "4.1"
+ },
+ "speedybyte-services": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "c4c3bb130d74975c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Speedybyte Services Private Limited",
+  "note": "SpeedyByte's BYTE-01 is a modular autonomous ground robot with camera-first perception, reinforcement-learning navigation, and cloud-linked teleoperation for industrial logistics and construction tasks.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
  },
  "speezy-professionals": {
   "classified_at": "2026-09-12T10:56:22+00:00",
@@ -20734,6 +21598,18 @@
   "sector_id": "3",
   "subsector_id": "3.2"
  },
+ "stingray-robotix": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "3a6c0390ffb81094",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Stingray Robotix Pvt.Ltd",
+  "note": "Stingray Robotix develops a remotely operated robotic crawler platform with specialized sensors and actuation (magnetic drive, cavitation jets) for autonomous hull cleaning operations, fitting the modular robotic platforms category.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "stithi-innovations": {
   "classified_at": "2026-09-12T10:56:22+00:00",
   "hash": "74cc6a5e98780eae",
@@ -20976,6 +21852,18 @@
   "sector_id": "1",
   "subsector_id": "1.10"
  },
+ "surakshavata-innovations": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "1c21a08816e81bc5",
+  "missing": "agricultural mechanization and farm equipment",
+  "model": "claude-haiku-4-5",
+  "name": "Surakshavata Innovations Private Limited",
+  "note": "HarvAnukul is a specialized agricultural harvesting machine\u2014a mechanical device with battery power and sensing for smallholder cotton farming. It does not fall within Sector 2's deep-technology domains (quantum, semiconductors, advanced manufacturing platforms, photonics, space, advanced materials R&D, or neuromorphic AI). While it incorporates sensing and battery technology, its primary purpose and innovation is agricultural mechanization, not deep technology.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "suryaseva-green-energy": {
   "classified_at": "2026-09-12T12:06:28+00:00",
   "hash": "1919aa36fea0f25d",
@@ -21203,6 +22091,18 @@
   "project_type": "Nanomaterials, adsorbates and composite materials (potable water generation, fluoride removal)",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "syntara-tech": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "33c3e4a030d00c30",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Syntara Tech Private Limited",
+  "note": "Syntara's CNN-based computer vision identifies crop disease and stress in real time with autonomous drone deployment, directly matching the disease and pest prediction capability, while edge AI inference and RTK-GPS precision application represent the sensor integration and AI-driven site-specific intervention aspects of this project type.",
+  "project_type": "Disease and pest prediction through computer vision and sensors",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
  },
  "synterra-tech-labs": {
   "classified_at": "2026-09-12T12:07:07+00:00",
@@ -21452,6 +22352,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "te-tech-solution": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "8a6351ca0276b9de",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TE Tech Solution",
+  "note": "The project develops electronic design for embedded systems, signal circuits, and microcontrollers alongside RF/microwave antenna systems, which aligns with electronic control systems in semiconductors and electronics.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.2"
+ },
  "tealaa-innovations": {
   "classified_at": "2026-09-12T11:31:24+00:00",
   "hash": "fce874865edc3a6d",
@@ -21462,6 +22374,18 @@
   "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
   "sector_id": "4",
   "subsector_id": "4.7"
+ },
+ "techealth-apex": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "96548f1fde7a8664",
+  "missing": "AI for transport and logistics optimization",
+  "model": "claude-haiku-4-5",
+  "name": "Techealth Apex Private Limited",
+  "note": "EmergencyEye is a fleet safety and telematics platform for commercial logistics that does not address agriculture, health, or education\u2014the core domains of Sector 3.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "techedge-developers": {
   "classified_at": "2026-09-15T02:47:40+00:00",
@@ -22175,6 +23099,18 @@
   "sector_id": null,
   "subsector_id": null
  },
+ "trigun-robotics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "c5d8700ad5287f4d",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Trigun Robotics Private Limited",
+  "note": "Trigun's autonomous robotics spanning health drones, agricultural UAVs, underwater drones and AR navigation directly implement the autonomous navigation and perception capabilities central to intelligent systems and robotics.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "trikshana-tech": {
   "classified_at": "2026-09-12T11:59:42+00:00",
   "hash": "3def26e1e1b6b3cb",
@@ -22341,6 +23277,18 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "ubiosens-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "bed3c8dce0a48094",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Ubiosens Technologies Private Limited",
+  "note": "Ubiosens develops highly sensitive biosensors with applications across agriculture, healthcare, and environmental monitoring, which directly aligns with the biosensor project type in synthetic biology.",
+  "project_type": "Biosensors for environmental and medical applications",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.3"
  },
  "ubiqedge-technology": {
   "classified_at": "2026-09-12T12:05:15+00:00",
@@ -22849,6 +23797,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "valyria-visions": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "cd038a7752e1b825",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Valyria Visions Private Limited",
+  "note": "AcrePhenoX uses drone-based imaging and machine learning to analyze plant traits at scale, directly supporting crop improvement and yield optimization through automated phenotyping data collection and analysis.",
+  "project_type": "Yield estimation with satellite / drone imagery and data analytics",
+  "sector_id": "3",
+  "source": "nmicps-tih",
+  "subsector_id": "3.1"
+ },
  "vasishth-genomics-research-lab": {
   "classified_at": "2026-09-12T12:02:08+00:00",
   "hash": "60e7dfcda23ef219",
@@ -22992,6 +23952,18 @@
   "note": "Vedtron is a technology hardware manufacturing startup, but without specific information about whether they focus on semiconductors, robotics, space systems, photonics, advanced materials, or neuromorphic systems, they cannot be reliably placed into any of the six deep-tech sub-sectors listed.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "veenero-sustainable-solutions": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "a82a826836b48a86",
+  "missing": "water infrastructure and conservation",
+  "model": "claude-haiku-4-5",
+  "name": "Veenero Sustainable Solutions Private Limited",
+  "note": "Veenero's smart water conservation platform focuses on leak detection, usage monitoring, and automated pumping with mobile analytics\u2014core water resource management rather than energy transition or climate action technologies.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "veerayu-aerospace": {
@@ -23221,6 +24193,18 @@
   "sector_id": "4",
   "subsector_id": "4.2"
  },
+ "viagnosis-technologies": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "2eae379d76348e0e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Viagnosis Technologies Pvt.Ltd",
+  "note": "CIRAN is a fundamental diagnostic technology for detecting subclinical mastitis in asymptomatic stages, matching the point-of-care diagnostic kit development focus of 4.5.",
+  "project_type": "Indigenous diagnostic kits (point-of-care, rapid, multiplexed)",
+  "sector_id": "4",
+  "source": "nmicps-tih",
+  "subsector_id": "4.5"
+ },
  "vidcare-innovations": {
   "classified_at": "2026-09-15T01:40:13+00:00",
   "hash": "389fb1ee3bf81b90",
@@ -23335,6 +24319,18 @@
   "note": "VIKARSH POWER COMPONENTS INDIA LLP is a nanotechnology company, but without specific information about which energy or climate application their nanotech components serve, they cannot be reliably mapped to any sub-sector.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "viksit-labs-foundation": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "5f49503339ac1cc2",
+  "missing": "water resource management and infrastructure",
+  "model": "claude-haiku-4-5",
+  "name": "Viksit Labs Foundation",
+  "note": "The project develops domain-specific LLMs for water resource management, irrigation planning, watershed management, and groundwater monitoring\u2014critical infrastructure domains that fall outside agriculture, health, education, and the enabling technologies listed.",
+  "project_type": null,
+  "sector_id": "3",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "vinmax-biotech": {
@@ -23537,6 +24533,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "vn-organics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "f2c5ad814ea7c348",
+  "missing": "agricultural biotechnology and food systems",
+  "model": "claude-haiku-4-5",
+  "name": "VN Organics Private Limited",
+  "note": "VN Organics operates primarily as a food production and agricultural extension company focused on mushroom cultivation, value-added food products, and farmer training\u2014activities that fall outside the biotechnology, biomanufacturing, and pharma focus of Sector 4.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "nmicps-tih",
   "subsector_id": null
  },
  "voltara-infra": {
@@ -23754,6 +24762,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "waymiro": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "35c0b1f853805bed",
+  "missing": "hospitality tech solutions",
+  "model": "claude-haiku-4-5",
+  "name": "Waymiro Pvt. Ltd.",
+  "note": "Waymiro is a hospitality PMS (Property Management System) serving small hotels, which is neither deep-tech infrastructure nor a systemic capability gap in India's digital economy\u2014it is a commercial SaaS product for a specific vertical.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": null
+ },
  "waymore": {
   "classified_at": "2026-09-12T10:56:31+00:00",
   "hash": "81ade6d568f89db9",
@@ -23764,6 +24784,18 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "waytern-systems": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "edd796545dc0bc87",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Waytern Systems Private Limited",
+  "note": "WayTern's networked IoT hardware, edge computing devices, and cloud-based software system providing GPS-denied indoor navigation and location services constitute a sovereign digital infrastructure platform combining edge and cloud computing layers.",
+  "project_type": "Secure / sovereign cloud and edge computing platforms",
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": "5.1"
  },
  "we-tech-shiksha-labs": {
   "classified_at": "2026-09-12T12:00:22+00:00",
@@ -23963,6 +24995,18 @@
   "sector_id": "4",
   "subsector_id": "4.2"
  },
+ "womenastico": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "53b638042709d506",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "WomenastiCo Private Limited",
+  "note": "WomenastiCo's solar-powered plastic waste recycling ecosystem that converts plastic into reusable materials (filament, fiber, pellets) directly aligns with waste-to-energy and circular economy practices under comprehensive climate action initiatives.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "source": "nmicps-tih",
+  "subsector_id": "1.16"
+ },
  "wonderlend-hubs": {
   "classified_at": "2026-09-12T11:59:46+00:00",
   "hash": "42d985357de4204f",
@@ -24130,6 +25174,18 @@
   "sector_id": "4",
   "subsector_id": "4.3"
  },
+ "xterra-robotics": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "d57e3f38c258f171",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "xTerra Robotics Private Limited",
+  "note": "xTerra's autonomous legged robots for industrial inspections directly address autonomous navigation in hazardous terrains and use advanced AI perception systems for real-time analytics.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "nmicps-tih",
+  "subsector_id": "2.7"
+ },
  "xyma-analytics": {
   "classified_at": "2026-09-12T10:56:41+00:00",
   "hash": "b7e775a8ee76e0ab",
@@ -24163,6 +25219,18 @@
   "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
   "sector_id": "1",
   "subsector_id": "1.16"
+ },
+ "yantraayush-solution": {
+  "classified_at": "2026-09-15T02:51:47+00:00",
+  "hash": "90426ab1c850486c",
+  "missing": "industrial IoT and predictive maintenance",
+  "model": "claude-haiku-4-5",
+  "name": "Yantraayush Solution Pvt. Ltd.",
+  "note": "Yantraayush develops predictive maintenance and IoT monitoring solutions for general industrial asset performance across manufacturing, agriculture, and building management\u2014a cross-sector industrial optimization capability that does not align with any of the five sub-sectors under Sector 5, which focus on digital economy infrastructure, agriculture-specific systems, financial services, governance, health, education, data platforms, and emerging digital services.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "nmicps-tih",
+  "subsector_id": null
  },
  "yathaarth-innovations": {
   "classified_at": "2026-09-12T12:06:47+00:00",
