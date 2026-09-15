@@ -5,11 +5,29 @@
   "page": "https://a3rmt.com/contact-us/",
   "website": "https://www.a3rmt.com/"
  },
+ "aagyavision": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://aagyavision.com/"
+ },
  "abee-research-labs": {
   "checked": "2026-09-14T16:38:26+00:00",
   "email": "info@switchon.io",
   "page": "https://switchon.io/contact-us/",
   "website": "https://switchon.io"
+ },
+ "abigh-art": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.abighart.com"
+ },
+ "abx3-pv": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": null,
+  "page": "https://abx3pv.com/contact-us/",
+  "website": "https://abx3pv.com/"
  },
  "acceleron-labs": {
   "checked": "2026-09-14T16:38:26+00:00",
@@ -22,6 +40,12 @@
   "email": null,
   "page": null,
   "website": "https://accensible.com/#/"
+ },
+ "actorius-innovations-and-research": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://actorius.co/"
  },
  "acuradyne-medical-systems": {
   "checked": "2026-09-14T16:38:28+00:00",
@@ -53,6 +77,30 @@
   "page": "https://agnikul.in/contact-us/",
   "website": "http://www.agnikul.in"
  },
+ "agnit-semiconductors": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": "info@agnitsemi.com",
+  "page": "https://agnitsemi.com/contact-us",
+  "website": "https://agnitsemi.com/"
+ },
+ "agri-joy": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": "info@agrijoy.in",
+  "page": "https://www.agrijoy.in/contact",
+  "website": "https://www.agrijoy.in/"
+ },
+ "agrikhet-ecoharvest-solutions": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": "contact@agrikhet.in",
+  "page": null,
+  "website": "https://agrikhet.in"
+ },
+ "ahammune-biosolutions": {
+  "checked": "2026-09-15T01:42:04+00:00",
+  "email": "info@ahammune.com",
+  "page": "https://www.ahammune.com/contact",
+  "website": "https://www.ahammune.com/"
+ },
  "aibono-smart-farming": {
   "checked": "2026-09-14T16:38:33+00:00",
   "email": null,
@@ -64,6 +112,12 @@
   "email": null,
   "page": "https://www.albatross-energetics.in/contact",
   "website": "https://www.albatross-energetics.in/"
+ },
+ "algobotix": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": null,
+  "page": "https://algobotix.com/contact-us/",
+  "website": "https://algobotix.com/"
  },
  "algosurg-inc": {
   "checked": "2026-09-14T16:38:28+00:00",
@@ -107,6 +161,12 @@
   "page": "https://annoviant.com/contact/",
   "website": "https://annoviant.com/"
  },
+ "apratima-biosolutions": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": null,
+  "page": "https://www.apratima.com/contact",
+  "website": "https://www.apratima.com"
+ },
  "arc-robotics": {
   "checked": "2026-09-14T16:38:33+00:00",
   "email": "connect@arcrobotics.in",
@@ -143,6 +203,12 @@
   "page": "https://astrome.co/contact-us/",
   "website": "https://www.astrome.co"
  },
+ "astrophel-aerospace": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": "https://astrophelaerospace.in/contact-us",
+  "website": "https://astrophelaerospace.in/"
+ },
  "atmospheric-flight-technologies": {
   "checked": "2026-09-14T16:38:23+00:00",
   "email": "info@atmosflight.com",
@@ -160,6 +226,12 @@
   "email": null,
   "page": "https://innovatecure.com/contact-us/",
   "website": "https://innovatecure.com"
+ },
+ "avkalan-labs": {
+  "checked": "2026-09-15T01:42:12+00:00",
+  "email": "industry@avkalanlabs.com",
+  "page": "https://avkalanlabs.com/contacts",
+  "website": "https://avkalanlabs.com/"
  },
  "ayati-devices": {
   "checked": "2026-09-14T16:38:25+00:00",
@@ -197,6 +269,12 @@
   "page": "http://www.brsindia.com/contact.html",
   "website": "http://www.brsindia.com/"
  },
+ "bhoomicam": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": "https://www.bhoomicam.com/contact-us",
+  "website": "https://www.bhoomicam.com/"
+ },
  "biodimension-technology": {
   "checked": "2026-09-14T16:38:34+00:00",
   "email": "info@biodimension.in",
@@ -214,6 +292,12 @@
   "email": "contact@robobionics.in",
   "page": "https://robobionics.in/contact/",
   "website": "https://www.robobionics.in/"
+ },
+ "bioprime-agrisolutions": {
+  "checked": "2026-09-15T01:42:04+00:00",
+  "email": "info@bioprimeagri.com",
+  "page": "https://www.bioprimeagri.com/contact",
+  "website": "https://bioprimeagri.com/"
  },
  "bit-mapper-integration-technologies": {
   "checked": "2026-09-14T16:38:29+00:00",
@@ -244,6 +328,30 @@
   "email": null,
   "page": null,
   "website": "https://boltzmann.co/"
+ },
+ "botloka": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": "pooja@botloka.com",
+  "page": null,
+  "website": "https://www.botloka.com/"
+ },
+ "bpc-bioproducts": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": "team@amylo.in",
+  "page": null,
+  "website": "https://amylo.in"
+ },
+ "brainovative-labs": {
+  "checked": "2026-09-15T01:42:12+00:00",
+  "email": "contact@brainovativelabs.com",
+  "page": "https://www.brainovativelabs.com/contact-us",
+  "website": "https://www.brainovativelabs.com/"
+ },
+ "byas-biorefineries": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://byasbioref.in/"
  },
  "bylin-medtech": {
   "checked": "2026-09-14T16:38:26+00:00",
@@ -280,6 +388,12 @@
   "email": "business@cancrie.co",
   "page": "https://www.cancrie.co/contact.php",
   "website": "https://www.cancrie.co/"
+ },
+ "carbsorb-solutions": {
+  "checked": "2026-09-15T01:42:06+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://carbsorb.com/"
  },
  "carimo-technologies": {
   "checked": "2026-09-14T16:38:24+00:00",
@@ -323,6 +437,24 @@
   "page": null,
   "website": "https://www.creaidlabs.com/"
  },
+ "curelink": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.cure.link/"
+ },
+ "cvit-solution": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": "info@cvit.in",
+  "page": null,
+  "website": "https://www.cvit.in/"
+ },
+ "cygenica": {
+  "checked": "2026-09-15T01:42:03+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.cygenica.com/"
+ },
  "cygni-energy": {
   "checked": "2026-09-14T16:38:32+00:00",
   "email": "info@cygni.com",
@@ -334,6 +466,24 @@
   "email": null,
   "page": null,
   "website": "https://www.darukaa.earth/"
+ },
+ "dee-dee-labs": {
+  "checked": "2026-09-15T01:42:04+00:00",
+  "email": null,
+  "page": "https://deedeelabs.org/contact/",
+  "website": "https://deedeelabs.org/"
+ },
+ "deepaarogya": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.deepaarogya.com/"
+ },
+ "delta-botanicals-and-research": {
+  "checked": "2026-09-15T01:42:12+00:00",
+  "email": "info@deltabotanicals.in",
+  "page": null,
+  "website": "https://www.deltabotanicals.in/"
  },
  "denovo-bioinnovations": {
   "checked": "2026-09-14T16:38:30+00:00",
@@ -347,11 +497,29 @@
   "page": "https://desintoxtech.com/index.php/contact-us/",
   "website": "https://www.desintoxtech.com"
  },
+ "dfine-bio-innovations": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": "https://dfinebio.in/contact-us/",
+  "website": "https://www.dfinebio.in"
+ },
  "diagopreutic": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": null,
   "page": "https://diagopreutic.co.in/contact-us/",
   "website": "https://diagopreutic.co.in/"
+ },
+ "digantara-research-and-technologies": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@digantara.co.in",
+  "page": null,
+  "website": "http://digantara.co.in/"
+ },
+ "divisha-innovations": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.divisha.io/"
  },
  "docsapp-phasorz-technologies": {
   "checked": "2026-09-14T16:38:33+00:00",
@@ -395,11 +563,23 @@
   "page": null,
   "website": "https://durjeya.com/"
  },
+ "ecostrata-infra": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@novacret.in",
+  "page": null,
+  "website": "https://www.novacret.in/"
+ },
  "edhaa-innovations": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": "info@edhaainnovations.com",
   "page": "https://www.edhaainnovations.com/contactus",
   "website": "https://www.edhaainnovations.com/"
+ },
+ "ednam-soultions": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": "hello@ednams.com",
+  "page": null,
+  "website": "https://ednams.com/"
  },
  "edsix-brain-lab": {
   "checked": "2026-09-14T16:38:32+00:00",
@@ -418,6 +598,18 @@
   "email": "contact@ekosight.com",
   "page": null,
   "website": "https://ekosight.com/"
+ },
+ "electica-energy": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://electica.in/"
+ },
+ "elexo-energy": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": "info@elexo.energy",
+  "page": null,
+  "website": "https://www.elexo.energy/"
  },
  "embright-infotech": {
   "checked": "2026-09-14T16:38:26+00:00",
@@ -443,11 +635,29 @@
   "page": null,
   "website": "https://www.energybae.in"
  },
+ "enlife": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@enlife.in",
+  "page": "https://enlife.in/contact-us/",
+  "website": "http://www.enlife.in/"
+ },
+ "etherx-ai": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "sarat@etherx.ai",
+  "page": "https://etherx.ai/contactus",
+  "website": "https://etherx.ai"
+ },
  "euphotic-labs": {
   "checked": "2026-09-14T16:38:25+00:00",
   "email": "hello@euphotic.io",
   "page": null,
   "website": "https://www.euphotic.io/"
+ },
+ "exocan-healthcare-technologies": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "contact@exocanhealthcare.com",
+  "page": "https://www.exocanhealthcare.com/contact-us.php",
+  "website": "https://www.exocanhealthcare.com/"
  },
  "exsure": {
   "checked": "2026-09-14T16:38:34+00:00",
@@ -461,11 +671,35 @@
   "page": "https://www.fabheads.in/contact",
   "website": "https://www.fabheads.in/"
  },
+ "farmicon-india": {
+  "checked": "2026-09-15T01:42:12+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.farmicon.in"
+ },
  "fastsense-innovations": {
   "checked": "2026-09-14T18:13:10+00:00",
   "email": "contact@fastsenseinnovations.com",
   "page": null,
   "website": "https://www.fastsenseinnovations.com/"
+ },
+ "fermentech-labs": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": "ceo@fermentechlabs.com",
+  "page": null,
+  "website": "https://www.fermentechlabs.com"
+ },
+ "ferry-lifesciences": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.fe-rry.com/"
+ },
+ "feynman-energy": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://feynmanenergy.in/"
  },
  "fibsol-life-technologies": {
   "checked": "2026-09-14T16:38:32+00:00",
@@ -484,6 +718,12 @@
   "email": null,
   "page": null,
   "website": "https://www.fluoresight.in/"
+ },
+ "flytbase": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "support@flytbase.com",
+  "page": "https://www.flytbase.com/contact",
+  "website": "https://www.flytbase.com/"
  },
  "fontierz": {
   "checked": "2026-09-14T18:13:08+00:00",
@@ -533,6 +773,18 @@
   "page": "https://www.gpclifesciences.com/contact-us-2/",
   "website": "https://www.gpclifesciences.com/"
  },
+ "green-collar-agritech-solutions": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": "https://greencollar.ai/contactus",
+  "website": "https://greencollar.ai/"
+ },
+ "green-grahi-solutions": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": "https://www.greengrahi.com/contact-us",
+  "website": "https://www.greengrahi.com/"
+ },
  "green-trek-research-and-development": {
   "checked": "2026-09-14T16:38:25+00:00",
   "email": null,
@@ -569,6 +821,18 @@
   "page": "https://gut-buddy.com/contact-support",
   "website": "https://gut-buddy.com/"
  },
+ "gyrfalcon-intelliedge-solutions-india": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://gyrfalconintelliedge.com/"
+ },
+ "gyroid-photonics": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": "https://www.gyrophint.com/contact.html",
+  "website": "https://www.gyrophint.com/"
+ },
  "h2e-power-systems": {
   "checked": "2026-09-14T16:38:28+00:00",
   "email": null,
@@ -586,6 +850,24 @@
   "email": "info@hbslifesciences.com",
   "page": null,
   "website": "https://www.hbslifesciences.com/"
+ },
+ "hem-dimensions": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "hkjayant@hemdimensions.com",
+  "page": null,
+  "website": "https://hemdimensions.com/"
+ },
+ "hmv-drives": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": "info@hmvdrives.com",
+  "page": "https://hmvdrives.com/contact/",
+  "website": "https://hmvdrives.com/"
+ },
+ "hornet-biologicals": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": "https://hornet.bio/contact/",
+  "website": "https://www.hornet.bio/"
  },
  "hrimtron-energy-systems": {
   "checked": "2026-09-14T18:13:08+00:00",
@@ -647,17 +929,35 @@
   "page": null,
   "website": "http://www.indent.co.in/"
  },
+ "indius-mediproducts": {
+  "checked": "2026-09-15T01:42:04+00:00",
+  "email": "info@indiusmedical.com",
+  "page": null,
+  "website": "https://www.indiusmedical.com/"
+ },
  "indrones-solutions": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": null,
   "page": "https://www.indrones.com/general-contact-form.html",
   "website": "https://www.indrones.com"
  },
+ "infab-semiconductor": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@infab-tech.com",
+  "page": "https://infab-tech.com/contact",
+  "website": "https://infab-tech.com/"
+ },
  "infyu-labs": {
   "checked": "2026-09-14T16:38:25+00:00",
   "email": null,
   "page": "https://www.infyulabs.com/contact.html",
   "website": "https://www.infyulabs.com"
+ },
+ "ingenium-education": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://ingeniumedu.com/"
  },
  "innaumation-medical-devices": {
   "checked": "2026-09-14T16:38:25+00:00",
@@ -670,6 +970,12 @@
   "email": null,
   "page": "https://www.inspecity.com/contact-us",
   "website": "https://www.inspecity.com/"
+ },
+ "international-center-for-nano-devices": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@icend.xyz",
+  "page": "https://www.icend.xyz/contact",
+  "website": "https://www.icend.xyz/"
  },
  "intignus-bio": {
   "checked": "2026-09-14T18:13:10+00:00",
@@ -713,6 +1019,12 @@
   "page": "https://jyoshrobot.com/contact/",
   "website": "https://www.jyoshrobot.com"
  },
+ "kaiza-health": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@kaizatech.com",
+  "page": null,
+  "website": "https://www.kaizatech.com/kaizahealth"
+ },
  "kbcols-sciences": {
   "checked": "2026-09-14T18:13:10+00:00",
   "email": "contact@kbcolssciences.com",
@@ -730,6 +1042,18 @@
   "email": "info@koreammr.com",
   "page": "https://koreammr.com/contact",
   "website": "https://koreammr.com/"
+ },
+ "kozhnosys": {
+  "checked": "2026-09-15T01:42:03+00:00",
+  "email": "contact@kozhnosys.com",
+  "page": "https://kozhnosys.com/contact/",
+  "website": "https://kozhnosys.com/"
+ },
+ "kristelle-dental-implants": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.kristelledentalimplant.com"
  },
  "lamark-biotech": {
   "checked": "2026-09-14T18:13:10+00:00",
@@ -761,6 +1085,24 @@
   "page": null,
   "website": "https://www.lifesparktech.com/"
  },
+ "logicboots": {
+  "checked": "2026-09-15T01:42:00+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://logicboots.com/"
+ },
+ "logy-ai": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://logy.ai/"
+ },
+ "magheals": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.magheals.com/"
+ },
  "magnimous-info-tech": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": "support@magnimous.com",
@@ -772,6 +1114,12 @@
   "email": "contact@manastik.com",
   "page": null,
   "website": "https://www.manastik.com/"
+ },
+ "matolutions": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": "innovation@matolutions.com",
+  "page": "https://matolutions.com/contact",
+  "website": "https://matolutions.com/"
  },
  "matterak-technologies": {
   "checked": "2026-09-14T16:38:34+00:00",
@@ -803,11 +1151,41 @@
   "page": "https://www.medprimetech.com/contact-us/",
   "website": "http://www.medprimetech.com/"
  },
+ "medrinz-bio": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": "https://medrinzbio.com/contact/",
+  "website": "https://medrinzbio.com/"
+ },
+ "meerkats-heatcrafters": {
+  "checked": "2026-09-15T01:42:00+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://heatcrafters.in/"
+ },
  "meine-electric-automotive": {
   "checked": "2026-09-14T16:38:33+00:00",
   "email": "contact@meineelectric.com",
   "page": "https://meineelectric.com/contact",
   "website": "https://meineelectric.com/"
+ },
+ "microx-pratimesh-labs": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://microxlabs.com/"
+ },
+ "mimyk": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "contact@mimyk.com",
+  "page": "https://www.mimyk.com/get-in-touch/",
+  "website": "https://www.mimyk.com"
+ },
+ "module-innovations": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "mi@moduleinnovations.com",
+  "page": null,
+  "website": "https://moduleinnovations.com/"
  },
  "moldoc-biotech": {
   "checked": "2026-09-14T16:38:25+00:00",
@@ -815,11 +1193,41 @@
   "page": "https://www.moldocbiotech.com/contact/",
   "website": "https://www.moldocbiotech.com/"
  },
+ "mushloop": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "ceo@mushloop.com",
+  "page": null,
+  "website": "https://mushloop.com/"
+ },
+ "mylab-discovery-solutions": {
+  "checked": "2026-09-15T01:42:04+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://mylabglobal.com/"
+ },
+ "mynvax": {
+  "checked": "2026-09-15T01:42:07+00:00",
+  "email": "info@mynvax.com",
+  "page": null,
+  "website": "https://www.mynvax.com"
+ },
  "nano-connect-semicon": {
   "checked": "2026-09-14T16:38:23+00:00",
   "email": null,
   "page": null,
   "website": "https://www.nanoconnectsemicon.com"
+ },
+ "nanoai-technology": {
+  "checked": "2026-09-15T01:42:00+00:00",
+  "email": null,
+  "page": "https://www.nanoaitechnology.com/blank",
+  "website": "https://www.nanoaitechnology.com/"
+ },
+ "nanosniff-technologies": {
+  "checked": "2026-09-15T01:41:54+00:00",
+  "email": null,
+  "page": null,
+  "website": "http://nanosniff.com/"
  },
  "nanotherapx-innovations": {
   "checked": "2026-09-14T16:38:24+00:00",
@@ -832,6 +1240,18 @@
   "email": null,
   "page": null,
   "website": "https://www.navainnovation.com"
+ },
+ "navstream-innovations": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://navstream.in/"
+ },
+ "nayam-innovations": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.nayaminnovations.com/"
  },
  "ncf-green-energy": {
   "checked": "2026-09-14T16:38:24+00:00",
@@ -856,6 +1276,12 @@
   "email": "info@newspace.co.in",
   "page": null,
   "website": "https://newspace.co.in/"
+ },
+ "noble-exchange-solutions": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://nobleexchangesolutions.com/"
  },
  "numelo-technologies": {
   "checked": "2026-09-14T16:38:24+00:00",
@@ -923,6 +1349,18 @@
   "page": null,
   "website": "https://www.papyrusdx.com/"
  },
+ "path-shodh-healthcare": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@pathshodh.com",
+  "page": "https://www.pathshodh.com/contact.php",
+  "website": "https://www.pathshodh.com"
+ },
+ "perovskite-innovation": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://perovskiteinnovation.com/"
+ },
  "photom-technologies": {
   "checked": "2026-09-14T16:38:27+00:00",
   "email": "info@photomtechnologies.com",
@@ -947,11 +1385,29 @@
   "page": "http://www.powailabs.com/contact/contact.htm",
   "website": "http://www.powailabs.com/"
  },
+ "powerzest-energy-solutions": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": null,
+  "page": "https://www.powerzest.in/contact",
+  "website": "http://www.powerzest.in"
+ },
  "pragmatech-healthcare": {
   "checked": "2026-09-14T18:13:08+00:00",
   "email": "anirban.palit@pragmatech.co.in",
   "page": "https://pragmatech.co.in/contact-us/",
   "website": "https://pragmatech.co.in/"
+ },
+ "prana-xenotransplants": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@pranaxt.com",
+  "page": null,
+  "website": "https://pranaxt.com/"
+ },
+ "pratiti-technologies": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "contact@pratititech.com",
+  "page": "https://www.pratititech.com/contact-us/",
+  "website": "https://www.pratititech.com/"
  },
  "prayasta-3d": {
   "checked": "2026-09-14T18:13:10+00:00",
@@ -983,11 +1439,29 @@
   "page": null,
   "website": "https://www.prosical.com/"
  },
+ "protein-design": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@proteindesign.co.in",
+  "page": "https://proteindesign.co.in/contact/",
+  "website": "http://www.proteindesign.co.in"
+ },
  "qawach-bio": {
   "checked": "2026-09-14T16:38:26+00:00",
   "email": "info@qawachbio.com",
   "page": "https://qawachbio.com/contact-us/",
   "website": "http://qawachbio.com/"
+ },
+ "qualivon-technologies": {
+  "checked": "2026-09-15T01:41:58+00:00",
+  "email": "support@qualivontechnologies.com",
+  "page": null,
+  "website": "https://www.qualivontechnologies.com/"
+ },
+ "quixotix-bioprinting": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.quixotixbioprinting.com/"
  },
  "qunu-labs": {
   "checked": "2026-09-14T16:38:26+00:00",
@@ -995,17 +1469,35 @@
   "page": "https://www.qnulabs.com/contact-us",
   "website": "https://www.qnulabs.com/"
  },
+ "ragavera-indic-technologies": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": null,
+  "page": "https://www.ragavera.com/contact-us",
+  "website": "https://www.ragavera.com/"
+ },
  "raycura-medical-technologies": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": null,
   "page": null,
   "website": "https://Raycura.com"
  },
+ "rebhu-computing": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://rebhu.com/"
+ },
  "rechargion-energy": {
   "checked": "2026-09-14T16:38:25+00:00",
   "email": "vilas.shelke@rechargion.com",
   "page": null,
   "website": "https://www.rechargion.com/"
+ },
+ "rejuvome-therapeutics": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "smita@rejuvome.com",
+  "page": null,
+  "website": "https://rejuvome.com/"
  },
  "relsym-solutions": {
   "checked": "2026-09-14T16:38:23+00:00",
@@ -1024,6 +1516,12 @@
   "email": "contact@renumedtech.com",
   "page": "https://www.renumedtech.com/contactus",
   "website": "https://www.renumedtech.com/"
+ },
+ "revy-environmental-solutions": {
+  "checked": "2026-09-15T01:42:03+00:00",
+  "email": null,
+  "page": "http://www.revy.co.in/contact.html",
+  "website": "http://www.revy.co.in/"
  },
  "ripple-healthcare": {
   "checked": "2026-09-14T16:38:34+00:00",
@@ -1049,6 +1547,24 @@
   "page": null,
   "website": "http://sal-bio.science/"
  },
+ "satat-gram-services": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": "https://www.satatgram.com/contact.html",
+  "website": "https://www.satatgram.com"
+ },
+ "sattvaponics-solutions-proeon": {
+  "checked": "2026-09-15T01:42:03+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://proeon.co/"
+ },
+ "scilogic-applied-research": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": null,
+  "page": "https://www.scilogic.tech/contact",
+  "website": "https://www.scilogic.tech/"
+ },
  "sedemac-mechatronics": {
   "checked": "2026-09-14T16:38:28+00:00",
   "email": null,
@@ -1061,11 +1577,47 @@
   "page": null,
   "website": "http://senseqube.com/"
  },
+ "sensivision-health-technologies": {
+  "checked": "2026-09-15T01:42:04+00:00",
+  "email": "contact@sensivisionhealth.com",
+  "page": null,
+  "website": "https://sensivisionhealth.com/"
+ },
+ "serigen-mediproducts": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "info@serigenmed.com",
+  "page": "https://serigenmed.com/contact/",
+  "website": "https://serigenmed.com/"
+ },
  "sh-forhealth": {
   "checked": "2026-09-14T18:13:08+00:00",
   "email": "admin@forhealth.co.in",
   "page": null,
   "website": "https://www.forhealth.co.in/"
+ },
+ "shanmukha-innovations": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@sminnovations.in",
+  "page": "https://sminnovations.in/contact.html",
+  "website": "https://sminnovations.in/"
+ },
+ "shantani-proteome-analytics": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "info@shantani.com",
+  "page": "https://www.shantani.com/contact-us.html",
+  "website": "https://www.shantani.com/"
+ },
+ "siamaf-healthcare": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@siamaf.com",
+  "page": "https://siamaf.com/contact",
+  "website": "https://siamaf.com"
+ },
+ "sickle-innovations": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.sickle.in"
  },
  "skincurate-research": {
   "checked": "2026-09-14T16:38:26+00:00",
@@ -1133,17 +1685,41 @@
   "page": "https://evascalpcooling.co.in/contact-us/",
   "website": "https://evascalpcooling.co.in/about-us/"
  },
+ "super-good-nano": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": "https://www.supergoodnano.com/contact",
+  "website": "https://www.supergoodnano.com/"
+ },
  "suryudey-plastic-electronics": {
   "checked": "2026-09-14T18:13:08+00:00",
   "email": "hello@suryudey.com",
   "page": null,
   "website": "https://www.suryudey.com/"
  },
+ "sustainol-solutions": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": "info@sustainol.com",
+  "page": "https://www.sustainol.com/contact.html",
+  "website": "https://www.sustainol.com/"
+ },
+ "sustivonai-pvt-ltd-doing-business-as-sustivon": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.sustivon.com"
+ },
  "synersense": {
   "checked": "2026-09-14T16:38:27+00:00",
   "email": null,
   "page": "https://www.synersense.com/view/synersense/contact-us",
   "website": "https://www.synersense.com"
+ },
+ "synthera-biomedicals": {
+  "checked": "2026-09-15T01:42:05+00:00",
+  "email": "sales@synthera.in",
+  "page": "https://synthera.in/contact-us/",
+  "website": "https://synthera.in/"
  },
  "taypro": {
   "checked": "2026-09-14T16:38:26+00:00",
@@ -1187,11 +1763,23 @@
   "page": "https://www.medevplus.com/contact.php",
   "website": "https://www.medevplus.com"
  },
+ "tracexero-technologies": {
+  "checked": "2026-09-15T01:42:00+00:00",
+  "email": "info@tracexero.com",
+  "page": "https://www.tracexero.com/contact",
+  "website": "https://www.tracexero.com/"
+ },
  "transformer-neural-scan-quest-ai": {
   "checked": "2026-09-14T16:38:24+00:00",
   "email": null,
   "page": null,
   "website": "https://tnsqai.com/"
+ },
+ "translead-medtech-private-limited-earlier-neuintegrals-medtech": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@transleadmedtech.com",
+  "page": null,
+  "website": "https://transleadmedtech.com/"
  },
  "transpact-enterprises": {
   "checked": "2026-09-14T16:38:28+00:00",
@@ -1211,6 +1799,12 @@
   "page": "https://tri-nano.co/contact-us/",
   "website": "https://www.tri-nano.co"
  },
+ "tsalla-aerospace": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": "info@tsallaaerospace.com",
+  "page": null,
+  "website": "https://www.tsallaaerospace.com"
+ },
  "uber-diagnostics": {
   "checked": "2026-09-14T16:38:27+00:00",
   "email": "sales@cardiotrack.io",
@@ -1223,17 +1817,35 @@
   "page": "https://umagine.co.in/contact-us/",
   "website": "https://umagine.co.in/"
  },
+ "umarobotics": {
+  "checked": "2026-09-15T01:42:09+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://umarobotics.com/"
+ },
  "unino-healthcare": {
   "checked": "2026-09-14T16:38:25+00:00",
   "email": null,
   "page": null,
   "website": "http://unino.in/"
  },
+ "urbanwind-technology": {
+  "checked": "2026-09-15T01:42:13+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://urbanwindtech.vercel.app/"
+ },
  "utopic-tech": {
   "checked": "2026-09-14T16:38:27+00:00",
   "email": null,
   "page": null,
   "website": "https://www.utopictech.com"
+ },
+ "uvera-mobility": {
+  "checked": "2026-09-15T01:42:10+00:00",
+  "email": null,
+  "page": "https://www.uveramobility.com/contact-us",
+  "website": "https://www.uveramobility.com/"
  },
  "vasundharaa-geo-technologies": {
   "checked": "2026-09-14T16:38:32+00:00",
@@ -1252,6 +1864,12 @@
   "email": "contact@vidcare.in",
   "page": "https://vidcare.in/contact-us/",
   "website": "https://www.vidcare.in/"
+ },
+ "vigorus-healthtech": {
+  "checked": "2026-09-15T01:42:12+00:00",
+  "email": null,
+  "page": "https://vigorushealth.com/contact",
+  "website": "https://vigorushealth.com/"
  },
  "viridian-ingni-propulsion": {
   "checked": "2026-09-14T16:38:33+00:00",
@@ -1288,6 +1906,12 @@
   "email": null,
   "page": "https://whiterabbit.ai/contact-us",
   "website": "https://whiterabbit.ai/"
+ },
+ "zenteiq-aitech-innovations": {
+  "checked": "2026-09-15T01:42:08+00:00",
+  "email": null,
+  "page": null,
+  "website": "https://www.zenteiq.ai/"
  },
  "zerocircle-alternatives": {
   "checked": "2026-09-14T18:13:09+00:00",
