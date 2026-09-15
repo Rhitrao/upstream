@@ -136,5 +136,30 @@ class TheCachePolicy(unittest.TestCase):
         self.assertEqual(self.asked, ["new.in", "failed.in", "stale.in"])
 
 
+
+class HowOftenASiteChanges(unittest.TestCase):
+    def test_distinct_versions_and_the_latest_are_read_from_a_collapsed_answer(self):
+        rows = [["timestamp", "digest"], ["20241102000000", "A"], ["20250310000000", "B"], ["20260115000000", "C"]]
+        self.assertEqual(wayback.parse_versions(rows), (3, "2026-01-15"))
+        self.assertEqual(wayback.parse_versions([["timestamp", "digest"]]), (0, None))
+        self.assertIsNone(wayback.parse_versions({"x": 1}))
+
+    def test_an_answer_is_cached_and_reused_and_a_failure_is_asked_again(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "activity.json"
+            asked = []
+
+            def ask(domain, since):
+                asked.append(domain)
+                return ((4, "2026-08-01"), wayback.CAPTURED) if domain == "live.in" else (None, wayback.TIMEOUT)
+
+            companies = [company("a", "https://live.in"), company("b", "https://slow.in")]
+            found = wayback.activity(companies, cache_path=path, query=ask, now=lambda: NOW)
+            self.assertEqual(found, {"a": {"versions": 4, "last_change": "2026-08-01", "since": "2024-09-15"}})
+            asked.clear()
+            wayback.activity(companies, cache_path=path, query=ask, now=lambda: NOW + datetime.timedelta(days=1))
+            self.assertEqual(asked, ["slow.in"])
+
+
 if __name__ == "__main__":
     unittest.main()

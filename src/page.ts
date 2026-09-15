@@ -762,7 +762,8 @@ function topPicks(view: PageView): string {
 	const pick = (c: Company) => {
 		const said = c.product && c.website_identity === 'verified' ? c.product : describedBySource(c) ? c.description : null;
 		const n = c.trace_count;
-		return `<li><a href="${esc(`${BASE_PATH}/c/${c.id}`)}">${esc(c.name)}</a>${said ? `<span class="pick-builds">${esc(said)}</span>` : ''}<span class="pick-traces">${n === 0 ? 'no public trace' : `${n} public ${n === 1 ? 'trace' : 'traces'}`}</span></li>`;
+		const trail = traceTrail(c).replace(/<[^>]+>/g, '');
+		return `<li><a href="${esc(`${BASE_PATH}/c/${c.id}`)}">${esc(c.name)}</a>${said ? `<span class="pick-builds">${esc(said)}</span>` : ''}<span class="pick-traces">${trail || (n === 0 ? 'no public trace' : `${n} public ${n === 1 ? 'trace' : 'traces'}`)}</span></li>`;
 	};
 	return `
 <section class="top-picks" id="top-picks" aria-labelledby="top-picks-h">
@@ -1300,62 +1301,22 @@ function eventPhrase(company: Company): string | null {
  * dated or not, a website confirmed as theirs or not.
  */
 function companyRow(company: Company, now: Date, origin: string): string {
-	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	const builds = buildsLine(company);
 	const dated = company.first_seen !== null;
-
-	// An address nothing ties to the company is not linked from its row: for Grinntech
-	// it was HyperVerge's. The address and the reason stay on the company's page.
 	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
 	const siteState = site ? (company.website_identity === 'verified' ? 'verified' : 'unconfirmed') : company.website_checked ? 'none' : 'unknown';
 
-	// What the placement rests on, beside it: a sub-sector read off "Industry: Robotics"
-	// is a weaker claim than one read off a paragraph about the product.
-	const placement = sub
-		? `<a class="rdi" href="${esc(query({ subsector: sub.subsector_id }))}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a>${
-				company.classify_basis === 'register-label' ? ` <span class="basis-tag weak">${labelWords(company).tag}</span>` : ''
-			}`
-		: '<span class="rdi unclassified">not yet classified</span>';
-
-	// Evidence as links to where it was published. A website counts only once it is
-	// confirmed as theirs; before that the row says so rather than linking it as theirs.
-	const evidence = company.signals
-		.filter((signal) => signal.type !== 'website')
-		.map((signal) => {
-			const href = safeUrl(signal.url);
-			const name = esc(EVIDENCE_NAMES[signal.type] ?? signal.type);
-			const title = esc(`${signal.label}${signal.date ? `, ${signal.date}` : ''}`);
-			return href
-				? `<a class="ev" href="${esc(href)}" rel="noopener nofollow" title="${title}">${name}</a>`
-				: `<span class="ev" title="${title}">${name}</span>`;
-		});
-	if (siteState === 'verified') evidence.push(`<a class="ev ev-site" href="${esc(site!)}" rel="noopener nofollow">website</a>`);
-	if (siteState === 'unconfirmed') {
-		evidence.push(`<a class="ev ev-site unconfirmed" href="${esc(site!)}" rel="noopener nofollow">website not confirmed as theirs</a>`);
-	}
-	// Only where a source that publishes websites went looking. On this list the absence
-	// is the finding, which is why it keeps the page's one yellow.
-	if (siteState === 'none') evidence.push('<span class="fact-none">no website</span>');
-
-	// How old: the source's dated event, whether anyone says when it started, and when
-	// this list first wrote it down. Three facts, never merged into one "first seen".
-	const event = eventPhrase(company);
-	const age = ageKnown(company) ? `started ${company.origin_year ?? company.founded_year}` : 'founding year unknown';
-	const when = [event ?? 'no dated event', age, `added to Upstream ${addedAgo(company.discovered, now)}`].map(esc).join(' &middot; ');
-	const located = Boolean(company.city || company.state);
-	const place = located ? esc([company.city, company.state].filter(Boolean).join(', ')) : 'location unknown';
-	// How far along, only where a source says: the stage a founder chose on a register profile.
-	const stage = company.dpiit_stage ? `<span class="meta-stage">stage: ${esc(company.dpiit_stage)}</span>` : '';
-
-	// Why it is in this view. Only A and B say anything a reader can act on; a column of
-	// "Tier C" beside every row reads as a bug.
-	// The tier's reason in words, where it has one; a letter meant learning our rule first.
-	const tier =
-		company.tier === 'A'
-			? '<span class="tier ta" title="Tier A: found by a run of ours under 90 days ago, nothing dated earlier, at most 2 public traces">new and quiet</span>'
-			: company.tier === 'B'
-				? '<span class="tier tb" title="Tier B: on record under 180 days, at most 5 public traces">recent</span>'
-				: '';
+	// Six things an analyst reads in two seconds, in the order they decide on: what they build,
+	// hardware or software, how far along, how old and on whose word, who has noticed them, where.
+	// How we placed or ranked it is meta about the process, and lives on the company's page.
+	const kinds = tagsOf(company.build_tags);
+	const facts = [
+		kinds.length ? `<span class="f-kind">${esc(kinds.join(' + '))}</span>` : '',
+		company.dpiit_stage ? `<span class="f-stage" title="The stage the company chose on its DPIIT profile">${esc(stageWords(company.dpiit_stage))}</span>` : '',
+		`<span class="f-age${dated ? '' : ' undated'}">${esc(eventPhrase(company) ?? 'no source dates it')}</span>`,
+	].filter(Boolean);
+	const trail = traceTrail(company);
+	const city = company.city || company.state;
 
 	const state = [builds.described ? 'described' : 'undescribed', dated ? 'dated' : 'undated', `site-${siteState}`].join(' ');
 
@@ -1365,17 +1326,10 @@ function companyRow(company: Company, now: Date, origin: string): string {
     <div class="row-main">
       <h3><a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>${entityTag(company)}</h3>
       ${builds.html}
-      <p class="meta">
-        <span class="meta-rdi">${placement}</span>
-        <span class="meta-ev">${evidence.join(' ') || '<span class="ev none">no evidence recorded</span>'}</span>
-        <span class="meta-when${dated ? '' : ' undated'}">${when}</span>
-        <span class="meta-where${located ? '' : ' unknown'}">${place}</span>
-        ${stage}
-      </p>
+      <p class="facts-row">${facts.join('')}</p>
+      <p class="trail">${trail || '<span class="none">no public trace</span>'}${city ? `<span class="f-city">${esc(city)}</span>` : ''}</p>
     </div>
     <div class="row-side">
-      ${traceLine(company)}
-      ${tier}
       <span class="row-actions" hidden>
         <button type="button" class="mark" data-mark="shortlist" aria-pressed="false">Shortlist</button>
         <button type="button" class="mark" data-mark="seen" aria-pressed="false">Seen</button>
@@ -1384,6 +1338,55 @@ function companyRow(company: Company, now: Date, origin: string): string {
       <template class="brief">${esc(briefMarkdown(company, `${origin}${BASE_PATH}/c/${company.id}`, now))}</template>
     </div>
   </li>`;
+}
+
+/** DPIIT's stage values, in words: "EarlyTraction" is how the register writes it. */
+function stageWords(stage: string): string {
+	return stage.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (c) => c.toUpperCase());
+}
+
+/**
+ * Who has noticed the company, named: "SINE IIT Bombay portfolio + BIRAC BIG + own website".
+ * Each part links to where it was published. The composition is the signal, not the count.
+ */
+export function traceTrail(company: Pick<Company, 'signals' | 'dpiit_status' | 'website' | 'website_identity'>): string {
+	const parts = new Map<string, string | null>();
+	for (const signal of company.signals ?? []) {
+		const name = traceName(signal, company.dpiit_status);
+		if (name && !parts.has(name)) parts.set(name, safeUrl(signal.url));
+	}
+	return [...parts.entries()]
+		.map(([name, href]) => (href ? `<a class="t" href="${esc(href)}" rel="noopener nofollow">${esc(name)}</a>` : `<span class="t">${esc(name)}</span>`))
+		.join('<span class="plus"> + </span>');
+}
+
+function traceName(signal: Signal, dpiitStatus: string | null): string | null {
+	const label = (signal.label ?? '').trim();
+	switch (signal.type) {
+		case 'incubator':
+			return `${SOURCE_LABELS[signal.source ?? ''] ?? label.replace(/,.*$/, '').replace(/\s+(incubatee|startup|portfolio company)s?$/i, '')} portfolio`;
+		case 'grant': {
+			// "SINE IIT Bombay DST NIDHI PRAYAS, Cohort 5" and "BIRAC BIG 21" both name a scheme.
+			const scheme = label
+				.replace(/^SINE IIT Bombay\s+/i, '')
+				.replace(/^seed investment,\s*/i, '')
+				.replace(/,\s*Cohort.*$/i, '')
+				.replace(/\s+\d+(\.\d+)?$/, '')
+				.replace(/\bNIDHI-PRAYAS\b/, 'NIDHI PRAYAS')
+				.trim();
+			return scheme || 'a grant';
+		}
+		case 'dpiit':
+			return dpiitStatus === 'recognised' || dpiitStatus === 'expired' || dpiitStatus === 'cancelled' ? 'DPIIT recognition' : 'Startup India profile';
+		case 'award':
+			return label.replace(/,.*$/, '') || 'an award';
+		case 'press':
+			return 'press mention';
+		case 'website':
+			return 'own website';
+		default:
+			return null;
+	}
 }
 
 /**
@@ -3038,16 +3041,27 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .trace-shape { font-size: var(--t-micro); line-height: 1.35; }
 /* On a company's page the count and what it is read as one fact in the line. */
 .facts .traces { display: inline; }
+.facts-row { display: flex; flex-wrap: wrap; gap: 0 var(--s2); margin: 0 0 var(--s0h); font-size: var(--t-xs); color: var(--ink); }
+.facts-row > span + span::before { content: '·'; margin-right: var(--s2); color: var(--muted); }
+.f-kind { font-weight: 500; }
+.f-stage { font-weight: 500; }
+.f-age.undated { color: var(--muted); font-style: italic; }
+.trail { margin: 0; font-size: var(--t-xs); color: var(--muted); display: flex; flex-wrap: wrap; align-items: baseline; gap: 0; }
+.trail .t { color: var(--muted); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.trail a.t:hover { color: var(--ink); }
+.trail .f-city::before { content: '·'; margin: 0 var(--s2); }
+.trail .none { font-style: italic; }
+.row-side { flex: 0 0 auto; }
 .scope { font-size: var(--t-xs); color: var(--muted); margin: var(--s3) 0 0; }
 .scope strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
 .scope a { color: var(--ink); text-underline-offset: 3px; }
 .top-picks { margin: var(--s5) 0 0; padding: var(--s4); border: 1px solid var(--rule-strong); border-radius: var(--radius); background: var(--raise); }
 .top-picks h2 { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s2); }
 .top-picks ol { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
-.top-picks li { display: grid; grid-template-columns: 1fr auto; column-gap: var(--s3); align-items: baseline; }
+.top-picks li { display: grid; grid-template-columns: 1fr; column-gap: var(--s3); align-items: baseline; }
 .top-picks li > a { font-weight: 600; text-underline-offset: 3px; }
 .pick-builds { grid-column: 1; font-size: var(--t-sm); color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-.pick-traces { grid-column: 2; grid-row: 1; font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); white-space: nowrap; }
+.pick-traces { grid-column: 1; font-size: var(--t-xs); color: var(--muted); }
 @media (max-width: 34rem) {
   .top-picks li { grid-template-columns: 1fr; }
   .pick-traces { grid-column: 1; grid-row: auto; }

@@ -673,8 +673,10 @@ describe('what a company builds', () => {
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all&described=all&kind=all`)).text();
 		const start = html.indexOf('id="c-edsix"');
 		const row = html.slice(start, html.indexOf('</li>', start));
-		expect(row).toContain('href="http://skillangels.com/"');
-		expect(row).toContain('not confirmed as theirs');
+		// A hedge about our process is not a fact about the company: the row does not link an
+		// address nobody confirmed, and the company's page says why.
+		expect(row).not.toContain('href="http://skillangels.com/"');
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/edsix`)).text()).toContain('not confirmed as theirs');
 	});
 
 	it('puts the sentence on the row, attributed, and never as our own claim', async () => {
@@ -844,11 +846,8 @@ describe('GET /upstream (the page)', () => {
 		expect(demo).toContain('Pravaha Filtration Private Limited');
 		expect(demo).not.toContain('Saral Hydro Systems Private Limited');
 		expect(demo).toContain('held back');
-		// The two-word lesson in how the ranking works, still carrying the page's one
-		// yellow — it moved from a pill to the fact itself and kept its meaning.
-		expect(demo).toContain('<span class="fact-none">no website</span>');
-		// The sub-sector is a filter link on the row now, not a sentence.
-		expect(demo).toMatch(/<a class="rdi" href="\?subsector=2\.5">2\.5 Space Technologies<\/a>/);
+		// Who has noticed a company, named on its row; the sub-sector is chosen from the map.
+		expect(demo).toMatch(/<p class="trail">/);
 	});
 
 	it('lists undated companies after the dated ones, in their own part of the list', async () => {
@@ -917,8 +916,8 @@ describe('GET /upstream (the page)', () => {
 		const list = await page('?tier=all&age=all&described=all&kind=all');
 		const row = list.slice(list.indexOf('id="c-dverse"'), list.indexOf('</li>', list.indexOf('id="c-dverse"')));
 		expect(row).toContain('No description published');
-		expect(row).toContain('grant category only');
-		expect(row).not.toContain('register label only');
+		// The basis is process, so it is on the company's page, not the row.
+		expect(row).not.toContain('grant category only');
 		const html = await detail('dverse');
 		expect(html).toContain('The category a grant list filed the award under, one of six, not a description.');
 		expect(html).toContain('the category a grant list filed its award under, one of six. That supports this sub-sector and nothing narrower.');
@@ -951,12 +950,10 @@ describe('GET /upstream (the page)', () => {
 		expect(label).toContain('supports this sub-sector and nothing narrower');
 		expect(desc).toContain('Placed from the description above.');
 
-		// Beside the placement on the row too, not only a click away.
+		// Not on the row: how a placement was made is about our process, a click away.
 		const list = await page('?tier=all&age=all');
 		const rowOf = (id: string) => list.slice(list.indexOf(`id="c-${id}"`), list.indexOf('</li>', list.indexOf(`id="c-${id}"`)));
-		expect(rowOf('from-label')).toContain('register label only');
-		// A description-based placement is the unmarked case; only the weak one is flagged.
-		expect(rowOf('from-desc')).not.toContain('register label only');
+		expect(rowOf('from-label')).not.toContain('register label only');
 
 		// And the finding is written up, not just marked.
 		expect(await page('?tier=all')).toContain('Two official classifications that do not meet');
@@ -1022,9 +1019,9 @@ describe('GET /upstream (the page)', () => {
 			const start = html.indexOf(`id="c-${id}"`);
 			return html.slice(start, html.indexOf('</li>', start));
 		};
-		expect(row('looked')).toContain('<span class="fact-none">no website</span>');
-		// A register with no website field has said nothing about whether one exists,
-		// and the row must not turn that silence into a claim.
+		// The row names who has noticed a company; a website is one of them only when it is theirs
+		// and answered. Neither row claims a website it does not have.
+		expect(row('looked')).not.toContain('own website');
 		expect(row('register')).not.toContain('no website');
 	});
 
@@ -1065,9 +1062,9 @@ describe('GET /upstream (the page)', () => {
 		const html = await page('?tier=all&age=all');
 		const start = html.indexOf('id="c-probird"');
 		const row = html.slice(start, html.indexOf('</li>', start));
+		// Age with its basis, the source's date; when we collected it is not on the row.
 		expect(row).toContain('on DPIIT register Aug 2023');
-		expect(row).toContain('added to Upstream today');
-		expect(row.indexOf('Aug 2023')).toBeLessThan(row.indexOf('added to Upstream'));
+		expect(row).not.toContain('added to Upstream');
 		expect(html).toContain('2 companies turned up in the last seven days in a source we were already watching.');
 		// Each row's "added to Upstream" is the day it was written; the headline is not that count.
 		expect(html).not.toContain('added to Upstream in the last seven days');
@@ -1094,11 +1091,8 @@ describe('GET /upstream (the page)', () => {
 		]);
 
 		const html = await page('?tier=all');
-		expect(html).toContain('founding year unknown');
 		expect(html).toContain('dated by a public register rather than by a');
-		// The one with a founding year is listed without the caveat.
-		const founded = html.slice(html.indexOf('Founded Co'), html.indexOf('Founded Co') + 400);
-		expect(founded).not.toContain('founding year unknown');
+		expect(await detail('registered')).toContain('founding year unknown');
 	});
 
 	it('does not let a register date stand in for a founding year at the gate', async () => {
@@ -1225,8 +1219,8 @@ describe('GET /upstream (the page)', () => {
 		await post({ source: 'venture-center', companies: [{ id: 'spaceock', name: 'Spaceock', sector_id: '2', subsector_id: '2.5', classify_basis: 'description' }] });
 		const tier = await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('spaceock').first<any>();
 		expect(tier.tier).toBe('A');
-		// Its row says why in words, not a letter.
-		expect(await page()).toContain('>new and quiet</span>');
+		// Its page says why in words, not a letter; the row carries no tier at all.
+		expect(await detail('spaceock')).toContain('New and quiet (Tier A)');
 	});
 
 	it('opens on everything when the only B row is one the age gate holds back', async () => {
@@ -1686,15 +1680,13 @@ describe('searching and one company at a time', () => {
 		const row = html.slice(start, html.indexOf('</li>', start));
 
 		expect(row).toContain('href="/upstream/c/kadamb-biolabs"');
-		// The four facts that change a sourcing decision, and the trace count said out
-		// loud rather than left to be inferred from counting chips.
+		// The facts that change a sourcing decision: what they build, how old on whose word, and
+		// who has noticed them, named rather than counted.
 		expect(row).toContain('Benchtop assay kits for district hospitals.');
-		expect(row).toContain('2 public traces');
-		// What the two are, not only how many.
-		expect(row).toMatch(/2 public traces<\/span><span class="trace-shape">[a-z ]+ and [a-z ]+</);
-		expect(row).toContain('website');
 		expect(row).toContain('incubator listing Jan 2026');
-		expect(row).toContain('added to Upstream today');
+		expect(row).toMatch(/portfolio<\/a><span class="plus"> \+ <\/span>|portfolio<\/span><span class="plus"> \+ <\/span>/);
+		expect(row).toContain('press mention');
+		expect(row).not.toContain('added to Upstream');
 		expect(row).not.toContain('first seen');
 		// And the tier badge is gone from the row: every company is Tier C today, so
 		// it was a column of identical labels that read as a bug.
@@ -2412,7 +2404,7 @@ describe('what an analyst keeps and how they order it', () => {
 		expect(ordered).toContain('<option value="described" selected>Most described</option>');
 		// How far along, only where a source says.
 		const row = ordered.slice(ordered.indexOf('id="c-rich-co"'), ordered.indexOf('</li>', ordered.indexOf('id="c-rich-co"')));
-		expect(row).toContain('<span class="meta-stage">stage: Prototype</span>');
+		expect(row).toContain('<span class="f-stage" title="The stage the company chose on its DPIIT profile">Prototype</span>');
 		// An old link that asked for the tier order gets least traced.
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream?sort=obscurity`)).text()).toContain('<option value="quietest" selected>Least traced</option>');
 	});
@@ -2467,6 +2459,27 @@ describe('what a shared link shows', () => {
 		expect(list).toContain('<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">');
 		await post({ source: 'test', companies: [{ id: 'card-co', name: 'Card Co' }] });
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/card-co`)).text()).toContain('<meta property="og:title" content="Card Co — Upstream">');
+	});
+});
+
+describe('who has noticed a company, named', () => {
+	it('names each trace by who left it, once, with scheme numbers and cohorts dropped', async () => {
+		const { traceTrail } = await import('../src/page');
+		const sig = (type: string, label: string, source: string, url: string | null = null) => ({ type, label, source, url, date: null });
+		const trail = traceTrail({
+			dpiit_status: 'recognised',
+			website: null,
+			website_identity: null,
+			signals: [
+				sig('incubator', 'SINE IIT Bombay incubatee', 'sine-iitb', 'https://sineiitb.org/portfolio/'),
+				sig('grant', 'SINE IIT Bombay DST NIDHI PRAYAS, Cohort 5', 'sine-iitb'),
+				sig('grant', 'BIRAC BIG 21', 'grants-csv'),
+				sig('grant', 'BIRAC BIG 22', 'grants-csv'),
+				sig('dpiit', 'DPIIT recognised (DIPP1)', 'dpiit-startup-india'),
+				sig('website', 'website live', 'sine-iitb'),
+			],
+		}).replace(/<[^>]+>/g, '');
+		expect(trail).toBe('SINE IIT Bombay portfolio + DST NIDHI PRAYAS + BIRAC BIG + DPIIT recognition + own website');
 	});
 });
 

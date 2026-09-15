@@ -262,3 +262,125 @@ def lookup(
     except Exception as error:  # noqa: BLE001 - a missing date must never fail the ingest
         print(f"  wayback: lookup stopped early: {type(error).__name__}: {str(error)[:120]}")
     return results
+
+
+# --- whether the site changes ----------------------------------------------------
+#
+# A second question of the same index: how many distinct versions of the homepage it has kept
+# over the last two years. `collapse=digest` folds consecutive captures whose content hash is
+# the same, so a site the crawler visited forty times without a change counts once. Several
+# versions is a site someone is working on; one version, or none, over two years is a site that
+# stood still — not a company that did. Cached separately, and asked again after 30 days.
+
+ACTIVITY_PATH = pathlib.Path(__file__).parent / "cache" / "wayback_activity.json"
+ACTIVITY_REFRESH = datetime.timedelta(days=30)
+ACTIVITY_YEARS = 2
+
+
+def parse_versions(rows) -> tuple[int, str | None] | None:
+    """(distinct versions, date of the latest) from a collapsed CDX answer, or None if malformed."""
+    if not isinstance(rows, list):
+        return None
+    stamps = [str(row[0]) for row in rows if isinstance(row, list) and row and row[0] != "timestamp" and re.fullmatch(r"\d{8,14}", str(row[0]))]
+    if not stamps:
+        return 0, None
+    last = max(stamps)
+    return len(stamps), f"{last[:4]}-{last[4:6]}-{last[6:8]}"
+
+
+def _activity_query(domain: str, since: str, session: requests.Session | None = None) -> tuple[tuple[int, str | None] | None, str]:
+    global _last_call
+    pause = DELAY_SECONDS - (time.monotonic() - _last_call)
+    if pause > 0:
+        time.sleep(pause)
+    getter = session.get if session is not None else requests.get
+    try:
+        response = getter(
+            CDX_URL,
+            params={"url": domain, "output": "json", "fl": "timestamp,digest", "collapse": "digest", "from": since, "filter": "statuscode:200", "limit": "1000"},
+            headers={"User-Agent": USER_AGENT},
+            timeout=TIMEOUT_SECONDS,
+        )
+    except requests.Timeout:
+        return None, TIMEOUT
+    except requests.RequestException:
+        return None, ERROR
+    finally:
+        _last_call = time.monotonic()
+    if response.status_code == 429:
+        raise RateLimited(domain)
+    if response.status_code != 200:
+        return None, UNAVAILABLE
+    if not response.text.strip():
+        return (0, None), CAPTURED
+    try:
+        parsed = parse_versions(response.json())
+    except ValueError:
+        return None, ERROR
+    return (parsed, CAPTURED) if parsed is not None else (None, ERROR)
+
+
+def activity(companies, max_seconds: float = 300, *, cache_path: pathlib.Path = ACTIVITY_PATH, query=None, now=_now) -> dict[str, dict]:
+    """Company id to {versions, last_change, since} for verified sites the index answered about. Never raises."""
+    ask = query or _activity_query
+    started = time.monotonic()
+    results: dict[str, dict] = {}
+    try:
+        cache = load(cache_path)
+        by_domain: dict[str, list[str]] = {}
+        for company in companies:
+            if getattr(company, "website_identity", None) != VERIFIED:
+                continue
+            website = getattr(company, "website", None)
+            domain = rdap.registrable(website)
+            if domain is None or rdap.is_hosted(domain) or identity.is_profile(website):
+                continue
+            by_domain.setdefault(domain, []).append(company.id)
+        since_date = (now() - datetime.timedelta(days=365 * ACTIVITY_YEARS)).date()
+        since = since_date.strftime("%Y%m%d")
+        todo = []
+        for domain in sorted(by_domain):
+            entry = cache.get(domain)
+            fresh = False
+            if isinstance(entry, dict) and entry.get("outcome") == CAPTURED:
+                try:
+                    fresh = now() - datetime.datetime.fromisoformat(entry["checked"]) < ACTIVITY_REFRESH
+                except (KeyError, TypeError, ValueError):
+                    fresh = False
+                for company_id in by_domain[domain]:
+                    results[company_id] = {"versions": entry.get("versions", 0), "last_change": entry.get("last_change"), "since": entry.get("since")}
+            if not fresh:
+                todo.append(domain)
+        todo.sort(key=lambda d: d in cache)
+        asked = 0
+        for domain in todo:
+            if time.monotonic() - started >= max_seconds:
+                print(f"  wayback activity: stopped at the {max_seconds:.0f}s budget with {len(todo) - asked} domains left")
+                break
+            try:
+                answer, outcome = ask(domain, since)
+            except RateLimited:
+                print("  wayback activity: rate limited; the rest wait for the next run")
+                break
+            except Exception:  # noqa: BLE001
+                answer, outcome = None, ERROR
+            asked += 1
+            if answer is None:
+                previous = cache.get(domain) if isinstance(cache.get(domain), dict) else {}
+                cache[domain] = {**previous, "last_failure": outcome, "last_failure_at": now().isoformat(timespec="seconds")}
+                if "outcome" not in previous:
+                    cache[domain]["outcome"] = outcome
+            else:
+                versions, last_change = answer
+                cache[domain] = {"outcome": CAPTURED, "versions": versions, "last_change": last_change, "since": since_date.isoformat(), "checked": now().isoformat(timespec="seconds")}
+                for company_id in by_domain[domain]:
+                    results[company_id] = {"versions": versions, "last_change": last_change, "since": since_date.isoformat()}
+            try:
+                save(cache, cache_path)
+            except OSError:
+                pass
+        if asked:
+            print(f"  wayback activity: asked {asked} domains")
+    except Exception as error:  # noqa: BLE001
+        print(f"  wayback activity: stopped early: {type(error).__name__}: {str(error)[:120]}")
+    return results
