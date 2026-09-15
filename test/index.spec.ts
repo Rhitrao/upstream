@@ -2443,7 +2443,7 @@ describe('arriving cold, and not getting stuck', () => {
 		const home = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
 		expect(home).toContain('<h2 id="top-picks-h">Least noticed right now</h2>');
 		expect(home).toContain('<a href="/upstream/c/grinntech">Grinntech Motors</a>');
-		expect(home).toMatch(/Showing the <strong>2<\/strong> of 2 records that say what they build, least noticed first/);
+		expect(home).toMatch(/Showing <strong>2<\/strong> companies that say what they build, least noticed first, out of 2 records/);
 		expect(home.indexOf('id="top-picks"')).toBeLessThan(home.indexOf('id="coverage"'));
 
 		const empty = await (await SELF.fetch(`${ORIGIN}/upstream?subsector=1.7`)).text();

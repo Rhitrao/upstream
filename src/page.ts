@@ -738,7 +738,14 @@ ${topPicks(view)}`;
 function scopeLine(view: PageView): string {
 	if (view.tracked === 0 || view.demo) return '';
 	const latest = view.sourceHealth.map((h) => h.last_success ?? '').sort().pop();
-	return `<p class="scope">Showing the <strong>${view.substance.companies}</strong> of ${view.tracked} records that say what they build, least noticed first${
+	const b = view.buckets;
+	const shown = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
+	// The same number the list shows, and what it is out of: the scope, not a second count to reconcile.
+	const narrowed = activeFilters(view).length > 0;
+	const what = narrowed
+		? 'companies in this view'
+		: `companies that say what they build${view.age === 'recent' && b.older ? ` and started in the last ${MAX_AGE_YEARS} years` : ''}`;
+	return `<p class="scope" id="scope">Showing <strong>${shown}</strong> ${what}, least noticed first, out of ${view.tracked} records${
 		latest ? ` &middot; sources checked ${shortDate(latest.slice(0, 10))}` : ''
 	} &middot; <a href="#result-line">what the list leaves out</a></p>`;
 }
@@ -2602,6 +2609,8 @@ section > h2 {
    the id reads better than parking it at the bottom. */
 .cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s1); line-height: 1.2; }
 .cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
+.list.loading { opacity: 0.55; transition: opacity 120ms ease-out; }
+.resume { color: var(--ink); text-underline-offset: 3px; display: inline-flex; min-height: 44px; align-items: center; }
 .since { font-size: var(--t-sm); margin: var(--s3) 0 0; padding: var(--s2) var(--s3); border-left: 2px solid var(--ink); background: var(--raise); }
 .hide-seen .company.is-seen { display: none; }
 .only-new .company:not(.is-new) { display: none; }
@@ -3402,6 +3411,7 @@ export const MARKS_SCRIPT = `
       write(m);
       return !!m[kind][id];
     },
+    set: function (kind, id) { var m = read(); if (!m[kind][id]) { m[kind][id] = Date.now(); write(m); } },
     clear: function () { if (store) { try { store.removeItem(KEY); } catch (e) {} } },
     size: function (m) { return Object.keys(m.shortlist).length + Object.keys(m.seen).length + Object.keys(m.pass).length; }
   };
@@ -3442,7 +3452,17 @@ export const LIST_SCRIPT = `
   if (apply) apply.hidden = true;
 
   // Where "back to results" should go: the view as it is now, canonical spelling.
-  function remember() { try { sessionStorage.setItem('upstream.results', location.pathname + location.search); } catch (e) {} }
+  function remember() {
+    try { sessionStorage.setItem('upstream.results', location.pathname + location.search); } catch (e) {}
+    // Across days, the last narrowed view, named as its chips name it, so a return visit can resume it.
+    try {
+      if (location.search) {
+        var chipLabels = Array.prototype.map.call(document.querySelectorAll('#chips a.filter-chip'), function (a) { return a.firstChild ? a.firstChild.textContent.trim() : ''; }).filter(Boolean);
+        var count = document.querySelector('#result-line strong');
+        if (chipLabels.length) localStorage.setItem('upstream.lastView', JSON.stringify({ url: location.pathname + location.search, label: chipLabels.join(' · '), n: count ? count.textContent : '' }));
+      }
+    } catch (e) {}
+  }
   remember();
 
   // --- marks on rows ---
@@ -3488,6 +3508,8 @@ export const LIST_SCRIPT = `
 
     // Since the last visit: quiet on a first visit and when nothing below is newer.
     var since = document.getElementById('since');
+    var resume = null;
+    try { resume = !location.search && JSON.parse(localStorage.getItem('upstream.lastView') || 'null'); } catch (e) {}
     if (since && lastVisit) {
       var fresh = 0;
       for (var r = 0; r < rows.length; r++) {
@@ -3496,13 +3518,22 @@ export const LIST_SCRIPT = `
         rows[r].classList.toggle('is-new', isNew);
         if (isNew) fresh++;
       }
-      since.hidden = fresh === 0;
+      since.hidden = fresh === 0 && !resume;
+      if (!fresh && resume) since.innerHTML = '';
       if (fresh) {
         var parts = lastVisit.split('-');
         var day = Number(parts[2]) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(parts[1]) - 1];
         since.innerHTML = 'Since your last visit on ' + day + ': <strong>' + fresh + '</strong> of the companies below ' + (fresh === 1 ? 'is' : 'are') + ' new. '
           + '<button type="button" class="linkish" data-act="only-new" aria-pressed="' + (onlyNew ? 'true' : 'false') + '">' + (onlyNew ? 'Show everything' : 'Show only those') + '</button>';
       }
+    }
+    if (since && resume && resume.url) {
+      since.hidden = false;
+      var link = document.createElement('a');
+      link.href = resume.url + '#controls';
+      link.className = 'resume';
+      link.textContent = 'Resume where you left off: ' + resume.label + (resume.n ? ' (' + resume.n + ')' : '');
+      if (!since.querySelector('a.resume')) { if (since.innerHTML) since.appendChild(document.createElement('br')); since.appendChild(link); }
     }
     var seenCount = Object.keys(m.seen).length;
     var seenToggle = form.querySelector('.seen-toggle');
@@ -3566,7 +3597,7 @@ export const LIST_SCRIPT = `
   });
   // Where a reader was, for the company page's way back.
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('li.company h3 a') : null;
+    var link = event.target.closest ? event.target.closest('li.company h3 a, #top-picks li a') : null;
     if (link) { remember(); }
   });
 
@@ -3574,19 +3605,25 @@ export const LIST_SCRIPT = `
   var timer = null;
   var sector = form.querySelector('#sector');
   var subsector = form.querySelector('#subsector');
-  var slots = ['widgets', 'chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'undated-slot'];
+  var slots = ['scope', 'top-picks', 'widgets', 'chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'undated-slot'];
   var seq = 0;
-  function refresh() {
+  function refresh(opts) {
     var params = new URLSearchParams(new FormData(form));
     // Empty fields are defaults; the canonical url leaves them out and so does this.
     Array.from(params.keys()).forEach(function (k) { if (!params.get(k)) params.delete(k); });
-    load(form.getAttribute('action').split('#')[0] + '?' + params.toString());
+    load(form.getAttribute('action').split('#')[0] + '?' + params.toString(), opts);
   }
   // One way to change the view, whether a control changed or a widget segment was picked:
   // fetch the page for that url, put its pieces in place, and make the controls say what
   // the server says the view is.
-  function load(url) {
+  // opts.history: 'push' (a filter the reader chose, so Back undoes it), 'replace' (typing in
+  // search, one entry per pause would bury Back), 'none' (arriving from Back itself).
+  // opts.reveal: bring the result line into view when the change happened out of sight.
+  function load(url, opts) {
+    opts = opts || {};
     var mine = ++seq;
+    var listEl = document.getElementById('list');
+    if (listEl) { listEl.classList.add('loading'); listEl.setAttribute('aria-busy', 'true'); }
     fetch(url.split('#')[0], { headers: { accept: 'text/html' } })
       .then(function (r) { return r.text(); })
       .then(function (html) {
@@ -3609,26 +3646,42 @@ export const LIST_SCRIPT = `
         if (fold && mapOpen) fold.open = true;
         var canonical = doc.querySelector('link[rel=canonical]');
         if (canonical) {
-          history.replaceState(null, '', canonical.getAttribute('href'));
+          var target = canonical.getAttribute('href');
+          if (opts.history === 'push' && target !== location.pathname + location.search) history.pushState({ upstream: true }, '', target);
+          else if (opts.history !== 'none') history.replaceState({ upstream: true }, '', target);
           var own = document.querySelector('link[rel=canonical]');
           if (own) own.setAttribute('href', canonical.getAttribute('href'));
         }
         remember();
         paint();
+        if (opts.reveal) {
+          var line = document.getElementById('result-line');
+          var top = line ? line.getBoundingClientRect().top : 0;
+          if (line && (top < 0 || top > window.innerHeight * 0.6)) {
+            var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            form.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+          }
+        }
       })
-      .catch(function () { location.href = url; });
+      .catch(function (error) { if (window.console) console.error(error); location.href = url; })
+      .then(function () {
+        var l = document.getElementById('list');
+        if (l) { l.classList.remove('loading'); l.removeAttribute('aria-busy'); }
+      });
   }
+  // Back and Forward step through the filters the reader chose.
+  window.addEventListener('popstate', function () { clearTimeout(timer); load(location.pathname + location.search, { history: 'none' }); });
   document.addEventListener('click', function (event) {
     var link = event.target.closest ? event.target.closest('#widgets a.seg, #coverage a.cell, #coverage a.sector-link') : null;
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     clearTimeout(timer);
-    load(link.getAttribute('href'));
+    load(link.getAttribute('href'), { history: 'push', reveal: true });
   });
   form.addEventListener('input', function (event) {
     if (event.target.id !== 'q') return;
     clearTimeout(timer);
-    timer = setTimeout(refresh, 250);
+    timer = setTimeout(function () { refresh({ history: 'replace' }); }, 250);
   });
   form.addEventListener('change', function (event) {
     // A sub-sector belongs to one sector; choosing a different sector drops it, and
@@ -3641,9 +3694,43 @@ export const LIST_SCRIPT = `
       sector.value = subsector.options[subsector.selectedIndex].getAttribute('data-sector') || sector.value;
     }
     if (event.target.id === 'q') return;
-    refresh();
+    refresh({ history: 'push' });
   });
-  form.addEventListener('submit', function (event) { event.preventDefault(); clearTimeout(timer); refresh(); });
+  form.addEventListener('submit', function (event) { event.preventDefault(); clearTimeout(timer); refresh({ history: 'push', reveal: true }); });
+  // A chip removed, or a link inside the list's own counts, changes the view in place too.
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest ? event.target.closest('#chips a, #result-line a[href^="/"], .empty .ways a, #top-picks a.see-all-none') : null;
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    clearTimeout(timer);
+    load(link.getAttribute('href'), { history: 'push' });
+  });
+
+  // --- the keyboard: / to search, j and k (or the arrows) through rows, Enter opens ---
+  document.addEventListener('keydown', function (event) {
+    var el = document.activeElement;
+    var typing = el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key === '/' && !typing) {
+      var q = document.getElementById('q');
+      if (q) { event.preventDefault(); q.focus(); q.select(); }
+      return;
+    }
+    if (typing) return;
+    var down = event.key === 'j' || event.key === 'ArrowDown';
+    var up = event.key === 'k' || event.key === 'ArrowUp';
+    if (!down && !up) return;
+    var links = Array.prototype.filter.call(document.querySelectorAll('li.company h3 a'), function (a) { return a.offsetParent !== null; });
+    if (!links.length) return;
+    var current = el && el.closest ? el.closest('li.company') : null;
+    var index = current ? links.indexOf(current.querySelector('h3 a')) : -1;
+    // Arrows scroll the page as usual until a row has focus; j and k always move.
+    if (index === -1 && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) return;
+    event.preventDefault();
+    var next = links[Math.max(0, Math.min(links.length - 1, index + (down ? 1 : -1)))];
+    next.focus();
+    next.closest('li.company').scrollIntoView({ block: 'nearest' });
+  });
   var menu = form.querySelector('.filter-menu');
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && menu) menu.open = false; });
   document.addEventListener('click', function (event) { if (menu && menu.open && !menu.contains(event.target)) menu.open = false; });
@@ -3772,6 +3859,8 @@ export const DETAIL_SCRIPT = `
   }
 
   if (!marks || !marks.available) return;
+  // Opening a company is looking at it: the list dims it, and "Hide seen" can take it away.
+  marks.set('seen', id);
   var buttons = document.querySelectorAll('button.mark');
   function paint() {
     var m = marks.read();
