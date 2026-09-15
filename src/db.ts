@@ -125,6 +125,8 @@ export interface Filters {
 	kind?: KindChoice | null;
 	/** What the DPIIT register's record says — see DPIIT_STATUS_PHRASES. null for any. */
 	dpiit?: string | null;
+	/** Exactly these ids, as a shortlist export asks for them. */
+	ids?: string[] | null;
 	/** A keyword tag for what it builds (BUILD_TAGS), or null for any. */
 	build?: string | null;
 	/** A keyword tag for where it is used (DOMAIN_TAGS), or null for any. */
@@ -148,7 +150,7 @@ export const SOURCES = ['sine-iitb', 'rtbi-iitm', 'grants-csv', 'dpiit-startup-i
  */
 export type SiteState = 'has' | 'none';
 
-export type SortChoice = 'obscurity' | 'newest' | 'quietest' | 'name';
+export type SortChoice = 'obscurity' | 'newest' | 'quietest' | 'described' | 'name';
 
 /**
  * Trace counts in the three groups the page draws. "One or none" is one group because
@@ -292,6 +294,14 @@ export const SORTS: Record<SortChoice, string> = {
 	// The list's own logic, made explicit: fewest traces first. Ties break to the most
 	// recently on record, so the top of this list is the newest of the least known.
 	quietest: 'c.trace_count ASC, c.first_seen DESC',
+	// What a reader can form a view from: their own words, a source's sentence, a site checked
+	// as theirs, named founders, a way to reach them, a date. Least traced first within a score.
+	described: `(CASE WHEN COALESCE(c.product, '') <> '' AND c.website_identity = 'verified' THEN 2 ELSE 0 END
+	  + CASE WHEN COALESCE(c.description, '') <> '' AND NOT ${labelSql('c.description')} THEN 1 ELSE 0 END
+	  + CASE WHEN c.website_identity = 'verified' THEN 1 ELSE 0 END
+	  + CASE WHEN COALESCE(c.founders, '') <> '' THEN 1 ELSE 0 END
+	  + CASE WHEN COALESCE(c.contact_email, '') <> '' OR COALESCE(c.contact_page, '') <> '' THEN 1 ELSE 0 END
+	  + CASE WHEN c.first_seen IS NOT NULL THEN 1 ELSE 0 END) DESC, c.trace_count ASC, c.name ASC`,
 	name: 'c.name ASC',
 };
 
@@ -466,6 +476,10 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 	if (filters.dpiit) {
 		clauses.push('c.dpiit_status = ?');
 		binds.push(filters.dpiit);
+	}
+	if (filters.ids?.length) {
+		clauses.push(`c.id IN (${filters.ids.map(() => '?').join(', ')})`);
+		binds.push(...filters.ids);
 	}
 	if (filters.build) {
 		clauses.push('EXISTS (SELECT 1 FROM json_each(c.build_tags) WHERE json_each.value = ?)');
@@ -1005,8 +1019,15 @@ export interface Widgets {
 	traces: Record<TraceBucket, number>;
 	described: Record<DescribedState, number>;
 	sources: { source: string; n: number }[];
+	/** Keyword tags, each counted over the view without the tag filters. */
+	build: Record<string, number>;
+	domain: Record<string, number>;
+	/** Records in the view with no build tag and no domain tag: nothing in their words matched. */
+	untagged: number;
+	/** Sub-sector counts over the view without the sector and sub-sector filters: the map's cells. */
+	subsectors: Record<string, number>;
 	/** What each widget counts over: the view without that widget's own filter. */
-	totals: { places: number; sectors: number; traces: number; described: number; sources: number };
+	totals: { places: number; sectors: number; traces: number; described: number; sources: number; tags: number };
 }
 
 export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets> {
@@ -1019,9 +1040,10 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 	const trace = without({ traces: null });
 	const said = without({ described: null });
 	const source = without({ source: null });
+	const tag = without({ build: null, domain: null });
 	const everything = without({});
 
-	const [placeRows, sectorRows, traceRow, saidRows, sourceRow, totalRow] = await Promise.all([
+	const [placeRows, sectorRows, traceRow, saidRows, sourceRow, totalRow, tagRow, subRows] = await Promise.all([
 		all<{ state: string; city: string; n: number; dated: number }>(
 			`SELECT COALESCE(c.state, '') AS state, COALESCE(c.city, '') AS city, COUNT(*) AS n, SUM(c.first_seen IS NOT NULL) AS dated
 			 FROM companies c ${whereSql(place.clauses)} GROUP BY 1, 2`,
@@ -1046,6 +1068,17 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 		env.DB.prepare(`SELECT COUNT(*) AS n FROM companies c ${whereSql(everything.clauses)}`)
 			.bind(...everything.binds)
 			.first<{ n: number }>(),
+		env.DB.prepare(
+			`SELECT COUNT(*) AS total,
+			   SUM(COALESCE(c.build_tags, '[]') = '[]' AND COALESCE(c.domain_tags, '[]') = '[]') AS untagged,
+			   ${[...BUILD_TAGS.map((t, i) => [`b${i}`, 'build_tags', t]), ...DOMAIN_TAGS.map((t, i) => [`d${i}`, 'domain_tags', t])]
+					.map(([alias, col, t]) => `SUM(EXISTS (SELECT 1 FROM json_each(c.${col}) WHERE json_each.value = '${t.replace(/'/g, "''")}')) AS ${alias}`)
+					.join(',\n\t\t\t   ')}
+			 FROM companies c ${whereSql(tag.clauses)}`,
+		)
+			.bind(...tag.binds)
+			.first<Record<string, number | null>>(),
+		all<{ subsector_id: string | null; n: number }>(`SELECT c.subsector_id, COUNT(*) AS n FROM companies c ${whereSql(sector.clauses)} GROUP BY 1`, sector),
 	]);
 
 	const byState = new Map<string, { state: string; n: number; dated: number; districts: { name: string; n: number }[] }>();
@@ -1084,7 +1117,12 @@ export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets>
 		traces: Object.fromEntries(TRACE_BUCKETS.map((b, i) => [b, Number(traceRow?.[`t${i}`] ?? 0)])) as Record<TraceBucket, number>,
 		described,
 		sources: SOURCES.map((id, i) => ({ source: id, n: Number(sourceRow?.[`s${i}`] ?? 0) })),
+		build: Object.fromEntries(BUILD_TAGS.map((t, i) => [t, Number(tagRow?.[`b${i}`] ?? 0)])),
+		domain: Object.fromEntries(DOMAIN_TAGS.map((t, i) => [t, Number(tagRow?.[`d${i}`] ?? 0)])),
+		untagged: Number(tagRow?.untagged ?? 0),
+		subsectors: Object.fromEntries(subRows.results.filter((r) => r.subsector_id).map((r) => [r.subsector_id as string, r.n])),
 		totals: {
+			tags: Number(tagRow?.total ?? 0),
 			places: located + unknown,
 			sectors: sectorRows.results.reduce((n, r) => n + r.n, 0),
 			traces: TRACE_BUCKETS.reduce((n, _, i) => n + Number(traceRow?.[`t${i}`] ?? 0), 0),

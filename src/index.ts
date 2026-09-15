@@ -178,6 +178,13 @@ function parseKind(raw: string | null): KindChoice | null {
 	return raw === 'other' ? 'other' : 'company';
 }
 
+/** A shortlist's ids, as the shortlist export sends them: slugs only, at most 500. */
+function parseIds(raw: string | null): string[] | null {
+	if (!raw) return null;
+	const ids = raw.split(',').map((id) => id.trim()).filter((id) => /^[a-z0-9-]{1,120}$/.test(id));
+	return ids.length ? ids.slice(0, 500) : null;
+}
+
 /** A tag from its vocabulary, or null: an unknown one would filter to nothing and look like no matches. */
 function parseTag(raw: string | null, vocabulary: readonly string[]): string | null {
 	return raw && vocabulary.includes(raw) ? raw : null;
@@ -188,7 +195,10 @@ function parseDpiit(raw: string | null): string | null {
 }
 
 function parseSort(raw: string | null): SortChoice {
-	return raw !== null && raw in SORTS ? (raw as SortChoice) : 'obscurity';
+	// Least traced first by default. "obscurity" ordered by tier letter, which only six of 395
+	// companies carried on 15 Sep 2026; an old link that asks for it gets the order it meant.
+	if (raw === 'obscurity') return 'quietest';
+	return raw !== null && raw in SORTS ? (raw as SortChoice) : 'quietest';
 }
 
 function parseDates(raw: string | null): DatesChoice {
@@ -1142,7 +1152,9 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	// sample data has both tiers already.
 	const half = { described: parseDescribedChoice(url.searchParams.get('described')), kind: parseKind(url.searchParams.get('kind')) };
 	const hasRanked = demo || (await queryHasRanked(env, minOriginYear(now), half));
-	const defaultTier: TierChoice = hasRanked ? 'ab' : 'all';
+	// Every company a reader can form a view on, not the few a tier rule promotes: on 15 Sep
+	// 2026 the A+B default showed 5 of 395. The tier is still a filter, and a reason on the row.
+	const defaultTier: TierChoice = 'all';
 	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
 	const age = parseAgeChoice(url.searchParams.get('age'));
 	const dates = parseDates(url.searchParams.get('dates'));
@@ -1165,6 +1177,7 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		// state simply matches nothing and the list says so.
 		state: (url.searchParams.get('state') || '').trim().slice(0, 60) || null,
 		sort: parseSort(url.searchParams.get('sort')),
+		ids: parseIds(url.searchParams.get('ids')),
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
 		minOriginYear: age === 'all' ? null : minOriginYear(now),

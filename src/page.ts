@@ -451,9 +451,9 @@ function widgets(view: PageView): string {
 	const restHoldsChoice = rest.some((s) => s.state === view.state);
 	const under = p.located * 2 < t.places;
 	const datedUnder = p.datedLocated * 2 < p.dated;
-	const placesMeta = `${under ? 'Only ' : ''}<strong>${p.located} of ${t.places}</strong> have a location${
-		p.dated ? `, and ${datedUnder && !under ? 'only ' : ''}<strong>${p.datedLocated} of the ${p.dated}</strong> dated ${p.dated === 1 ? 'row does' : 'rows do'}` : ''
-	}.${under || datedUnder ? ' The tiles lean to wherever the DPIIT register, which gives a state, has companies.' : ''}`;
+	const placesMeta = p.located
+		? `<strong>${p.located} of ${t.places}</strong> publish a location; the map shows those ${p.located}, not where the other ${p.unknown} are.`
+		: `None of these ${t.places} publishes a location.`;
 	const chosen = view.state && view.state !== 'unknown' ? p.states.find((s) => s.state === view.state) : undefined;
 	const places = `
   <div class="widget widget-places" aria-labelledby="w-places">
@@ -480,87 +480,105 @@ function widgets(view: PageView): string {
     </div>
   </div>`;
 
-	// RDI sunrise sector.
-	const inFive = w.sectors.reduce((n, s) => n + s.n, 0);
-	const sectors = `
-  <div class="widget" aria-labelledby="w-sectors">
-    ${head('w-sectors', 'RDI sunrise sector', `<strong>${inFive} of ${t.sectors}</strong> placed in the scheme's five${w.offSectors ? `; ${w.offSectors} in none of them` : ''}.`)}
+	const plural = (k: number, one: string, many: string) => (k === 1 ? one : many);
+
+	// 1. Can I form a view on these? The same count as "what they build", in the reader's terms.
+	const d = w.described;
+	const said = d.own + d.source;
+	const view1 = `
+  <div class="widget" aria-labelledby="w-view">
+    ${head(
+			'w-view',
+			'Enough to form a view',
+			said
+				? `<strong>${said}</strong> ${plural(said, 'company here has', 'companies here have')} published enough for you to form a view${
+						d.own ? `, <strong>${d.own}</strong> of them in their own words on their own site` : ''
+					}.${d.label + d.none ? ` ${d.label + d.none} more have only a list&rsquo;s label or nothing.` : ''}`
+				: 'Nothing in this view says what it builds.',
+		)}
     <div class="grid seg-grid">
-      ${w.sectors
-				.map((s) => {
-					const group = SUNRISE_SECTORS.find((g) => g.sector_id === s.sector_id);
-					const on = view.sector === s.sector_id;
-					// A sector chosen here replaces a sub-sector in another one.
-					const href = `${BASE_PATH}${query(viewParams(view, { sector: on ? null : s.sector_id, subsector: null }))}#widgets`;
-					const classes = ['cell', 'seg', s.n > 0 ? 'filled' : 'empty', on ? 'active' : ''].filter(Boolean).join(' ');
-					return `<a class="${classes}" href="${esc(href)}" title="${esc(`${s.sector_id} ${group?.sector ?? ''}: ${s.n}`)}"${on ? ' aria-current="true"' : ''}>
-        <span class="cell-head"><span class="cell-id">${sectorIcon(s.sector_id)}${esc(s.sector_id)}</span><span class="cell-n">${s.n}</span></span>
-        <span class="cell-name">${esc(group?.sector ?? '')}</span>
-        <span class="share" style="width:${share(s.n, t.sectors)}%" aria-hidden="true"></span>
-      </a>`;
-				})
+      ${DESCRIBED_STATES.filter((k) => k !== 'none' || d.none > 0 || view.described === 'none')
+				.map((k) => cell({ key: 'described', value: k, n: d[k], of: t.described, name: DESCRIBED_LABELS[k].toLowerCase(), classes: k === 'label' || k === 'none' ? ['weak-seg'] : [] }))
 				.join('\n      ')}
     </div>
   </div>`;
 
-	// Public traces: the thesis, drawn.
+	// 2. Has anyone noticed them? The thesis as a claim, checked by clicking.
+	const low = w.traces['1'];
+	const two = low + w.traces['2'];
+	const pctTwo = t.traces ? Math.round((two / t.traces) * 100) : 0;
 	const traces = `
   <div class="widget" aria-labelledby="w-traces">
-    ${head('w-traces', 'Public traces', `<strong>${w.traces['1']} of ${t.traces}</strong> have one or none. The list sorts the fewest first.`)}
+    ${head(
+			'w-traces',
+			'How little they have been noticed',
+			t.traces
+				? `<strong>${pctTwo}%</strong> have left two public traces or fewer; <strong>${low}</strong> ${plural(low, 'has', 'have')} left one or none. The list puts the fewest first.`
+				: 'No company in this view to count.',
+		)}
     <div class="grid seg-grid">
       ${TRACE_BUCKETS.map((b) => cell({ key: 'traces', value: b, n: w.traces[b], of: t.traces, name: TRACE_LABELS[b].toLowerCase(), id: b === '3+' ? '3+' : b === '1' ? '≤1' : '2' })).join('\n      ')}
     </div>
   </div>`;
 
-	// What they build, and on whose word.
-	const sentence = w.described.own + w.described.source;
-	const described = `
-  <div class="widget" aria-labelledby="w-described">
+	// 3. What do they build, and for what? A thesis filter within the map's choice.
+	const topDomain = DOMAIN_TAGS.map((tag) => [tag, w.domain[tag] ?? 0] as const).sort((a, b) => b[1] - a[1])[0];
+	const tags = `
+  <div class="widget" aria-labelledby="w-tags">
     ${head(
-			'w-described',
-			'What they build',
-			`<strong>${t.described - sentence} of ${t.described}</strong> have no sentence saying so${
-				w.described.label === t.described - sentence && w.described.label
-					? ", only a list's label: the DPIIT register's dropdown or a grant list's category"
-					: w.described.label
-						? `: ${w.described.label} carry only a list's label, the DPIIT register's dropdown or a grant list's category`
-						: ''
-			}.`,
+			'w-tags',
+			'What they build, by keyword',
+			t.tags
+				? `<strong>${w.build.hardware ?? 0}</strong> build hardware, <strong>${w.build.software ?? 0}</strong> software, <strong>${w.build['biological or chemical'] ?? 0}</strong> work in biology or chemistry${
+						topDomain && topDomain[1] ? `; ${esc(topDomain[0])} is the most common use, with ${topDomain[1]}` : ''
+					}.${w.untagged ? ` ${w.untagged} matched no keyword.` : ''}`
+				: 'No company in this view to tag.',
 		)}
     <div class="grid seg-grid">
-      ${DESCRIBED_STATES.filter((k) => k !== 'none' || w.described.none > 0 || view.described === 'none')
-				.map((k) => cell({ key: 'described', value: k, n: w.described[k], of: t.described, name: DESCRIBED_LABELS[k].toLowerCase(), classes: k === 'label' || k === 'none' ? ['weak-seg'] : [] }))
+      ${BUILD_TAGS.map((tag) => cell({ key: 'build', value: tag, n: w.build[tag] ?? 0, of: t.tags, name: tag })).join('\n      ')}
+    </div>
+    <div class="grid seg-grid tag-grid">
+      ${DOMAIN_TAGS.filter((tag) => (w.domain[tag] ?? 0) > 0 || view.domain === tag)
+				.map((tag) => cell({ key: 'domain', value: tag, n: w.domain[tag] ?? 0, of: t.tags, name: tag }))
 				.join('\n      ')}
     </div>
   </div>`;
 
-	// Sources, and when each last worked.
+	// 4. Where does this come from, and is it current? Question 1, without a paragraph.
 	const health = new Map(view.sourceHealth.map((h) => [h.source, h]));
+	const failing = view.sourceHealth.filter((h) => h.last_status !== 'ok').length;
+	const latest = view.sourceHealth.map((h) => h.last_success ?? '').sort().pop();
 	const sources = `
   <div class="widget" aria-labelledby="w-sources">
-    ${head('w-sources', 'Sources', 'Records each lists, and its last successful check. A company two sources list counts under both.')}
+    ${head(
+			'w-sources',
+			'Where the records come from',
+			`Read from <strong>${w.sources.filter((src) => src.n > 0).length}</strong> portfolios and lists${
+				latest ? `, last checked ${shortDate(latest.slice(0, 10))}` : ''
+			}${failing ? `; ${failing} did not answer on the last run, and their rows stand from the run before` : ''}. A company two sources list counts under both.`,
+		)}
     <div class="grid seg-grid source-grid">
       ${w.sources
 				.map((src) => {
 					const h = health.get(src.source);
 					const checked = h?.last_success ? `checked ${shortDate(h.last_success.slice(0, 10))}` : 'no successful check yet';
-					const failing = h && h.last_status !== 'ok' ? ` <strong class="failing">${h.last_status === 'failed' ? 'failed' : 'set aside'} ${shortDate(h.last_attempt.slice(0, 10))}</strong>` : '';
+					const bad = h && h.last_status !== 'ok' ? ` <strong class="failing">no answer ${shortDate(h.last_attempt.slice(0, 10))}</strong>` : '';
 					const name = SOURCE_LABELS[src.source] ?? src.source;
-					return cell({ key: 'source', value: src.source, n: src.n, of: t.sources, name, title: `${name}: ${src.n} records, ${checked}`, extra: `<span class="cell-when">${esc(checked)}${failing}</span>` });
+					return cell({ key: 'source', value: src.source, n: src.n, of: t.sources, name, title: `${name}: ${src.n} records, ${checked}`, extra: `<span class="cell-when">${esc(checked)}${bad}</span>` });
 				})
 				.join('\n      ')}
     </div>
   </div>`;
 
 	return `
-<section class="widgets" id="widgets" aria-label="The records in view, counted">
-  ${places}
+<section class="widgets" id="widgets" aria-label="The companies in view, stated and filterable">
   <div class="widget-row">
-  ${sectors}
+  ${view1}
   ${traces}
-  ${described}
+  ${tags}
   ${sources}
   </div>
+  ${places}
 </section>`;
 }
 
@@ -694,89 +712,75 @@ function findingsSection(view: PageView): string {
  * covered ones: a national priority with nothing in it is the interesting square.
  */
 function header(view: PageView): string {
-	const { coverage, discoveredThisWeek, substance } = view;
-	const empty = coverage.subsector_count - coverage.covered;
-	const link = (params: Record<string, string | null>) => `${BASE_PATH}${query(params)}#list`;
+	// The discovery sources, not every health record: award lists attach evidence and add no company.
+	const count = SOURCES.length;
+	const n = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][count] ?? String(count);
+	// Two sentences: what this is, and the one way it differs. Every number that used to sit
+	// here is now a widget that states it and filters by it.
 	return `
 <header class="masthead">
   <p class="eyebrow">Upstream</p>
-  <h1>${esc(proposition(substance.companies))}</h1>
-  <p class="hook">${hook(substance.companies, substance.companiesQuiet)}</p>
-  <dl class="stats">
-    <div><dt>Say what they build</dt><dd>${substance.companies}</dd></div>
-    <div><dt>One public trace at most</dt><dd><a href="${esc(link({ traces: '1' }))}">${substance.companiesQuiet}</a></dd></div>
-    <div><dt>Sub-sectors still empty</dt><dd><a href="#coverage">${empty}</a><span class="of">/${coverage.subsector_count}</span></dd></div>
-  </dl>
-  ${
-		substance.unsaid + substance.others > 0
-			? `<p class="set-aside">Not in that number, and one click away: ${[
-					substance.unsaid
-						? `<a href="${esc(link({ described: 'unsaid', kind: 'all' }))}"><strong>${substance.unsaid}</strong> known only from the DPIIT register</a> &mdash; a name, a place and an industry picked from a dropdown`
-						: '',
-					substance.others
-						? `<a href="${esc(link({ kind: 'other' }))}"><strong>${substance.others}</strong> research projects and unverified names</a> that do describe their work`
-						: '',
-				]
-					.filter(Boolean)
-					.join('; ')}.</p>`
-			: ''
-	}
-  ${
-		discoveredThisWeek > 0
-			? `<p class="fresh">${discoveredThisWeek} ${discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in a source we were already watching. A new source's first read is not counted here.</p>`
-			: ''
-	}
-  ${freshness(view)}
+  <h1>Indian deep-tech companies, least-noticed first.</h1>
+  <p class="hook">Read from ${n} incubator portfolios, grant lists and the DPIIT register. Every other list ranks by how
+    impressive a company looks; this one ranks by how little anyone has written about it.</p>
+  <p class="since" id="since" hidden></p>
 </header>`;
 }
 
 function coverageMap(view: PageView): string {
-	const { coverage, subsector } = view;
+	const { coverage, subsector, sector } = view;
+	// Cells count the companies in the current view (every other filter applied); a dashed
+	// cell is one no record anywhere falls in, which is the finding the sentence states.
+	const inView = view.widgets?.subsectors ?? null;
+	const allCells = coverage.sectors.flatMap((g) => g.subsectors);
+	const empty = allCells.filter((c) => c.n === 0);
+	const named = empty.slice(0, 3).map((c) => esc(c.subsector));
+	const claim = empty.length
+		? `<strong>${empty.length} of the ${coverage.subsector_count}</strong> sunrise sub-sectors have no company in them yet${
+				named.length ? `: ${named.join(', ')}${empty.length > named.length ? ` and ${empty.length - named.length} more` : ''}` : ''
+			}.`
+		: `Every one of the ${coverage.subsector_count} sunrise sub-sectors has at least one company.`;
 
 	const sectors = coverage.sectors
 		.map((group) => {
 			const cells = group.subsectors
 				.map((cell) => {
 					const active = subsector === cell.subsector_id;
+					const n = inView ? (inView[cell.subsector_id] ?? 0) : cell.n;
 					// Clicking the active cell clears the filter, so the map is a toggle.
-					const href = `${query(viewParams(view, { subsector: active ? null : cell.subsector_id }))}#list`;
-					const classes = ['cell', cell.n > 0 ? 'filled' : 'empty', active ? 'active' : ''].filter(Boolean).join(' ');
-					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${cell.n}"${
+					const href = `${query(viewParams(view, { subsector: active ? null : cell.subsector_id, sector: null }))}#list`;
+					const classes = ['cell', cell.n === 0 ? 'empty' : n > 0 ? 'filled' : 'zero', active ? 'active' : ''].filter(Boolean).join(' ');
+					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${n}${cell.n === 0 ? ', none in any record' : ''}"${
 						active ? ' aria-current="true"' : ''
 					}>
-        <span class="cell-head"><span class="cell-id">${esc(cell.subsector_id)}</span><span class="cell-n">${cell.n}</span></span>
+        <span class="cell-head"><span class="cell-id">${esc(cell.subsector_id)}</span><span class="cell-n">${n}</span></span>
         <span class="cell-name">${esc(cell.subsector)}</span>
       </a>`;
 				})
 				.join('\n');
-
-			return `<div class="sector">
-      <h3>${sectorIcon(group.sector_id)}<span class="sector-id">${esc(group.sector_id)}</span> ${esc(group.sector)}</h3>
+			const on = sector === group.sector_id && !subsector;
+			const href = `${query(viewParams(view, { sector: on ? null : group.sector_id, subsector: null }))}#list`;
+			const inSector = group.subsectors.reduce((k, c) => k + (inView ? (inView[c.subsector_id] ?? 0) : c.n), 0);
+			// A details element, open, so a phone can fold the 44 cells to five lines (the script
+			// folds them there) while a desktop and a script-less browser see the whole map.
+			return `<details class="sector" open${group.subsectors.some((c) => c.subsector_id === subsector) || on ? ' data-chosen' : ''}>
+      <summary><h3><a class="sector-link${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''}>${sectorIcon(group.sector_id)}<span class="sector-id">${esc(group.sector_id)}</span> ${esc(group.sector)}</a> <span class="sector-n">${inSector}</span></h3></summary>
       <div class="grid">
 ${cells}
       </div>
-    </div>`;
+    </details>`;
 		})
 		.join('\n');
 
-	// After the list and folded: the map is the argument, not the interface, and open it
-	// put forty-four cells between a reader and the first company. It opens by itself
-	// when a cell is the filter in use, so the chosen cell is never hidden.
 	return `
 <section class="coverage" id="coverage" aria-labelledby="coverage-h">
-  <details class="map-fold"${subsector ? ' open' : ''}>
-    <summary>
-      <h2 id="coverage-h">Coverage map</h2>
-      <span class="map-fold-meta">${coverage.covered} of ${coverage.subsector_count} sub-sectors have companies</span>
-    </summary>
-    <p class="note">All ${coverage.subsector_count} sunrise sub-sectors of the RDI scheme. An outlined cell is one we have
-      found nothing in yet &mdash; our blind spot, not proof the sector is empty. Pick a cell to filter the list; the counts
-      include the companies the list sets aside as old or undated.</p>
-    <div class="sectors">
+  <div class="widget-head">
+    <h2 id="coverage-h">Where in the RDI scheme</h2>
+    <p class="widget-meta">${claim} Pick a cell to narrow the list to it, or a sector&rsquo;s name for all of it. A dashed cell has nothing in any record.</p>
+  </div>
+  <div class="sectors">
 ${sectors}
-    </div>
-  </details>
-  ${funnelNote(view)}
+  </div>
 </section>`;
 }
 
@@ -803,7 +807,7 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		dpiit: view.dpiit,
 		build: view.build,
 		domain: view.domain,
-		sort: view.sort === 'obscurity' ? null : view.sort,
+		sort: view.sort === 'quietest' || view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
 		age: view.age === 'recent' ? null : view.age,
@@ -830,10 +834,11 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const SORT_LABELS: Record<SortChoice, string> = {
-	obscurity: 'Obscurity',
-	quietest: 'Fewest traces',
+	quietest: 'Least traced',
+	described: 'Most described',
 	newest: 'Newest on record',
 	name: 'Name',
+	obscurity: 'Least traced',
 };
 
 const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all: 'Everything' };
@@ -916,7 +921,8 @@ function resultLine(view: PageView): string {
 	// not "hidden by filters" the reader never chose.
 	const universe = view.demo ? b.total : Math.max(view.category, b.total);
 	const outside = view.demo ? 0 : view.tracked - universe;
-	const shown = view.dates === 'undated' ? b.undated : b.ranked;
+	// The undated rows continue the same list, so they count in what it shows.
+	const shown = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
 	const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 	const parts: string[] = [];
 
@@ -945,7 +951,7 @@ function resultLine(view: PageView): string {
 	if (view.dates === 'dated' && b.undated > 0) {
 		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#undated`)}" title="Records no source dates. Follow to list them below the map.">${b.undated} undated, hidden</a>`);
 	} else if (view.dates !== 'undated' && b.undated > 0) {
-		parts.push(`<a href="#undated" title="Records no source dates, so no tier can be claimed for them. Listed below the coverage map.">${b.undated} undated</a>`);
+		parts.push(`<a href="#undated" title="Records no source dates, so no tier can be claimed for them. Listed after the dated ones.">${b.undated} of them undated</a>`);
 	}
 
 	if (outside > 0) {
@@ -985,7 +991,8 @@ function controls(view: PageView): string {
 	// "No website" is its own option: on this list the absence is the signal.
 	const siteOptions = [option('', 'Website or not', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
 	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
-	const sortOptions = (Object.keys(SORTS) as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
+	// In the reader's words, and no tier letters: the order a reader chooses, not our rule's name.
+	const sortOptions = (['quietest', 'described', 'newest', 'name'] as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
 	const traceOptions = [option('', 'Any number', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
 	const describedNow = view.described === 'said' ? '' : (view.described ?? 'all');
 	const describedOptions = [option('', DESCRIBED_LABELS.said, describedNow)]
@@ -1012,8 +1019,8 @@ function controls(view: PageView): string {
     <details class="filter-menu">
       <summary>Filters<span class="filter-count" id="filter-count">${count ? `&nbsp;&middot;&nbsp;${count}` : ''}</span></summary>
       <div class="filter-panel">
-        ${field('sector', 'Sector', sectorOptions)}
-        ${field('subsector', 'Sub-sector', subsectorOptions)}
+        <input type="hidden" id="sector" name="sector" value="${esc(sector ?? '')}">
+        <input type="hidden" id="subsector" name="subsector" value="${esc(subsector ?? '')}">
         ${field('tier', 'Tier', tierOptions)}
         ${field('source', 'Found by', sourceOptions)}
         ${field('dates', 'Dates', datesOptions)}
@@ -1035,7 +1042,9 @@ function controls(view: PageView): string {
   <div class="bar-foot">
     ${resultLine(view)}
     <span class="bar-links">
+      <button type="button" class="linkish seen-toggle" hidden aria-pressed="false">Hide seen</button>
       <button type="button" class="linkish shortlist-toggle" hidden aria-pressed="false">Shortlisted only</button>
+      <a class="linkish shortlist-export" hidden href="#">CSV of your shortlist</a>
       <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">CSV of this view</a>
     </span>
   </div>
@@ -1275,21 +1284,24 @@ function companyRow(company: Company, now: Date, origin: string): string {
 	const when = [event ?? 'no dated event', age, `added to Upstream ${addedAgo(company.discovered, now)}`].map(esc).join(' &middot; ');
 	const located = Boolean(company.city || company.state);
 	const place = located ? esc([company.city, company.state].filter(Boolean).join(', ')) : 'location unknown';
+	// How far along, only where a source says: the stage a founder chose on a register profile.
+	const stage = company.dpiit_stage ? `<span class="meta-stage">stage: ${esc(company.dpiit_stage)}</span>` : '';
 
 	// Why it is in this view. Only A and B say anything a reader can act on; a column of
 	// "Tier C" beside every row reads as a bug.
+	// The tier's reason in words, where it has one; a letter meant learning our rule first.
 	const tier =
 		company.tier === 'A'
-			? '<span class="tier ta" title="Found by us under 90 days ago, nothing dated earlier, at most 2 public traces">Tier A</span>'
+			? '<span class="tier ta" title="Tier A: found by a run of ours under 90 days ago, nothing dated earlier, at most 2 public traces">new and quiet</span>'
 			: company.tier === 'B'
-				? '<span class="tier tb" title="First seen under 180 days ago, at most 5 public traces">Tier B</span>'
+				? '<span class="tier tb" title="Tier B: on record under 180 days, at most 5 public traces">recent</span>'
 				: '';
 
 	const state = [builds.described ? 'described' : 'undescribed', dated ? 'dated' : 'undated', `site-${siteState}`].join(' ');
 
 	// Anchored by slug so one row can be linked to, and so "back to results" lands on it.
 	return `
-  <li class="company ${state}" id="c-${esc(company.id)}" data-id="${esc(company.id)}">
+  <li class="company ${state}" id="c-${esc(company.id)}" data-id="${esc(company.id)}" data-added="${esc((company.discovered ?? '').slice(0, 10))}">
     <div class="row-main">
       <h3><a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>${entityTag(company)}</h3>
       ${builds.html}
@@ -1298,6 +1310,7 @@ function companyRow(company: Company, now: Date, origin: string): string {
         <span class="meta-ev">${evidence.join(' ') || '<span class="ev none">no evidence recorded</span>'}</span>
         <span class="meta-when${dated ? '' : ' undated'}">${when}</span>
         <span class="meta-where${located ? '' : ' unknown'}">${place}</span>
+        ${stage}
       </p>
     </div>
     <div class="row-side">
@@ -1330,7 +1343,8 @@ function listed(view: PageView): number {
 function backfillNote(view: PageView): string {
 	// On an empty database it is vacuously true and reads as an excuse. Nothing to
 	// explain until there is something to explain.
-	if (!view.backfillOnly || view.tracked === 0) return '';
+	// Retired 15 Sep 2026: the list now opens on every tier by default, so there is no widening to explain.
+	if (!view.backfillOnly || view.tracked === 0 || view.defaultTier === 'all') return '';
 	return `<p class="note">Too few companies here qualify for Tier A or B today, so the list is showing every tier. Those tiers take a
     company we watched arrive, recently, in a source we were already reading, with few public traces &mdash; and with
     more than a register&rsquo;s dropdown label to say what it does. A new source&rsquo;s first read never qualifies.</p>`;
@@ -1388,7 +1402,7 @@ function list(view: PageView): string {
 		const empty =
 			view.buckets.total > 0
 				? undatedHere > 0
-					? `<p class="empty">No dated match. <a href="#undated">${undatedHere} undated ${undatedHere === 1 ? 'match is' : 'matches are'} listed below the coverage map</a>.</p>`
+					? `<p class="empty">No dated match. <a href="#undated">${undatedHere} ${undatedHere === 1 ? 'match no source dates is' : 'matches no source dates are'} listed just below</a>.</p>`
 					: ''
 				: view.tracked === 0
 					? '<p class="empty">Nothing matches yet. The ingest has not put anything here.</p>'
@@ -1431,11 +1445,8 @@ function undatedList(view: PageView): string {
 	const n = buckets.undated;
 	return `
 <section class="list undated-list" id="undated" aria-labelledby="undated-h">
-  <h2 id="undated-h">Undated <span class="count">${n}</span></h2>
-  <p class="note">${n} ${n === 1 ? 'company we can&rsquo;t' : 'companies we can&rsquo;t'} place in time yet. IIT Madras
-    Incubation Cell's portfolio publishes no incubation years, so there is no honest date to rank these by. Dating them from incorporation
-    filings is on the roadmap; until then they are listed here, counted in the coverage map above, and left out of the
-    tiers rather than shown as if they were new.</p>
+  <h2 id="undated-h">No source dates these <span class="count">${n}</span></h2>
+  <p class="note">The same order, continued: no source gives a date for anything about these, so none can be called an early find.</p>
   ${truncated(undated.length, n)}
   <ol class="companies">
 ${undated.map((company) => companyRow(company, now, view.origin)).join('\n')}
@@ -2515,6 +2526,38 @@ section > h2 {
    the id reads better than parking it at the bottom. */
 .cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s1); line-height: 1.2; }
 .cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
+.since { font-size: var(--t-sm); margin: var(--s3) 0 0; padding: var(--s2) var(--s3); border-left: 2px solid var(--ink); background: var(--raise); }
+.hide-seen .company.is-seen { display: none; }
+.only-new .company:not(.is-new) { display: none; }
+.company.is-new .row-main h3::after { content: 'new'; font-family: var(--mono); font-size: var(--t-micro); font-weight: 500; margin-left: var(--s2); padding: 0 var(--s0h); border: 1px solid var(--rule-strong); border-radius: 999px; vertical-align: middle; }
+/* The map leads the page and is the control: sector names are links, cells filter. */
+.coverage { margin: var(--s6) 0 var(--s5); }
+.coverage .widget-head { margin-bottom: var(--s3); }
+.sector > summary { list-style: none; cursor: pointer; }
+.sector > summary::-webkit-details-marker { display: none; }
+.sector > summary h3 { display: flex; align-items: baseline; gap: var(--s2); }
+.sector-n { font-family: var(--mono); font-size: var(--t-micro); color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 34rem) {
+  .sector { margin-bottom: 0; border-bottom: 1px solid var(--rule); }
+  .sector > summary { min-height: 44px; display: flex; align-items: center; }
+  .sector > summary h3 { margin: 0; width: 100%; }
+  .sector > summary h3::after { content: '+'; margin-left: auto; color: var(--muted); }
+  .sector[open] > summary h3::after { content: '–'; }
+  .sector[open] > .grid { padding-bottom: var(--s3); }
+}
+.sector-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: var(--s1); }
+.sector-link:hover, .sector-link.active { text-decoration: underline; text-underline-offset: 3px; }
+.cell.zero { color: var(--muted); }
+.cell.zero .cell-n { opacity: 0.55; }
+.tag-grid { margin-top: var(--s2); }
+.meta-stage { color: var(--ink); }
+/* The reference half: collapsed, labelled, and set apart from the tool above. */
+.reference { margin-top: var(--s7); padding-top: var(--s5); border-top: 2px solid var(--rule-strong); }
+.reference > h2 { font-size: var(--t-h); margin: 0 0 var(--s1); }
+.ref { border-bottom: 1px solid var(--rule); }
+.ref > summary { cursor: pointer; padding: var(--s3) 0; font-weight: 500; min-height: 44px; display: flex; align-items: center; }
+.ref[open] > summary { color: var(--muted); }
+.ref > section, .ref > p { margin-bottom: var(--s4); }
 /* Selected text inverts, in both themes, rather than borrowing the browser's blue. */
 ::selection { background: var(--ink); color: var(--paper); }
 /* The smallest step is for labels a desktop reader glances at; on a phone it grows a step. */
@@ -3310,6 +3353,20 @@ export const LIST_SCRIPT = `
   // --- marks on rows ---
   var showPassed = false;
   var onlyShortlisted = false;
+  var onlyNew = false;
+  var prefs = null;
+  try { prefs = localStorage; } catch (e) {}
+  var hideSeen = false;
+  try { hideSeen = prefs && prefs.getItem('upstream.hideSeen') === '1'; } catch (e) {}
+  // When this reader was last here, read before today's visit is written over it.
+  var lastVisit = null;
+  try {
+    lastVisit = prefs && prefs.getItem('upstream.lastVisit');
+    var today = new Date().toISOString().slice(0, 10);
+    if (prefs && lastVisit !== today) prefs.setItem('upstream.lastVisit', today);
+    if (lastVisit === today) lastVisit = prefs.getItem('upstream.previousVisit');
+    else if (prefs && lastVisit) prefs.setItem('upstream.previousVisit', lastVisit);
+  } catch (e) {}
   function paint() {
     var m = marks.read();
     var rows = document.querySelectorAll('li.company[data-id]');
@@ -3331,6 +3388,41 @@ export const LIST_SCRIPT = `
     }
     document.body.classList.toggle('show-passed', showPassed);
     document.body.classList.toggle('only-shortlisted', onlyShortlisted);
+    document.body.classList.toggle('hide-seen', hideSeen);
+    document.body.classList.toggle('only-new', onlyNew);
+
+    // Since the last visit: quiet on a first visit and when nothing below is newer.
+    var since = document.getElementById('since');
+    if (since && lastVisit) {
+      var fresh = 0;
+      for (var r = 0; r < rows.length; r++) {
+        var added = rows[r].getAttribute('data-added') || '';
+        var isNew = added > lastVisit;
+        rows[r].classList.toggle('is-new', isNew);
+        if (isNew) fresh++;
+      }
+      since.hidden = fresh === 0;
+      if (fresh) {
+        var parts = lastVisit.split('-');
+        var day = Number(parts[2]) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(parts[1]) - 1];
+        since.innerHTML = 'Since your last visit on ' + day + ': <strong>' + fresh + '</strong> of the companies below ' + (fresh === 1 ? 'is' : 'are') + ' new. '
+          + '<button type="button" class="linkish" data-act="only-new" aria-pressed="' + (onlyNew ? 'true' : 'false') + '">' + (onlyNew ? 'Show everything' : 'Show only those') + '</button>';
+      }
+    }
+    var seenCount = Object.keys(m.seen).length;
+    var seenToggle = form.querySelector('.seen-toggle');
+    if (seenToggle) {
+      seenToggle.hidden = !marks.available || seenCount === 0;
+      seenToggle.setAttribute('aria-pressed', hideSeen ? 'true' : 'false');
+      seenToggle.textContent = hideSeen ? 'Show the ' + seenCount + ' seen' : 'Hide the ' + seenCount + ' seen';
+    }
+    var exportLink = form.querySelector('.shortlist-export');
+    var ids = Object.keys(m.shortlist);
+    if (exportLink) {
+      exportLink.hidden = !marks.available || ids.length === 0;
+      exportLink.textContent = 'CSV of your shortlist (' + ids.length + ')';
+      exportLink.setAttribute('href', form.getAttribute('action').split('#')[0] + '/export.csv?described=all&kind=all&tier=all&age=all&ids=' + encodeURIComponent(ids.slice(0, 500).join(',')));
+    }
 
     var line = document.querySelector('.marks-line');
     if (line) {
@@ -3369,6 +3461,12 @@ export const LIST_SCRIPT = `
       if (window.confirm('Clear every shortlist, seen and pass mark stored on this device?')) { marks.clear(); paint(); }
     } else if (target.classList.contains('shortlist-toggle')) {
       onlyShortlisted = !onlyShortlisted; paint();
+    } else if (target.classList.contains('seen-toggle')) {
+      hideSeen = !hideSeen;
+      try { if (prefs) prefs.setItem('upstream.hideSeen', hideSeen ? '1' : '0'); } catch (e) {}
+      paint();
+    } else if (target.getAttribute('data-act') === 'only-new') {
+      onlyNew = !onlyNew; paint();
     }
   });
   // Where a reader was, for the company page's way back.
@@ -3426,7 +3524,7 @@ export const LIST_SCRIPT = `
       .catch(function () { location.href = url; });
   }
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('#widgets a.seg') : null;
+    var link = event.target.closest ? event.target.closest('#widgets a.seg, #coverage a.cell, #coverage a.sector-link') : null;
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     clearTimeout(timer);
@@ -3462,9 +3560,34 @@ export const LIST_SCRIPT = `
     sentinel.setAttribute('aria-hidden', 'true');
     form.parentNode.insertBefore(sentinel, form);
     new IntersectionObserver(function (entries) {
-      form.classList.toggle('stuck', !entries[0].isIntersecting);
+      // Stuck only once the bar has scrolled past its place, not while it is still below the screen.
+      form.classList.toggle('stuck', !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0);
     }).observe(sentinel);
   }
+
+  // On a phone the map folds to its five sectors, keeping open the one a filter is in.
+  function foldMap() {
+    if (!window.matchMedia || !window.matchMedia('(max-width: 34rem)').matches) return;
+    var sectors = document.querySelectorAll('#coverage details.sector');
+    for (var i = 0; i < sectors.length; i++) sectors[i].open = sectors[i].hasAttribute('data-chosen');
+  }
+  foldMap();
+  var observerTarget = document.querySelector('.wrap');
+  if (observerTarget && 'MutationObserver' in window) {
+    new MutationObserver(function (changes) {
+      for (var c = 0; c < changes.length; c++) for (var a = 0; a < changes[c].addedNodes.length; a++) if (changes[c].addedNodes[a].id === 'coverage') foldMap();
+    }).observe(observerTarget, { childList: true });
+  }
+
+  // A link into the reference half opens the section that holds its target.
+  function openFor(hash) {
+    if (!hash || hash.length < 2) return;
+    var el = document.getElementById(hash.slice(1));
+    var box = el && el.closest ? el.closest('details') : null;
+    if (box && !box.open) { box.open = true; el.scrollIntoView(); }
+  }
+  window.addEventListener('hashchange', function () { openFor(location.hash); });
+  openFor(location.hash);
 
   paint();
 })();
@@ -3578,6 +3701,26 @@ export const DETAIL_SCRIPT = `
 
 // --- the page ---------------------------------------------------------------
 
+/**
+ * The second half: how the list is built and what it leaves out. For the reader judging the
+ * system rather than using it, so it is collapsed, labelled, and kept apart from the tool.
+ */
+function reference(view: PageView): string {
+	const fresh =
+		view.discoveredThisWeek > 0
+			? `<p class="note">${view.discoveredThisWeek} ${view.discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in a source we were already watching. A new source&rsquo;s first read is not counted here.</p>`
+			: '';
+	return `
+<section class="reference" id="reference" aria-labelledby="reference-h">
+  <h2 id="reference-h">Reference</h2>
+  <p class="note">How this list is built and what it leaves out &mdash; for judging the system rather than using it.</p>
+  <details class="ref"><summary>What the records show</summary>${findingsSection(view)}</details>
+  <details class="ref"><summary>Freshness, and how many records reach the list</summary>${freshness(view)}${fresh}${funnelNote(view)}</details>
+  <details class="ref"${view.subsector ? '' : ''}><summary>Records outside the map</summary>${offMap(view)}</details>
+  <details class="ref"><summary>How the list is ranked, and its limits</summary>${methodology(view)}</details>
+</section>`;
+}
+
 export function renderPage(view: PageView): string {
 	return `<!doctype html>
 <html lang="en">
@@ -3610,18 +3753,16 @@ export function renderPage(view: PageView): string {
 <body>
 <div class="wrap">
 ${header(view)}
-${findingsSection(view)}
+${coverageMap(view)}
 ${widgets(view)}
 ${askBox(view)}
 <main class="tool">
 ${controls(view)}
 <p class="device-note" id="device-note" hidden></p>
 ${list(view)}
-</main>
-${coverageMap(view)}
 <div id="undated-slot">${undatedList(view)}</div>
-${offMap(view)}
-${methodology(view)}
+</main>
+${reference(view)}
 </div>
 <script>${MARKS_SCRIPT}</script>
 <script>${LIST_SCRIPT}</script>
