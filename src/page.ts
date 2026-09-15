@@ -2641,6 +2641,12 @@ select:hover { border-color: var(--rule-strong); }
 .result-line a:hover, .linkish:hover { text-decoration-color: currentColor; }
 .bar-links { display: flex; flex-wrap: wrap; gap: var(--s3); }
 @media (max-width: 34rem) {
+  /* A thumb, not a cursor: controls reach 44px, and pills keep their look while an invisible
+     margin around them takes the tap. */
+  .mark, .copy-row, .chip, select, input[type='search'], .filter-menu > summary, .apply, .linkish { min-height: 44px; }
+  .row-side .mark, .row-side .copy-row { padding-inline: var(--s3); border-radius: var(--radius); }
+  .ev, a.rdi, .result-line a, .bar-links a { position: relative; }
+  .ev::after, a.rdi::after, .result-line a::after, .bar-links a::after { content: ''; position: absolute; inset: -14px -4px; }
   /* Pinned, only the search, the filter button and the sort stay: about 110px, not 183. */
   .controls.stuck .bar-foot, .controls.stuck .active-chips { display: none; }
   .controls { padding-block: var(--s2); }
