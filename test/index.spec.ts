@@ -1677,8 +1677,15 @@ describe('searching and one company at a time', () => {
 	});
 
 	it('404s a company that is not there, rather than landing somebody on the list', async () => {
+		await post({ source: 'test', companies: [{ id: 'kadamb-biolabs', name: 'Kadamb Biolabs Private Limited' }] });
 		const res = await SELF.fetch(`${ORIGIN}/upstream/c/no-such-company`);
 		expect(res.status).toBe(404);
+		const html = await res.text();
+		expect(html).toContain('<h1>No company at this address</h1>');
+		expect(html).toContain('Search every record for &ldquo;no such company&rdquo;');
+		// A stale link to a folded spelling offers the row it was folded into.
+		const stale = await (await SELF.fetch(`${ORIGIN}/upstream/c/kadamb-bio`)).text();
+		expect(stale).toContain('<a href="/upstream/c/kadamb-biolabs">Kadamb Biolabs Private Limited</a>');
 	});
 
 	it('links the row to the company rather than straight off the site', async () => {

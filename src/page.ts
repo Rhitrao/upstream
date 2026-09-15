@@ -2217,6 +2217,44 @@ export function renderCompanyPage(view: CompanyView): string {
 </html>`;
 }
 
+/**
+ * A company address that holds nothing. Said plainly, with the two ordinary reasons a real
+ * link stops working here, the nearest names, and a way back — not a bare "Not found".
+ */
+export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name'>[]): string {
+	const words = slug.replace(/[-_]+/g, ' ').trim();
+	const search = `${BASE_PATH}${query({ q: words, described: 'all', kind: 'all', tier: 'all', age: 'all' })}#list`;
+	const list = nearest.length
+		? `<h2>Names close to it</h2>
+  <ul class="nearest">${nearest.map((c) => `<li><a href="${esc(`${BASE_PATH}/c/${c.id}`)}">${esc(c.name)}</a></li>`).join('')}</ul>`
+		: '';
+	return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No company at this address &mdash; Upstream</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<style>${STYLES}</style>
+</head>
+<body>
+<div class="wrap detail not-found">
+  <p class="eyebrow"><a class="back" href="${esc(BASE_PATH)}">&larr; Upstream</a></p>
+  <header class="masthead">
+    <h1>No company at this address</h1>
+    <p class="lede">Nothing on Upstream is filed under &ldquo;${esc(slug)}&rdquo;. A link stops working here for two ordinary
+      reasons: a company listed twice under two spellings is folded into one row and keeps the other address, or a source
+      stopped listing it.</p>
+  </header>
+  ${list}
+  <p><a href="${esc(search)}">Search every record for &ldquo;${esc(words)}&rdquo;</a> &middot; <a href="${esc(BASE_PATH)}">Back to the list</a></p>
+</div>
+</body>
+</html>`;
+}
+
 // --- styles -----------------------------------------------------------------
 
 export const STYLES = `
@@ -2800,6 +2838,8 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .trace-shape { font-size: var(--t-micro); line-height: 1.35; }
 /* On a company's page the count and what it is read as one fact in the line. */
 .facts .traces { display: inline; }
+.not-found .nearest { list-style: none; padding: 0; margin: 0 0 var(--s5); display: grid; gap: var(--s2); }
+.not-found h2 { font-size: var(--t-h); margin: var(--s5) 0 var(--s2); }
 .facts .trace-shape { font-size: inherit; }
 .facts .trace-shape::before { content: ': '; }
 .traces.quiet { color: var(--ink); }
