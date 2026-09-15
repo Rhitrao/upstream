@@ -1,4 +1,12 @@
 {
+ "ai-health-highway": {
+  "into": "ai-health-highway-india",
+  "why": "FSID IISc's Ai Health Highway and NM-ICPS's Ai Health Highway India Pvt. Ltd.; both AI chronic-disease screening at primary care (the AiSteth stethoscope)"
+ },
+ "arivation-fashiontech-pvt-ltd-arista-vault": {
+  "into": "arista-vault",
+  "why": "NM-ICPS lists Arista Vault twice, once under its legal name Arivation Fashiontech; both rows give aristavault.com"
+ },
  "audo-sens-diagnostics": {
   "into": "shodhsens-diagnostics",
   "why": "Shodhsens's website is audosens.com and its SINE description says \"AUDOSens is developing\"; AUDO Sens is the product, Shodhsens the company"
@@ -7,9 +15,21 @@
   "into": "bylin-medtech",
   "why": "one-letter typos in a SINE cohort list; both rows give www.bylinmedtech.com"
  },
+ "calibr-brainhive-labs": {
+  "into": "brainhive-labs",
+  "why": "NM-ICPS lists Calibr (Brainhive Labs Pvt Ltd) beside Brainhive Labs Pvt Ltd; both give calibr.ai, a skills platform for organisations"
+ },
  "careflex-healthcare": {
   "into": "careflex-health",
   "why": "two SINE lists; same name one word shorter, both biomedical supports and splints"
+ },
+ "chainworks-digital": {
+  "into": "chainwork-digital",
+  "why": "two SINE lists, one letter apart; both blockchain records for organ transplants"
+ },
+ "chigru-innovations-opc": {
+  "into": "cradlewise-innovations",
+  "why": "SINE's Chigru Innovations gives cradlewise.com and a smart cradle; the BIG grant row is Cradlewise Innovations, the same cradle"
  },
  "dr-pashu-technologies": {
   "into": "drpashu-ai-technologies",
@@ -22,5 +42,57 @@
  "eyerov-technologies": {
   "into": "irov-eyerov-technologies",
   "why": "Venture Center lists EyeROV; the NIDHI-PRAYAS row is Irov (EyeRov) Technologies with www.eyerov.com"
+ },
+ "forensic-cybertech": {
+  "into": "forensic-cybertech-machines",
+  "why": "SINE lists Forensic Cybertech and Forensic Cybertech Machines with the same website and the same description"
+ },
+ "ixar-robotics": {
+  "into": "ixar-robotic-solutions",
+  "why": "SINE's Ixar Robotic Solutions (underwater ROV) and NM-ICPS's Ixar Robotics (underwater robotic inspection)"
+ },
+ "linearized-amplifier-technologies-and-services": {
+  "into": "linearized-amplifier-technologies",
+  "why": "NM-ICPS and TIDES; the same name with 'and Services' added; both RF front-end and wireless work (Linear Amptech)"
+ },
+ "manastik": {
+  "into": "manastik-technologies",
+  "why": "NM-ICPS's Manastik Pvt Ltd and Venture Center's Manastik Technologies Pvt. Ltd."
+ },
+ "module-innovations": {
+  "into": "module-innovation",
+  "why": "NM-ICPS and Venture Center; both rapid diagnosis of urinary tract infections (USENSe)"
+ },
+ "mythyaverse-innovation": {
+  "into": "mythyaverse",
+  "why": "NM-ICPS lists Mythyaverse twice; both a VR interview-preparation tool"
+ },
+ "open-water": {
+  "into": "openwater-in",
+  "why": "FSID IISc's Open Water and Venture Center's Openwater.in, an IISc spin-off; both give openwater.in and wastewater treatment"
+ },
+ "seismic-hazard-risk-investigations": {
+  "into": "seismic-hazard-and-risk-investigations",
+  "why": "TIDES and the grants list; '&' for 'and'; both earthquake early warning"
+ },
+ "stealthera": {
+  "into": "stealthera-innovations",
+  "why": "NM-ICPS's Stealthera and the register's Stealthera Innovations Private Limited; both wearables"
+ },
+ "umarobotics": {
+  "into": "umarobotics-technology",
+  "why": "TIDES's Umarobotics and Umarobotics Technology Private Limited on the register and NM-ICPS"
+ },
+ "vayunotics": {
+  "into": "vayunotics-technologies",
+  "why": "the register's VAYUNOTICS (drones) and NM-ICPS's Vayunotics Technologies (UAV avionics)"
+ },
+ "veritometrics": {
+  "into": "veritometrics-technology",
+  "why": "NM-ICPS and TIDES; both the Drooid news platform"
+ },
+ "vidcare-innovations": {
+  "into": "vidcare-technologies",
+  "why": "TIDES's Vidcare Innovations and Venture Center's Vidcare Technologies; both an equipment-free immunoassay test"
  }
 }
