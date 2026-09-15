@@ -97,6 +97,8 @@ export interface PageView {
 	category: number;
 	/** When the list is empty: how many records match the same search and filters in every half, tier and year. */
 	wider?: number | null;
+	/** When a search finds nothing anywhere: the names closest to what was typed. */
+	suggestions?: { id: string; name: string }[];
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -723,8 +725,44 @@ function header(view: PageView): string {
   <h1>Indian deep-tech companies, least-noticed first.</h1>
   <p class="hook">Read from ${n} incubator portfolios, grant lists and the DPIIT register. Every other list ranks by how
     impressive a company looks; this one ranks by how little anyone has written about it.</p>
+  ${scopeLine(view)}
   <p class="since" id="since" hidden></p>
-</header>`;
+</header>
+${topPicks(view)}`;
+}
+
+/**
+ * What the list is out of, said under the masthead where a first-time reader looks, so the
+ * default view cannot pass for everything: the described companies of every record held.
+ */
+function scopeLine(view: PageView): string {
+	if (view.tracked === 0 || view.demo) return '';
+	const latest = view.sourceHealth.map((h) => h.last_success ?? '').sort().pop();
+	return `<p class="scope">Showing the <strong>${view.substance.companies}</strong> of ${view.tracked} records that say what they build, least noticed first${
+		latest ? ` &middot; sources checked ${shortDate(latest.slice(0, 10))}` : ''
+	} &middot; <a href="#result-line">what the list leaves out</a></p>`;
+}
+
+/**
+ * Three companies before anything else, so the claim arrives with proof: the top of the list
+ * as it stands, under whatever filters are set, each a jump to its row.
+ */
+function topPicks(view: PageView): string {
+	const rows = [...view.companies, ...view.undated].slice(0, 3);
+	if (!rows.length) return '<section class="top-picks" id="top-picks" hidden></section>';
+	const filtered = activeFilters(view).length > 0;
+	const shown = view.dates === 'undated' ? view.buckets.undated : view.dates === 'dated' ? view.buckets.ranked : view.buckets.ranked + view.buckets.undated;
+	const pick = (c: Company) => {
+		const said = c.product && c.website_identity === 'verified' ? c.product : describedBySource(c) ? c.description : null;
+		const n = c.trace_count;
+		return `<li><a href="${esc(`${BASE_PATH}/c/${c.id}`)}">${esc(c.name)}</a>${said ? `<span class="pick-builds">${esc(said)}</span>` : ''}<span class="pick-traces">${n === 0 ? 'no public trace' : `${n} public ${n === 1 ? 'trace' : 'traces'}`}</span></li>`;
+	};
+	return `
+<section class="top-picks" id="top-picks" aria-labelledby="top-picks-h">
+  <h2 id="top-picks-h">${filtered ? 'Least noticed in this view' : 'Least noticed right now'}</h2>
+  <ol>${rows.map(pick).join('')}</ol>
+  <a class="see-all" href="#controls">See all ${shown} &darr;</a>
+</section>`;
 }
 
 function coverageMap(view: PageView): string {
@@ -945,7 +983,9 @@ function resultLine(view: PageView): string {
 			why.push(`${b.tierHidden} ${plural(b.tierHidden, 'is', 'are')} ${outside}, and the list is showing ${showing}`);
 		}
 		const everything = `${BASE_PATH}${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
-		parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${held} held back by tier or age</a>`);
+		// Named for what actually holds them back: since the list opens on every tier, usually only the age filter.
+		const label = b.tierHidden === 0 ? `${b.older} started over ${MAX_AGE_YEARS} years ago` : b.older === 0 ? `${b.tierHidden} outside the tier shown` : `${held} held back by age or tier`;
+		parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${label}</a>`);
 	}
 
 	if (view.dates === 'dated' && b.undated > 0) {
@@ -1126,6 +1166,19 @@ function tagLine(company: Company): string {
 		domains.length ? `used in ${domains.map((t) => link('domain', t)).join(', ')}` : null,
 	].filter(Boolean);
 	return `<p class="provenance tags">By keyword: ${parts.join('; ')}. Matched from the words of its description, not checked.</p>`;
+}
+
+/**
+ * Why this company is on the list, in one plain sentence for someone who arrived from a link:
+ * who lists it, and how little else anyone has written.
+ */
+function whyOnList(company: Company): string {
+	const names = [...new Set(company.signals.map((s) => s.source).filter((s): s is string => Boolean(s)).map((s) => SOURCE_LABELS[s] ?? s))];
+	const who = names.length ? `${names.slice(0, 2).join(' and ')}${names.length > 2 ? ` and ${names.length - 2} more` : ''} ${names.length === 1 ? 'lists' : 'list'} it` : 'a source lists it';
+	const n = company.trace_count;
+	const shape = traceShape(company);
+	const traces = n === 0 ? 'it has left no public trace' : `it has left ${n} public ${n === 1 ? 'trace' : 'traces'}${shape ? ` (${shape})` : ''}`;
+	return `It is here because ${who}, and ${traces}; the list puts those with the fewest first.`;
 }
 
 /** What a sub-sector placement rests on, in three words, for beside the placement. */
@@ -1376,6 +1429,16 @@ function truncated(shown: number, total: number): string {
  * the same question over every record, then each filter taken away one at a time.
  */
 function emptyResult(view: PageView): string {
+	// A sub-sector nobody is in is a fact about the records, not about the reader's filters.
+	const cell = view.subsector ? view.coverage.sectors.flatMap((g) => g.subsectors).find((c) => c.subsector_id === view.subsector) : undefined;
+	if (cell && cell.n === 0) {
+		const group = view.coverage.sectors.find((g) => g.subsectors.includes(cell));
+		const near = (group?.subsectors ?? []).filter((c) => c.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
+		return `<div class="empty">
+    <p>No record anywhere is in ${esc(cell.subsector_id)} ${esc(cell.subsector)} yet &mdash; a gap in what the sources list, not in your filters.</p>
+    ${near.length ? `<ul class="ways">${near.map((c) => `<li><a href="${esc(`${BASE_PATH}${query(viewParams(view, { subsector: c.subsector_id }))}#list`)}">${esc(c.subsector_id)} ${esc(c.subsector)} (${c.n})</a></li>`).join('')}</ul>` : ''}
+  </div>`;
+	}
 	const asked = view.search
 		? `No company in this view has &ldquo;${esc(view.search)}&rdquo; in its name or in what it builds.`
 		: 'No company in this view matches every filter you have set.';
@@ -1384,6 +1447,7 @@ function emptyResult(view: PageView): string {
 		const everywhere = `${BASE_PATH}${query(viewParams(view, { described: 'all', kind: 'all', tier: 'all', age: 'all', dates: null, dpiit: null }))}#list`;
 		ways.push(`<a href="${esc(everywhere)}">${view.wider} ${view.wider === 1 ? 'record matches' : 'records match'} outside this view &mdash; show ${view.wider === 1 ? 'it' : 'them'}</a>`);
 	}
+	for (const s of view.suggestions ?? []) ways.push(`Did you mean <a href="${esc(`${BASE_PATH}${query(viewParams(view, { q: s.name, described: 'all', kind: 'all', tier: 'all', age: 'all' }))}#list`)}">${esc(s.name)}</a>?`);
 	for (const f of activeFilters(view)) ways.push(`<a href="${esc(f.href)}">Without &ldquo;${esc(f.label)}&rdquo;</a>`);
 	return `<div class="empty">
     <p>${asked}</p>
@@ -2075,9 +2139,17 @@ export function renderCompanyPage(view: CompanyView): string {
 	const productKnown = Boolean(company.product && company.website_identity === 'verified');
 	const located = [company.city, company.state].filter(Boolean).join(', ');
 
-	const summary = productKnown
-		? productDetail(company)
-		: `<p class="unknown-value">Unknown</p>${productDetail(company)}`;
+	// What they build, first and in words: their own sentence, else a source's, else the plain
+	// absence. How their site was read, which was once the first thing here, folds beneath it.
+	const sourceWords = describedBySource(company)
+		? `<p class="desc">${esc(company.description)}<span class="says">as ${esc(SOURCE_LABELS[company.description_source ?? ''] ?? 'the source')} described it</span></p>`
+		: '';
+	const buildsLead = productKnown
+		? `<p class="builds builds-lead">${esc(company.product)} <span class="says">in their own words</span></p>${sourceWords}`
+		: sourceWords ||
+			(company.description
+				? `<p class="unknown-value">No source says what it builds.</p><p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt} Nothing here says what the company makes.</p>`
+				: '<p class="unknown-value">No source says what it builds.</p>');
 	const excerpt = company.description
 		? !describedBySource(company)
 			? `<p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt} Nothing here says what the company makes.</p>`
@@ -2158,7 +2230,9 @@ export function renderCompanyPage(view: CompanyView): string {
   <p class="eyebrow"><a class="back" href="${esc(`${BASE_PATH}#c-${company.id}`)}">&larr; Upstream</a></p>
 
   <header class="masthead">
+    <p class="about-upstream">One company on <a href="${esc(BASE_PATH)}">Upstream</a>, a list of Indian deep-tech companies that puts the least-noticed first.</p>
     <h1>${esc(company.name)}</h1>
+    <p class="why-here">${esc(whyOnList(company))}</p>
     ${
 			company.entity_type && company.entity_type !== 'company'
 				? `<p class="provenance entity">${ENTITY_LABELS[company.entity_type] ?? ''}: ${esc(company.entity_note ?? '')}.</p>`
@@ -2170,6 +2244,15 @@ export function renderCompanyPage(view: CompanyView): string {
       <span class="${located ? '' : 'unknown-inline'}">${located ? esc(located) : 'location unknown'}</span>
       <span class="${ageKnown(company) ? '' : 'unknown-inline'}">${ageKnown(company) ? `started ${esc(company.origin_year ?? company.founded_year)}` : 'founding year unknown'}</span>
     </p>
+  </header>
+
+  <section>
+    <h2>What they build</h2>
+    ${buildsLead}
+    <details class="reading"><summary>How this was read</summary>${productDetail(company)}</details>
+  </section>
+
+  <section class="keep">
     <div class="actions">
       <button type="button" class="action copy-brief" hidden>Copy brief</button>
       <button type="button" class="action mark" data-mark="shortlist" aria-pressed="false" hidden>Shortlist</button>
@@ -2178,14 +2261,6 @@ export function renderCompanyPage(view: CompanyView): string {
     <p class="device-note" id="device-note" hidden>Shortlist and pass are stored in this browser on this device only &mdash;
       not synced, and not visible to anyone else, including whoever runs this site.</p>
     <details class="brief-fold"><summary>The brief, as markdown</summary><textarea id="brief-text" readonly rows="16" spellcheck="false">${esc(brief)}</textarea></details>
-  </header>
-
-  <section>
-    <h2>What they build</h2>
-    <div class="builds-grid">
-      <div><h3 class="mini">Summary</h3>${summary}</div>
-      <div><h3 class="mini">Source excerpt</h3>${excerpt}</div>
-    </div>
   </section>
 
   ${whoSection(company)}
@@ -2215,7 +2290,7 @@ export function renderCompanyPage(view: CompanyView): string {
   </section>
 
   <section>
-    <h2>Classification</h2>
+    <h2>Where in the RDI scheme</h2>
     ${
 			sub
 				? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
@@ -2250,7 +2325,8 @@ export function renderCompanyPage(view: CompanyView): string {
   </section>
 
   <section>
-    <h2>Tier ${esc(company.tier)}</h2>
+    <h2>Where it ranks</h2>
+    <p class="rank-line">${company.tier === 'A' ? 'New and quiet (Tier A)' : company.tier === 'B' ? 'Recent (Tier B)' : 'Listed, not promoted (Tier C)'}</p>
     <p class="provenance">${whyTier(company)}</p>
   </section>
 </div>
@@ -2953,6 +3029,24 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .trace-shape { font-size: var(--t-micro); line-height: 1.35; }
 /* On a company's page the count and what it is read as one fact in the line. */
 .facts .traces { display: inline; }
+.scope { font-size: var(--t-xs); color: var(--muted); margin: var(--s3) 0 0; }
+.scope strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.scope a { color: var(--ink); text-underline-offset: 3px; }
+.top-picks { margin: var(--s5) 0 0; padding: var(--s4); border: 1px solid var(--rule-strong); border-radius: var(--radius); background: var(--raise); }
+.top-picks h2 { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s2); }
+.top-picks ol { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
+.top-picks li { display: grid; grid-template-columns: 1fr auto; column-gap: var(--s3); align-items: baseline; }
+.top-picks li > a { font-weight: 600; text-underline-offset: 3px; }
+.pick-builds { grid-column: 1; font-size: var(--t-sm); color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.pick-traces { grid-column: 2; grid-row: 1; font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); white-space: nowrap; }
+.see-all { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s1); font-size: var(--t-sm); color: var(--ink); text-underline-offset: 3px; }
+.about-upstream { font-size: var(--t-sm); color: var(--muted); margin: 0 0 var(--s3); }
+.about-upstream a { color: var(--ink); }
+.why-here { font-size: var(--t-body); margin: var(--s2) 0 var(--s3); }
+.builds-lead { font-size: var(--t-lede); max-width: var(--measure); }
+.reading > summary { cursor: pointer; font-size: var(--t-xs); color: var(--muted); margin-top: var(--s2); min-height: 44px; display: flex; align-items: center; }
+.keep { border-top: 1px solid var(--rule); padding-top: var(--s4); }
+.rank-line { font-weight: 500; margin-bottom: var(--s1); }
 .empty .ways { list-style: none; padding: 0; margin: var(--s2) 0 0; display: grid; gap: var(--s2); }
 .not-found .nearest { list-style: none; padding: 0; margin: 0 0 var(--s5); display: grid; gap: var(--s2); }
 .not-found h2 { font-size: var(--t-h); margin: var(--s5) 0 var(--s2); }

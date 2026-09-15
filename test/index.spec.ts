@@ -1633,7 +1633,8 @@ describe('searching and one company at a time', () => {
 
 		// And the tier, with the rule that produced it rather than just the letter.
 		// Kadamb was placed from a register label, and that is the rule that decided.
-		expect(html).toContain('<h2>Tier C</h2>');
+		expect(html).toContain('<h2>Where it ranks</h2>');
+		expect(html).toContain('Listed, not promoted (Tier C)');
 		expect(html).toContain("is a register's dropdown label");
 	});
 
@@ -2000,13 +2001,13 @@ describe('counts that reconcile', () => {
 		const line = html.slice(html.indexOf('<p class="result-line"'), html.indexOf('</p>', html.indexOf('<p class="result-line"')));
 		expect(line).toContain('<strong>3</strong> in the list of 5');
 		expect(line).toContain('>1 hidden by filters</a>');
-		expect(line).toContain('>1 held back by tier or age</a>');
+		expect(line).toContain('>1 started over 5 years ago</a>');
 		expect(line).toContain('>1 of them undated</a>');
 		expect(line).toContain('1 started more than 5 years ago and is held back by the age filter');
 		expect(html).not.toContain('Nothing matches');
 		expect(rows(html)).toEqual(['cohort-a', 'cohort-b', 'grinntech']);
 
-		const all = line.match(/<a href="([^"]+)"[^>]*>1 held back by tier or age<\/a>/)![1].replace(/&amp;/g, '&');
+		const all = line.match(/<a href="([^"]+)"[^>]*>1 started over 5 years ago<\/a>/)![1].replace(/&amp;/g, '&');
 		expect(rows(await (await SELF.fetch(`${ORIGIN}${all}`)).text())).toEqual(['cohort-a', 'cohort-b', 'grinntech', 'old-co']);
 	});
 
@@ -2414,6 +2415,43 @@ describe('what an analyst keeps and how they order it', () => {
 		expect(row).toContain('<span class="meta-stage">stage: Prototype</span>');
 		// An old link that asked for the tier order gets least traced.
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream?sort=obscurity`)).text()).toContain('<option value="quietest" selected>Least traced</option>');
+	});
+});
+
+describe('arriving cold, and not getting stuck', () => {
+	it('tells a company page visitor what Upstream is and why the company is on it, content before buttons', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [{ id: 'cold-co', name: 'Cold Co', description: 'Sensors for grain silos.', description_source: 'sine-iitb', sector_id: '5', subsector_id: '5.2' }],
+			signals: [{ company_id: 'cold-co', type: 'incubator', label: 'SINE cohort' }],
+		});
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/cold-co`)).text();
+		expect(html).toContain('One company on <a href="/upstream">Upstream</a>, a list of Indian deep-tech companies that puts the least-noticed first.');
+		expect(html).toContain('It is here because SINE IIT Bombay lists it, and it has left 1 public trace (an incubator listing); the list puts those with the fewest first.');
+		expect(html.indexOf('Sensors for grain silos.')).toBeLessThan(html.indexOf('class="action copy-brief"'));
+		expect(html).toContain('<h2>Where in the RDI scheme</h2>');
+	});
+
+	it('puts the top three and the scope under the masthead, and turns empty cells and typos into a way forward', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'grinntech', name: 'Grinntech Motors', description: 'Battery packs.', sector_id: '1', subsector_id: '1.4' },
+				{ id: 'volt-co', name: 'Volt Co', description: 'Grid storage.', sector_id: '1', subsector_id: '1.4' },
+			],
+		});
+		const home = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		expect(home).toContain('<h2 id="top-picks-h">Least noticed right now</h2>');
+		expect(home).toContain('<a href="/upstream/c/grinntech">Grinntech Motors</a>');
+		expect(home).toMatch(/Showing the <strong>2<\/strong> of 2 records that say what they build, least noticed first/);
+		expect(home.indexOf('id="top-picks"')).toBeLessThan(home.indexOf('id="coverage"'));
+
+		const empty = await (await SELF.fetch(`${ORIGIN}/upstream?subsector=1.7`)).text();
+		expect(empty).toContain('No record anywhere is in 1.7 Modular Nuclear Reactors yet');
+		expect(empty).toContain('1.4 Energy Storage (2)</a>');
+
+		const typo = await (await SELF.fetch(`${ORIGIN}/upstream?q=grinntek`)).text();
+		expect(typo).toMatch(/Did you mean <a href="[^"]*q=Grinntech\+Motors[^"]*">Grinntech Motors<\/a>\?/);
 	});
 });
 

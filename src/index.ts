@@ -1191,6 +1191,47 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	return { demo, hasRanked, defaultTier, tier, age, dates, ranked, undated, wantRanked: dates !== 'undated', wantUndated: dates !== 'dated' };
 }
 
+/** Edit distance, for matching a mistyped search to a name. Small strings only. */
+function editDistance(a: string, b: string): number {
+	const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+	for (let i = 1; i <= a.length; i++) {
+		let diag = prev[0];
+		prev[0] = i;
+		for (let j = 1; j <= b.length; j++) {
+			const next = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+			diag = prev[j];
+			prev[j] = next;
+		}
+	}
+	return prev[b.length];
+}
+
+/**
+ * Up to three company names within a few edits of what was searched, comparing the search
+ * with each name's words. Candidates share its first two letters, so the scan stays small.
+ */
+async function nearestNames(env: Env, search: string): Promise<{ id: string; name: string }[]> {
+	const q = search.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').trim();
+	if (q.length < 3) return [];
+	const { results } = await env.DB.prepare(
+		`SELECT id, name FROM companies WHERE lower(name) LIKE ? OR lower(name) LIKE ? LIMIT 400`,
+	)
+		.bind(`${q.slice(0, 2)}%`, `% ${q.slice(0, 2)}%`)
+		.all<{ id: string; name: string }>();
+	const allowed = Math.max(2, Math.floor(q.length / 4));
+	return results
+		.map((r) => {
+			const words = r.name.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(Boolean);
+			const phrase = words.slice(0, q.split(' ').length).join(' ');
+			const d = Math.min(editDistance(q, phrase), ...words.map((w) => editDistance(q, w)));
+			return { ...r, d };
+		})
+		.filter((r) => r.d <= allowed)
+		.sort((a, b) => a.d - b.d || a.name.length - b.name.length)
+		.slice(0, 3)
+		.map(({ id, name }) => ({ id, name }));
+}
+
 // --- GET /upstream ----------------------------------------------------------
 
 async function page(url: URL, env: Env): Promise<Response> {
@@ -1242,8 +1283,12 @@ async function page(url: URL, env: Env): Promise<Response> {
 			? (await queryBuckets(env, { ...ranked, described: null, kind: null, dpiit: null, tiers: null, minOriginYear: null })).total
 			: null;
 
+	// A search that finds nothing anywhere offers the nearest names: "grinntek" is Grinntech.
+	const suggestions = wider === 0 && search ? await nearestNames(env, search) : [];
+
 	const html = renderPage({
 		wider,
+		suggestions,
 		coverage,
 		companies,
 		undated,
