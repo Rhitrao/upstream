@@ -2,7 +2,7 @@ import { SELF, env } from 'cloudflare:test';
 import { describe, it, expect, beforeEach } from 'vitest';
 import type Anthropic from '@anthropic-ai/sdk';
 import { filtersFrom, handleAsk, SYSTEM, type CreateMessage } from '../src/ask';
-import { ASK_SCRIPT, LIST_SCRIPT } from '../src/page';
+import { ASK_SCRIPT, DETAIL_SCRIPT, LIST_SCRIPT, MARKS_SCRIPT } from '../src/page';
 
 const ORIGIN = 'https://rohitrao.in';
 const KEY = 'test-ingest-key';
@@ -95,6 +95,8 @@ describe('the question box, shipped off', () => {
 	it('ships scripts that parse', () => {
 		expect(() => new Function(ASK_SCRIPT)).not.toThrow();
 		expect(() => new Function(LIST_SCRIPT)).not.toThrow();
+		expect(() => new Function(MARKS_SCRIPT)).not.toThrow();
+		expect(() => new Function(DETAIL_SCRIPT)).not.toThrow();
 	});
 });
 

@@ -64,7 +64,7 @@ import { organisationsOf, programmesOf, type ProgrammeSignal } from './programme
 import { accessConfig, identify } from './access';
 import { anthropicCreate, askMode, handleAsk, queryAskLog, renderAskLog } from './ask';
 import { PRIVATE_HEADERS, renderNotebook, renderNoteEditor } from './notes';
-import { BASE_PATH, briefMarkdown, renderCompanyPage, renderNotFound, renderPage, type AgeChoice, type TierChoice } from './page';
+import { BASE_PATH, briefMarkdown, renderAboutPage, renderCompanyPage, renderNotFound, renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
 
 const BASE = BASE_PATH;
@@ -1281,11 +1281,11 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 	const { demo, hasRanked, defaultTier, tier, age, dates, ranked, undated: unplaceable } = view;
 	const { sector, subsector, search, source, site, sort } = ranked;
 
-	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
 	// What no filter changes is computed once per data version; only the filtered parts hit D1.
+	// The methodology's aggregates (gaps, findings, register and website outcomes) are on /about.
 	const once = <T>(name: string, compute: () => Promise<T>) => memo(cache, name, compute);
 	const half = { described: ranked.described ?? null, kind: ranked.kind ?? null, dpiit: ranked.dpiit ?? null, tiers: ranked.tiers, dated: ranked.dated, age: ranked.minOriginYear, ids: ranked.ids ?? null };
-	const [coverage, companies, undated, buckets, gaps, discoveredThisWeek, register, oneTrace, products, notCompanies, sourceHealth, widgets, substance, findings, category] = await Promise.all([
+	const [coverage, companies, undated, buckets, sourceHealth, widgets, category] = await Promise.all([
 		once('coverage', () => queryCoverage(env)),
 		dates === 'undated'
 			? Promise.resolve([])
@@ -1298,22 +1298,10 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 				? Promise.resolve(splitDemo(demoCompanies(), now).undated)
 				: queryCompanies(env, unplaceable),
 		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked),
-		demo ? Promise.resolve(demoGaps()) : once('gaps', () => queryGaps(env)),
-		once(`discovered:${weekAgo}`, () => queryDiscoveredSince(env, weekAgo)),
-		demo ? Promise.resolve(demoRegisterOutcomes()) : once('register', () => queryRegisterOutcomes(env)),
-		// The demo set has to answer this the same way the database does, or the row
-		// design gets checked against a headline number that is not about it.
-		demo ? Promise.resolve(demoCompanies().filter((c) => c.trace_count <= 1).length) : once('one-trace', () => queryOneTraceCount(env)),
-		// The demo answers this from its own rows too, so the paragraph under the list
-		// is about the seven companies on screen rather than about the database.
-		demo ? Promise.resolve(demoProductOutcomes()) : once('products', () => queryProductOutcomes(env)),
-		demo ? Promise.resolve(0) : once('not-companies', () => queryNotCompanies(env)),
 		once('source-health', () => querySourceHealth(env)),
 		// The sample rows are not in the database, and widgets counting the database over
 		// them would describe a different page. The demo has none.
 		demo ? Promise.resolve(null) : queryWidgets(env, ranked),
-		once('substance', () => querySubstance(env)),
-		demo ? Promise.resolve(null) : once('findings', () => queryFindings(env)),
 		// The chosen half on its own, so the result line counts out of it.
 		demo
 			? Promise.resolve(null)
@@ -1337,14 +1325,7 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 		companies,
 		undated,
 		buckets,
-		gaps,
-		// The two tables are disjoint — a company is a row or a hole, never both —
-		// so the top of the funnel is simply their sum.
-		found: coverage.total_companies + gaps.total,
-		register,
-		products,
 		tracked: coverage.total_companies,
-		notCompanies,
 		sourceHealth,
 		widgets,
 		ask,
@@ -1358,12 +1339,9 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 		programmes: ranked.programmesAtLeast ? String(ranked.programmesAtLeast) : null,
 		alone: ranked.alone ? '1' : null,
 		domain: ranked.domain ?? null,
-		substance,
-		findings,
+		ids: ranked.ids ?? null,
 		origin: url.origin,
 		category: category?.total ?? coverage.total_companies,
-		oneTrace,
-		discoveredThisWeek,
 		sector,
 		subsector,
 		search,
@@ -1382,6 +1360,39 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 	return new Response(html, {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
+}
+
+// --- GET /upstream/about ---------------------------------------------------
+
+/** Coverage and methodology: the whole database's aggregates, which no filter changes. */
+async function aboutPage(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
+	const now = new Date();
+	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
+	const once = <T>(name: string, compute: () => Promise<T>) => memo(cache, name, compute);
+	const [coverage, gaps, discoveredThisWeek, register, products, sourceHealth, findings] = await Promise.all([
+		once('coverage', () => queryCoverage(env)),
+		once('gaps', () => queryGaps(env)),
+		once(`discovered:${weekAgo}`, () => queryDiscoveredSince(env, weekAgo)),
+		once('register', () => queryRegisterOutcomes(env)),
+		once('products', () => queryProductOutcomes(env)),
+		once('source-health', () => querySourceHealth(env)),
+		once('findings', () => queryFindings(env)),
+	]);
+	const html = renderAboutPage({
+		coverage,
+		gaps,
+		// The two tables are disjoint — a company is a row or a hole, never both —
+		// so the top of the funnel is simply their sum.
+		found: coverage.total_companies + gaps.total,
+		tracked: coverage.total_companies,
+		sourceHealth,
+		findings,
+		register,
+		products,
+		discoveredThisWeek,
+		now,
+	});
+	return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE } });
 }
 
 // --- GET /upstream/export.csv -----------------------------------------------
@@ -1705,13 +1716,18 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
 		}
 
 		// Public reads that change only when an ingest writes are answered from the edge cache.
-		const cacheable = isRead && [BASE, `${BASE}/export.csv`, `${BASE}/api/companies`, `${BASE}/api/coverage`, `${BASE}/api/gaps`, `${BASE}/api/sources`].includes(path);
+		// A shortlist view is one reader's ids: rendered fresh, never stored for everyone.
+		const cacheable =
+			isRead && [BASE, `${BASE}/about`, `${BASE}/export.csv`, `${BASE}/api/companies`, `${BASE}/api/coverage`, `${BASE}/api/gaps`, `${BASE}/api/sources`].includes(path) && !(path === BASE && url.searchParams.has('ids'));
 		const cache: EdgeCache = cacheable ? await edgeCache(env, ctx, url.origin) : { enabled: false, key: '', origin: url.origin, ctx };
 		const served = (build: () => Promise<Response>) => cachedResponse(request, cache, build);
 
 		switch (path) {
 			case BASE:
 				return isRead ? served(() => page(url, env, cache)) : methodNotAllowed('GET, HEAD');
+
+			case `${BASE}/about`:
+				return isRead ? served(() => aboutPage(url, env, cache)) : methodNotAllowed('GET, HEAD');
 
 			case `${BASE}/og.png`:
 				return new Response(Uint8Array.from(atob(OG_PNG_BASE64), (c) => c.charCodeAt(0)), {

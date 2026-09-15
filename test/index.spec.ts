@@ -51,6 +51,13 @@ function every(qs = ''): string {
 	return qs.startsWith('?') ? `${qs}&${all}` : `?${qs}&${all}`;
 }
 
+/** The coverage and methodology page, where the list's reference half now lives. */
+async function about(): Promise<string> {
+	const res = await SELF.fetch(`${ORIGIN}/upstream/about`);
+	expect(res.status).toBe(200);
+	return res.text();
+}
+
 /** A page as a reader sees it: the briefs rows carry for copying are inert until copied. */
 function visible(html: string): string {
 	return html.replace(/<template class="brief">[\s\S]*?<\/template>/g, '');
@@ -781,19 +788,20 @@ describe('what a company builds', () => {
 				{ id: 'c', name: 'C', website: 'https://c.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'refused' },
 				{ id: 'd', name: 'D', website: 'https://d.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'thin' },
 				{ id: 'e', name: 'E', website: 'https://e.invalid', sector_id: '5', subsector_id: '5.1', product_status: 'unclear' },
-				// Looked for, and there is none. On this list that is a point in their favour.
+				// Looked for, and there is none: an absence in the record, not a sign either way.
 				{ id: 'f', name: 'F', sector_id: '5', subsector_id: '5.1' },
 			],
 		});
 
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&tier=all`)).text();
+		const html = await about();
 		expect(html).toMatch(/Of the 6 companies here, 5 publish a website/);
 		expect(html).toMatch(/<strong>1<\/strong> of them say plainly enough what they build/);
 		expect(html).toMatch(/<strong>1<\/strong> publish an address that no longer answers/);
 		expect(html).toMatch(/<strong>1<\/strong> refused an automated reader/);
 		expect(html).toMatch(/<strong>1<\/strong> served a page with no readable text/);
 		expect(html).toMatch(/<strong>1<\/strong> never said what they make/);
-		expect(html).toMatch(/<strong>1<\/strong> have no website at all/);
+		expect(html).toMatch(/<strong>1<\/strong> have no website listed/);
+		expect(html).not.toContain('counts in their favour');
 	});
 });
 
@@ -848,7 +856,7 @@ describe('GET /upstream (the page)', () => {
 		expect(demo).not.toContain('Saral Hydro Systems Private Limited');
 		expect(demo).toContain('held back');
 		// Who has noticed a company, named on its row; the sub-sector is chosen from the map.
-		expect(demo).toMatch(/<p class="trail">/);
+		expect(demo).toMatch(/<p class="trail evidence-row"><span class="f-listed">Listed by /);
 	});
 
 	it('lists undated companies after the dated ones, in their own part of the list', async () => {
@@ -857,7 +865,7 @@ describe('GET /upstream (the page)', () => {
 
 		const html = await page();
 		expect(html).toContain('id="undated"');
-		expect(html).toContain('No source dates these');
+		expect(html).toContain('<h2 id="undated-h">No source date <span class="count">');
 		expect(html).toContain('Undated Co');
 
 		// The dated list comes first, and the undated ones continue it in the same tool.
@@ -878,7 +886,7 @@ describe('GET /upstream (the page)', () => {
 		const hardware = await page('?tier=all&age=all&build=hardware');
 		expect(hardware).toContain('id="c-drone-co"');
 		expect(hardware).not.toContain('id="c-ledger-co"');
-		expect(hardware).toContain('Builds: hardware');
+		expect(hardware).toContain('Technology type: hardware');
 		const farms = await page('?tier=all&age=all&domain=agriculture+%26+food');
 		expect(farms).toContain('id="c-drone-co"');
 		expect(farms).not.toContain('id="c-quiet-co"');
@@ -956,8 +964,8 @@ describe('GET /upstream (the page)', () => {
 		const rowOf = (id: string) => list.slice(list.indexOf(`id="c-${id}"`), list.indexOf('</li>', list.indexOf(`id="c-${id}"`)));
 		expect(rowOf('from-label')).not.toContain('register label only');
 
-		// And the finding is written up, not just marked.
-		expect(await page('?tier=all')).toContain('Two official classifications that do not meet');
+		// And the finding is written up, not just marked, on the methodology page.
+		expect(await about()).toContain('Two official classifications that do not meet');
 	});
 
 	it('lets a register label place a company in a sub-sector and no further', async () => {
@@ -1066,9 +1074,12 @@ describe('GET /upstream (the page)', () => {
 		// Age with its basis, the source's date; when we collected it is not on the row.
 		expect(row).toContain('on DPIIT register Aug 2023');
 		expect(row).not.toContain('added to Upstream');
-		expect(html).toContain('2 companies turned up in the last seven days in a source we were already watching.');
+		const method = await about();
+		expect(method).toContain('2 companies turned up in the last seven days in a source we were already watching.');
 		// Each row's "added to Upstream" is the day it was written; the headline is not that count.
-		expect(html).not.toContain('added to Upstream in the last seven days');
+		expect(method).not.toContain('added to Upstream in the last seven days');
+		// And the row's date says what it is, never a founding date.
+		expect(html).toContain('The date on each row is the date a source gives for its own record &mdash; a listing, a register entry, a grant &mdash; not a founding date.');
 
 		const detailHtml = await detail('probird');
 		expect(detailHtml).toContain('A source dates this company to 25 Aug 2023');
@@ -1136,7 +1147,7 @@ describe('GET /upstream (the page)', () => {
 			],
 		});
 
-		const html = await page();
+		const html = await about();
 		expect(html).toContain('id="off-map"');
 		expect(html).toContain('water infrastructure');
 		expect(html).toContain('Botsrule Ltd');
@@ -1156,7 +1167,7 @@ describe('GET /upstream (the page)', () => {
 			],
 		});
 
-		const html = await page();
+		const html = await about();
 		// Two findings, two headings, two counts — and the counts do not overlap.
 		expect(html).toContain('<h2 id="off-map-h">Unmapped under the current taxonomy and classifier <span class="count">1</span></h2>');
 		expect(html).toContain('<h2 id="undescribed-h">Companies we could not describe well enough to place <span class="count">2</span></h2>');
@@ -1167,7 +1178,7 @@ describe('GET /upstream (the page)', () => {
 	});
 
 	it('says nothing about the map having holes when it has none', async () => {
-		expect(await page()).not.toContain('id="off-map"');
+		expect(await about()).not.toContain('id="off-map"');
 	});
 
 	it('defaults the tier toggle to everything and honours the other choices', async () => {
@@ -1178,8 +1189,8 @@ describe('GET /upstream (the page)', () => {
 		expect(await page('?tier=a')).toContain('<option value="a" selected>A only</option>');
 		expect(await page('?tier=ab')).toContain('<option value="ab" selected>A + B</option>');
 		// A tier other than the default is a filter, and says so as a chip.
-		expect(await page('?tier=a')).toContain('Tier: A only');
-		expect(await page()).not.toContain('Tier: Everything');
+		expect(await page('?tier=a')).toContain('Rank tier: A only');
+		expect(await page()).not.toContain('Rank tier: Everything');
 	});
 
 	it('opens on every tier, backfill or not, with nothing to explain', async () => {
@@ -1236,7 +1247,7 @@ describe('GET /upstream (the page)', () => {
 		expect(html).toContain('Backfilled Co');
 	});
 
-	it('states the whole funnel, under the map rather than above the proposition', async () => {
+	it('states the whole funnel on the methodology page, not above the proposition', async () => {
 		// Two placed, three off the map. Both numbers still have to be said — a figure
 		// that silently meant "the subset that fitted" was the one place on this page
 		// where something disappeared without being named — but they are the pipeline
@@ -1255,9 +1266,9 @@ describe('GET /upstream (the page)', () => {
 			],
 		});
 
-		const html = await page('');
+		const html = await about();
 		// Both ends of the funnel, in full.
-		expect(html).toMatch(/5 companies have reached this pipeline and 2 are on the map above/);
+		expect(html).toMatch(/5 companies have reached this pipeline and 2 are on the RDI coverage map/);
 		// The drop is stated, not left for the reader to compute, and it is split by
 		// whose fault it is — the taxonomy gap is claimed only for the companies that
 		// actually are one.
@@ -1267,10 +1278,11 @@ describe('GET /upstream (the page)', () => {
 		const note = html.slice(html.indexOf('class="funnel-note"'), html.indexOf('</p>', html.indexOf('class="funnel-note"')));
 		expect(note).not.toContain('#undescribed');
 
-		// And the arithmetic is below the claim, not in front of it. A stranger meets
-		// the proposition first; the pipeline's accounting of itself comes after the
-		// map it describes.
-		expect(html.indexOf('class="hook"')).toBeLessThan(html.indexOf('class="funnel-note"'));
+		// And the arithmetic is not in front of the list: a stranger meets the proposition and
+		// the search; the pipeline's accounting of itself is one link away.
+		const home = await page('');
+		expect(home).not.toContain('class="funnel-note"');
+		expect(home).toContain('<a href="/upstream/about">How the data is collected</a>');
 		expect(html).not.toContain('Companies found');
 		expect(html).not.toContain('Placed on the map');
 	});
@@ -1301,21 +1313,27 @@ describe('GET /upstream (the page)', () => {
 
 		const res = await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all`);
 		const html = await res.text();
-		expect(html).toContain('<p class="eyebrow">Upstream</p>');
-		// Substance, not coverage: three companies say what they build; five rows exist.
-		// Two sentences: what this is, where it comes from, and the one way it differs.
-		expect(html).toContain('<h1>Indian deep-tech companies, least-noticed first.</h1>');
-		const lede = html.slice(html.indexOf('class="hook"'), html.indexOf('</p>', html.indexOf('class="hook"')));
-		expect(lede).toMatch(/incubator portfolios, grant lists and the DPIIT register\./);
-		expect(lede).toMatch(/this one ranks by how little anyone has written about it\./);
+		expect(html).toContain('<p class="eyebrow">Deep-tech sourcing for investors</p>');
+		// The research outcome first, in one headline and one sentence; the ranking is a lens beside the sort.
+		expect(html).toContain('<h1>Find Indian deep-tech companies worth your next research call.</h1>');
+		const lede = html.slice(html.indexOf('class="lede"'), html.indexOf('</p>', html.indexOf('class="lede"')));
+		expect(lede).toContain('Explore companies listed by Indian incubators and public programmes.');
+		// No sweeping claim about every other list.
+		expect(html).not.toContain('Every other list');
+		expect(html).toContain('Sorted by the fewest references collected from the sources Upstream monitors.');
 		// No stats above the list: each number is a widget sentence that filters by it.
 		expect(html).not.toContain('class="stats"');
-		expect(widgetText(html, 'w-view')).toContain('<strong>3</strong> companies here have published enough for you to form a view.');
+		expect(widgetText(html, 'w-view')).toContain('<strong>3</strong> companies here have a product description.');
+		// Search is the first control, before the results and before the secondary exploration.
+		expect(html.indexOf('id="q"')).toBeLessThan(html.indexOf('id="list"'));
+		expect(html.indexOf('id="q"')).toBeLessThan(html.indexOf('id="coverage"'));
 
 		// The list is the headline's three, and the line under it says where the other two are.
 		const rows = [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 		expect(rows).toEqual(['noticed', 'quiet-one', 'quiet-two']);
-		const line = html.slice(html.indexOf('<p class="result-line"'), html.indexOf('</p>', html.indexOf('<p class="result-line"')));
+		// One dominant count, and what it is out of behind "About these results".
+		expect(html).toContain('<p class="result-line"><strong>3</strong> companies match');
+		const line = html.slice(html.indexOf('<p class="result-parts"'), html.indexOf('</p>', html.indexOf('<p class="result-parts"')));
 		// All three are undated backfill rows, listed after the dated ones; still out of 3.
 		expect(line).toContain('<strong>3</strong> in the list of 3');
 		expect(line).toContain('>3 of them undated</a>');
@@ -1333,7 +1351,7 @@ describe('GET /upstream (the page)', () => {
 		expect(html).not.toContain('discovered in the last seven days');
 	});
 
-	it('keeps the findings in the reference half, each number a link to what proves it', async () => {
+	it('keeps the findings on the methodology page, each number a link to what proves it', async () => {
 		await post({
 			source: 'dpiit-startup-india',
 			companies: [
@@ -1352,11 +1370,11 @@ describe('GET /upstream (the page)', () => {
 			gaps: [{ company_id: 'ev-co', name: 'EV Co', missing: 'electric vehicle infrastructure', note: 'n', description: 'Charging for e-rickshaws.' }],
 		});
 
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
-		// In the reference half now: for judging the system, below the list, collapsed.
+		// On their own page now: for judging the system, and not sent with every list.
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream`)).text()).not.toContain('<section class="findings"');
+		const html = await about();
 		const at = html.indexOf('<section class="findings"');
-		expect(at).toBeGreaterThan(html.indexOf('id="list"'));
-		expect(at).toBeGreaterThan(html.indexOf('id="reference"'));
+		expect(at).toBeGreaterThan(-1);
 		const findings = html.slice(at, html.indexOf('</section>', at));
 
 		// Three register records read, none described anywhere.
@@ -1370,7 +1388,7 @@ describe('GET /upstream (the page)', () => {
 		// Two described records, one of which fits no sub-sector.
 		expect(findings).toContain('<a href="#off-map">1 of 2 described records (50%)</a>');
 		expect(findings).toContain('&ldquo;electric vehicle infrastructure&rdquo; leads');
-		expect(findings).toMatch(/<a href="#coverage">42 sub-sectors<\/a>, including modular nuclear reactors, nuclear fusion R&amp;D and photonics &amp; optoelectronics,/);
+		expect(findings).toMatch(/<a href="\/upstream#coverage">42 sub-sectors<\/a>, including modular nuclear reactors, nuclear fusion R&amp;D and photonics &amp; optoelectronics,/);
 		// Recognition, linked to the rows that show it.
 		expect(findings).toContain('1 of the 2 register entries on this list (50%)</a>');
 		expect(findings).toMatch(/href="\/upstream\?tier=all&amp;age=all&amp;dpiit=profile&amp;described=all&amp;kind=all#list"/);
@@ -1394,7 +1412,7 @@ describe('GET /upstream (the page)', () => {
 			],
 		});
 
-		const html = await page('');
+		const html = await about();
 		// Whitespace-tolerant: the template wraps these sentences across lines.
 		expect(html).toMatch(/Of the 3 companies read from the register,\s+1 reached a sub-sector and\s+2 did not/);
 		expect(html).toMatch(/<strong>1<\/strong> are unplaced because the classifier found/);
@@ -1409,17 +1427,21 @@ describe('GET /upstream (the page)', () => {
 		expect(html).not.toContain('placed in no sub-sector at all');
 	});
 
-	it('leads with the coverage map as the control, then the widgets, the controls and the list', async () => {
+	it('leads with the search and its controls, then the sector map and breakdowns folded, then the list', async () => {
 		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
 		const html = await page('');
-		expect(html.indexOf('</header>')).toBeLessThan(html.indexOf('id="coverage"'));
+		expect(html.indexOf('class="topnav"')).toBeLessThan(html.indexOf('</header>'));
+		expect(html.indexOf('</header>')).toBeLessThan(html.indexOf('id="controls"'));
+		expect(html.indexOf('id="controls"')).toBeLessThan(html.indexOf('id="coverage"'));
 		expect(html.indexOf('id="coverage"')).toBeLessThan(html.indexOf('id="widgets"'));
-		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="controls"'));
-		expect(html.indexOf('id="controls"')).toBeLessThan(html.indexOf('id="list"'));
-		expect(html.indexOf('id="list"')).toBeLessThan(html.indexOf('id="reference"'));
-		// Open, not folded, and a sector's name is itself a filter.
-		expect(html).not.toContain('class="map-fold"');
+		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="list"'));
+		// The map and the breakdowns are secondary: folded until asked for, and a sector's name is still a filter.
+		expect(html).toMatch(/<details class="explore-fold" id="sector-fold">/);
+		expect(html).toMatch(/<details class="explore-fold" id="breakdown-fold">/);
 		expect(html).toMatch(/<a class="sector-link" href="[^"]*sector=1[^"]*#list">/);
+		// The reference half is not sent with the list; its old anchors are sent on to /about.
+		expect(html).not.toContain('id="reference"');
+		expect(html).toContain('location.replace("/upstream/about#"+h)');
 		// No prose paragraph between the masthead and the list other than widget sentences.
 		expect(html.slice(html.indexOf('</header>'), html.indexOf('id="list"'))).not.toContain('class="note"');
 	});
@@ -1582,7 +1604,7 @@ describe('searching and one company at a time', () => {
 		expect(brief).toContain('- no url for this one — press, not dated:');
 		expect(brief).toContain(`Upstream record: ${ORIGIN}/upstream/c/kadamb-biolabs`);
 		// The critique's template: why it is here, what not to lean on, and where to go next.
-		expect(brief).toMatch(/\*\*Why it is here:\*\* \d+ public traces?(?: \([^)]+\))?, which is what the list sorts by\. Tier [ABC]: /);
+		expect(brief).toMatch(/\*\*Why it is here:\*\* \d+ collected references?(?: \([^)]+\))?, which is what the default order sorts by\. Tier [ABC]: /);
 		expect(brief.indexOf('## Evidence')).toBeLessThan(brief.indexOf('## Limits of the evidence'));
 		expect(brief).toContain('- The placement is automated and nobody has reviewed it');
 		expect(brief).toMatch(/## Next step\n- (Ask |Write to |Their |No public contact route)/);
@@ -1600,11 +1622,15 @@ describe('searching and one company at a time', () => {
 		expect((await SELF.fetch(`${ORIGIN}/upstream/c/nobody/brief`)).status).toBe(404);
 
 		// The page lists the same unknowns, and the actions are there for the script.
-		expect(html).toContain('<h2>What is not known</h2>');
-		expect(html).toContain('<strong>Its company registration</strong>');
+		expect(html).toContain('<h2 id="unknowns-h">What still needs checking</h2>');
+		// Split by why it is unknown: not found in the sources checked, or not collected at all.
+		expect(html.indexOf('Not found in the sources checked')).toBeLessThan(html.indexOf('Not collected by Upstream'));
+		expect(html.indexOf('Not collected by Upstream')).toBeLessThan(html.indexOf('<strong>Its company registration</strong>'));
 		expect(html).toContain('class="action copy-brief"');
 		expect(html).toContain('data-mark="pass"');
-		expect(html).toContain('stored in this browser on this device only');
+		expect(html).toContain('Saved in this browser only');
+		// The markdown preview is folded, not a second copy of the page in the reading path.
+		expect(html).toMatch(/<details class="brief-fold"><summary>The brief, as markdown<\/summary><textarea/);
 	});
 
 	it('gives every company a page of its own, with the reasoning printed as written', async () => {
@@ -1633,7 +1659,7 @@ describe('searching and one company at a time', () => {
 
 		// And the tier, with the rule that produced it rather than just the letter.
 		// Kadamb was placed from a register label, and that is the rule that decided.
-		expect(html).toContain('<h2>Where it ranks</h2>');
+		expect(html).toContain('<summary>Where it ranks</summary>');
 		expect(html).toContain('Listed, not promoted (Tier C)');
 		expect(html).toContain("is a register's dropdown label");
 	});
@@ -1722,7 +1748,7 @@ describe('people and projects are not companies', () => {
 
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&kind=all&described=all`)).text();
 		// Planys has no description, so no company here has said enough to form a view on.
-		expect(html).toContain('<h1>Indian deep-tech companies, least-noticed first.</h1>');
+		expect(html).toContain('<h1>Find Indian deep-tech companies worth your next research call.</h1>');
 		const start = html.indexOf('id="c-aishwarya-dasare"');
 		expect(html.slice(start, html.indexOf('</li>', start))).toContain('a researcher&rsquo;s project, not a company');
 
@@ -1805,9 +1831,13 @@ describe('source health', () => {
 		expect(dpiit).toMatchObject({ last_status: 'failed', last_reason: 'HTTPError: 403 Forbidden', last_success_records: 330 });
 		expect(dpiit.last_success).not.toBeNull();
 
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const html = await about();
 		const line = html.slice(html.indexOf('<p class="freshness">'), html.indexOf('</p>', html.indexOf('<p class="freshness">')));
 		expect(line).toContain('DPIIT register <strong>failed on');
+		// The source table says the same, and the list page's one line counts the failure.
+		expect(html).toMatch(/<td>DPIIT register<\/td><td><strong>Failed on \d+ [A-Z][a-z]{2} \d{4}<\/strong>; showing the run of/);
+		await post({ source: 'sine-iitb', companies: [{ id: 'fresh-co', name: 'Fresh Co' }] });
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream`)).text()).toContain('(1 failed its last check)');
 		expect(line).toContain('showing 12 Sep 2026');
 		// One healthy source does not vouch for the other.
 		expect(line).toContain('SINE IIT Bombay 13 Sep 2026');
@@ -1819,7 +1849,7 @@ describe('source health', () => {
 			{ source: 'grants-csv', status: 'ok', records: 177, data_as_of: '2025-10-06' },
 			{ source: 'rtbi-iitm', status: 'ok', records: 42 },
 		]);
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const html = await about();
 		const line = html.slice(html.indexOf('<p class="freshness">'), html.indexOf('</p>', html.indexOf('<p class="freshness">')));
 		expect(line).toContain('Government grants 6 Oct 2025');
 		expect(line).toContain('IIT Madras Incubation Cell date unknown');
@@ -1861,9 +1891,9 @@ describe('where they are', () => {
 	it('says what it does not know in the widget header, with unknown as the first tile', async () => {
 		await seed();
 		const html = await text('?tier=all');
-		// Above the controls, under the masthead.
-		expect(html.indexOf('id="widgets"')).toBeGreaterThan(html.indexOf('class="masthead"'));
-		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="controls"'));
+		// Under the controls, folded with the other breakdowns, and above the list.
+		expect(html.indexOf('id="widgets"')).toBeGreaterThan(html.indexOf('id="controls"'));
+		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="list"'));
 
 		const places = widget(html, 'w-places');
 		expect(places).toContain('<strong>4 of 7</strong> publish a location; the map shows those 4, not where the other 3 are.');
@@ -1949,10 +1979,10 @@ describe('what they build, and how many traces', () => {
 	it('filters by whose words say what a company builds, and says how many have none', async () => {
 		await seed();
 		const all = await text('?tier=all&age=all');
-		expect(all).toContain('<strong>2</strong> companies here have published enough for you to form a view. 1 more have only a list&rsquo;s label or nothing.');
+		expect(all).toContain('<strong>2</strong> companies here have a product description. 1 more have only a category label or nothing.');
 		expect(rows(await text('?tier=all&age=all&described=label'))).toEqual(['label-co']);
 		expect(rows(await text('?tier=all&age=all&described=source'))).toEqual(['loud-co', 'said-co']);
-		expect(await text('?tier=all&age=all&described=label')).toContain('What it builds: a list’s label only');
+		expect(await text('?tier=all&age=all&described=label')).toContain('Description: category label only');
 		const api = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=all&age=all&undated=1&described=label`)).json<any>();
 		expect(api.companies.map((c: any) => c.id)).toEqual(['label-co']);
 		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?described=vibes`)).status).toBe(400);
@@ -1961,7 +1991,7 @@ describe('what they build, and how many traces', () => {
 	it('filters by public traces, and draws the thesis as one or none, two, three or more', async () => {
 		await seed();
 		const all = await text('?tier=all&age=all');
-		expect(all).toContain('<strong>67%</strong> have left two public traces or fewer; <strong>2</strong> have left one or none. The list puts the fewest first.');
+		expect(all).toContain('<strong>67%</strong> have two collected references or fewer; <strong>2</strong> have one or none.');
 		expect(rows(await text('?tier=all&age=all&traces=3%2B'))).toEqual(['loud-co']);
 		expect(rows(await text('?tier=all&age=all&traces=1'))).toEqual(['label-co', 'said-co']);
 		const csv = await text('/export.csv?tier=all&age=all&traces=1');
@@ -1996,7 +2026,9 @@ describe('counts that reconcile', () => {
 		expect(html).toContain('<span class="cell-id">1.4</span><span class="cell-n">4</span>');
 
 		// Every record accounted for: 3 shown (2 dated, 1 undated) + 1 hidden by the filter + 1 held back = 5.
-		const line = html.slice(html.indexOf('<p class="result-line"'), html.indexOf('</p>', html.indexOf('<p class="result-line"')));
+		// Every record, companies or not, so the count says records.
+		expect(html).toContain('<p class="result-line"><strong>3</strong> records match');
+		const line = html.slice(html.indexOf('<p class="result-parts"'), html.indexOf('</p>', html.indexOf('<p class="result-parts"')));
 		expect(line).toContain('<strong>3</strong> in the list of 5');
 		expect(line).toContain('>1 hidden by filters</a>');
 		expect(line).toContain('>1 started over 5 years ago</a>');
@@ -2157,7 +2189,7 @@ describe('slicing the list', () => {
 		expect(html).toMatch(/href="\/upstream\/export\.csv\?q=bare&amp;source=sine-iitb&amp;site=none&amp;described=all&amp;kind=all&amp;sort=name[^"]*"/);
 		// Every filter is its own chip, and each chip's link removes that filter and no other.
 		const chipsHtml = html.slice(html.indexOf('id="chips"'), html.indexOf('</ul>', html.indexOf('id="chips"')));
-		for (const label of ['Search: “bare”', 'Found by: SINE IIT Bombay', 'Website: no website', 'Started: every year', 'What it builds: described or not', 'Showing: companies, projects and unverified names']) {
+		for (const label of ['Search: “bare”', 'Source: SINE IIT Bombay', 'Website: no website listed', 'Started: any year', 'Description: with or without', 'Showing: companies, projects and unverified names']) {
 			expect(chipsHtml).toContain(label);
 		}
 		const searchChip = chipsHtml.match(/<a class="chip filter-chip" href="([^"]+)" aria-label="Remove Search/)![1].replace(/&amp;/g, '&');
@@ -2372,7 +2404,7 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 		expect(html).toContain('2 works list this company as an author affiliation, in OpenAlex');
 		expect(html).toContain('Graphene membranes for desalination');
 		expect(html).not.toContain('Founders: no source this page reads names them');
-		expect(html).toContain('1 public trace');
+		expect(html).toContain('1 collected reference');
 
 		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
 		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
@@ -2411,26 +2443,33 @@ describe('what an analyst keeps and how they order it', () => {
 		// How far along, only where a source says.
 		const row = ordered.slice(ordered.indexOf('id="c-rich-co"'), ordered.indexOf('</li>', ordered.indexOf('id="c-rich-co"')));
 		expect(row).toContain('<span class="f-stage" title="The stage the company chose on its DPIIT profile">Prototype</span>');
-		// An old link that asked for the tier order gets least traced.
-		expect(await (await SELF.fetch(`${ORIGIN}/upstream?sort=obscurity`)).text()).toContain('<option value="quietest" selected>Least traced</option>');
+		// An old link that asked for the tier order gets fewest collected references.
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream?sort=obscurity`)).text()).toContain('<option value="quietest" selected>Fewest collected references</option>');
 	});
 });
 
 describe('arriving cold, and not getting stuck', () => {
-	it('tells a company page visitor what Upstream is and why the company is on it, content before buttons', async () => {
+	it('tells a company page visitor what Upstream is and what the company builds, then the evidence, with the ranking folded', async () => {
 		await post({
 			source: 'sine-iitb',
 			companies: [{ id: 'cold-co', name: 'Cold Co', description: 'Sensors for grain silos.', description_source: 'sine-iitb', sector_id: '5', subsector_id: '5.2' }],
 			signals: [{ company_id: 'cold-co', type: 'incubator', label: 'SINE cohort' }],
 		});
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/cold-co`)).text();
-		expect(html).toContain('One company on <a href="/upstream">Upstream</a>, a list of Indian deep-tech companies that puts the least-noticed first.');
-		expect(html).toContain('It is here because SINE IIT Bombay lists it, and it has left 1 public trace (an incubator listing); the list puts those with the fewest first.');
-		expect(html.indexOf('Sensors for grain silos.')).toBeLessThan(html.indexOf('class="action copy-brief"'));
-		expect(html).toContain('<h2>Where in the RDI scheme</h2>');
+		expect(html).toContain('A company record on <a href="/upstream">Upstream</a>, assembled from public sources.');
+		expect(html).toContain('It is here because SINE IIT Bombay lists it, and Upstream has collected 1 collected reference (an incubator listing); the default order puts those with the fewest first.');
+		// What it builds, then the shortlist action, then what supports it; how it ranks comes last, folded.
+		expect(html.indexOf('Sensors for grain silos.')).toBeLessThan(html.indexOf('class="action mark mark-shortlist"'));
+		expect(html.indexOf('class="action mark mark-shortlist"')).toBeLessThan(html.indexOf('<h2 id="evidence-h">What supports this</h2>'));
+		expect(html.indexOf('<h2 id="evidence-h">What supports this</h2>')).toBeLessThan(html.indexOf('<h2 id="unknowns-h">'));
+		expect(html.indexOf('<h2 id="unknowns-h">')).toBeLessThan(html.indexOf('<summary>Where it ranks</summary>'));
+		expect(html).toContain('<summary>Where in the RDI scheme</summary>');
+		// A way into discovery for someone who arrived from a link.
+		expect(html).toContain('<a class="back" href="/upstream#c-cold-co">&larr; All companies</a>');
+		expect(html).toContain('class="topnav"');
 	});
 
-	it('puts the top three and the scope under the masthead, and turns empty cells and typos into a way forward', async () => {
+	it('starts with a search, working sector presets and real results, and turns empty cells and typos into a way forward', async () => {
 		await post({
 			source: 'sine-iitb',
 			companies: [
@@ -2439,10 +2478,19 @@ describe('arriving cold, and not getting stuck', () => {
 			],
 		});
 		const home = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
-		expect(home).toContain('<h2 id="top-picks-h">Least noticed right now</h2>');
+		// One results surface: no preview list above it.
+		expect(home).not.toContain('id="top-picks"');
 		expect(home).toContain('<a href="/upstream/c/grinntech">Grinntech Motors</a>');
-		expect(home).toMatch(/Showing <strong>2<\/strong> companies that say what they build, least noticed first, out of 2 records/);
-		expect(home.indexOf('id="top-picks"')).toBeLessThan(home.indexOf('id="coverage"'));
+		expect(home).toContain('<label for="q" class="search-label">Find companies</label>');
+		expect(home).toContain('placeholder="Search companies or technologies"');
+		expect(home).toContain('<strong>2</strong> records from 8 public sources');
+		// A preset is a link to the same sub-sector filter the form sets, and only where the records hold any.
+		expect(home).toContain('<a class="preset" href="/upstream?subsector=1.4#list">Energy Storage</a>');
+		expect(home).not.toContain('>Medical Devices &amp; Diagnostics</a>');
+		const preset = await (await SELF.fetch(`${ORIGIN}/upstream?subsector=1.4`)).text();
+		expect(preset).toContain('<a class="preset active" href="/upstream#list" aria-current="true">Energy Storage</a>');
+		expect(preset).toContain('<option value="1.4" data-sector="1" selected>Energy Storage</option>');
+		expect(preset).toContain('Sub-sector: Energy Storage');
 
 		const empty = await (await SELF.fetch(`${ORIGIN}/upstream?subsector=1.7`)).text();
 		expect(empty).toContain('No record anywhere is in 1.7 Modular Nuclear Reactors yet');
@@ -2450,6 +2498,58 @@ describe('arriving cold, and not getting stuck', () => {
 
 		const typo = await (await SELF.fetch(`${ORIGIN}/upstream?q=grinntek`)).text();
 		expect(typo).toMatch(/Did you mean <a href="[^"]*q=Grinntech\+Motors[^"]*">Grinntech Motors<\/a>\?/);
+	});
+});
+
+describe('the shortlist and the methodology page', () => {
+	it('shows a whole shortlist by id over every record, says it is one, and leaves it for the ordinary defaults', async () => {
+		await post({
+			source: 'sine-iitb',
+			companies: [
+				{ id: 'kept-co', name: 'Kept Co', description: 'Wave energy buoys.', sector_id: '1', subsector_id: '1.4', origin_year: THIS_YEAR - 9 },
+				{ id: 'label-co', name: 'Label Co', description: 'DPIIT-recognised startup. Industry: Robotics.', sector_id: '2', subsector_id: '2.7' },
+				{ id: 'other-co', name: 'Other Co', description: 'Grid batteries.', sector_id: '1', subsector_id: '1.4' },
+			],
+		});
+		// The link the marks script builds: every half and every year, so nothing saved is held back.
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?described=all&kind=all&age=all&ids=kept-co,label-co`)).text();
+		const ids = [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
+		expect(ids).toEqual(['kept-co', 'label-co']);
+		expect(html).toContain('<h1>Companies you shortlisted</h1>');
+		expect(html).toContain('<meta name="robots" content="noindex">');
+		// One chip for the shortlist, and none for the widened defaults it needs.
+		const chipsHtml = html.slice(html.indexOf('id="chips"'), html.indexOf('</ul>', html.indexOf('id="chips"')));
+		expect(chipsHtml).toContain('Your shortlist (2)');
+		expect(chipsHtml).not.toContain('Started:');
+		expect(chipsHtml).not.toContain('Description:');
+		const leave = chipsHtml.match(/<a class="chip filter-chip" href="([^"]+)" aria-label="Remove Your shortlist/)![1];
+		expect(leave).toBe('/upstream#list');
+		// The ids survive the form, the canonical url and the export.
+		expect(html).toContain('<input type="hidden" name="ids" value="kept-co,label-co">');
+		expect(html).toMatch(/<link rel="canonical" href="\/upstream\?described=all&amp;kind=all&amp;ids=kept-co%2Clabel-co&amp;age=all">/);
+		expect(html).toMatch(/id="export" href="\/upstream\/export\.csv\?described=all&amp;kind=all&amp;ids=kept-co%2Clabel-co&amp;age=all"/);
+		// Every row carries the same shortlist action in the same place.
+		expect(html.match(/<button type="button" class="mark mark-shortlist" data-mark="shortlist" aria-pressed="false" aria-label="Shortlist [^"]+">Shortlist<\/button>/g)).toHaveLength(2);
+		// The nav offers the shortlist on every page, drawn only when the browser can keep one.
+		expect(html).toContain('<li class="nav-shortlist-item" hidden><a class="nav-shortlist"');
+	});
+
+	it('serves coverage and methodology on its own page, with the source status and no list', async () => {
+		await SELF.fetch(`${ORIGIN}/upstream/api/source-runs`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', 'X-Ingest-Key': KEY },
+			body: JSON.stringify({ runs: [{ source: 'sine-iitb', status: 'ok', records: 3, data_as_of: '2026-09-12T11:00:00Z' }] }),
+		});
+		const res = await SELF.fetch(`${ORIGIN}/upstream/about`);
+		expect(res.status).toBe(200);
+		const html = await res.text();
+		expect(html).toContain('<h1>How the data is collected</h1>');
+		expect(html).toContain('<a href="/upstream/about" aria-current="page">');
+		expect(html).toMatch(/<td>SINE IIT Bombay<\/td><td>Answered on \d+ [A-Z][a-z]{2} \d{4}<\/td>/);
+		expect(html).toContain('<td>Venture Center</td><td>No run recorded yet</td>');
+		expect(html).toContain('A check that answered means the source was read, not that a person verified each record.');
+		expect(html).not.toContain('id="list"');
+		expect((await SELF.fetch(`${ORIGIN}/upstream/about`, { method: 'POST' })).status).toBe(405);
 	});
 });
 
@@ -2587,8 +2687,8 @@ describe('public programmes, counted and not ranked', () => {
 		]);
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all`)).text();
 		expect(html).toMatch(/<strong>2<\/strong> companies here have been selected into two or more public support programmes/);
-		expect(html).toMatch(/<strong>1<\/strong> of them<\/a> have no other public trace: no website of their own and no press\./);
-		expect(html).toMatch(/>2 companies<\/a> here have been selected into two or more public support programmes\. <a href="[^"]+">1 of them<\/a> have no other public trace/);
+		expect(html).toMatch(/<strong>1<\/strong> of them<\/a> have no other collected reference: no website of their own and no press\. Programme participation is not proof of traction\./);
+		expect(await about()).toMatch(/>2 companies<\/a> here have been selected into two or more public support programmes\. <a href="[^"]+">1 of them<\/a> have no other public trace/);
 		expect(html.indexOf('id="w-programmes"')).toBeLessThan(html.indexOf('id="w-view"'));
 		const row = html.slice(html.indexOf('id="c-many-co"'), html.indexOf('</li>', html.indexOf('id="c-many-co"')));
 		expect(row).toContain('>3 public programmes</span>');
@@ -2616,12 +2716,12 @@ describe('the finding the scatter would have drawn', () => {
 				{ company_id: 'twice-co', type: 'grant', label: 'BIRAC BIG 21' },
 			],
 		});
-		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const html = await about();
 		expect(html).toContain('Most companies here have been noticed by exactly one outside source.');
 		expect(html).toMatch(/>1 of the 2 \(50%\)<\/a> that say what they\s+build appear in one list other than their own website/);
 		const only = await (await SELF.fetch(`${ORIGIN}/upstream?noticed=1&age=all`)).text();
 		expect([...only.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1])).toEqual(['once-co']);
-		expect(only).toContain('Noticed by: one outside source');
+		expect(only).toContain('Referenced by: one outside source');
 	});
 });
 

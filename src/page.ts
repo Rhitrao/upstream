@@ -62,14 +62,8 @@ export interface PageView {
 	/** Companies no source will place in time. Listed below the ranking, never inside it. */
 	undated: Company[];
 	buckets: Buckets;
-	/** Companies the taxonomy has no cell for, grouped by the hole they fell through. */
-	gaps: Gaps;
-	/** Every company the pipeline holds: placed plus off-map. The top of the funnel. */
-	found: number;
 	/** The ones that reached a cell on the coverage map. */
 	tracked: number;
-	/** Of `tracked`, the records nothing on record shows to be a company. */
-	notCompanies: number;
 	/** Each source's last attempt and last good run. Empty until a run has reported. */
 	sourceHealth: SourceHealth[];
 	/** The widget row's counts under the current filters. null for the sample data. */
@@ -90,13 +84,11 @@ export interface PageView {
 	domain: string | null;
 	/** '1' when the list is narrowed to companies exactly one outside source has noticed. */
 	noticed?: string | null;
+	/** The shortlist a reader asked to see, by id; null for every other view. */
+	ids?: string[] | null;
 	/** '2' or '3' when narrowed to companies in at least that many public programmes; alone '1' for no other trace. */
 	programmes?: string | null;
 	alone?: string | null;
-	/** The page's two halves, counted over every record. */
-	substance: Substance;
-	/** The numbers behind the findings under the masthead. null for the sample data. */
-	findings: Findings | null;
 	/** This site's origin, for the absolute links a copied brief carries. */
 	origin: string;
 	/** Records in the chosen half (described, kind, register status) before any other filter. */
@@ -105,13 +97,6 @@ export interface PageView {
 	wider?: number | null;
 	/** When a search finds nothing anywhere: the names closest to what was typed. */
 	suggestions?: { id: string; name: string }[];
-	/** How many of those have at most one public trace — the obscurity claim, counted. */
-	oneTrace: number;
-	/** What became of the register's companies, for the methodology's own arithmetic. */
-	register: RegisterOutcomes;
-	/** What came of reading company websites — including every way it failed. */
-	products: ProductOutcomes;
-	discoveredThisWeek: number;
 	sector: string | null;
 	subsector: string | null;
 	/** What was typed in the search box, trimmed. null when nothing was. */
@@ -130,6 +115,27 @@ export interface PageView {
 	backfillOnly: boolean;
 	age: AgeChoice;
 	demo: boolean;
+	now: Date;
+}
+
+/** What the coverage and methodology page is drawn from: the whole database, no filters. */
+export interface AboutView {
+	coverage: Coverage;
+	/** Companies the taxonomy has no cell for, grouped by the hole they fell through. */
+	gaps: Gaps;
+	/** Every company the pipeline holds: placed plus off-map. The top of the funnel. */
+	found: number;
+	/** The ones that reached a cell on the coverage map. */
+	tracked: number;
+	/** Each source's last attempt and last good run. Empty until a run has reported. */
+	sourceHealth: SourceHealth[];
+	/** The numbers behind the findings. null for the sample data. */
+	findings: Findings | null;
+	/** What became of the register's companies, for the methodology's own arithmetic. */
+	register: RegisterOutcomes;
+	/** What came of reading company websites — including every way it failed. */
+	products: ProductOutcomes;
+	discoveredThisWeek: number;
 	now: Date;
 }
 
@@ -230,59 +236,6 @@ function ageKnown(company: Company): boolean {
 }
 
 /**
- * The proposition and the argument for it — the sentences a first-time reader is
- * actually guaranteed to read.
- *
- * Kept here rather than inline in the template because they get rewritten far more
- * often than the markup around them, and because a reader who disagrees with this page
- * disagrees with these sentences and should be able to find them in one grep.
- *
- * Every count is interpolated for the same reason every other number on this page is:
- * a hand-typed 684 is true until tomorrow morning's run.
- */
-/**
- * The headline counts substance, not coverage: companies a published sentence says the
- * work of. It used to count every row, 761 of them on 13 September, most of which were a
- * name and a dropdown industry. A smaller number that is all leads says more than a
- * larger one that is mostly names; the rest are counted beside it, not dropped.
- */
-function proposition(companies: number): string {
-	return `${companies} Indian deep-tech ${companies === 1 ? 'company that says' : 'companies that say'} what they build, sorted by obscurity.`;
-}
-
-/**
- * The argument, in the order it has to land.
- *
- * One: what everyone else does and why it fails — and this is the sentence written to
- * be repeated to a colleague, so it carries the emphasis. The emphasis is weight, not
- * colour: the one yellow on this page already means "nobody has noticed this company
- * yet", and a second meaning would have cost it the first.
- *
- * Two: the rule, in the concrete. It deliberately does not say "obscurity" — the
- * headline above owns that word, and a lede that repeats it has spent a sentence
- * saying nothing new. Naming what actually beats what is the sentence that makes the
- * ranking arguable instead of merely stated.
- *
- * Three: the number, and only now. 587 is the best figure on this page and it is
- * meaningless before a reader knows what a trace is, which is what sentence two just
- * told them. Held back until it can land.
- */
-function hook(tracked: number, oneTrace: number): string {
-	const argument = `Every other list ranks by how impressive a company looks, which is why <strong>every fund
-    keeps finding the same twenty names</strong>. This one ranks the other way: one incubator listing and no
-    website beats a known name and a press cycle.`;
-
-	// On an empty database there is no proof to offer, and "0 of 0" is not a modest
-	// claim, it is a broken one. The argument stands on its own until there is.
-	if (oneTrace === 0) return argument;
-
-	// "or none" rather than "a single trace", because the count is companies with at
-	// most one, and a company found through an incorporation filing alone has left no
-	// trace at all. That one is less known, not more, and belongs in this number.
-	return `${argument} Of those ${tracked}, ${oneTrace} have left one public trace or none.`;
-}
-
-/**
  * One glyph per sunrise sector, so the five blocks of the coverage map are findable
  * by shape before they are read.
  *
@@ -342,7 +295,7 @@ function sectorIcon(id: string): string {
  * is the one thing this page must never do — so it sits with the map it is about, and
  * still links down to the sections that hold the companies it is counting.
  */
-function funnelNote(view: PageView): string {
+function funnelNote(view: AboutView): string {
 	const { gaps, found, tracked } = view;
 	if (gaps.total === 0) return '';
 	const parts: string[] = [];
@@ -352,7 +305,7 @@ function funnelNote(view: PageView): string {
 	if (gaps.undescribed.total > 0) {
 		parts.push(`<a href="#undescribed">${gaps.undescribed.total}</a> we could not describe well enough to place`);
 	}
-	return `<p class="funnel-note">${found} companies have reached this pipeline and ${tracked} are on the map above.
+	return `<p class="funnel-note">${found} companies have reached this pipeline and ${tracked} are on the RDI coverage map.
     Of the ${gaps.total} that are not, ${parts.join(', and ')}.</p>`;
 }
 
@@ -364,7 +317,7 @@ function funnelNote(view: PageView): string {
  * the page must say the DPIIT rows are as old as the last run that worked, not let the
  * other three sources' fresh dates stand in for it.
  */
-function freshness(view: PageView): string {
+function freshness(view: AboutView): string {
 	if (view.sourceHealth.length === 0) return '';
 	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
 	const parts = view.sourceHealth.map((h) => {
@@ -465,7 +418,7 @@ function widgets(view: PageView): string {
 	const chosen = view.state && view.state !== 'unknown' ? p.states.find((s) => s.state === view.state) : undefined;
 	const places = `
   <div class="widget widget-places" aria-labelledby="w-places">
-    ${head('w-places', 'Where they are', placesMeta)}
+    ${head('w-places', 'Location', placesMeta)}
     <div class="places-body">
     ${indiaMap(p.states, view.state ?? null, (state, on) => link('state', state, on))}
     <div class="places-tiles">
@@ -499,7 +452,7 @@ function widgets(view: PageView): string {
 			'w-programmes',
 			'Selected by public programmes',
 			pg.twoPlus
-				? `<strong>${pg.twoPlus}</strong> ${plural(pg.twoPlus, 'company here has', 'companies here have')} been selected into two or more public support programmes &mdash; incubation, DPIIT recognition, BIRAC, DST, MeitY, TDB or iDEX. <a href="${esc(`${BASE_PATH}${query(viewParams(view, { programmes: '2', alone: '1' }))}#list`)}"><strong>${pg.twoPlusAlone}</strong> of them</a> have no other public trace: no website of their own and no press.`
+				? `<strong>${pg.twoPlus}</strong> ${plural(pg.twoPlus, 'company here has', 'companies here have')} been selected into two or more public support programmes &mdash; incubation, DPIIT recognition, BIRAC, DST, MeitY, TDB or iDEX. <a href="${esc(`${BASE_PATH}${query(viewParams(view, { programmes: '2', alone: '1' }))}#list`)}"><strong>${pg.twoPlusAlone}</strong> of them</a> have no other collected reference: no website of their own and no press. Programme participation is not proof of traction.`
 				: 'No company in this view has been selected into two or more public programmes.',
 		)}
     <div class="grid seg-grid">
@@ -525,11 +478,11 @@ function widgets(view: PageView): string {
   <div class="widget" aria-labelledby="w-view">
     ${head(
 			'w-view',
-			'Enough to form a view',
+			'Product description',
 			said
-				? `<strong>${said}</strong> ${plural(said, 'company here has', 'companies here have')} published enough for you to form a view${
-						d.own ? `, <strong>${d.own}</strong> of them in their own words on their own site` : ''
-					}.${d.label + d.none ? ` ${d.label + d.none} more have only a list&rsquo;s label or nothing.` : ''}`
+				? `<strong>${said}</strong> ${plural(said, 'company here has', 'companies here have')} a product description${
+						d.own ? `, <strong>${d.own}</strong> of them from their own website` : ''
+					}.${d.label + d.none ? ` ${d.label + d.none} more have only a category label or nothing.` : ''}`
 				: 'Nothing in this view says what it builds.',
 		)}
     <div class="grid seg-grid">
@@ -547,9 +500,9 @@ function widgets(view: PageView): string {
   <div class="widget" aria-labelledby="w-traces">
     ${head(
 			'w-traces',
-			'How little they have been noticed',
+			'Collected references',
 			t.traces
-				? `<strong>${pctTwo}%</strong> have left two public traces or fewer; <strong>${low}</strong> ${plural(low, 'has', 'have')} left one or none. The list puts the fewest first.`
+				? `<strong>${pctTwo}%</strong> have two collected references or fewer; <strong>${low}</strong> ${plural(low, 'has', 'have')} one or none. A reference is a listing, grant, award, register record, press mention or live website Upstream has collected.`
 				: 'No company in this view to count.',
 		)}
     <div class="grid seg-grid">
@@ -563,7 +516,7 @@ function widgets(view: PageView): string {
   <div class="widget" aria-labelledby="w-tags">
     ${head(
 			'w-tags',
-			'What they build, by keyword',
+			'Technology type and application, by keyword',
 			t.tags
 				? `<strong>${w.build.hardware ?? 0}</strong> build hardware, <strong>${w.build.software ?? 0}</strong> software, <strong>${w.build['biological or chemical'] ?? 0}</strong> work in biology or chemistry${
 						topDomain && topDomain[1] ? `; ${esc(topDomain[0])} is the most common use, with ${topDomain[1]}` : ''
@@ -588,8 +541,8 @@ function widgets(view: PageView): string {
   <div class="widget" aria-labelledby="w-sources">
     ${head(
 			'w-sources',
-			'Where the records come from',
-			`Read from <strong>${w.sources.filter((src) => src.n > 0).length}</strong> portfolios and lists${
+			'Sources',
+			`Records in this view carry evidence from <strong>${w.sources.filter((src) => src.n > 0).length}</strong> sources${
 				latest ? `, last checked ${shortDate(latest.slice(0, 10))}` : ''
 			}${failing ? `; ${failing} did not answer on the last run, and their rows stand from the run before` : ''}. A company two sources list counts under both.`,
 		)}
@@ -681,7 +634,7 @@ function holeName(missing: string): string {
  * links to. A finding whose count has fallen to nothing is left out rather than printed
  * as "0 of 0".
  */
-function findingsSection(view: PageView): string {
+function findingsSection(view: AboutView): string {
 	const f = view.findings;
 	if (!f) return '';
 	const items: string[] = [];
@@ -729,7 +682,7 @@ function findingsSection(view: PageView): string {
       <a href="#off-map">${f.described.unmapped} of ${f.described.total} described records (${pct(f.described.unmapped, f.described.total)}%)</a>
       fit none of its ${view.coverage.subsector_count} sub-sectors${lead ? ` &mdash; ${lead} &mdash;` : ''}${
 				emptyCells.length
-					? ` while <a href="#coverage">${emptyCells.length} sub-sectors</a>${cells.length ? `, including ${cells.length > 1 ? `${cells.slice(0, -1).join(', ')} and ${cells[cells.length - 1]}` : cells[0]},` : ''} have no company at all`
+					? ` while <a href="${esc(`${BASE_PATH}#coverage`)}">${emptyCells.length} sub-sectors</a>${cells.length ? `, including ${cells.length > 1 ? `${cells.slice(0, -1).join(', ')} and ${cells[cells.length - 1]}` : cells[0]},` : ''} have no company at all`
 					: ''
 			}.</li>`);
 	}
@@ -751,77 +704,94 @@ function findingsSection(view: PageView): string {
 }
 
 /**
- * The top of the page. Three things and nothing else: who this is, what it claims, and
- * three numbers that back the claim up.
- *
- * What used to be here and is not any more: the pipeline's own arithmetic — companies
- * found, how many we managed to place, how far the two diverge. All of it is true and
- * none of it is an answer to the question a stranger arrives with, which is what this
- * is and why they should care. It now sits under the coverage map, with the map it is
- * about. See funnelNote.
- *
- * The three that stayed are the three a reader could act on. The empty sub-sectors are
- * the finding rather than the shortfall, so the stat counts the empty ones and not the
- * covered ones: a national priority with nothing in it is the interesting square.
+ * The bar across the top of every public page: where you are, the shortlist you are keeping,
+ * and how the data is collected. Shortlist is drawn hidden and shown by the marks script, since
+ * the shortlist lives in this browser and a page without storage has none to offer.
+ */
+export function nav(active: 'discover' | 'about' | 'company'): string {
+	const current = (on: boolean) => (on ? ' aria-current="page"' : '');
+	return `
+<nav class="topnav" aria-label="Upstream">
+  <div class="topnav-inner">
+    <a class="brand" href="${esc(BASE_PATH)}">Upstream</a>
+    <ul class="topnav-links">
+      <li class="nav-discover"><a href="${esc(BASE_PATH)}"${current(active === 'discover')}>Discover</a></li>
+      <li class="nav-shortlist-item" hidden><a class="nav-shortlist" href="${esc(BASE_PATH)}#list">Shortlist <span class="nav-count">0</span></a></li>
+      <li><a href="${esc(`${BASE_PATH}/about`)}"${current(active === 'about')}><span class="nav-long">Coverage &amp; </span>methodology</a></li>
+    </ul>
+  </div>
+  <p class="shortlist-empty" id="shortlist-empty" role="status" hidden></p>
+</nav>`;
+}
+
+/**
+ * The top of the discovery page: what this helps a reader do, in the words a first-time visitor
+ * needs, and one quiet line on what it is read from. The ranking is explained beside the sort,
+ * not here: it is a lens on the list, not the promise.
  */
 function header(view: PageView): string {
-	// The discovery sources, not every health record: award lists attach evidence and add no company.
-	const count = SOURCES.length;
-	const n = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][count] ?? String(count);
-	// Two sentences: what this is, and the one way it differs. Every number that used to sit
-	// here is now a widget that states it and filters by it.
-	return `
-<header class="masthead">
-  <p class="eyebrow">Upstream</p>
-  <h1>Indian deep-tech companies, least-noticed first.</h1>
-  <p class="hook">Read from ${n} incubator portfolios, grant lists and the DPIIT register. Every other list ranks by how
-    impressive a company looks; this one ranks by how little anyone has written about it.</p>
-  ${scopeLine(view)}
+	if (view.ids) {
+		return `
+<header class="intro">
+  <p class="eyebrow">Your shortlist</p>
+  <h1>Companies you shortlisted</h1>
+  <p class="lede">Saved in this browser only. Open a company to check its evidence, or export the list.</p>
   <p class="since" id="since" hidden></p>
-</header>
-${topPicks(view)}`;
-}
-
-/**
- * What the list is out of, said under the masthead where a first-time reader looks, so the
- * default view cannot pass for everything: the described companies of every record held.
- */
-function scopeLine(view: PageView): string {
-	if (view.tracked === 0 || view.demo) return '';
-	const latest = view.sourceHealth.map((h) => h.last_success ?? '').sort().pop();
-	const b = view.buckets;
-	const shown = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
-	// The same number the list shows, and what it is out of: the scope, not a second count to reconcile.
-	const narrowed = activeFilters(view).length > 0;
-	const what = narrowed
-		? 'companies in this view'
-		: `companies that say what they build${view.age === 'recent' && b.older ? ` and started in the last ${MAX_AGE_YEARS} years` : ''}`;
-	return `<p class="scope" id="scope">Showing <strong>${shown}</strong> ${what}, least noticed first, out of ${view.tracked} records${
-		latest ? ` &middot; sources checked ${shortDate(latest.slice(0, 10))}` : ''
-	} &middot; <a href="#result-line">what the list leaves out</a></p>`;
-}
-
-/**
- * Three companies before anything else, so the claim arrives with proof: the top of the list
- * as it stands, under whatever filters are set, each a jump to its row.
- */
-function topPicks(view: PageView): string {
-	const rows = [...view.companies, ...view.undated].slice(0, 3);
-	if (!rows.length) return '<section class="top-picks" id="top-picks" hidden></section>';
-	const filtered = activeFilters(view).length > 0;
-	const shown = view.dates === 'undated' ? view.buckets.undated : view.dates === 'dated' ? view.buckets.ranked : view.buckets.ranked + view.buckets.undated;
-	const pick = (c: Company) => {
-		const said = c.product && c.website_identity === 'verified' ? c.product : describedBySource(c) ? c.description : null;
-		const n = c.trace_count;
-		const trail = traceTrail(c).replace(/<[^>]+>/g, '');
-		return `<li><a href="${esc(`${BASE_PATH}/c/${c.id}`)}">${esc(c.name)}</a>${said ? `<span class="pick-builds">${esc(said)}</span>` : ''}<span class="pick-traces">${trail || (n === 0 ? 'no public trace' : `${n} public ${n === 1 ? 'trace' : 'traces'}`)}</span></li>`;
-	};
+</header>`;
+	}
 	return `
-<section class="top-picks" id="top-picks" aria-labelledby="top-picks-h">
-  <h2 id="top-picks-h">${filtered ? 'Least noticed in this view' : 'Least noticed right now'}</h2>
-  <ol>${rows.map(pick).join('')}</ol>
-  <a class="see-all" href="#controls">See all ${shown} &darr;</a>
-</section>`;
+<header class="intro">
+  <p class="eyebrow">Deep-tech sourcing for investors</p>
+  <h1>Find Indian deep-tech companies worth your next research call.</h1>
+  <p class="lede">Explore companies listed by Indian incubators and public programmes. See <span class="hl">what they build</span>, <span class="hl">check the sources</span>, and <span class="hl">shortlist leads</span> for further research.</p>
+  ${coverageLine(view)}
+  <p class="since" id="since" hidden></p>
+</header>`;
+}
+
+/**
+ * How much is here and how current it is, in one line. Only the discovery sources are counted,
+ * and a source whose last run failed is said to have failed rather than hidden behind the others'
+ * fresh dates. Records, not companies: the total includes research projects and unverified names.
+ */
+function coverageLine(view: PageView): string {
+	if (view.tracked === 0 || view.demo) return '';
+	const configured = SOURCES.length;
+	const health = view.sourceHealth.filter((h) => (SOURCES as readonly string[]).includes(h.source));
+	const latest = health.map((h) => h.last_success ?? '').sort().pop();
+	const failing = health.filter((h) => h.last_status !== 'ok').length;
+	const parts = [`<strong>${view.tracked}</strong> records from ${configured} public sources`];
+	if (latest) parts.push(`sources last checked ${shortDate(latest.slice(0, 10))}${failing ? ` (${failing} failed ${failing === 1 ? 'its' : 'their'} last check)` : ''}`);
+	parts.push(`<a href="${esc(`${BASE_PATH}/about`)}">How the data is collected</a>`);
+	return `<p class="coverage-line">${parts.join(' &middot; ')}</p>`;
+}
+
+/** Sub-sectors offered as a first click, in order, where the records hold any. */
+const PRESETS = ['1.4', '2.2', '4.5'];
+/** Searches that return useful rows on the current records (15 Sep 2026: 11, 14 and 10 described companies). */
+const EXAMPLE_SEARCHES = ['drone', 'sensor', 'hydrogen'];
+
+/**
+ * A first click for someone who has not typed anything yet: three RDI sub-sectors that hold
+ * companies, and three searches. Each is an ordinary link to the same view the form would make,
+ * so choosing one sets the sub-sector or search box the form shows. Named with the taxonomy's own
+ * words; a sector is never relabelled as a narrower technology.
+ */
+function quickStarts(view: PageView): string {
+	const counts = view.widgets?.subsectors ?? Object.fromEntries(view.coverage.sectors.flatMap((g) => g.subsectors).map((c) => [c.subsector_id, c.n]));
+	const presets = PRESETS.map((id) => SUBSECTOR_BY_ID.get(id))
+		.filter((sub): sub is NonNullable<typeof sub> => Boolean(sub) && ((counts[sub!.subsector_id] ?? 0) > 0 || view.subsector === sub!.subsector_id))
+		.map((sub) => {
+			const on = view.subsector === sub.subsector_id;
+			const href = on ? `${BASE_PATH}${query(viewParams(view, { subsector: null }))}#list` : `${BASE_PATH}${query({ subsector: sub.subsector_id })}#list`;
+			return `<a class="preset${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''}>${esc(sub.subsector)}</a>`;
+		});
+	const searches = EXAMPLE_SEARCHES.map((q) => `<a class="example" href="${esc(`${BASE_PATH}${query({ q })}#list`)}">${esc(q)}</a>`);
+	if (view.ids || (!presets.length && view.tracked === 0)) return '<div class="quick" id="quick" hidden></div>';
+	return `<div class="quick" id="quick">
+      ${presets.length ? `<span class="quick-label">Start with</span> ${presets.join(' ')}` : ''}
+      <span class="quick-label quick-or">or try</span> ${searches.join('<span class="sep">, </span>')}
+    </div>`;
 }
 
 function coverageMap(view: PageView): string {
@@ -872,8 +842,8 @@ ${cells}
 	return `
 <section class="coverage" id="coverage" aria-labelledby="coverage-h">
   <div class="widget-head">
-    <h2 id="coverage-h">Where in the RDI scheme</h2>
-    <p class="widget-meta">${claim} Pick a cell to narrow the list to it, or a sector&rsquo;s name for all of it. A dashed cell has nothing in any record.</p>
+    <h2 id="coverage-h">RDI classification</h2>
+    <p class="widget-meta">${claim} Pick a sub-sector to narrow the list to it, or a sector&rsquo;s name for all of it. Numbers count matching records of any start year; a dashed cell has no record in current coverage, which is not proof that no such company exists.</p>
   </div>
   <div class="sectors">
 ${sectors}
@@ -907,6 +877,7 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		noticed: view.noticed ?? null,
 		programmes: view.programmes ?? null,
 		alone: view.alone ?? null,
+		ids: view.ids?.length ? view.ids.join(',') : null,
 		sort: view.sort === 'quietest' || view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
@@ -934,26 +905,36 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const SORT_LABELS: Record<SortChoice, string> = {
-	quietest: 'Least traced',
+	quietest: 'Fewest collected references',
 	described: 'Most described',
 	programmes: 'Most public programmes',
-	newest: 'Newest on record',
+	newest: 'Newest source date',
 	name: 'Name',
-	obscurity: 'Least traced',
+	obscurity: 'Fewest collected references',
+};
+
+/** What each order does, in one sentence beside the count. */
+const SORT_NOTES: Record<SortChoice, string> = {
+	quietest: 'Sorted by the fewest references collected from the sources Upstream monitors.',
+	obscurity: 'Sorted by the fewest references collected from the sources Upstream monitors.',
+	described: 'Sorted by how much is on record: a description, a confirmed website, founders, a contact route and a date.',
+	programmes: 'Sorted by the most public programmes that selected the company.',
+	newest: 'Sorted by the most recent source date.',
+	name: 'Sorted by name.',
 };
 
 const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all: 'Everything' };
-const DATES_LABELS: Record<PageView['dates'], string> = { both: 'Dated and undated', dated: 'Dated only', undated: 'Undated only' };
-const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website' };
-const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Every year' };
+const DATES_LABELS: Record<PageView['dates'], string> = { both: 'With and without a source date', dated: 'With a source date', undated: 'No source date' };
+const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website listed' };
+const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Any year' };
 const TRACE_LABELS: Record<TraceBucket, string> = { '1': 'One or none', '2': 'Two', '3+': 'Three or more' };
 const DESCRIBED_LABELS: Record<DescribedChoice, string> = {
-	said: 'Says what it builds',
-	unsaid: 'Says nothing about what it builds',
-	own: 'Their own homepage says',
-	source: 'A source describes it',
-	label: 'A list’s label only',
-	none: 'Nothing at all',
+	said: 'Has a product description',
+	unsaid: 'No product description',
+	own: 'Company website description',
+	source: 'Source description',
+	label: 'Category label only',
+	none: 'No description',
 };
 const KIND_LABELS: Record<KindChoice, string> = { company: 'Companies', other: 'Research projects and unverified names' };
 
@@ -967,32 +948,40 @@ const KIND_LABELS: Record<KindChoice, string> = { company: 'Companies', other: '
 function activeFilters(view: PageView): Array<{ key: string; label: string; href: string }> {
 	const sector = view.sector ? SECTOR_GROUPS.find((g) => g.sector_id === view.sector) : undefined;
 	const sub = view.subsector ? SUBSECTOR_BY_ID.get(view.subsector) : undefined;
+	// A shortlist opens over every record, so the widened defaults it needs are not choices to list.
+	const shortlist = Boolean(view.ids?.length);
 	const named: Array<[string, string | null]> = [
+		['ids', shortlist ? `Your shortlist (${view.ids!.length})` : null],
 		['q', view.search ? `Search: “${view.search}”` : null],
-		['sector', view.sector ? `Sector: ${view.sector} ${sector?.sector ?? ''}`.trim() : null],
-		['subsector', view.subsector ? `Sub-sector: ${view.subsector} ${sub?.subsector ?? ''}`.trim() : null],
-		['tier', view.tier !== view.defaultTier ? `Tier: ${TIER_LABELS[view.tier]}` : null],
-		['source', view.source ? `Found by: ${SOURCE_LABELS[view.source] ?? view.source}` : null],
+		['sector', view.sector ? `Sector: ${sector?.sector ?? view.sector}` : null],
+		['subsector', view.subsector ? `Sub-sector: ${sub?.subsector ?? view.subsector}` : null],
+		['tier', view.tier !== view.defaultTier ? `Rank tier: ${TIER_LABELS[view.tier]}` : null],
+		['source', view.source ? `Source: ${SOURCE_LABELS[view.source] ?? view.source}` : null],
 		['dates', view.dates !== 'both' ? `Dates: ${DATES_LABELS[view.dates].toLowerCase()}` : null],
 		['site', view.site ? `Website: ${SITE_LABELS[view.site].toLowerCase()}` : null],
 		['state', view.state ? `Location: ${view.state === 'unknown' ? 'unknown' : view.state}` : null],
-		['traces', view.traces ? `Public traces: ${TRACE_LABELS[view.traces].toLowerCase()}` : null],
+		['traces', view.traces ? `Collected references: ${TRACE_LABELS[view.traces].toLowerCase()}` : null],
 		[
 			'described',
-			view.described === 'said' ? null : `What it builds: ${view.described ? DESCRIBED_LABELS[view.described].toLowerCase() : 'described or not'}`,
+			view.described === 'said' || (shortlist && !view.described) ? null : `Description: ${view.described ? DESCRIBED_LABELS[view.described].toLowerCase() : 'with or without'}`,
 		],
-		['kind', view.kind === 'company' ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
+		['kind', view.kind === 'company' || (shortlist && !view.kind) ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
 		['programmes', view.programmes ? `Public programmes: ${view.programmes} or more` : null],
 		['alone', view.alone ? 'No website or press' : null],
-		['noticed', view.noticed ? 'Noticed by: one outside source' : null],
-		['build', view.build ? `Builds: ${view.build}` : null],
-		['domain', view.domain ? `Used in: ${view.domain}` : null],
-		['age', view.age !== 'recent' ? `Started: ${AGE_LABELS[view.age].toLowerCase()}` : null],
+		['noticed', view.noticed ? 'Referenced by: one outside source' : null],
+		['build', view.build ? `Technology type: ${view.build}` : null],
+		['domain', view.domain ? `Application: ${view.domain}` : null],
+		['age', view.age === 'recent' || shortlist ? null : `Started: ${AGE_LABELS[view.age].toLowerCase()}`],
 	];
 	return named
 		.filter((entry): entry is [string, string] => entry[1] !== null)
-		.map(([key, label]) => ({ key, label, href: `${BASE_PATH}${query(viewParams(view, { [key]: null }))}#list` }));
+		.map(([key, label]) => ({
+			key,
+			label,
+			// Leaving the shortlist returns the list to its ordinary defaults too.
+			href: `${BASE_PATH}${query(viewParams(view, key === 'ids' ? { ids: null, described: null, kind: null, age: null } : { [key]: null }))}#list`,
+		}));
 }
 
 function chips(view: PageView): string {
@@ -1009,25 +998,23 @@ function chips(view: PageView): string {
 }
 
 /**
- * The result line: what is on screen, out of everything held, and where every other
- * record went, each part a link to the view that shows it.
+ * The result count, and what it is out of behind a disclosure.
  *
- * Built from the same buckets as the list, so the parts always add up to the whole:
- * shown + hidden by filters + held back by tier or age + undated = every record.
- * Energy Storage's cell once said 14 over an empty list; nothing is allowed to vanish
- * between the number and the rows again.
+ * One number leads: how many match. What the default view leaves out, and why, is one click
+ * away rather than four competing totals, and every part of it is still a link to the view that
+ * shows those records. Built from the same buckets as the list, so the parts add up: shown +
+ * hidden by filters + held back by age or tier + outside this view = every record.
  */
 function resultLine(view: PageView): string {
 	const b = view.buckets;
 	// The demo rows are not the database, so they account for themselves.
-	// Out of the half being shown — by default the companies a sentence describes — not
-	// out of every row: the rest are counted in the masthead and linked at the end here,
-	// not "hidden by filters" the reader never chose.
 	const universe = view.demo ? b.total : Math.max(view.category, b.total);
 	const outside = view.demo ? 0 : view.tracked - universe;
 	// The undated rows continue the same list, so they count in what it shows.
 	const shown = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
+	const onPage = (view.dates === 'undated' ? 0 : view.companies.length) + (view.dates === 'dated' ? 0 : view.undated.length);
 	const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+	const noun = view.kind === 'company' ? plural(shown, 'company', 'companies') : plural(shown, 'record', 'records');
 	const parts: string[] = [];
 
 	const byFilters = universe - b.total;
@@ -1044,18 +1031,17 @@ function resultLine(view: PageView): string {
 		const why: string[] = [];
 		if (b.older > 0) why.push(`${b.older} started more than ${MAX_AGE_YEARS} years ago and ${plural(b.older, 'is', 'are')} held back by the age filter`);
 		if (b.tierHidden > 0) {
-			const outside = view.tier === 'a' ? 'Tier B or C' : 'Tier C';
+			const outsideTier = view.tier === 'a' ? 'Tier B or C' : 'Tier C';
 			const showing = view.tier === 'a' ? 'Tier A' : 'Tier A and B';
-			why.push(`${b.tierHidden} ${plural(b.tierHidden, 'is', 'are')} ${outside}, and the list is showing ${showing}`);
+			why.push(`${b.tierHidden} ${plural(b.tierHidden, 'is', 'are')} ${outsideTier}, and the list is showing ${showing}`);
 		}
 		const everything = `${BASE_PATH}${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
-		// Named for what actually holds them back: since the list opens on every tier, usually only the age filter.
 		const label = b.tierHidden === 0 ? `${b.older} started over ${MAX_AGE_YEARS} years ago` : b.older === 0 ? `${b.tierHidden} outside the tier shown` : `${held} held back by age or tier`;
 		parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${label}</a>`);
 	}
 
 	if (view.dates === 'dated' && b.undated > 0) {
-		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#undated`)}" title="Records no source dates. Follow to list them below the map.">${b.undated} undated, hidden</a>`);
+		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#undated`)}" title="Records no source dates. Follow to list them after the dated ones.">${b.undated} undated, hidden</a>`);
 	} else if (view.dates !== 'undated' && b.undated > 0) {
 		parts.push(`<a href="#undated" title="Records no source dates, so no tier can be claimed for them. Listed after the dated ones.">${b.undated} of them undated</a>`);
 	}
@@ -1063,12 +1049,37 @@ function resultLine(view: PageView): string {
 	if (outside > 0) {
 		const everything = `${BASE_PATH}${query(viewParams(view, { described: 'all', kind: 'all', dpiit: null }))}#list`;
 		parts.push(
-			`<a href="${esc(everything)}" title="Records outside this view: by default, those nothing describes and the research projects and unverified names. Follow to include them.">${outside} outside this view</a>`,
+			`<a href="${esc(everything)}" title="Records outside this view: by default, those with no product description, and research projects and unverified names. Follow to include them.">${outside} outside this view</a>`,
 		);
 	}
 
 	const what = view.dates === 'undated' ? 'undated' : 'in the list';
-	return `<p class="result-line" id="result-line"><strong>${shown}</strong> ${what} of ${universe}${parts.length ? ` &middot; ${parts.join(' &middot; ')}` : ''}<span class="marks-line" hidden></span></p>`;
+	const showing = onPage < shown ? `Showing the first ${onPage} of ${shown}. ` : '';
+	// The rules the default view applies, said as the query applies them.
+	const rules: string[] = [];
+	if (view.described === 'said') rules.push('a product description, from the company&rsquo;s own website or from a source');
+	if (view.kind === 'company') rules.push('a company on record, not a research project or an unverified name');
+	if (view.age === 'recent' && view.dates !== 'undated') {
+		rules.push(`a founding or programme year in the last ${MAX_AGE_YEARS} years, or a date from a public register that cannot be checked against that rule`);
+	}
+	const unknownAge = view.buckets.unknownAge;
+	return `<div class="result-head" id="result-line">
+      <p class="result-line"><strong>${shown}</strong> ${noun} ${view.dates === 'undated' ? 'with no source date ' : ''}${plural(shown, 'matches', 'match')}<span class="marks-line" hidden></span></p>
+      <p class="sort-note">${showing}${SORT_NOTES[view.sort]}</p>
+      <details class="about-results" id="about-results">
+        <summary>About these results</summary>
+        <div class="about-results-body">
+          <p class="result-parts"><strong>${shown}</strong> ${what} of ${universe}${parts.length ? ` &middot; ${parts.join(' &middot; ')}` : ''}</p>
+          ${rules.length ? `<p>By default the list shows records with ${rules.join('; ')}.</p>` : ''}
+          ${b.undated > 0 && view.dates === 'both' && b.ranked > 0 ? `<p>Records with a source date come first, in this order; the ${b.undated} with no source date follow in the same order.</p>` : ''}
+          ${unknownAge > 0 ? `<p>${unknownAge} of these ${unknownAge === 1 ? 'is' : 'are'} dated by a public register rather than by a founding year &mdash; the DPIIT register dates its own record of a company, not when the company started. The ${MAX_AGE_YEARS}-year filter cannot be applied to ${unknownAge === 1 ? 'it' : 'them'}.</p>` : ''}
+          <p>The date on each row is the date a source gives for its own record &mdash; a listing, a register entry, a grant &mdash; not a founding date.</p>
+          <p>A collected reference is one public record of the company that Upstream reads: an incubator listing, a grant or award, a DPIIT register record, press, or a website that answered. It measures how much Upstream has collected, not the company&rsquo;s quality.</p>
+          <p>Counts cover the sources Upstream reads. A sector with no results means no record in current coverage, not that no such companies exist. <a href="${esc(`${BASE_PATH}/about`)}">How the data is collected</a></p>
+          <p class="device-note" id="device-note" hidden></p>
+        </div>
+      </details>
+    </div>`;
 }
 
 function controls(view: PageView): string {
@@ -1076,17 +1087,15 @@ function controls(view: PageView): string {
 	const option = (value: string, label: string, current: string) =>
 		`<option value="${esc(value)}"${current === value ? ' selected' : ''}>${esc(label)}</option>`;
 
-	const sectorOptions = [option('', 'All sectors', sector ?? '')]
-		.concat(SECTOR_GROUPS.map((g) => option(g.sector_id, `${g.sector_id} — ${g.sector}`, sector ?? '')))
-		.join('');
+	const sectorOptions = [option('', 'All sectors', sector ?? '')].concat(SUNRISE_SECTORS.map((g) => option(g.sector_id, g.sector, sector ?? ''))).join('');
 	// Grouped by sector, and the sector in the data attribute so the script can drop a
 	// sub-sector that the newly chosen sector does not contain.
 	const subsectorOptions = [option('', 'All sub-sectors', subsector ?? '')]
 		.concat(
-			SECTOR_GROUPS.map(
+			SUNRISE_SECTORS.map(
 				(g) =>
-					`<optgroup label="${esc(`${g.sector_id} ${g.sector}`)}">${g.subsectors
-						.map((sub) => `<option value="${esc(sub.subsector_id)}" data-sector="${esc(g.sector_id)}"${subsector === sub.subsector_id ? ' selected' : ''}>${esc(`${sub.subsector_id} ${sub.subsector}`)}</option>`)
+					`<optgroup label="${esc(g.sector)}">${g.subsectors
+						.map((sub) => `<option value="${esc(sub.subsector_id)}" data-sector="${esc(g.sector_id)}"${subsector === sub.subsector_id ? ' selected' : ''}>${esc(sub.subsector)}</option>`)
 						.join('')}</optgroup>`,
 			),
 		)
@@ -1094,8 +1103,7 @@ function controls(view: PageView): string {
 	const tierOptions = (Object.keys(TIER_LABELS) as TierChoice[]).map((v) => option(v, TIER_LABELS[v], tier)).join('');
 	const sourceOptions = [option('', 'Any source', source ?? '')].concat(SOURCES.map((id) => option(id, SOURCE_LABELS[id] ?? id, source ?? ''))).join('');
 	const datesOptions = (Object.keys(DATES_LABELS) as Array<PageView['dates']>).map((v) => option(v, DATES_LABELS[v], dates)).join('');
-	// "No website" is its own option: on this list the absence is the signal.
-	const siteOptions = [option('', 'Website or not', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
+	const siteOptions = [option('', 'Any', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
 	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
 	// In the reader's words, and no tier letters: the order a reader chooses, not our rule's name.
 	const sortOptions = (['quietest', 'programmes', 'described', 'newest', 'name'] as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
@@ -1103,79 +1111,87 @@ function controls(view: PageView): string {
 	const describedNow = view.described === 'said' ? '' : (view.described ?? 'all');
 	const describedOptions = [option('', DESCRIBED_LABELS.said, describedNow)]
 		.concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], describedNow)))
-		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'Described or not', describedNow)])
+		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'With or without', describedNow)])
 		.join('');
 	// Keyword tags, and said to be keywords in the label: a filter a reader cannot tell was
 	// read off the words would pass for someone's judgement.
-	const buildOptions = [option('', 'Anything', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.build ?? ''))).join('');
-	const domainOptions = [option('', 'Anywhere', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.domain ?? ''))).join('');
-	const count = activeFilters(view).filter((f) => f.key !== 'q').length;
+	const buildOptions = [option('', 'Any', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.build ?? ''))).join('');
+	const domainOptions = [option('', 'Any', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.domain ?? ''))).join('');
+	// The count on "More filters" is the filters inside it, so a reader knows to look there.
+	const inside = new Set(['subsector', 'tier', 'source', 'dates', 'site', 'traces', 'described', 'domain', 'age']);
+	const count = activeFilters(view).filter((f) => inside.has(f.key)).length;
 
-	const field = (id: string, label: string, options: string) =>
-		`<div class="field"><label for="${id}">${label}</label><select id="${id}" name="${id}">${options}</select></div>`;
+	const field = (id: string, label: string, options: string, extra = '') =>
+		`<div class="field${extra}"><label for="${id}">${label}</label><select id="${id}" name="${id}">${options}</select></div>`;
 
 	return `
 <form class="controls" id="controls" method="get" action="${esc(BASE_PATH)}#list" role="search">
-  <div class="bar">
-    <div class="field field-search">
-      <label for="q" class="visually-hidden">Search</label>
-      <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="Search names and what they build"
-        autocomplete="off" spellcheck="false">
+  <div class="search-block">
+    <label for="q" class="search-label">Find companies</label>
+    <div class="search-row">
+      <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="Search companies or technologies"
+        autocomplete="off" spellcheck="false" aria-describedby="q-hint">
+      <button type="submit" class="search-go">Search</button>
     </div>
+    <p class="visually-hidden" id="q-hint">Searches company names and what their descriptions say they build.</p>
+    ${quickStarts(view)}
+  </div>
+  <div class="bar">
+    ${field('sector', 'Sector', sectorOptions, ' field-inline')}
+    ${field('build', 'Technology type', buildOptions, ' field-inline')}
     <details class="filter-menu">
-      <summary>Filters<span class="filter-count" id="filter-count">${count ? `&nbsp;&middot;&nbsp;${count}` : ''}</span></summary>
+      <summary>More filters<span class="filter-count" id="filter-count">${count ? ` (${count})` : ''}</span></summary>
       <div class="filter-panel">
-        <input type="hidden" id="sector" name="sector" value="${esc(sector ?? '')}">
-        <input type="hidden" id="subsector" name="subsector" value="${esc(subsector ?? '')}">
-        ${field('tier', 'Tier', tierOptions)}
-        ${field('source', 'Found by', sourceOptions)}
-        ${field('dates', 'Dates', datesOptions)}
+        ${field('subsector', 'Sub-sector (RDI)', subsectorOptions, ' field-wide')}
+        ${field('domain', 'Application (keyword match)', domainOptions)}
+        ${field('described', 'Product description', describedOptions)}
+        ${field('source', 'Source', sourceOptions)}
+        ${field('traces', 'Collected references', traceOptions)}
         ${field('site', 'Website', siteOptions)}
         ${field('age', 'Started', ageOptions)}
-        ${field('traces', 'Public traces', traceOptions)}
-        ${field('described', 'What it builds', describedOptions)}
-        ${field('build', 'Builds (by keyword)', buildOptions)}
-        ${field('domain', 'Used in (by keyword)', domainOptions)}
+        ${field('dates', 'Source date', datesOptions)}
+        ${field('tier', 'Rank tier (see methodology)', tierOptions)}
         <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
         <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
         <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
         <input type="hidden" name="noticed" value="${esc(view.noticed ?? '')}">
         <input type="hidden" name="programmes" value="${esc(view.programmes ?? '')}">
         <input type="hidden" name="alone" value="${esc(view.alone ?? '')}">
-        <button type="submit" class="apply">Apply</button>
+        <input type="hidden" name="ids" value="${esc(viewParams(view).ids ?? '')}">
+        <button type="submit" class="apply">Apply filters</button>
       </div>
     </details>
-    <div class="field field-sort"><label for="sort" class="visually-hidden">Sort by</label><select id="sort" name="sort">${sortOptions}</select></div>
+    ${field('sort', 'Sort', sortOptions, ' field-inline field-sort')}
   </div>
   ${chips(view)}
   <div class="bar-foot">
     ${resultLine(view)}
     <span class="bar-links">
       <button type="button" class="linkish seen-toggle" hidden aria-pressed="false">Hide seen</button>
-      <button type="button" class="linkish shortlist-toggle" hidden aria-pressed="false">Shortlisted only</button>
-      <a class="linkish shortlist-export" hidden href="#">CSV of your shortlist</a>
-      <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">CSV of this view</a>
+      <a class="linkish shortlist-export" hidden href="#">Export shortlist</a>
+      <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Export results</a>
     </span>
   </div>
 </form>`;
 }
 
 /**
- * How many people already know, as a number rather than as an implication.
- *
- * This is the quantity the whole list is sorted by and the row never printed it — a
- * reader had to count the chips and know that two of the seven signal types are not
- * traces. 587 of 699 companies have one or none, which is the page's central claim;
- * a row that states its own trace count is a row that can be checked.
+ * The count of collected references, as a number rather than as an implication: it is what
+ * the default order sorts by, so a row that states it is a row that can be checked.
  */
 function traceLine(company: Company): string {
 	const n = company.trace_count;
-	const said = n === 0 ? 'no public trace' : n === 1 ? '1 public trace' : `${n} public traces`;
+	const said = referenceCount(n);
 	const shape = traceShape(company);
 	// Emphasised only where it is the finding. At five traces it is just a number.
 	// The count is the sort key and keeps the mono; what the traces are is read, not scanned,
 	// so it sits under the count in the body face and wraps inside the side column.
 	return `<span class="traces${n <= 1 ? ' quiet' : ''}"><span class="trace-n">${said}</span>${shape ? `<span class="trace-shape">${esc(shape)}</span>` : ''}</span>`;
+}
+
+/** "1 collected reference": the count the default order sorts by, in the words the page defines. */
+function referenceCount(n: number): string {
+	return n === 0 ? 'no collected reference' : n === 1 ? '1 collected reference' : `${n} collected references`;
 }
 
 /** Each kind of trace in words, one and many, in the order a reader weighs them. */
@@ -1246,8 +1262,8 @@ function whyOnList(company: Company): string {
 	const who = names.length ? `${names.slice(0, 2).join(' and ')}${names.length > 2 ? ` and ${names.length - 2} more` : ''} ${names.length === 1 ? 'lists' : 'list'} it` : 'a source lists it';
 	const n = company.trace_count;
 	const shape = traceShape(company);
-	const traces = n === 0 ? 'it has left no public trace' : `it has left ${n} public ${n === 1 ? 'trace' : 'traces'}${shape ? ` (${shape})` : ''}`;
-	return `It is here because ${who}, and ${traces}; the list puts those with the fewest first.`;
+	const traces = n === 0 ? 'Upstream has collected no reference to it' : `Upstream has collected ${referenceCount(n)}${shape ? ` (${shape})` : ''}`;
+	return `It is here because ${who}, and ${traces}; the default order puts those with the fewest first.`;
 }
 
 /** What a sub-sector placement rests on, in three words, for beside the placement. */
@@ -1332,14 +1348,20 @@ function describedBySource(company: Company): boolean {
  * register's dropdown label is not a description, and a row that printed "Industry:
  * Robotics. Stage: Prototype." where a sentence should be was padding an absence.
  */
-function buildsLine(company: Company): { html: string; described: boolean } {
+function buildsLine(company: Company): { html: string; attrib: string | null; described: boolean } {
 	if (company.product && company.website_identity === 'verified') {
-		return { html: `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>`, described: true };
+		const host = safeUrl(company.website);
+		return {
+			html: `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>`,
+			attrib: `Description from their website${host ? ` (${esc(new URL(host).hostname)})` : ''}`,
+			described: true,
+		};
 	}
 	if (describedBySource(company)) {
-		return { html: `<p class="builds from-source">${esc(company.description)}</p>`, described: true };
+		const by = SOURCE_LABELS[company.description_source ?? ''];
+		return { html: `<p class="builds from-source">${esc(company.description)}</p>`, attrib: `Description from ${by ? esc(by) : 'a source'}`, described: true };
 	}
-	return { html: '<p class="builds none">No description published</p>', described: false };
+	return { html: '<p class="builds none">No description published</p>', attrib: null, described: false };
 }
 
 /**
@@ -1354,8 +1376,9 @@ function eventPhrase(company: Company): string | null {
 }
 
 /**
- * One row: what it builds, how old it is, what evidence exists, and why it is in this
- * view. Everything else is on the company's own page.
+ * One row, in the order a reader decides on it: the name, what it builds and on whose word,
+ * where it sits, the evidence that put it here, and one consistent place to shortlist it.
+ * Everything else is on the company's own page.
  *
  * Scanned, not read. So the three distinctions that decide whether a row is worth a
  * click are carried by how the row looks as well as by what it says: described or not,
@@ -1366,20 +1389,29 @@ function companyRow(company: Company, now: Date, origin: string): string {
 	const dated = company.first_seen !== null;
 	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
 	const siteState = site ? (company.website_identity === 'verified' ? 'verified' : 'unconfirmed') : company.website_checked ? 'none' : 'unknown';
+	const href = `${BASE_PATH}/c/${company.id}`;
 
-	// Six things an analyst reads in two seconds, in the order they decide on: what they build,
-	// hardware or software, how far along, how old and on whose word, who has noticed them, where.
-	// How we placed or ranked it is meta about the process, and lives on the company's page.
+	// Where it sits: its RDI sub-sector, what it builds by keyword, its stage, and where it is.
+	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	const kinds = tagsOf(company.build_tags);
-	const facts = [
+	const city = company.city || company.state;
+	const context = [
+		sub ? `<span class="f-sub">${esc(sub.subsector)}</span>` : '',
 		kinds.length ? `<span class="f-kind">${esc(kinds.join(' + '))}</span>` : '',
 		company.dpiit_stage ? `<span class="f-stage" title="The stage the company chose on its DPIIT profile">${esc(stageWords(company.dpiit_stage))}</span>` : '',
+		city ? `<span class="f-city">${esc(city)}</span>` : '',
+	].filter(Boolean);
+
+	// What put it here, with a link to each source, and the date said as what it is.
+	const trail = traceTrail(company);
+	const when = eventPhrase(company);
+	const evidence = [
+		`<span class="f-listed">${trail ? `Listed by ${trail}` : '<span class="none">No collected reference</span>'}</span>`,
+		builds.attrib ? `<span class="f-attrib">${builds.attrib}</span>` : '',
 		// Selected into two or more public programmes: counted, never ranked, named on its page.
 		company.programme_count >= 2 ? `<span class="f-prog" title="${esc(tagsOf(company.programmes).join(', '))}">${company.programme_count} public programmes</span>` : '',
-		`<span class="f-age${dated ? '' : ' undated'}">${esc(eventPhrase(company) ?? 'no source dates it')}</span>`,
+		`<span class="f-age${dated ? '' : ' undated'}">${esc(when ?? 'no source dates it')}</span>`,
 	].filter(Boolean);
-	const trail = traceTrail(company);
-	const city = company.city || company.state;
 
 	const state = [builds.described ? 'described' : 'undescribed', dated ? 'dated' : 'undated', `site-${siteState}`].join(' ');
 
@@ -1387,17 +1419,20 @@ function companyRow(company: Company, now: Date, origin: string): string {
 	return `
   <li class="company ${state}" id="c-${esc(company.id)}" data-id="${esc(company.id)}" data-added="${esc((company.discovered ?? '').slice(0, 10))}">
     <div class="row-main">
-      <h3><a href="${esc(`${BASE_PATH}/c/${company.id}`)}">${esc(company.name)}</a>${entityTag(company)}</h3>
+      <h3><a href="${esc(href)}">${esc(company.name)}</a>${entityTag(company)}</h3>
       ${builds.html}
-      <p class="facts-row">${facts.join('')}</p>
-      <p class="trail">${trail || '<span class="none">no public trace</span>'}${city ? `<span class="f-city">${esc(city)}</span>` : ''}</p>
+      ${context.length ? `<p class="context-row">${context.join('')}</p>` : ''}
+      <p class="trail evidence-row">${evidence.join('')}</p>
     </div>
     <div class="row-side">
       <span class="row-actions" hidden>
-        <button type="button" class="mark" data-mark="shortlist" aria-pressed="false">Shortlist</button>
-        <button type="button" class="mark" data-mark="seen" aria-pressed="false">Seen</button>
+        <button type="button" class="mark mark-shortlist" data-mark="shortlist" aria-pressed="false" aria-label="Shortlist ${esc(company.name)}">Shortlist</button>
       </span>
-      <button type="button" class="copy-row" data-brief="${esc(`${BASE_PATH}/c/${company.id}/brief`)}" hidden>Copy brief</button>
+      <span class="row-tools">
+        <a class="view-evidence" href="${esc(href)}">View evidence</a>
+        <button type="button" class="mark mark-seen" data-mark="seen" aria-pressed="false" hidden>Mark as seen</button>
+        <button type="button" class="copy-row" data-brief="${esc(`${href}/brief`)}" hidden>Copy brief</button>
+      </span>
     </div>
   </li>`;
 }
@@ -1475,25 +1510,9 @@ function backfillNote(view: PageView): string {
     more than a register&rsquo;s dropdown label to say what it does. A new source&rsquo;s first read never qualifies.</p>`;
 }
 
-/**
- * The companies the age gate cannot judge, counted where the gate is described.
- *
- * They are in the list rather than held back, on the same rule as an undated
- * company: "we do not know" is not "it is old". But the gate is the page's claim
- * to be showing recent companies, and it is not making that claim about these.
- */
-function unknownAge(view: PageView): string {
-	const n = view.buckets.unknownAge;
-	if (n === 0) return '';
-
-	return `<p class="note">${n} of these ${n === 1 ? 'is dated' : 'are dated'} by a public register rather than by a
-    founding year &mdash; the DPIIT register dates its own record of a company, not when the company started. The
-    ${MAX_AGE_YEARS}-year filter cannot be applied to ${n === 1 ? 'it' : 'them'}, and ${n === 1 ? 'its row says' : 'their rows say'} so.</p>`;
-}
-
 /** Said only when the limit actually bit, so the count above stays trustworthy. */
 function truncated(shown: number, total: number): string {
-	return shown < total ? `<p class="note">Showing the first ${shown}.</p>` : '';
+	return shown < total ? `<p class="note">Showing the first ${shown} of ${total} in this part of the list. Narrow the search or filters to see the rest.</p>` : '';
 }
 
 /**
@@ -1544,8 +1563,8 @@ function list(view: PageView): string {
 					? '<p class="empty">Nothing matches yet. The ingest has not put anything here.</p>'
 					: emptyResult(view);
 		return `
-<section class="list" id="list">
-  <h2>Companies</h2>
+<section class="list" id="list" aria-labelledby="list-h">
+  <h2 id="list-h" class="visually-hidden">Results</h2>
   ${backfillNote(view)}
   ${empty}
 </section>`;
@@ -1557,11 +1576,10 @@ function list(view: PageView): string {
 		: '';
 
 	return `
-<section class="list" id="list">
-  <h2>Companies <span class="count">${listed(view)}</span></h2>
+<section class="list" id="list" aria-labelledby="list-h">
+  <h2 id="list-h" class="visually-hidden">Results <span class="count">${listed(view)}</span></h2>
   ${banner}
   ${backfillNote(view)}
-  ${unknownAge(view)}
   ${truncated(companies.length, listed(view))}
   <ol class="companies">
 ${companies.map((company) => companyRow(company, now, view.origin)).join('\n')}
@@ -1581,8 +1599,8 @@ function undatedList(view: PageView): string {
 	const n = buckets.undated;
 	return `
 <section class="list undated-list" id="undated" aria-labelledby="undated-h">
-  <h2 id="undated-h">No source dates these <span class="count">${n}</span></h2>
-  <p class="note">The same order, continued: no source gives a date for anything about these, so none can be called an early find.</p>
+  <h2 id="undated-h">No source date <span class="count">${n}</span></h2>
+  <p class="note">The same order, continued. No source gives a date for anything about these records, so none is dated here.</p>
   ${truncated(undated.length, n)}
   <ol class="companies">
 ${undated.map((company) => companyRow(company, now, view.origin)).join('\n')}
@@ -1609,7 +1627,7 @@ function gapList(groups: { missing: string; n: number; examples: string[] }[]): 
 		.join('\n');
 }
 
-function offMap(view: PageView): string {
+function offMap(view: AboutView): string {
 	const { gaps } = view;
 	if (gaps.total === 0) return '';
 
@@ -1667,7 +1685,7 @@ ${gapList(gaps.undescribed.groups)}
  * Counted rather than written down, so it cannot quietly stop being true — which
  * is exactly what the hand-written version did.
  */
-function registerSplit(view: PageView): string {
+function registerSplit(view: AboutView): string {
 	const { register } = view;
 	if (register.total === 0) return '';
 
@@ -1717,7 +1735,7 @@ function registerSplit(view: PageView): string {
  * and says nothing about the other four fifths is exactly the kind of quiet gap this
  * page exists to refuse.
  */
-function productNote(view: PageView): string {
+function productNote(view: AboutView): string {
 	const p = view.products;
 	if (p.total === 0) return '';
 
@@ -1744,8 +1762,8 @@ function productNote(view: PageView): string {
 
 	const none =
 		p.noSite > 0
-			? ` A further <strong>${p.noSite}</strong> have no website at all, where a source that publishes websites went
-    looking and came back with nothing. On this list that counts in their favour.`
+			? ` A further <strong>${p.noSite}</strong> have no website listed, where a source that publishes websites went
+			looking and came back with nothing. That is an absence in the record, not a sign of quality either way.`
 			: '';
 
 	const never = p.total - p.withSite - p.noSite;
@@ -1760,27 +1778,51 @@ function productNote(view: PageView): string {
   <p>${read}${rest}${none}${unlooked}</p>`;
 }
 
-function methodology(view: PageView): string {
+/**
+ * Every source, configured or evidence-only, with its last check: which answered, which failed and
+ * what the page is still showing from them. Configured and successful are different claims, and a
+ * run that happened is not a source that answered.
+ */
+function sourceStatus(view: AboutView): string {
+	const health = new Map(view.sourceHealth.map((h) => [h.source, h]));
+	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
+	const row = (id: string) => {
+		const h = health.get(id);
+		const name = esc(SOURCE_LABELS[id] ?? id);
+		if (!h) return `<tr><td>${name}</td><td>No run recorded yet</td><td class="mono">&mdash;</td></tr>`;
+		const status =
+			h.last_status === 'ok'
+				? `Answered on ${day(h.last_attempt)}`
+				: `<strong>${h.last_status === 'failed' ? 'Failed' : 'Returned too little and was set aside'} on ${day(h.last_attempt)}</strong>${h.last_success ? `; showing the run of ${day(h.last_success)}` : '; nothing shown from it yet'}`;
+		return `<tr><td>${name}</td><td>${status}</td><td class="mono">${h.data_as_of ? day(h.data_as_of) : 'unknown'}</td></tr>`;
+	};
+	const evidenceOnly = view.sourceHealth.map((h) => h.source).filter((id) => !(SOURCES as readonly string[]).includes(id));
+	return `<div class="table-scroll"><table class="evidence-table source-status">
+    <caption class="visually-hidden">Each source's last check</caption>
+    <thead><tr><th scope="col">Source</th><th scope="col">Last check</th><th scope="col">Newest data</th></tr></thead>
+    <tbody>${[...SOURCES, ...evidenceOnly].map(row).join('')}</tbody>
+  </table></div>
+  <p class="provenance">A check that answered means the source was read, not that a person verified each record.</p>`;
+}
+
+function methodology(view: AboutView): string {
 	return `
 <section class="method" aria-labelledby="method-h">
   <h2 id="method-h">Methodology</h2>
 
   <h3>Where this comes from</h3>
-  <p>Public sources only, nothing behind a login. Five are read today: three incubator portfolios
-    (<a href="https://www.sineiitb.org/portfolio/" rel="noopener">SINE IIT Bombay</a>,
-    <a href="https://rtbi.in/incubationiitm/portfolio.html" rel="noopener">IIT Madras Incubation Cell</a> and
-    <a href="https://www.venturecenter.co.in/startups-and-success-stories/startups" rel="noopener">Venture Center, Pune</a>), the published award lists
-    of two grant programmes (<a href="https://birac.nic.in/" rel="noopener">BIRAC BIG</a> rounds 21&ndash;24 and
-    DST NIDHI-PRAYAS, typed up by hand from the lists themselves), and the
-    <a href="https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup" rel="noopener">DPIIT Startup India
-    recognition register</a>. Patent filings, new incorporations at the MCA and every other incubator would all
-    belong here and none of them is read yet, so nothing they would show is on this page. Every row carries the evidence that put it there.</p>
+  <p>Public sources only, nothing behind a login. Upstream is configured to read ${SOURCES.length} sources that list
+    companies: ${SOURCES.map((id) => esc(SOURCE_LABELS[id] ?? id)).join(', ')}. Award and agreement lists add dated
+    evidence to companies already found and add no company of their own. Patent filings, new incorporations at the MCA,
+    LinkedIn and every other incubator are not read, so nothing they would show is here. Every row carries the evidence
+    that put it there.</p>
+  ${sourceStatus(view)}
 
   ${productNote(view)}
 
   <h3>How the tiers are decided</h3>
   <p>There is no score. A number between 0 and 100 would pretend to a precision we do not have. Two facts decide the tier:
-    how recently we first saw the company, and how many public traces it already has &mdash; today that means an
+  how recently we first saw the company, and how many collected references (public traces) it already has &mdash; today that means an
     incubator listing, a grant award, a DPIIT register record and a website that answered when we fetched it. A domain that
     no longer resolves is not a trace, and stops being one the night it stops answering. A press mention ought to count
     as well; nothing collects it yet, so for now it does not, and the trace counts on this page are lower than they
@@ -1821,7 +1863,7 @@ function methodology(view: PageView): string {
     label names none is counted with the ones we could not describe well enough to place.</p>
   <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
     company does, and should be read as exactly that much. Each company's own page says which of the two it was, in the
-    classifier's own words. It also means the fuller cells of the coverage map above are partly a map of where the two
+    classifier's own words. It also means the fuller cells of the RDI coverage map are partly a map of where the two
     vocabularies agree.</p>
 ${registerSplit(view)}
 
@@ -1829,7 +1871,7 @@ ${registerSplit(view)}
   <p>A fair amount, and it is worth being blunt about it. There is no LinkedIn here, and no stealth companies: if a company
     has not appeared anywhere public, this page cannot see it and will not pretend otherwise. The list leans toward
     institutions that publish their portfolios, which means well-documented incubators are over-represented and quieter
-    regional ones are under-represented. An empty cell in the coverage map above means we have found nothing there yet
+    regional ones are under-represented. An empty cell in the RDI coverage map means we have found nothing there yet
     &mdash; it is a gap in our sources, not evidence that nothing exists. Classification into RDI sub-sectors is automated
     and will sometimes be wrong.</p>
 </section>`;
@@ -1962,7 +2004,7 @@ function whoSection(company: Company): string {
 	const lines = whoLines(company);
 	if (!lines.length) return '';
 	return `<section>
-    <h2>Who they are</h2>
+    <h2>Who is behind it</h2>
     <dl class="who">${lines
 			.map(
 				(l) =>
@@ -2009,7 +2051,7 @@ function siteLine(company: Company): string | null {
 /** Why the company is on this list and where the ranking puts it, in one line. */
 function whyHere(company: Company): string {
 	const shape = traceShape(company);
-	const traces = `${company.trace_count} public ${company.trace_count === 1 ? 'trace' : 'traces'}${shape ? ` (${shape})` : ''}`;
+	const traces = `${referenceCount(company.trace_count)}${shape ? ` (${shape})` : ''}`;
 	let reason: string;
 	if (company.tier === 'A') reason = 'found by a run under 90 days ago, with at most two public traces and nothing older on record';
 	else if (company.tier === 'B') reason = 'on record under 180 days, with at most five public traces';
@@ -2017,7 +2059,7 @@ function whyHere(company: Company): string {
 	else if (company.classify_basis === 'register-label') reason = `only ${labelWords(company).one} says what it does, so it is listed, not promoted`;
 	else if (company.first_seen_basis === 'cohort') reason = 'dated from a year its source published, not found by a run of ours';
 	else reason = 'on record for more than 180 days, or with more than five public traces';
-	return `${traces}, which is what the list sorts by. Tier ${company.tier}: ${reason}.`;
+	return `${traces}, which is what the default order sorts by. Tier ${company.tier}: ${reason}.`;
 }
 
 /**
@@ -2086,7 +2128,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 	const located = [company.city, company.state].filter(Boolean).join(', ');
 	lines.push(
 		`**Why it is here:** ${whyHere(company)}`,
-		`**Started:** ${ageKnown(company) ? String(company.origin_year ?? company.founded_year) : 'unknown'} · **Based:** ${located || 'unknown'} · **Public traces:** ${company.trace_count}`,
+		`**Started:** ${ageKnown(company) ? String(company.origin_year ?? company.founded_year) : 'unknown'} · **Based:** ${located || 'unknown'} · **Collected references:** ${company.trace_count}`,
 	);
 	for (const line of whoLines(company)) lines.push(`**${line.label}:** ${line.text}${line.note ? ` _(${line.note})_` : ''}`);
 	lines.push(
@@ -2222,8 +2264,8 @@ function productStatusDetail(company: Company, link: string, site: string | null
           through new companies a few at a time.</p>`;
 	}
 	return company.website_checked
-		? `<p class="provenance">No website. A source that publishes them went looking and came back with
-          nothing, which on this list counts in their favour.</p>`
+		? `<p class="provenance">No website listed. A source that publishes websites went looking and came back with
+		nothing. That says nothing about the company either way.</p>`
 		: `<p class="provenance">No source has published a website for this company, so we do not know
           whether there is one.</p>`;
 }
@@ -2256,12 +2298,6 @@ export function renderCompanyPage(view: CompanyView): string {
 			(company.description
 				? `<p class="unknown-value">No source says what it builds.</p><p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt} Nothing here says what the company makes.</p>`
 				: '<p class="unknown-value">No source says what it builds.</p>');
-	const excerpt = company.description
-		? !describedBySource(company)
-			? `<p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt} Nothing here says what the company makes.</p>`
-			: `<p class="desc">${esc(company.description)}<span class="says">as ${esc(SOURCE_LABELS[company.description_source ?? ''] ?? 'the source')} described it</span></p>`
-		: '<p class="unknown-value">Unknown</p><p class="provenance">No source published a description.</p>';
-
 	const evidenceRows = company.signals
 		.map((signal) => {
 			const href = safeUrl(signal.url);
@@ -2298,14 +2334,38 @@ export function renderCompanyPage(view: CompanyView): string {
 		['Last checked', company.updated_at.slice(0, 10), 'The last run that read a source listing this company and wrote the row again.'],
 	];
 
-	const unknownItems = unknowns(company)
-		.map((u) => {
-			const [head, ...rest] = u.split(': ');
-			return `<li><strong>${esc(head)}</strong>${rest.length ? ` &mdash; ${esc(rest.join(': '))}` : ''}</li>`;
-		})
-		.join('');
+	// Two kinds of gap, kept apart: what the sources checked do not say, and what Upstream does not collect at all.
+	const notCollected = (u: string) => /^(Funding and revenue|Its company registration)/.test(u);
+	const unknownItem = (u: string) => {
+		const [head, ...rest] = u.split(': ');
+		return `<li><strong>${esc(head)}</strong>${rest.length ? ` &mdash; ${esc(rest.join(': '))}` : ''}</li>`;
+	};
+	const allUnknowns = unknowns(company);
+	const notFound = allUnknowns.filter((u) => !notCollected(u));
+	const outsideScope = allUnknowns.filter(notCollected);
 
 	const brief = briefMarkdown(company, pageUrl, now);
+
+	// Who lists it, in one line above the evidence table: the summary a reader checks the rows against.
+	const listedBy = traceTrail(company);
+	const shape = traceShape(company);
+	const identityWarning =
+		safeUrl(company.website) && company.website_identity !== 'verified'
+			? `<p class="caution"><strong>Website not confirmed.</strong> ${
+					company.website_identity === 'discovered'
+						? `${esc(new URL(safeUrl(company.website)!).hostname)} was given for this company and is not treated as theirs: ${esc(company.website_identity_note ?? 'nothing ties the address to them')}.`
+						: `${esc(new URL(safeUrl(company.website)!).hostname)} is listed for it, but nothing confirmed the address is theirs${company.website_identity_note ? `: ${esc(company.website_identity_note)}` : ''}. Nothing on it is used here.`
+				}</p>`
+			: '';
+	const entityWarning =
+		company.entity_type && company.entity_type !== 'company' ? `<p class="caution"><strong>${ENTITY_LABELS[company.entity_type] ?? ''}.</strong> ${esc(company.entity_note ?? '')}</p>` : '';
+
+	const facts = [
+		sub ? `<a class="fact-sub" href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}#list`)}" title="RDI sub-sector, placed automatically">${esc(sub.subsector)}</a>` : '',
+		located ? `<span>${esc(located)}</span>` : '<span class="unknown-inline">location unknown</span>',
+		site && company.website_identity === 'verified' ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : '',
+		company.founded_year ? `<span>founded ${esc(company.founded_year)}</span>` : '<span class="unknown-inline">founding year unknown</span>',
+	].filter(Boolean);
 
 	return `<!doctype html>
 <html lang="en">
@@ -2328,63 +2388,39 @@ export function renderCompanyPage(view: CompanyView): string {
 <link rel="canonical" href="${esc(`${BASE_PATH}/c/${company.id}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=optional">
 <style>${STYLES}</style>
+<script>${CAPABILITY_SCRIPT}</script>
 </head>
 <body data-company="${esc(company.id)}">
+${nav('company')}
 <div class="wrap detail">
-  <p class="eyebrow"><a class="back" href="${esc(`${BASE_PATH}#c-${company.id}`)}">&larr; Upstream</a></p>
+  <p class="crumb"><a class="back" href="${esc(`${BASE_PATH}#c-${company.id}`)}">&larr; All companies</a></p>
 
-  <header class="masthead">
-    <p class="about-upstream">One company on <a href="${esc(BASE_PATH)}">Upstream</a>, a list of Indian deep-tech companies that puts the least-noticed first.</p>
+  <header class="company-head">
+    <p class="about-upstream">A company record on <a href="${esc(BASE_PATH)}">Upstream</a>, assembled from public sources.</p>
     <h1>${esc(company.name)}</h1>
-    <p class="why-here">${esc(whyOnList(company))}</p>
-    ${
-			company.entity_type && company.entity_type !== 'company'
-				? `<p class="provenance entity">${ENTITY_LABELS[company.entity_type] ?? ''}: ${esc(company.entity_note ?? '')}.</p>`
-				: ''
-		}
-    <p class="facts">
-      ${traceLine(company)}
-      ${site && company.website_identity === 'verified' ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : ''}
-      <span class="${located ? '' : 'unknown-inline'}">${located ? esc(located) : 'location unknown'}</span>
-      <span class="${ageKnown(company) ? '' : 'unknown-inline'}">${ageKnown(company) ? `started ${esc(company.origin_year ?? company.founded_year)}` : 'founding year unknown'}</span>
-    </p>
+    ${entityWarning}
+    <div class="lead-builds">
+      <h2 class="visually-hidden">What they build</h2>
+      ${buildsLead}
+    </div>
+    <p class="facts">${facts.join('')}</p>
+    ${identityWarning}
+    <div class="actions">
+      <button type="button" class="action mark mark-shortlist" data-mark="shortlist" aria-pressed="false" hidden>Shortlist</button>
+      <button type="button" class="action copy-brief" hidden>Copy brief</button>
+      <button type="button" class="action action-quiet mark" data-mark="pass" aria-pressed="false" hidden>Pass</button>
+    </div>
+    <p class="device-note" id="device-note" hidden>Saved in this browser only &mdash; not synced, and not visible to anyone else, including whoever runs this site.</p>
   </header>
 
-  <section>
-    <h2>What they build</h2>
-    ${buildsLead}
-    <details class="reading"><summary>How this was read</summary>${productDetail(company)}</details>
-  </section>
-
-  <section class="keep">
-    <div class="actions">
-      <button type="button" class="action copy-brief" hidden>Copy brief</button>
-      <button type="button" class="action mark" data-mark="shortlist" aria-pressed="false" hidden>Shortlist</button>
-      <button type="button" class="action mark" data-mark="pass" aria-pressed="false" hidden>Pass</button>
-    </div>
-    <p class="device-note" id="device-note" hidden>Shortlist and pass are stored in this browser on this device only &mdash;
-      not synced, and not visible to anyone else, including whoever runs this site.</p>
-    <details class="brief-fold"><summary>The brief, as markdown</summary><textarea id="brief-text" readonly rows="16" spellcheck="false">${esc(brief)}</textarea></details>
-  </section>
-
-  ${whoSection(company)}
-
-  <section class="unknowns">
-    <h2>What is not known</h2>
-    <ul class="unknown-list">${unknownItems}</ul>
-  </section>
-
-  <section>
-    <h2>Evidence</h2>
-    <p class="provenance">Everything that put this company on the list, with the page it came from.</p>
+  <section aria-labelledby="evidence-h">
+    <h2 id="evidence-h">What supports this</h2>
+    <p class="evidence-summary">${listedBy ? `Listed by ${listedBy}.` : 'No source link on record.'} ${esc(referenceCount(company.trace_count))}${shape ? ` (${esc(shape)})` : ''}.</p>
     ${evidence}
     ${papersBlock(company)}
-  </section>
-
-  <section>
-    <h2>Dates</h2>
+    <h3 class="mini">Dates, and what each one means</h3>
     <dl class="dates">
       ${dates.map(([label, value, why]) => `<div><dt>${label}</dt><dd>${esc(value)}</dd><dd class="why">${why}</dd></div>`).join('')}
     </dl>
@@ -2393,47 +2429,65 @@ export function renderCompanyPage(view: CompanyView): string {
 				? `<p class="provenance">The source listing prints ${esc(company.source_year)} beside the name, with no word on what it counts &mdash; founding, incubation or admission. Nothing here dates or ranks the company by it.</p>`
 				: ''
 		}
+    <details class="reading"><summary>How the website was read</summary>${productDetail(company)}</details>
   </section>
 
-  <section>
-    <h2>Where in the RDI scheme</h2>
-    ${
-			sub
-				? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
-      <p class="provenance basis">${
-				company.classify_basis === 'register-label'
-					? `<span class="basis-tag weak">${labelWords(company).tag}</span> The only thing placing it here is ${labelWords(company).placed}. That supports this sub-sector and nothing narrower.`
-					: '<span class="basis-tag">from its description</span> Placed from the description above.'
-			}</p>
-      <p class="provenance">Project type: ${
-				company.project_type
-					? esc(company.project_type)
-					: company.classify_basis === 'register-label'
-						? 'unknown &mdash; nothing published about the company says what kind of product it is'
-						: 'none matched'
-			}</p>
+  ${whoSection(company)}
+
+  <section class="unknowns" aria-labelledby="unknowns-h">
+    <h2 id="unknowns-h">What still needs checking</h2>
+    ${notFound.length ? `<h3 class="mini">Not found in the sources checked</h3><ul class="unknown-list">${notFound.map(unknownItem).join('')}</ul>` : ''}
+    ${outsideScope.length ? `<h3 class="mini">Not collected by Upstream</h3><ul class="unknown-list">${outsideScope.map(unknownItem).join('')}</ul>` : ''}
+  </section>
+
+  <section aria-labelledby="next-h">
+    <h2 id="next-h">Next step</h2>
+    <p>${esc(nextStep(company)).replace(/https?:\/\/[^\s<>"']+[^\s<>"'.,)]/g, (u) => `<a href="${u}" rel="noopener nofollow">${u}</a>`)}</p>
+    <details class="brief-fold"><summary>The brief, as markdown</summary><textarea id="brief-text" readonly rows="16" spellcheck="false" aria-label="Brief as markdown">${esc(brief)}</textarea></details>
+  </section>
+
+  <section aria-labelledby="classified-h">
+    <h2 id="classified-h">How it was classified and ranked</h2>
+    <details class="method-fold">
+      <summary>Where in the RDI scheme</summary>
       ${
-				// Kept for inspection, and said to be what it is. The classifier restating
-				// the label in a full sentence ("a robotics company developing robotic
-				// platforms") is not a second source agreeing with the first.
-				company.classify_note
-					? `<details class="reasoning"><summary>How the classifier decided &mdash; its reasoning, not evidence</summary>
+				sub
+					? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
+      <p class="provenance basis">${
+					company.classify_basis === 'register-label'
+						? `<span class="basis-tag weak">${labelWords(company).tag}</span> The only thing placing it here is ${labelWords(company).placed}. That supports this sub-sector and nothing narrower.`
+						: '<span class="basis-tag">from its description</span> Placed from the description above.'
+				}</p>
+      <p class="provenance">Project type: ${
+					company.project_type
+						? esc(company.project_type)
+						: company.classify_basis === 'register-label'
+							? 'unknown &mdash; nothing published about the company says what kind of product it is'
+							: 'none matched'
+				}</p>
+      ${
+					// Kept for inspection, and said to be what it is. The classifier restating
+					// the label in a full sentence ("a robotics company developing robotic
+					// platforms") is not a second source agreeing with the first.
+					company.classify_note
+						? `<details class="reasoning"><summary>How the classifier decided &mdash; its reasoning, not evidence</summary>
         <blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote>${
-							company.entity_type && company.entity_type !== 'company' && /\bcompany\b/i.test(company.classify_note)
-								? '<p class="provenance">It says &ldquo;company&rdquo;. Nothing on record shows one exists.</p>'
-								: ''
-						}</details>`
-					: ''
-			}`
-				: '<p class="provenance">Not placed in any sub-sector.</p>'
-		}
-    ${tagLine(company)}
-  </section>
-
-  <section>
-    <h2>Where it ranks</h2>
-    <p class="rank-line">${company.tier === 'A' ? 'New and quiet (Tier A)' : company.tier === 'B' ? 'Recent (Tier B)' : 'Listed, not promoted (Tier C)'}</p>
-    <p class="provenance">${whyTier(company)}</p>
+								company.entity_type && company.entity_type !== 'company' && /\bcompany\b/i.test(company.classify_note)
+									? '<p class="provenance">It says &ldquo;company&rdquo;. Nothing on record shows one exists.</p>'
+									: ''
+							}</details>`
+						: ''
+				}`
+					: '<p class="provenance">Not placed in any sub-sector.</p>'
+			}
+      ${tagLine(company)}
+    </details>
+    <details class="method-fold">
+      <summary>Where it ranks</summary>
+      <p class="rank-line">${company.tier === 'A' ? 'New and quiet (Tier A)' : company.tier === 'B' ? 'Recent (Tier B)' : 'Listed, not promoted (Tier C)'}</p>
+      <p class="provenance">${esc(whyOnList(company))}</p>
+      <p class="provenance">${whyTier(company)}</p>
+    </details>
   </section>
 </div>
 <script>${MARKS_SCRIPT}</script>
@@ -2462,12 +2516,13 @@ export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=optional">
 <style>${STYLES}</style>
 </head>
 <body>
+${nav('company')}
 <div class="wrap detail not-found">
-  <p class="eyebrow"><a class="back" href="${esc(BASE_PATH)}">&larr; Upstream</a></p>
+<p class="crumb"><a class="back" href="${esc(BASE_PATH)}">&larr; All companies</a></p>
   <header class="masthead">
     <h1>No company at this address</h1>
     <p class="lede">Nothing on Upstream is filed under &ldquo;${esc(slug)}&rdquo;. A link stops working here for two ordinary
@@ -2492,35 +2547,43 @@ export const STYLES = `
 :root {
   color-scheme: light dark;
 
-  /* Ink on paper, the same two as rohitrao.in. --raise is the one step up from the
-     page: the surface a row or a control sits on when it is being touched. */
-  --paper: #fbfaf8;
+  /* rohitrao.in's own palette, so a reader moving between the two sites is on one page: white
+     ground with a warm yellow wash, near-black ink, a grey for running text, one hairline. */
+  --paper: #ffffff;
   --raise: #ffffff;
-  --ink: #141310;
-  --muted: #6e6a62;
-  --rule: #e5e1d9;
-  /* A second weight of line, so "this is a boundary" and "this is the boundary that
-     matters" do not have to be the same hairline. */
-  --rule-strong: #d3cec3;
+  --sunk: #f6f6f4;
+  --ink: #111111;
+  --body-ink: #4a4a48;
+  --muted: #6e6c69;
+  --rule: #e6e4e0;
+  --rule-strong: #cfccc6;
 
-  /* The one yellow. It means exactly one thing on this page — nobody has noticed this
-     company yet — and it is spent on the Tier A marker and the "no website yet" chip.
-     Everything else that needs emphasis gets weight or space instead, because a colour
-     that means two things means neither. */
+  /* The site's one colour. A yellow underline says "this is the way in" (links, the chosen nav
+     item, section heads); a yellow fill says "chosen" (a shortlisted company, a picked preset).
+     It never colours text, and it never marks a company as better. */
   --mark: #ffd84a;
+  --mark-deep: #e7b71f;
+  --mark-soft: rgba(255, 216, 74, 0.38);
+  --wash: rgba(255, 216, 74, 0.16);
+  /* The highlight under a phrase: full yellow on white; on the dark ground a lower yellow keeps light text readable. */
+  --hl: var(--mark);
+
+  /* Actions are ink, as on the site's buttons. */
+  --accent: #111111;
+  --accent-hover: #000000;
+  --on-accent: #ffffff;
+  --accent-soft: rgba(255, 216, 74, 0.22);
+  /* Uncertainty needs its own voice, and not the yellow: a restrained clay, always with words. */
+  --warn-bg: #fbf3ef;
+  --warn-ink: #7a3a22;
+  --warn-rule: #e8cdbf;
 
   --sans: Inter, "Inter Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "DM Mono", "DM Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* One ladder of space. Every margin and every pad below is a rung on it, which is
-     the whole difference between a page with rhythm and a page of decisions taken one
-     at a time. */
-  /* Below the ladder on purpose, and only for the inside of a pill: a chip or a badge
-     padded to a full quarter-rem stops reading as a label and starts reading as a
-     button. Two rungs, so the exception cannot quietly become the rule. */
+  /* One ladder of space: 2 / 6 for the inside of a pill only, then 4 8 12 16 24 32 48. */
   --s0: 0.125rem;
   --s0h: 0.375rem;
-
   --s1: 0.25rem;
   --s2: 0.5rem;
   --s3: 0.75rem;
@@ -2529,32 +2592,50 @@ export const STYLES = `
   --s6: 2rem;
   --s7: 3rem;
 
-  /* And one ladder of type. Phone first: only the two largest sizes grow with the
-     viewport, and everything else holds still — a body size that scales with the
-     screen is how a list stops feeling like the same list on a laptop. */
-  --t-hero: clamp(1.6rem, 5.4vw, 2.45rem);
-  --t-lede: clamp(1rem, 1.9vw, 1.12rem);
+  /* One ladder of type. Headline 28-44px, section heads 16-17px mono, company names 17-18px,
+     reading text 15-16px, labels 13-14px. Nothing a reader needs is set below 13px; the map's
+     cells, folded away, are the one exception at 12px. */
+  --t-hero: clamp(1.75rem, 3.6vw, 2.5rem);
+  --t-lede: clamp(1rem, 1.6vw, 1.0625rem);
   --t-stat: 1.6rem;
-  --t-h: 1.05rem;
+  --t-section: 1.04rem;
+  --t-name: 1.125rem;
+  --t-h: 1.0625rem;
   --t-body: 1rem;
-  --t-sm: 0.875rem;
-  --t-xs: 0.8rem;
-  --t-micro: 0.72rem;
-  /* The map only. Forty-four cells on a phone is the one place on this page that
-     has to go below the smallest size the prose is allowed to use. */
-  --t-nano: 0.66rem;
+  --t-sm: 0.9375rem;
+  --t-xs: 0.8125rem;
+  --t-micro: 0.8125rem;
+  --t-nano: 0.75rem;
 
   --measure: 70ch;
-  --radius: 10px;
+  --radius: 4px;
+  --radius-lg: 12px;
+  --page: 72rem;
+  --focus: 0 0 0 3px var(--mark);
+  --shadow: 0 1px 2px rgba(40, 36, 24, 0.06), 0 8px 24px rgba(40, 36, 24, 0.08);
 }
+/* rohitrao.in has no dark theme; this one keeps its ink, hairline and yellow, turned over. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #141310;
-    --raise: #1d1b17;
-    --ink: #f1eee8;
-    --muted: #9b968c;
-    --rule: #2e2a24;
-    --rule-strong: #423c33;
+    --paper: #111111;
+    --raise: #1a1a19;
+    --sunk: #1f1f1d;
+    --ink: #f4f3ef;
+    --body-ink: #cfccc5;
+    --muted: #a6a39c;
+    --rule: #2b2a27;
+    --rule-strong: #45433f;
+    --mark-soft: rgba(255, 216, 74, 0.28);
+    --wash: rgba(255, 216, 74, 0.05);
+    --hl: rgba(255, 216, 74, 0.42);
+    --accent: #f4f3ef;
+    --accent-hover: #ffffff;
+    --on-accent: #111111;
+    --accent-soft: rgba(255, 216, 74, 0.14);
+    --warn-bg: #2a1d17;
+    --warn-ink: #f1b9a0;
+    --warn-rule: #5a3526;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -2563,18 +2644,20 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   padding: 0;
-  background: var(--paper);
+  /* The site's wash: white at the top, warming to a pale yellow a screen down, then fading out. */
+  background: linear-gradient(180deg, transparent 0, transparent 14rem, var(--wash) 36rem, transparent 90rem) no-repeat, var(--paper);
   color: var(--ink);
   font-family: var(--sans);
   font-size: var(--t-body);
   line-height: 1.6;
+  letter-spacing: -0.003em;
   -webkit-font-smoothing: antialiased;
   /* Scraped names and labels can be long and unbroken; never let one scroll the page. */
   overflow-wrap: break-word;
 }
-.wrap { max-width: 60rem; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
+.wrap { max-width: var(--page); margin: 0 auto; padding: var(--s5) var(--s4) var(--s7); }
 a { color: inherit; }
-h1, h2, h3 { line-height: 1.2; letter-spacing: -0.015em; }
+h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; }
 /* One measure for running text, about 70 characters, wherever a paragraph sits. */
 p { margin: 0 0 var(--s3); max-width: var(--measure); }
 /* Long unbroken scraped names stay inside their column; headings break where a
@@ -2587,11 +2670,12 @@ h1, h2, h3, .hook, .note { text-wrap: pretty; }
    who has never heard of this needs the second thing first. */
 .eyebrow {
   font-family: var(--mono);
-  font-size: var(--t-micro);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
   color: var(--muted);
-  margin: 0 0 var(--s3);
+  margin: 0 0 var(--s2);
 }
 .masthead h1 {
   font-size: var(--t-hero);
@@ -2607,45 +2691,16 @@ h1, h2, h3, .hook, .note { text-wrap: pretty; }
 .hook { font-size: var(--t-lede); color: var(--muted); max-width: 48ch; margin: 0 0 var(--s6); }
 /* The half worth repeating, lifted out of the muted text by weight alone. */
 .hook strong { color: var(--ink); font-weight: 500; }
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-  gap: var(--s4) var(--s5);
-  margin: 0;
-  padding: var(--s4) 0 0;
-  border-top: 1px solid var(--rule);
-}
-.stats dt {
-  font-size: var(--t-micro);
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: 1.35;
-}
-.stats dd {
-  margin: var(--s1) 0 0;
-  font-family: var(--mono);
-  font-size: var(--t-stat);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-.stats .of { color: var(--muted); font-size: var(--t-sm); letter-spacing: 0; }
-/* A stat that is also a way in: the number is the link, and looks like the number. */
-.stats dd a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule-strong); text-decoration-thickness: 2px; text-underline-offset: 5px; }
-.stats dd a:hover { text-decoration-color: currentColor; }
-/* What the headline leaves out, said directly under it rather than in a footnote. */
-.set-aside { font-size: var(--t-sm); color: var(--muted); max-width: var(--measure); margin: var(--s4) 0 0; }
-.set-aside a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
-.set-aside strong { font-family: var(--mono); font-weight: 500; }
+
+
 /* The findings: the page's argument, numbered, each number a link to its proof. */
 .findings { margin: 0 0 var(--s6); }
 .finding-list { margin: 0; padding: 0; list-style: none; counter-reset: finding; display: grid; gap: var(--s4); max-width: var(--measure); }
 .finding-list li { counter-increment: finding; position: relative; padding-left: var(--s6); line-height: 1.55; }
 .finding-list li::before { content: counter(finding); position: absolute; left: 0; top: 0.1em; font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); }
 .finding-list strong { font-weight: 600; }
-.finding-list a { color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
-.finding-list a:hover { text-decoration-color: currentColor; }
+.finding-list a { color: var(--ink); font-weight: 500; text-decoration: none; box-shadow: inset 0 -0.34em 0 var(--mark-soft); }
+.finding-list a:hover { box-shadow: inset 0 -0.34em 0 var(--mark); }
 /* Only rendered when it is not zero, so this is always news. */
 .fresh { font-size: var(--t-xs); color: var(--muted); margin: var(--s4) 0 0; }
 .funnel-note { color: var(--muted); font-size: var(--t-xs); max-width: var(--measure); margin: var(--s5) 0 0; }
@@ -2653,28 +2708,22 @@ h1, h2, h3, .hook, .note { text-wrap: pretty; }
 /* section furniture */
 section { margin: 0 0 var(--s7); }
 /* Everything that is not the list gets the quiet head: a label on a rule. */
-section > h2 {
-  font-size: var(--t-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
+/* Section heads as the site sets them: DM Mono on a short, thick yellow rule. */
+section > h2, .section-h {
+  display: table;
+  font-family: var(--mono);
+  font-size: var(--t-section);
   font-weight: 500;
-  margin: 0 0 var(--s2);
-  padding-bottom: var(--s2);
-  border-bottom: 1px solid var(--rule);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin: 0 0 var(--s4);
+  padding-bottom: 7px;
+  border-bottom: 3px solid var(--mark);
 }
 /* The list is the page. Its head is the one that reads as a heading rather than as
    furniture — every section looking equally important is how a product reads as a
    report. */
-.list > h2 {
-  font-size: var(--t-h);
-  text-transform: none;
-  letter-spacing: -0.015em;
-  color: var(--ink);
-  font-weight: 600;
-  padding-bottom: var(--s3);
-  border-bottom-color: var(--rule-strong);
-}
+
 .note { color: var(--muted); font-size: var(--t-xs); max-width: var(--measure); margin-bottom: var(--s4); }
 
 /* coverage map */
@@ -2710,10 +2759,10 @@ section > h2 {
 .cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
 .list.loading { opacity: 0.55; transition: opacity 120ms ease-out; }
 .resume { color: var(--ink); text-underline-offset: 3px; display: inline-flex; min-height: 44px; align-items: center; }
-.since { font-size: var(--t-sm); margin: var(--s3) 0 0; padding: var(--s2) var(--s3); border-left: 2px solid var(--ink); background: var(--raise); }
+.since { font-size: var(--t-sm); margin: var(--s3) 0 0; padding: var(--s2) var(--s3); border-left: 3px solid var(--mark); background: var(--raise); }
 .hide-seen .company.is-seen { display: none; }
 .only-new .company:not(.is-new) { display: none; }
-.company.is-new .row-main h3::after { content: 'new'; font-family: var(--mono); font-size: var(--t-micro); font-weight: 500; margin-left: var(--s2); padding: 0 var(--s0h); border: 1px solid var(--rule-strong); border-radius: 999px; vertical-align: middle; }
+.company.is-new .row-main h3::after { content: 'added since your last visit'; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0; color: #111111; margin-left: var(--s2); padding: 0 var(--s0h); background: var(--mark); border-radius: 3px; vertical-align: middle; }
 /* The map leads the page and is the control: sector names are links, cells filter. */
 .coverage { margin: var(--s6) 0 var(--s5); }
 .coverage .widget-head { margin-bottom: var(--s3); }
@@ -2735,16 +2784,11 @@ section > h2 {
 .cell.zero { color: var(--muted); }
 .cell.zero .cell-n { opacity: 0.55; }
 .tag-grid { margin-top: var(--s2); }
-.meta-stage { color: var(--ink); }
 /* The reference half: collapsed, labelled, and set apart from the tool above. */
 .reference { margin-top: var(--s7); padding-top: var(--s5); border-top: 2px solid var(--rule-strong); }
 .reference > h2 { font-size: var(--t-h); margin: 0 0 var(--s1); }
-.ref { border-bottom: 1px solid var(--rule); }
-.ref > summary { cursor: pointer; padding: var(--s3) 0; font-weight: 500; min-height: 44px; display: flex; align-items: center; }
-.ref[open] > summary { color: var(--muted); }
-.ref > section, .ref > p { margin-bottom: var(--s4); }
 /* Selected text inverts, in both themes, rather than borrowing the browser's blue. */
-::selection { background: var(--ink); color: var(--paper); }
+::selection { background: var(--mark); color: #111111; }
 /* The smallest step is for labels a desktop reader glances at; on a phone it grows a step. */
 @media (max-width: 34rem) { :root { --t-nano: var(--t-micro); } }
 /* On paper: the rows and what they rest on, in black on white, without the controls. */
@@ -2758,7 +2802,7 @@ section > h2 {
   .row-main h3 a::after { content: ' — ' attr(href); font-weight: 400; font-size: var(--t-micro); color: var(--muted); }
 }
 /* Figures that sit in columns or beside each other keep one width, so counts line up. */
-.cell-n, .stats dd, .result-line strong, .count, .districts .n, .trace-n, .finding-list strong, .widget-meta strong { font-variant-numeric: tabular-nums; }
+.cell-n, .result-line strong, .count, .districts .n, .trace-n, .finding-list strong, .widget-meta strong { font-variant-numeric: tabular-nums; }
 .cell-name {
   font-size: var(--t-nano);
   line-height: 1.2;
@@ -2780,7 +2824,7 @@ section > h2 {
 .cell:hover { border-color: var(--rule-strong); background: var(--raise); }
 .cell.filled:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .cell:active { transform: translateY(1px); }
-.cell.active { border-color: var(--ink); border-style: solid; box-shadow: inset 0 0 0 1px var(--ink); }
+.cell.active { border-color: var(--ink); border-style: solid; background: var(--mark-soft); box-shadow: inset 0 0 0 1px var(--ink); }
 
 
 /* the control bar: controls before explanation, and still there after a scroll */
@@ -2790,43 +2834,47 @@ section > h2 {
   top: 0;
   z-index: 10;
   background: var(--paper);
-  padding: var(--s3) 0 var(--s2);
-  margin: 0 0 var(--s4);
+  padding: var(--s2) 0 var(--s3);
+  margin: 0 0 var(--s3);
   border-bottom: 1px solid var(--rule-strong);
 }
-.bar { position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--s2); }
-.bar .field { display: flex; }
-.bar .field-search { flex: 1 1 14rem; min-width: 0; }
-.field-sort select { height: 100%; }
+.bar { position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s2) var(--s3); margin-top: var(--s2); }
+.bar .field-inline { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
+.bar .field-inline label, .filter-panel label { font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.04em; color: var(--muted); }
+.bar .field-sort { margin-left: auto; }
 select {
   font: inherit;
   font-size: var(--t-sm);
   color: inherit;
   background: var(--raise);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   padding: var(--s2) var(--s3);
+  min-height: 40px;
   max-width: 100%;
   min-width: 0;
 }
-select:hover { border-color: var(--rule-strong); }
+select:hover { border-color: var(--ink); }
 .filter-menu > summary {
   list-style: none;
   cursor: pointer;
-  height: 100%;
   display: flex;
   align-items: center;
+  min-height: 40px;
   font-size: var(--t-sm);
+  font-weight: 500;
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   background: var(--raise);
   white-space: nowrap;
 }
 .filter-menu > summary::-webkit-details-marker { display: none; }
-.filter-menu > summary:hover { border-color: var(--rule-strong); }
-.filter-menu[open] > summary { border-color: var(--ink); }
-.filter-count { font-family: var(--mono); }
+.filter-menu > summary::after { content: ''; width: 0.4em; height: 0.4em; margin-left: var(--s2); border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.filter-menu[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+.filter-menu > summary:hover { border-color: var(--ink); }
+.filter-menu[open] > summary { border-color: var(--ink); box-shadow: var(--focus); }
+.filter-count { font-variant-numeric: tabular-nums; font-weight: 700; }
 /* Positioned against the bar rather than the button, so on a phone it spans the width
    instead of hanging off whichever line the button wrapped onto. */
 .filter-panel {
@@ -2845,72 +2893,79 @@ select:hover { border-color: var(--rule-strong); }
   box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 12%, transparent);
 }
 .filter-panel .field { display: flex; flex-direction: column; gap: var(--s1); }
-.filter-panel label {
-  font-size: var(--t-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
 .filter-panel select { width: 100%; }
 .apply {
   font: inherit;
-  font-size: var(--t-sm);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   padding: var(--s2) var(--s4);
-  border: 1px solid var(--ink);
+  min-height: 40px;
+  border: 1px solid var(--accent);
   border-radius: var(--radius);
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--accent);
+  color: var(--on-accent);
   cursor: pointer;
   align-self: end;
 }
+.apply:hover { box-shadow: inset 0 -4px 0 var(--mark); }
 .active-chips { margin: var(--s2) 0 0; align-items: center; }
 .active-chips:empty { display: none; }
-.filter-chip { color: var(--ink); }
-.filter-chip span { color: var(--muted); margin-left: var(--s0); }
-.filter-chip:hover span { color: var(--ink); }
+/* A chosen filter is a chosen thing, so it takes the yellow fill; its × takes it away. */
+.filter-chip { color: #111111; background: var(--mark); border-color: var(--mark); border-radius: 3px; font-weight: 600; }
+.filter-chip span { margin-left: var(--s1); font-weight: 400; }
+a.chip.filter-chip:hover { border-color: #111111; }
 .clear { font-size: var(--t-xs); color: var(--muted); }
 .bar-foot {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: baseline;
-  gap: var(--s1) var(--s3);
+  align-items: flex-start;
+  gap: var(--s1) var(--s4);
   margin-top: var(--s2);
   font-size: var(--t-xs);
   color: var(--muted);
 }
-.result-line { margin: 0; }
-.result-line strong { font-family: var(--mono); color: var(--ink); font-weight: 500; }
-.result-line a, .linkish { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
-.result-line a:hover, .linkish:hover { text-decoration-color: currentColor; }
+.result-head { flex: 1 1 28rem; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); }
+.result-head .about-results-body { flex-basis: 100%; }
+.result-head .about-results[open] { flex-basis: 100%; }
+.result-line { margin: 0; font-size: var(--t-sm); color: var(--ink); }
+.result-line strong { font-size: var(--t-name); color: var(--ink); font-weight: 600; }
+.result-line a, .linkish { color: var(--ink); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--mark-soft); }
+.result-line a:hover, .linkish:hover { box-shadow: inset 0 -0.3em 0 var(--hl); }
 .bar-links { display: flex; flex-wrap: wrap; gap: var(--s3); }
 @media (max-width: 34rem) {
   /* A thumb, not a cursor: controls reach 44px, and pills keep their look while an invisible
      margin around them takes the tap. */
   .mark, .copy-row, .chip, select, input[type='search'], .filter-menu > summary, .apply, .linkish { min-height: 44px; }
   .row-side .mark, .row-side .copy-row { padding-inline: var(--s3); border-radius: var(--radius); }
-  .ev, a.rdi, .result-line a, .bar-links a { position: relative; }
-  .ev::after, a.rdi::after, .result-line a::after, .bar-links a::after { content: ''; position: absolute; inset: -14px -4px; }
-  /* Pinned, only the search, the filter button and the sort stay: about 110px, not 183. */
-  .controls.stuck .bar-foot, .controls.stuck .active-chips { display: none; }
+  a.rdi, .result-line a, .bar-links a { position: relative; }
+  a.rdi::after, .result-line a::after, .bar-links a::after { content: ''; position: absolute; inset: -14px -4px; }
+  /* Pinned, only the search box stays: the filters, counts and chips are back at the top. */
+  .controls.stuck .bar, .controls.stuck .bar-foot, .controls.stuck .active-chips { display: none; }
+  .bar .field-inline { flex: 1 1 40%; }
+  .bar .field-inline select { width: 100%; }
+  .bar .field-sort { margin-left: 0; }
+  .filter-menu { flex: 1 1 40%; }
   .controls { padding-block: var(--s2); }
   /* The panel scrolls inside itself and keeps Apply in reach instead of below the fold. */
   .filter-panel { max-height: calc(100dvh - 9rem); overflow-y: auto; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding: var(--s3); }
-  .filter-panel .field-search, .filter-panel .field-wide { grid-column: 1 / -1; }
+  .filter-panel .field-wide { grid-column: 1 / -1; }
   .apply { position: sticky; bottom: 0; grid-column: 1 / -1; width: 100%; min-height: 44px; }
 }
 .linkish { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
-.linkish[aria-pressed='true'] { font-weight: 600; text-decoration-color: currentColor; }
+.linkish[aria-pressed='true'] { font-weight: 600; box-shadow: inset 0 -0.3em 0 var(--hl); }
 .export { color: var(--muted); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .export:hover { color: var(--ink); text-decoration-color: currentColor; }
-.device-note { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s4); }
+.device-note { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s3); }
 .device-note strong { color: var(--ink); font-weight: 500; }
 
 /* rows: dense, and different at a glance by what is known */
 .company {
   display: flex;
-  gap: var(--s3);
-  padding: var(--s3);
+  gap: var(--s5);
+  padding: var(--s3) var(--s3);
   margin-inline: calc(var(--s3) * -1);
   border-bottom: 1px solid var(--rule);
 }
@@ -2919,12 +2974,14 @@ select:hover { border-color: var(--rule-strong); }
 /* Clear of the sticky bar when a link or "back to results" lands on a row. */
 li.company { scroll-margin-top: 10rem; }
 .row-main { flex: 1 1 auto; min-width: 0; }
-.row-main h3 { font-size: var(--t-body); font-weight: 600; margin: 0 0 var(--s0); line-height: 1.3; }
-.row-main h3 a { text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
-.row-main h3 a:hover { text-decoration-color: currentColor; }
+.row-main h3 { font-size: var(--t-name); font-weight: 700; margin: 0 0 var(--s1); line-height: 1.3; letter-spacing: -0.025em; }
+/* The company name takes the site's heading highlight when its row is pointed at or focused. */
+.row-main h3 a { text-decoration: none; transition: box-shadow 160ms ease-out; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.company:hover .row-main h3 a, .row-main h3 a:focus-visible { box-shadow: inset 0 -0.42em 0 var(--hl); }
 .company .builds {
   font-size: var(--t-sm);
-  margin: 0 0 var(--s1);
+  line-height: 1.5;
+  margin: 0 0 var(--s0);
   max-width: var(--measure);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2935,90 +2992,70 @@ li.company { scroll-margin-top: 10rem; }
 /* Nothing published: said in words, and quieter than a row that has a sentence. */
 .company .builds.none { color: var(--muted); font-style: italic; }
 .company.undescribed h3 a { font-weight: 500; }
-.meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); margin: 0; font-size: var(--t-xs); color: var(--muted); }
-.meta > span { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--s0h); }
-.ev {
-  font-family: var(--mono);
-  font-size: var(--t-micro);
-  line-height: 1.5;
-  padding: 0 var(--s0h);
-  border: 1px solid var(--rule-strong);
-  border-radius: 999px;
-  background: var(--raise);
-  color: var(--ink);
-  text-decoration: none;
-  white-space: nowrap;
-}
-a.ev:hover { border-color: var(--ink); }
-.ev.unconfirmed { border-style: dashed; color: var(--muted); }
-.ev.none { border-style: dashed; color: var(--muted); }
-/* Undated and unlocated are said, and said in the voice of an absence. */
-.meta-when.undated, .meta-where.unknown { font-style: italic; }
+
 .row-side {
-  /* A fixed width, so every row's name and description start and end on the same lines. */
-  flex: 0 0 13.5rem;
+  /* A fixed width, so every row's name and description start and end on the same lines, and
+     the shortlist button is always in the same place. */
+  flex: 0 0 9.5rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: var(--s1);
+  align-items: stretch;
+  gap: var(--s2);
   font-size: var(--t-xs);
   color: var(--muted);
-  text-align: right;
 }
-.row-actions { display: flex; gap: var(--s1); }
+.row-actions { display: flex; }
 .row-actions[hidden] { display: none; }
+.row-tools { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s1); }
 .mark {
   font: inherit;
-  font-size: var(--t-micro);
-  padding: var(--s0) var(--s2);
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  background: var(--raise);
+  font-size: var(--t-xs);
+  padding: var(--s1) var(--s2);
+  border: 0;
+  background: none;
   color: var(--muted);
   cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 3px;
 }
-.mark:hover { border-color: var(--rule-strong); color: var(--ink); }
-.mark[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.mark:hover { color: var(--ink); text-decoration-color: currentColor; }
+.mark[aria-pressed='true'] { color: var(--ink); font-weight: 600; text-decoration: none; }
+/* The row's one action: outlined until chosen, filled once it is. Same place on every row. */
+.row-side .mark.mark-shortlist { width: 100%; }
+/* Set like the site's buttons: ink outline, small caps-height uppercase, tracked. */
+.mark.mark-shortlist {
+  min-height: 38px;
+  padding: var(--s1) var(--s3);
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--raise);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
+}
+.mark.mark-shortlist:hover { background: var(--mark-soft); color: var(--ink); border-color: var(--ink); }
+.mark.mark-shortlist[aria-pressed='true'] { background: var(--mark); color: #111111; border-color: var(--mark-deep); }
+.mark.mark-shortlist[aria-pressed='true']::before { content: '✓ '; }
 /* Seen dims and stays where it was, so the list does not shift under a reader. */
 .company.is-seen .row-main { opacity: 0.5; }
 .company.is-passed { display: none; }
 .show-passed .company.is-passed { display: flex; opacity: 0.45; }
 @media (max-width: 34rem) {
-  .bar .field-search { flex-basis: 100%; }
-  .bar .field-sort { flex: 1 1 auto; }
-  .bar .field-sort select { width: 100%; }
-}
-.only-shortlisted .company:not(.is-shortlisted) { display: none; }
-@media (max-width: 34rem) {
-  .company { flex-direction: column; gap: var(--s1); }
-  .row-side { flex: 0 0 auto; flex-direction: row; align-items: center; flex-wrap: wrap; text-align: left; }
-  .row-side .traces { flex-basis: 100%; align-items: flex-start; }
+  .company { flex-direction: column; gap: var(--s2); }
+  .row-side { flex: 0 0 auto; flex-direction: row; align-items: center; flex-wrap: wrap; gap: var(--s2) var(--s3); }
+  .row-actions { flex: 0 0 auto; }
+  .mark.mark-shortlist { width: auto; min-width: 8.5rem; }
+  /* The name already opens the company; on a phone the row keeps its three actions on one line. */
+  .row-tools .view-evidence { display: none; }
+  .row-tools { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0 var(--s3); }
 }
 
-/* coverage map, folded after the list */
-.map-fold > summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s2) var(--s3);
-  cursor: pointer;
-  list-style: none;
-  padding: var(--s3) 0;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: var(--s4);
-}
-.map-fold > summary::-webkit-details-marker { display: none; }
-.map-fold > summary h2 {
-  font-size: var(--t-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  font-weight: 500;
-  margin: 0;
-}
-.map-fold-meta { color: var(--muted); font-size: var(--t-xs); }
-.map-fold > summary::after { content: "show"; margin-left: auto; color: var(--muted); font-size: var(--t-xs); }
-.map-fold[open] > summary::after { content: "hide"; }
+
 
 /* list */
 .list h2 .count { font-family: var(--mono); }
@@ -3031,8 +3068,8 @@ a.ev:hover { border-color: var(--ink); }
 /* Keyboard and link-sharing get the same acknowledgement as a mouse. Rows are
    anchored by slug precisely so one can be sent to someone; arriving at it should
    show which one was meant. */
-.company:focus-within { background: var(--raise); }
-.company:target { background: var(--raise); box-shadow: inset 2px 0 0 var(--ink); }
+.company:focus-within { background: var(--accent-soft); }
+.company:target { background: var(--raise); box-shadow: inset 3px 0 0 var(--mark); }
 .row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); margin-bottom: var(--s2); }
 .row-head h3 { font-size: var(--t-h); font-weight: 600; margin: 0; flex: 1 1 auto; }
 .row-head h3 a { text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
@@ -3072,10 +3109,8 @@ a.ev:hover { border-color: var(--ink); }
    itself and the row must never let it read as something we checked. */
 .says {
   margin-left: 0.35em;
-  font-size: var(--t-micro);
+  font-size: var(--t-xs);
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
   white-space: nowrap;
 }
 .desc { margin: 0 0 var(--s0h); max-width: var(--measure); color: var(--muted); font-size: var(--t-sm); }
@@ -3090,20 +3125,6 @@ a.ev:hover { border-color: var(--ink); }
   padding: var(--s0) var(--s2);
 }
 a.rdi:hover { border-color: var(--rule-strong); color: var(--ink); }
-/* The longest sub-sector names are wider than a phone. A pill that cannot wrap pushed the
-   whole page sideways at 390px. */
-.meta > .meta-rdi { max-width: 100%; }
-.meta .rdi { white-space: normal; border-radius: 0.9em; }
-.rdi.unclassified { font-style: italic; border-style: dashed; }
-.from-label {
-  margin-left: var(--s2);
-  padding: var(--s0) var(--s0h);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  font-size: var(--t-micro);
-  font-family: var(--sans);
-  white-space: nowrap;
-}
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s0h); margin: 0 0 var(--s2); padding: 0; }
 .chip {
   display: inline-block;
@@ -3143,8 +3164,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .widget-lead .widget-meta a { color: inherit; text-underline-offset: 3px; }
 .finding-lead { font-size: var(--t-body); }
 .finding-lead a { color: inherit; }
-.facts-row { display: flex; flex-wrap: wrap; gap: 0 var(--s2); margin: 0 0 var(--s0h); font-size: var(--t-xs); color: var(--ink); }
-.facts-row > span + span::before { content: '·'; margin-right: var(--s2); color: var(--muted); }
 .f-kind { font-weight: 500; }
 .f-stage { font-weight: 500; }
 .f-age.undated { color: var(--muted); font-style: italic; }
@@ -3154,25 +3173,9 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .trail .f-city::before { content: '·'; margin: 0 var(--s2); }
 .trail .none { font-style: italic; }
 .row-side { flex: 0 0 auto; }
-.scope { font-size: var(--t-xs); color: var(--muted); margin: var(--s3) 0 0; }
-.scope strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
-.scope a { color: var(--ink); text-underline-offset: 3px; }
-.top-picks { margin: var(--s5) 0 0; padding: var(--s4); border: 1px solid var(--rule-strong); border-radius: var(--radius); background: var(--raise); }
-.top-picks h2 { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s2); }
-.top-picks ol { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
-.top-picks li { display: grid; grid-template-columns: 1fr; column-gap: var(--s3); align-items: baseline; }
-.top-picks li > a { font-weight: 600; text-underline-offset: 3px; }
-.pick-builds { grid-column: 1; font-size: var(--t-sm); color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-.pick-traces { grid-column: 1; font-size: var(--t-xs); color: var(--muted); }
-@media (max-width: 34rem) {
-  .top-picks li { grid-template-columns: 1fr; }
-  .pick-traces { grid-column: 1; grid-row: auto; }
-  .pick-builds { -webkit-line-clamp: 2; line-clamp: 2; }
-}
-.see-all { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s1); font-size: var(--t-sm); color: var(--ink); text-underline-offset: 3px; }
+
 .about-upstream { font-size: var(--t-sm); color: var(--muted); margin: 0 0 var(--s3); }
 .about-upstream a { color: var(--ink); }
-.why-here { font-size: var(--t-body); margin: var(--s2) 0 var(--s3); }
 .builds-lead { font-size: var(--t-lede); max-width: var(--measure); }
 .reading > summary { cursor: pointer; font-size: var(--t-xs); color: var(--muted); margin-top: var(--s2); min-height: 44px; display: flex; align-items: center; }
 .keep { border-top: 1px solid var(--rule); padding-top: var(--s4); }
@@ -3183,23 +3186,14 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .facts .trace-shape { font-size: inherit; }
 .facts .trace-shape::before { content: ': '; }
 .traces.quiet { color: var(--ink); }
-/* The page's one yellow, and the same meaning it has always had: nobody has noticed
-   this company yet. It moved off a pill and onto the fact itself, which is a
-   highlighter rather than a badge — and the way this yellow is used on rohitrao.in. */
-.fact-none {
-  background: linear-gradient(to top, var(--mark) 0%, var(--mark) 45%, transparent 45%);
-  color: var(--ink);
-  padding: 0 var(--s0h) var(--s0);
-}
+
 .fact-site { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .fact-site:hover { text-decoration-color: currentColor; }
-.fact-unconfirmed { color: var(--muted); font-size: 0.92em; }
-.result-summary { color: var(--muted); }
 /* the widget row: the population in view, five ways, in the coverage map's cells */
 .widgets { margin: calc(-1 * var(--s5)) 0 var(--s5); display: grid; gap: var(--s5); }
 .widget { min-width: 0; border-top: 1px solid var(--rule); padding-top: var(--s3); }
 .widget-head { margin: 0 0 var(--s2); }
-.widget-head h2 { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s1); }
+.widget-head h2 { font-family: var(--mono); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); font-weight: 500; margin: 0 0 var(--s1); }
 .widget-meta { margin: 0; font-size: var(--t-xs); color: var(--muted); max-width: var(--measure); }
 .widget-meta strong { color: var(--ink); font-weight: 500; }
 .widget-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
@@ -3210,7 +3204,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .cell.seg .sector-icon { width: 1.1em; height: 1.1em; }
 /* The share of the records in view, as a hairline along the cell's foot. A proportion
    drawn in ink, not a colour: the yellow stays spent on what nobody has noticed. */
-.cell .share { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--ink); opacity: 0.5; }
+.cell .share { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--mark-deep); opacity: 0.85; }
 .cell.weak-seg { border-style: dashed; }
 .cell-when { font-size: var(--t-nano); color: var(--muted); line-height: 1.2; margin-top: var(--s0); }
 .cell-when .failing { color: var(--ink); font-weight: 500; }
@@ -3259,7 +3253,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .ask-examples { list-style: none; padding: 0; margin: 0; }
 .ask-examples li { padding: var(--s2) 0; border-top: 1px solid var(--rule); }
 .ask-q { font-weight: 500; margin: 0 0 var(--s0); }
-.place-tiles { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; }
 .place-grid { margin-top: var(--s3); grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
 .place-grid .cell-name { overflow-wrap: normal; word-break: normal; hyphens: auto; }
 .place-grid .cell-name { -webkit-line-clamp: 2; line-clamp: 2; }
@@ -3270,11 +3263,9 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .place:hover { border-color: var(--rule-strong); }
 .place.on { border-color: var(--ink); background: var(--raise); }
 .place.unknown { border-style: dashed; color: var(--muted); }
-.place-n { font-family: "DM Mono", ui-monospace, monospace; }
 .freshness { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
 .freshness strong { color: var(--ink); }
 .entity-tag { color: var(--muted); font-size: 0.8em; font-weight: normal; white-space: nowrap; }
-.result-summary strong { color: var(--ink); }
 .basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
 /* A warning, not a find, so it does not get the yellow: that means "nobody has noticed
    this company yet", and a register label is a fact about the evidence instead. */
@@ -3319,35 +3310,26 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
   padding: var(--s3) var(--s4);
   margin: var(--s4) 0 var(--s1);
 }
-
-/* search */
-.field-search { flex: 1 1 14rem; min-width: 0; }
 input[type='search'] {
   font: inherit;
-  font-size: var(--t-sm);
+  font-size: var(--t-body);
   color: inherit;
   background: var(--raise);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--ink);
   border-radius: var(--radius);
-  padding: var(--s2) var(--s3);
+  padding: var(--s2) var(--s4);
+  min-height: 52px;
   width: 100%;
   min-width: 0;
 }
-input[type='search']:hover { border-color: var(--rule-strong); }
-input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+input[type='search']::placeholder { color: var(--muted); opacity: 1; }
+input[type='search']:hover { border-color: var(--ink); }
+input[type='search']:focus { border-color: var(--ink); box-shadow: var(--focus); outline: none; }
+
 
 /* one company */
 .detail section { margin-bottom: var(--s6); }
-.detail section > h2 {
-  font-size: var(--t-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  font-weight: 500;
-  margin: 0 0 var(--s3);
-  padding-bottom: var(--s2);
-  border-bottom: 1px solid var(--rule);
-}
+
 .detail .masthead h1 { max-width: 20ch; }
 .detail .eyebrow a { text-decoration: none; }
 .detail .eyebrow a:hover { color: var(--ink); }
@@ -3383,8 +3365,6 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
   color: var(--muted);
   flex: 0 0 5.5rem;
 }
-.ev-label { flex: 1 1 16rem; }
-.ev-date { font-family: var(--mono); font-size: var(--t-micro); color: var(--muted); }
 .no-link { color: var(--muted); font-style: italic; }
 .dates { margin: 0; }
 .dates > div {
@@ -3395,7 +3375,7 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
   padding: var(--s3) 0;
   border-bottom: 1px solid var(--rule);
 }
-.dates dt { flex: 0 0 8rem; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.dates dt { flex: 0 0 9rem; font-size: var(--t-sm); font-weight: 500; color: var(--ink); }
 .dates dd { margin: 0; font-family: var(--mono); font-size: var(--t-sm); }
 .dates dd.why { font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); flex: 1 1 18rem; }
 
@@ -3404,7 +3384,10 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
 .actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0 var(--s2); }
 .action {
   font: inherit;
-  font-size: var(--t-sm);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   padding: var(--s2) var(--s4);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
@@ -3412,16 +3395,16 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
   color: var(--ink);
   cursor: pointer;
 }
-.action:hover { border-color: var(--ink); }
-.action.copy-brief { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.action:hover { border-color: var(--ink); background: var(--mark-soft); }
+.action.mark-shortlist { min-height: 44px; padding: var(--s2) var(--s5); }
 .copy-row { font: inherit; font-size: var(--t-xs); color: var(--ink); background: none; border: 1px solid var(--rule-strong); border-radius: 999px; padding: var(--s0) var(--s2); cursor: pointer; white-space: nowrap; }
 .copy-row:hover { border-color: var(--ink); }
-.action[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.action.action-quiet[aria-pressed='true'] { background: var(--sunk); color: var(--ink); border-color: var(--ink); text-decoration: none; }
+.action.action-quiet { color: var(--ink); text-decoration: none; border: 1px solid var(--rule-strong); border-radius: var(--radius); padding: var(--s2) var(--s4); font-size: var(--t-xs); }
 .brief-fold { margin-top: var(--s2); font-size: var(--t-xs); color: var(--muted); }
 .brief-fold summary { cursor: pointer; }
 .brief-fold textarea { margin-top: var(--s2); font-family: var(--mono); font-size: var(--t-xs); }
-.builds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--s4) var(--s6); }
-.mini { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; margin: 0 0 var(--s2); }
+.mini { font-size: var(--t-sm); color: var(--ink); font-weight: 600; margin: 0 0 var(--s2); }
 /* Unknown is a value, and gets the weight of one. */
 .unknown-value { font-weight: 600; margin: 0 0 var(--s2); }
 .unknown-inline { font-style: italic; }
@@ -3430,7 +3413,7 @@ input[type='search']:focus-visible { outline: 2px solid var(--ink); outline-offs
 .unknown-list li strong { color: var(--ink); font-weight: 600; }
 .table-scroll { overflow-x: auto; }
 .evidence-table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
-.evidence-table th { text-align: left; font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--rule-strong); }
+.evidence-table th { text-align: left; font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 400; padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--rule-strong); }
 .evidence-table td { padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
 .evidence-table .ev-type { margin-left: var(--s1); }
 .mono { font-family: var(--mono); font-size: var(--t-xs); white-space: nowrap; }
@@ -3469,14 +3452,164 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 /* methodology */
 .method h3 { font-size: var(--t-body); margin: var(--s5) 0 var(--s2); }
 .method p, .method li { font-size: var(--t-sm); color: var(--muted); max-width: var(--measure); }
-.method a { color: var(--ink); }
+.method a { color: var(--ink); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--mark-soft); }
 .rules { list-style: none; margin: 0 0 var(--s4); padding: 0; }
 .rules li { margin-bottom: var(--s0h); display: flex; gap: var(--s2); align-items: baseline; }
 .rules .tier { flex: 0 0 auto; }
 
+/* --- the workspace: navigation, the start, results, and the company brief ---
+   Drawn in rohitrao.in's language: Inter set tight for what you read, DM Mono for what you
+   navigate by, a hairline for structure, and yellow only as an underline or a chosen fill. */
+.topnav { position: relative; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.topnav-inner { max-width: var(--page); margin: 0 auto; padding: 0 var(--s4); display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s5); min-height: 52px; }
+.brand { font-family: var(--mono); font-weight: 700; font-size: var(--t-body); letter-spacing: 0.01em; color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+.brand::after { content: '.'; color: var(--mark-deep); }
+.brand:hover { color: var(--ink); }
+.topnav-links { list-style: none; margin: 0 0 0 auto; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s5); font-family: var(--mono); font-size: 0.86rem; text-transform: uppercase; letter-spacing: 0.01em; }
+.topnav-links a { display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; color: var(--muted); text-decoration: none; }
+.topnav-links a { background-image: linear-gradient(var(--mark), var(--mark)); background-size: 0 2px; background-repeat: no-repeat; background-position: 0 calc(100% - 9px); }
+.topnav-links a:hover { color: var(--ink); background-size: 100% 2px; }
+.topnav-links a[aria-current='page'] { color: var(--ink); background-size: 100% 2px; }
+/* The shortlist is the nav's one call to action, set the way the site sets "Get in touch". */
+.nav-shortlist { font-family: var(--sans); font-weight: 600; letter-spacing: 0.14em; color: var(--ink) !important; }
+.nav-count { display: inline-block; min-width: 1.6em; padding: 0 var(--s0h); border-radius: 3px; background: var(--mark); color: #111111; font-family: var(--sans); font-size: var(--t-xs); font-weight: 700; letter-spacing: 0; line-height: 1.5; text-align: center; font-variant-numeric: tabular-nums; }
+.shortlist-empty { max-width: var(--page); margin: 0 auto; padding: var(--s2) var(--s4); font-size: var(--t-sm); background: var(--accent-soft); border-top: 1px solid var(--rule); }
+.intro { margin: 0 0 var(--s2); padding: 0 0 var(--s3); border-bottom: 2px solid var(--ink); }
+.intro h1 { font-size: var(--t-hero); line-height: 1.08; letter-spacing: -0.04em; font-weight: 700; color: var(--ink); margin: 0 0 var(--s2); max-width: 32ch; text-wrap: balance; }
+.lede { font-size: var(--t-lede); color: var(--body-ink); margin: 0 0 var(--s2); max-width: 64ch; }
+/* The three things the page lets you do, highlighted the way the site highlights its own. */
+.hl { color: var(--ink); box-shadow: inset 0 -0.36em 0 var(--hl); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.coverage-line { font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); margin: 0; max-width: none; }
+.coverage-line strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+/* Links that take you somewhere: mono, ink, on a yellow underline. */
+.coverage-line a, .about-results a, .page-foot a, .crumb a, .about-upstream a, .toc a, .example, .export, .toast a, .lede a, .shortlist-empty a {
+  font-family: var(--mono); color: var(--ink); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--hl); padding-inline: 1px;
+  transition: box-shadow 160ms ease-out;
+}
+.coverage-line a:hover, .about-results a:hover, .page-foot a:hover, .crumb a:hover, .about-upstream a:hover, .toc a:hover, .example:hover, .export:hover, .toast a:hover, .lede a:hover { box-shadow: inset 0 -1.2em 0 var(--mark); color: #111111; }
+.search-block { padding-top: 0; }
+.search-label { display: block; font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); margin: 0 0 var(--s1); }
+.search-row { display: flex; gap: var(--s2); }
+.search-row input { flex: 1 1 auto; }
+.search-go { font: inherit; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; min-height: 52px; padding: 0 var(--s5); border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent); color: var(--on-accent); cursor: pointer; }
+.search-go:hover { box-shadow: inset 0 -4px 0 var(--mark); }
+.quick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin-top: var(--s2); font-size: var(--t-xs); }
+.quick-label { font-family: var(--mono); color: var(--muted); }
+.quick-or { margin-left: var(--s3); }
+.quick .sep { margin-left: calc(-1 * var(--s2)); color: var(--muted); }
+/* Presets are the site's tags: a soft yellow until chosen, full yellow once they are. */
+.preset { display: inline-flex; align-items: center; min-height: 30px; padding: 0 var(--s3); border-radius: 3px; background: var(--mark-soft); color: var(--ink); font-weight: 600; text-decoration: none; }
+.preset:hover { background: var(--mark); color: #111111; }
+.preset.active { background: var(--mark); color: #111111; }
+.preset.active::before { content: '✓'; margin-right: var(--s1); }
+.controls.stuck .search-label, .controls.stuck .quick, .controls.stuck .sort-note, .controls.stuck .about-results { display: none; }
+/* Pinned, the bar is a white band across the whole width, like the site's own top bar; resting
+   in place (with the script running to tell the two apart) it lets the page's wash show through. */
+.controls { box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax -1px); }
+.js .controls:not(.stuck) { background: transparent; box-shadow: none; clip-path: none; }
+.result-line strong { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; }
+.sort-note { margin: 0; font-size: var(--t-xs); color: var(--muted); }
+.about-results { margin: 0; }
+.result-parts strong { color: var(--ink); }
+.about-results > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 28px; font-family: var(--mono); color: var(--ink); font-size: var(--t-xs); list-style: none; }
+.about-results > summary::-webkit-details-marker { display: none; }
+.about-results-body { padding: var(--s2) 0 var(--s1) var(--s4); border-left: 3px solid var(--mark); font-size: var(--t-xs); color: var(--body-ink); }
+.about-results-body p { margin: 0 0 var(--s2); }
+.bar-links { align-items: center; padding-top: var(--s1); }
+.export { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; }
+.toast { position: sticky; top: var(--s2); z-index: 12; margin: 0 0 var(--s3); padding: var(--s2) var(--s3); border: 1px solid var(--rule); border-left: 4px solid var(--mark); border-radius: var(--radius); background: var(--raise); box-shadow: var(--shadow); font-size: var(--t-sm); }
+.toast a { margin-left: var(--s1); }
+.explore { display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0; }
+.explore-fold { flex: 0 1 auto; }
+.explore-fold[open] { flex-basis: 100%; order: 2; padding: var(--s3) var(--s4) var(--s1); border: 1px solid var(--rule); border-radius: var(--radius-lg); background: var(--raise); box-shadow: var(--shadow); }
+.explore-fold > summary { cursor: pointer; list-style: none; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s2); min-height: 36px; padding: var(--s1) var(--s3); border: 1px solid var(--rule-strong); border-radius: var(--radius); font-size: var(--t-sm); background: var(--raise); }
+.explore-fold > summary::-webkit-details-marker { display: none; }
+.explore-fold > summary::before { content: '+'; font-family: var(--mono); color: var(--muted); }
+.explore-fold[open] > summary::before { content: '–'; }
+.explore-fold[open] > summary { border-color: transparent; padding-inline: 0; margin-bottom: var(--s2); background: none; }
+.explore-fold > summary:hover { border-color: var(--ink); }
+.explore-name { font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.explore-meta { font-size: var(--t-xs); color: var(--muted); }
+.explore-fold .coverage, .explore-fold .widgets { margin: 0 0 var(--s3); }
+.explore-fold .widgets[hidden] { display: none; }
+.context-row, .evidence-row { display: block; max-width: none; margin: var(--s1) 0 0; font-size: var(--t-xs); line-height: 1.6; color: var(--muted); }
+.context-row > span:not(:last-child)::after, .evidence-row > span:not(:last-child)::after { content: '·'; margin: 0 var(--s2); color: var(--muted); }
+.context-row { margin-top: var(--s1); }
+/* The sub-sector is the one tag on a row, in the site's soft yellow. */
+.f-sub { display: inline-block; padding: 0 var(--s0h); border-radius: 3px; background: var(--mark-soft); color: var(--ink); font-weight: 600; line-height: 1.6; }
+.context-row > .f-sub:not(:last-child)::after { content: none; }
+.context-row > .f-sub { margin-right: var(--s2); }
+.f-kind, .f-stage { color: var(--body-ink); }
+.f-listed .t { color: var(--ink); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--mark-soft); }
+.f-listed a.t:hover { box-shadow: inset 0 -0.3em 0 var(--hl); }
+.company .says { display: none; }
+.company .builds { color: var(--body-ink); }
+.view-evidence { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink); text-decoration: none; padding: var(--s1) var(--s2); }
+.view-evidence:hover { box-shadow: inset 0 -0.3em 0 var(--hl); }
+.row-tools .mark, .row-tools .copy-row { font-family: var(--mono); font-size: var(--t-xs); border: 0; background: none; padding: var(--s1) var(--s2); color: var(--muted); text-decoration: none; border-radius: 0; }
+.row-tools .mark:hover, .row-tools .copy-row:hover { color: var(--ink); }
+.row-tools .mark[aria-pressed='true'] { color: var(--ink); }
+.row-tools .mark[aria-pressed='true']::before { content: '✓ '; }
+.caution { font-size: var(--t-sm); margin: var(--s3) 0; padding: var(--s2) var(--s3); background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-rule); border-radius: var(--radius); max-width: var(--measure); }
+.caution strong { font-weight: 700; }
+.page-foot { margin-top: var(--s7); padding-top: var(--s4); border-top: 2px solid var(--ink); font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); }
+.crumb { font-size: var(--t-xs); margin: 0 0 var(--s4); }
+.company-head { margin: 0 0 var(--s6); padding-bottom: var(--s5); border-bottom: 2px solid var(--ink); }
+.company-head h1 { font-size: var(--t-hero); line-height: 1.06; letter-spacing: -0.04em; font-weight: 700; margin: 0 0 var(--s3); max-width: 28ch; }
+.company-head .builds-lead { font-size: 1.125rem; line-height: 1.6; color: var(--ink); margin: 0 0 var(--s1); }
+.company-head .desc { font-size: 1.0625rem; color: var(--ink); line-height: 1.6; }
+.company-head .facts { display: block; margin: var(--s3) 0 0; font-size: var(--t-sm); color: var(--muted); }
+.company-head .facts > * { white-space: nowrap; }
+.company-head .facts > *:not(:last-child)::after { content: '·'; display: inline-block; margin: 0 var(--s2); color: var(--muted); }
+.fact-sub { display: inline-block; padding: 0 var(--s2); border-radius: 3px; background: var(--mark-soft); color: var(--ink); font-weight: 600; text-decoration: none; }
+.fact-sub:hover { background: var(--mark); color: #111111; }
+.company-head .facts > .fact-sub::after { content: none; }
+.company-head .facts > .fact-sub { margin-right: var(--s2); }
+.fact-site { font-family: var(--mono); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--mark-soft); }
+.about-upstream { font-size: var(--t-xs); color: var(--muted); margin: 0 0 var(--s2); }
+.evidence-summary { font-size: var(--t-body); color: var(--body-ink); margin: 0 0 var(--s3); }
+.evidence-summary .t { color: var(--ink); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--hl); }
+.method-fold { border-top: 1px solid var(--rule); }
+.method-fold:last-child { border-bottom: 1px solid var(--rule); }
+.method-fold > summary, .reading > summary, .brief-fold > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--s2); font-weight: 600; color: var(--ink); list-style: none; }
+.method-fold > summary::-webkit-details-marker, .reading > summary::-webkit-details-marker, .brief-fold > summary::-webkit-details-marker { display: none; }
+.method-fold > summary::before, .reading > summary::before, .brief-fold > summary::before, .about-results > summary::before { content: '+'; display: inline-block; width: 1em; text-align: center; font-family: var(--mono); color: var(--ink); }
+.method-fold[open] > summary::before, .reading[open] > summary::before, .brief-fold[open] > summary::before, .about-results[open] > summary::before { content: '–'; }
+.method-fold[open] { padding-bottom: var(--s3); }
+.detail .mini { margin-top: var(--s4); }
+.toc { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); font-size: var(--t-xs); margin-top: var(--s3); }
+.ref-section { margin: 0 0 var(--s7); }
+.about .findings { margin: 0; }
+.source-status td:first-child { white-space: nowrap; color: var(--ink); font-weight: 500; }
+@media (max-width: 34rem) {
+  .topnav-inner { gap: 0 var(--s3); flex-wrap: nowrap; }
+  .topnav-links { gap: 0 var(--s3); flex-wrap: nowrap; white-space: nowrap; font-size: var(--t-xs); }
+  .nav-shortlist { letter-spacing: 0.08em; }
+  .nav-discover, .nav-long { display: none; }
+  /* Enter or the keyboard's search key submits; the box keeps the whole width for its words. */
+  .search-go { display: none; }
+  .quick { flex-wrap: nowrap; overflow-x: auto; padding-bottom: var(--s1); margin-inline: calc(-1 * var(--s4)); padding-inline: var(--s4); scrollbar-width: none; }
+  .quick > * { flex: 0 0 auto; }
+  .preset { min-height: 36px; }
+  .explore-meta { display: none; }
+}
+@media (max-width: 22rem) {
+  .topnav-inner { gap: 0 var(--s2); padding-inline: var(--s3); }
+  .topnav-links { gap: 0 var(--s2); letter-spacing: 0; }
+  .nav-shortlist { letter-spacing: 0.02em; }
+  .brand { font-size: var(--t-sm); }
+}
+
+/* Controls that need storage or the clipboard hold their place from the first paint (see CAPABILITY_SCRIPT). */
+.can-mark .nav-shortlist-item[hidden] { display: list-item; }
+.can-mark .row-actions[hidden] { display: flex; }
+.can-mark .row-tools .mark[hidden], .can-mark .actions .mark[hidden] { display: inline-block; }
+.can-mark .company-head .device-note[hidden] { display: block; }
+.can-copy .row-tools .copy-row[hidden], .can-copy .actions .copy-brief[hidden] { display: inline-block; }
+
 /* wider screens */
 @media (min-width: 46rem) {
-  .wrap { padding: var(--s7) var(--s6) calc(var(--s7) * 1.5); }
+  .wrap { padding: var(--s5) var(--s6) calc(var(--s7) * 1.5); }
   .grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
   .place-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   .company { padding-inline: var(--s4); margin-inline: calc(var(--s4) * -1); }
@@ -3485,10 +3618,10 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 /* The radio inputs behind the segmented control are visually hidden but still
    focusable, so the focus ring has to be drawn on the label. */
 .seg:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: -2px; }
-a:focus-visible, select:focus-visible, .apply:focus-visible, .mark:focus-visible, .linkish:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+a:focus-visible, select:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .cell, .chip, .apply, .company, select, .seg, .mark, .copy-row, .ev { transition: border-color 160ms ease-out, background 160ms ease-out, color 160ms ease-out; }
+  .cell, .chip, .apply, .company, select, .seg, .mark, .copy-row { transition: border-color 160ms ease-out, background 160ms ease-out, color 160ms ease-out; }
 }
 `;
 
@@ -3503,6 +3636,13 @@ a:focus-visible, select:focus-visible, .apply:focus-visible, .mark:focus-visible
  * marks appear. Everything is wrapped: a private window or blocked storage turns the
  * buttons off rather than breaking the page.
  */
+/**
+ * Run in the head, before anything is drawn: says whether this browser can keep marks and copy, so
+ * the controls that need them take their place in the first layout instead of pushing the page
+ * down once the scripts at the foot have run.
+ */
+const CAPABILITY_SCRIPT = `document.documentElement.classList.add('js');try{localStorage.setItem('upstream.probe','1');localStorage.removeItem('upstream.probe');document.documentElement.classList.add('can-mark')}catch(e){}if(navigator.clipboard&&navigator.clipboard.writeText)document.documentElement.classList.add('can-copy')`;
+
 export const MARKS_SCRIPT = `
 (function () {
   var KEY = 'upstream.marks.v1';
@@ -3516,10 +3656,46 @@ export const MARKS_SCRIPT = `
       return { shortlist: v.shortlist || {}, seen: v.seen || {}, pass: v.pass || {} };
     } catch (e) { return empty(); }
   }
-  function write(m) { if (store) { try { store.setItem(KEY, JSON.stringify(m)); } catch (e) {} } }
+  // True only when the browser kept it: a full or blocked store must not read as saved.
+  function write(m) {
+    if (!store) return false;
+    try { store.setItem(KEY, JSON.stringify(m)); return store.getItem(KEY) === JSON.stringify(m); } catch (e) { return false; }
+  }
+  var base = ${JSON.stringify(BASE_PATH)};
+  // The whole shortlist, wherever its companies sit in the list: a view of exactly those ids, over every record.
+  function shortlistUrl(ids) { return base + '?described=all&kind=all&age=all&ids=' + encodeURIComponent(ids.slice(0, 500).join(',')) + '#list'; }
+  function paintNav() {
+    var item = document.querySelector('.nav-shortlist-item');
+    if (!item) return;
+    item.hidden = !store;
+    if (!store) return;
+    var ids = Object.keys(read().shortlist);
+    var link = item.querySelector('a');
+    var count = item.querySelector('.nav-count');
+    if (count) count.textContent = String(ids.length);
+    link.setAttribute('href', ids.length ? shortlistUrl(ids) : base + '#list');
+    link.setAttribute('aria-label', 'Shortlist, ' + ids.length + (ids.length === 1 ? ' company' : ' companies') + ' saved in this browser');
+    if (/[?&]ids=/.test(location.search)) link.setAttribute('aria-current', 'page');
+  }
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest ? event.target.closest('a.nav-shortlist') : null;
+    if (!link || Object.keys(read().shortlist).length) return;
+    event.preventDefault();
+    var box = document.getElementById('shortlist-empty');
+    if (!box) return;
+    box.hidden = false;
+    box.innerHTML = 'Your shortlist is empty. Choose <strong>Shortlist</strong> on any company to keep it here &mdash; saved in this browser only. <button type="button" class="linkish" data-act="close-empty">Close</button>';
+  });
+  document.addEventListener('click', function (event) {
+    var b = event.target.closest ? event.target.closest('[data-act="close-empty"]') : null;
+    if (b) { var box = document.getElementById('shortlist-empty'); if (box) box.hidden = true; }
+  });
   window.upstreamMarks = {
     available: !!store,
     read: read,
+    shortlistUrl: shortlistUrl,
+    paintNav: paintNav,
+    // The new state, or null when the browser refused to keep it.
     toggle: function (kind, id) {
       var m = read();
       if (m[kind][id]) { delete m[kind][id]; }
@@ -3529,13 +3705,15 @@ export const MARKS_SCRIPT = `
         if (kind === 'pass') delete m.shortlist[id];
         if (kind === 'shortlist') delete m.pass[id];
       }
-      write(m);
+      if (!write(m)) return null;
+      paintNav();
       return !!m[kind][id];
     },
     set: function (kind, id) { var m = read(); if (!m[kind][id]) { m[kind][id] = Date.now(); write(m); } },
-    clear: function () { if (store) { try { store.removeItem(KEY); } catch (e) {} } },
+    clear: function () { if (store) { try { store.removeItem(KEY); } catch (e) {} } paintNav(); },
     size: function (m) { return Object.keys(m.shortlist).length + Object.keys(m.seen).length + Object.keys(m.pass).length; }
   };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintNav); else paintNav();
 })();
 `;
 
@@ -3598,7 +3776,23 @@ export const LIST_SCRIPT = `
 
   // --- marks on rows ---
   var showPassed = false;
-  var onlyShortlisted = false;
+  // A short confirmation after a shortlist change, read out by screen readers, with a way to the whole shortlist.
+  var toastTimer = null;
+  function say(text, action) {
+    var toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = text + ' ';
+    if (action === 'view') {
+      var ids = Object.keys(marks.read().shortlist);
+      var a = document.createElement('a');
+      a.href = marks.shortlistUrl(ids);
+      a.textContent = 'View shortlist (' + ids.length + ')';
+      toast.appendChild(a);
+    }
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 6000);
+  }
   var onlyNew = false;
   var prefs = null;
   try { prefs = localStorage; } catch (e) {}
@@ -3629,11 +3823,14 @@ export const LIST_SCRIPT = `
       var buttons = row.querySelectorAll('button.mark');
       for (var j = 0; j < buttons.length; j++) {
         var kind = buttons[j].getAttribute('data-mark');
-        buttons[j].setAttribute('aria-pressed', m[kind][id] ? 'true' : 'false');
+        var on = !!m[kind][id];
+        if (marks.available) buttons[j].hidden = false;
+        buttons[j].setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (kind === 'shortlist') buttons[j].textContent = on ? 'Shortlisted' : 'Shortlist';
+        if (kind === 'seen') buttons[j].textContent = on ? 'Seen' : 'Mark as seen';
       }
     }
     document.body.classList.toggle('show-passed', showPassed);
-    document.body.classList.toggle('only-shortlisted', onlyShortlisted);
     document.body.classList.toggle('hide-seen', hideSeen);
     document.body.classList.toggle('only-new', onlyNew);
 
@@ -3654,7 +3851,7 @@ export const LIST_SCRIPT = `
       if (fresh) {
         var parts = lastVisit.split('-');
         var day = Number(parts[2]) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(parts[1]) - 1];
-        since.innerHTML = 'Since your last visit on ' + day + ': <strong>' + fresh + '</strong> of the companies below ' + (fresh === 1 ? 'is' : 'are') + ' new. '
+        since.innerHTML = 'Added to Upstream since your last visit on ' + day + ': <strong>' + fresh + '</strong> of the records below. '
           + '<button type="button" class="linkish" data-act="only-new" aria-pressed="' + (onlyNew ? 'true' : 'false') + '">' + (onlyNew ? 'Show everything' : 'Show only those') + '</button>';
       }
     }
@@ -3677,7 +3874,7 @@ export const LIST_SCRIPT = `
     var ids = Object.keys(m.shortlist);
     if (exportLink) {
       exportLink.hidden = !marks.available || ids.length === 0;
-      exportLink.textContent = 'CSV of your shortlist (' + ids.length + ')';
+      exportLink.textContent = 'Export shortlist (' + ids.length + ')';
       exportLink.setAttribute('href', form.getAttribute('action').split('#')[0] + '/export.csv?described=all&kind=all&tier=all&age=all&ids=' + encodeURIComponent(ids.slice(0, 500).join(',')));
     }
 
@@ -3686,13 +3883,6 @@ export const LIST_SCRIPT = `
       line.hidden = passedHere === 0;
       line.innerHTML = passedHere ? ' &middot; <button type="button" class="linkish" data-act="show-passed">' + passedHere + ' passed, ' + (showPassed ? 'shown dimmed' : 'hidden') + '</button>' : '';
     }
-    var toggle = form.querySelector('.shortlist-toggle');
-    var total = Object.keys(m.shortlist).length;
-    if (toggle) {
-      toggle.hidden = !marks.available || total === 0;
-      toggle.setAttribute('aria-pressed', onlyShortlisted ? 'true' : 'false');
-      toggle.textContent = onlyShortlisted ? 'Showing ' + shortlistedHere + ' shortlisted · show all' : 'Show shortlisted only (' + shortlistedHere + ' here, ' + total + ' in all)';
-    }
     var note = document.getElementById('device-note');
     if (note) {
       var size = marks.size(m);
@@ -3700,8 +3890,8 @@ export const LIST_SCRIPT = `
       note.innerHTML = marks.available
         ? (size
             ? '<strong>' + Object.keys(m.shortlist).length + '</strong> shortlisted, <strong>' + Object.keys(m.seen).length + '</strong> seen, <strong>' + Object.keys(m.pass).length + '</strong> passed. '
-            : 'Shortlist, seen and pass are kept as you work. ')
-          + 'Stored in this browser on this device only &mdash; not synced, and not visible to anyone else, including whoever runs this site.'
+            : '')
+          + 'Shortlist and seen marks are saved in this browser only &mdash; not synced, and not visible to anyone else.'
           + (size ? ' <button type="button" class="linkish" data-act="clear-marks">Clear all ' + size + '</button>' : '')
         : 'This browser is not letting the page store anything, so shortlist, seen and pass are off.';
     }
@@ -3711,13 +3901,18 @@ export const LIST_SCRIPT = `
     if (!target) return;
     if (target.classList.contains('mark')) {
       var row = target.closest('li.company');
-      if (row) { marks.toggle(target.getAttribute('data-mark'), row.getAttribute('data-id')); paint(); }
+      if (row) {
+        var kind = target.getAttribute('data-mark');
+        var state = marks.toggle(kind, row.getAttribute('data-id'));
+        paint();
+        var name = row.querySelector('h3 a') ? row.querySelector('h3 a').textContent : 'This company';
+        if (state === null) say('Could not save: this browser did not keep the change. Nothing was added.', null);
+        else if (kind === 'shortlist') say(state ? name + ' added to your shortlist. Saved in this browser.' : name + ' removed from your shortlist.', state ? 'view' : null);
+      }
     } else if (target.getAttribute('data-act') === 'show-passed') {
       showPassed = !showPassed; paint();
     } else if (target.getAttribute('data-act') === 'clear-marks') {
       if (window.confirm('Clear every shortlist, seen and pass mark stored on this device?')) { marks.clear(); paint(); }
-    } else if (target.classList.contains('shortlist-toggle')) {
-      onlyShortlisted = !onlyShortlisted; paint();
     } else if (target.classList.contains('seen-toggle')) {
       hideSeen = !hideSeen;
       try { if (prefs) prefs.setItem('upstream.hideSeen', hideSeen ? '1' : '0'); } catch (e) {}
@@ -3728,7 +3923,7 @@ export const LIST_SCRIPT = `
   });
   // Where a reader was, for the company page's way back.
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('li.company h3 a, #top-picks li a') : null;
+    var link = event.target.closest ? event.target.closest('li.company h3 a, li.company a.view-evidence') : null;
     if (link) { remember(); }
   });
 
@@ -3736,7 +3931,7 @@ export const LIST_SCRIPT = `
   var timer = null;
   var sector = form.querySelector('#sector');
   var subsector = form.querySelector('#subsector');
-  var slots = ['scope', 'top-picks', 'widgets', 'chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'undated-slot'];
+  var slots = ['quick', 'widgets', 'chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'undated-slot'];
   var seq = 0;
   function refresh(opts) {
     var params = new URLSearchParams(new FormData(form));
@@ -3756,11 +3951,11 @@ export const LIST_SCRIPT = `
     var listEl = document.getElementById('list');
     if (listEl) { listEl.classList.add('loading'); listEl.setAttribute('aria-busy', 'true'); }
     fetch(url.split('#')[0], { headers: { accept: 'text/html' } })
-      .then(function (r) { return r.text(); })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); return r.text(); })
       .then(function (html) {
         if (mine !== seq) return;
         var doc = new DOMParser().parseFromString(html, 'text/html');
-        var mapOpen = document.querySelector('.map-fold') && document.querySelector('.map-fold').open;
+        var aboutOpen = document.getElementById('about-results') && document.getElementById('about-results').open;
         var moreOpen = document.querySelector('.more-places') && document.querySelector('.more-places').open;
         slots.forEach(function (id) {
           var now = document.getElementById(id), next = doc.getElementById(id);
@@ -3773,8 +3968,8 @@ export const LIST_SCRIPT = `
           var mine2 = fields[i], theirs = doc.querySelector('#controls [name="' + mine2.name + '"]');
           if (theirs && !(mine2 === document.activeElement && mine2.id === 'q')) mine2.value = theirs.value;
         }
-        var fold = document.querySelector('.map-fold');
-        if (fold && mapOpen) fold.open = true;
+        var about = document.getElementById('about-results');
+        if (about && aboutOpen) about.open = true;
         var canonical = doc.querySelector('link[rel=canonical]');
         if (canonical) {
           var target = canonical.getAttribute('href');
@@ -3785,6 +3980,8 @@ export const LIST_SCRIPT = `
         }
         remember();
         paint();
+        var stale = document.getElementById('toast');
+        if (stale && /could not be updated/.test(stale.textContent)) stale.hidden = true;
         if (opts.reveal) {
           var line = document.getElementById('result-line');
           var top = line ? line.getBoundingClientRect().top : 0;
@@ -3794,7 +3991,19 @@ export const LIST_SCRIPT = `
           }
         }
       })
-      .catch(function (error) { if (window.console) console.error(error); location.href = url; })
+      .catch(function (error) {
+        if (window.console) console.error(error);
+        // The rows on screen stay usable; say the update failed and offer the plain page.
+        var toast = document.getElementById('toast');
+        if (toast) {
+          toast.textContent = 'The list could not be updated. The results shown are from before this change. ';
+          var retry = document.createElement('a');
+          retry.href = url;
+          retry.textContent = 'Try again';
+          toast.appendChild(retry);
+          toast.hidden = false;
+        } else { location.href = url; }
+      })
       .then(function () {
         var l = document.getElementById('list');
         if (l) { l.classList.remove('loading'); l.removeAttribute('aria-busy'); }
@@ -3803,7 +4012,7 @@ export const LIST_SCRIPT = `
   // Back and Forward step through the filters the reader chose.
   window.addEventListener('popstate', function () { clearTimeout(timer); load(location.pathname + location.search, { history: 'none' }); });
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('#widgets a.seg, #coverage a.cell, #coverage a.sector-link') : null;
+    var link = event.target.closest ? event.target.closest('#widgets a.seg, #coverage a.cell, #coverage a.sector-link, #quick a') : null;
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     clearTimeout(timer);
@@ -3996,18 +4205,34 @@ export const DETAIL_SCRIPT = `
   // Opening a company is looking at it: the list dims it, and "Hide seen" can take it away.
   marks.set('seen', id);
   var buttons = document.querySelectorAll('button.mark');
+  var note = document.getElementById('device-note');
   function paint() {
     var m = marks.read();
     for (var i = 0; i < buttons.length; i++) {
       var kind = buttons[i].getAttribute('data-mark');
+      var on = !!m[kind][id];
       buttons[i].hidden = false;
-      buttons[i].setAttribute('aria-pressed', m[kind][id] ? 'true' : 'false');
+      buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (kind === 'shortlist') buttons[i].textContent = on ? 'Shortlisted' : 'Shortlist';
+      if (kind === 'pass') buttons[i].textContent = on ? 'Passed' : 'Pass';
     }
-    var note = document.getElementById('device-note');
     if (note) note.hidden = false;
   }
+  if (note) note.setAttribute('role', 'status');
   for (var i = 0; i < buttons.length; i++) {
-    buttons[i].addEventListener('click', function (event) { marks.toggle(event.currentTarget.getAttribute('data-mark'), id); paint(); });
+    buttons[i].addEventListener('click', function (event) {
+      var kind = event.currentTarget.getAttribute('data-mark');
+      var state = marks.toggle(kind, id);
+      paint();
+      if (!note) return;
+      var saved = ' Saved in this browser only &mdash; not synced, and not visible to anyone else.';
+      if (state === null) note.innerHTML = '<strong>Could not save.</strong> This browser did not keep the change.';
+      else if (kind === 'shortlist' && state) {
+        var ids = Object.keys(marks.read().shortlist);
+        note.innerHTML = '<strong>Added to your shortlist.</strong>' + saved + ' <a href="' + marks.shortlistUrl(ids) + '">View shortlist (' + ids.length + ')</a>';
+      } else if (kind === 'shortlist') note.innerHTML = 'Removed from your shortlist.' + saved;
+      else note.innerHTML = (state ? '<strong>Marked as passed.</strong>' : 'Pass removed.') + saved;
+    });
   }
   paint();
 })();
@@ -4015,24 +4240,68 @@ export const DETAIL_SCRIPT = `
 
 // --- the page ---------------------------------------------------------------
 
+/** Anchors that lived in the reference half of the list page and now live on /about. */
+const MOVED_ANCHORS = ['reference', 'reference-h', 'findings-h', 'off-map', 'off-map-h', 'undescribed', 'undescribed-h', 'register', 'crosswalk', 'method-h'];
+
 /**
- * The second half: how the list is built and what it leaves out. For the reader judging the
- * system rather than using it, so it is collapsed, labelled, and kept apart from the tool.
+ * How the list is built and what it leaves out, on a page of its own: for the reader judging the
+ * system rather than using it. It used to ride, collapsed, under every list page (about 50 KB and
+ * four aggregate queries a render) for the few readers who opened it.
  */
-function reference(view: PageView): string {
+export function renderAboutPage(view: AboutView): string {
 	const fresh =
 		view.discoveredThisWeek > 0
 			? `<p class="note">${view.discoveredThisWeek} ${view.discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in a source we were already watching. A new source&rsquo;s first read is not counted here.</p>`
 			: '';
-	return `
-<section class="reference" id="reference" aria-labelledby="reference-h">
-  <h2 id="reference-h">Reference</h2>
-  <p class="note">How this list is built and what it leaves out &mdash; for judging the system rather than using it.</p>
-  <details class="ref"><summary>What the records show</summary>${findingsSection(view)}</details>
-  <details class="ref"><summary>Freshness, and how many records reach the list</summary>${freshness(view)}${fresh}${funnelNote(view)}</details>
-  <details class="ref"${view.subsector ? '' : ''}><summary>Records outside the map</summary>${offMap(view)}</details>
-  <details class="ref"><summary>How the list is ranked, and its limits</summary>${methodology(view)}</details>
-</section>`;
+	return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coverage &amp; methodology &mdash; Upstream</title>
+<meta name="description" content="Which sources Upstream reads, when each was last checked, what the records show, and how the list is ordered and limited.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="${esc(`${BASE_PATH}/about`)}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=optional">
+<style>${STYLES}</style>
+<script>${CAPABILITY_SCRIPT}</script>
+</head>
+<body>
+${nav('about')}
+<div class="wrap about">
+<header class="intro">
+  <p class="eyebrow">Coverage &amp; methodology</p>
+  <h1>How the data is collected</h1>
+  <p class="lede">Which public sources Upstream reads, when each was last checked, what the records show, and the rules that
+    order and limit the list. <a href="${esc(BASE_PATH)}">Back to Discover</a></p>
+  <nav class="toc" aria-label="On this page">
+    <a href="#sources-h">Sources</a> <a href="#findings-h">What the records show</a> <a href="#funnel-h">Records reaching the list</a> <a href="#outside-map">Outside the map</a> <a href="#method-h">Ranking and limits</a>
+  </nav>
+</header>
+<section class="ref-section" id="reference" aria-labelledby="sources-h">
+  <h2 id="sources-h">Sources and freshness</h2>
+  ${sourceStatus(view)}
+  ${freshness(view)}
+</section>
+<section class="ref-section" aria-labelledby="findings-h">
+  ${findingsSection(view) || '<h2 id="findings-h">What the records show</h2><p class="provenance">Nothing to report on this data.</p>'}
+</section>
+<section class="ref-section" aria-labelledby="funnel-h">
+  <h2 id="funnel-h">How many records reach the list</h2>
+  ${fresh}${funnelNote(view) || '<p class="provenance">Every record held is on the map.</p>'}
+</section>
+<div class="ref-section" id="outside-map">
+  <h2 id="off-map-h-all" class="section-h">Records outside the map</h2>
+  ${offMap(view) || '<p class="provenance">None: every record reached an RDI sub-sector.</p>'}
+</div>
+${methodology(view)}
+</div>
+<script>${MARKS_SCRIPT}</script>
+</body>
+</html>`;
 }
 
 export function renderPage(view: PageView): string {
@@ -4041,42 +4310,53 @@ export function renderPage(view: PageView): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upstream &mdash; Indian deep tech, ranked by obscurity</title>
-<meta name="description" content="Every other list ranks by how impressive a company looks, which is why every fund keeps finding the same twenty names. ${view.tracked} early-stage Indian deep-tech companies, sorted by obscurity, with the evidence on every row.">
+<title>Upstream &mdash; find Indian deep-tech companies to research</title>
+<meta name="description" content="Explore ${view.tracked} records of Indian deep-tech companies listed by incubators and public programmes. See what they build, check the sources, and shortlist leads for further research.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Upstream">
-<meta property="og:title" content="Upstream — Indian deep tech, ranked by obscurity">
-<meta property="og:description" content="Indian deep-tech companies that say what they build, sorted so the least-noticed come first, with the evidence on every row.">
+<meta property="og:title" content="Upstream — find Indian deep-tech companies worth your next research call">
+<meta property="og:description" content="Indian deep-tech companies listed by incubators and public programmes: what they build, where the information came from, and a shortlist to take away.">
 <meta property="og:url" content="${esc(`${view.origin}${BASE_PATH}`)}">
 <meta property="og:image" content="${esc(`${view.origin}${BASE_PATH}/og.png`)}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<!-- The same list is reachable by several orderings of the same parameters, and by
+${view.ids ? '<meta name="robots" content="noindex">\n' : ''}<!-- The same list is reachable by several orderings of the same parameters, and by
      parameters sitting at their defaults. This is the one spelling of it. -->
 <link rel="canonical" href="${esc(`${BASE_PATH}${query(viewParams(view))}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=optional">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=optional">
 <style>${STYLES}</style>
+<script>${CAPABILITY_SCRIPT}</script>
 </head>
 <body>
+<script>(function(){var h=location.hash.slice(1);if(${JSON.stringify(MOVED_ANCHORS)}.indexOf(h)>=0)location.replace(${JSON.stringify(`${BASE_PATH}/about#`)}+h);})();</script>
+${nav('discover')}
 <div class="wrap">
 ${header(view)}
-${coverageMap(view)}
-${widgets(view)}
 ${askBox(view)}
 <main class="tool">
 ${controls(view)}
-<p class="device-note" id="device-note" hidden></p>
+<p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
+<div class="explore" id="explore">
+  <details class="explore-fold" id="sector-fold"${view.sector || view.subsector ? ' data-chosen' : ''}>
+    <summary><span class="explore-name">Explore by sector</span> <span class="explore-meta">RDI classification map</span></summary>
+    ${coverageMap(view)}
+  </details>
+  <details class="explore-fold" id="breakdown-fold">
+    <summary><span class="explore-name">Break down these results</span> <span class="explore-meta">description, references, technology, sources, location</span></summary>
+    ${widgets(view)}
+  </details>
+</div>
 ${list(view)}
 <div id="undated-slot">${undatedList(view)}</div>
 </main>
-${reference(view)}
+<footer class="page-foot"><a href="${esc(`${BASE_PATH}/about`)}">Coverage &amp; methodology</a> &middot; public records only &middot; shortlist and marks are saved in this browser</footer>
 </div>
 <script>${MARKS_SCRIPT}</script>
 <script>${LIST_SCRIPT}</script>
