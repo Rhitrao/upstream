@@ -110,6 +110,9 @@ class Company:
     web_first_capture: str | None = None
     # Keyword tags from a real description (ingest/tags.py): what it builds, where it is used.
     build_tags: list[str] | None = None
+    # Read off a verified site and the Wayback index (ingest/sitepages.py, wayback.activity):
+    # careers and roles, a team page, a code account, a parked homepage, how often it changes.
+    site_signals: dict | None = None
     domain_tags: list[str] | None = None
     papers: dict | None = None
     city: str | None = None

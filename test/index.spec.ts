@@ -2370,8 +2370,8 @@ describe('who they are: founders, the register, contact, domain and papers', () 
 
 		const csv = await (await SELF.fetch(`${ORIGIN}/upstream/export.csv?tier=all&age=all`)).text();
 		const [header, row] = csv.replace(/^﻿/, '').trim().split('\r\n');
-		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","build_tags","domain_tags","papers_found"');
-		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","","","2"');
+		expect(header).toContain('"founders","founders_source","dpiit_status","dpiit_stage","contact_email","contact_page","domain_registered","web_first_capture","build_tags","domain_tags","hiring_roles","team_page","site_versions_2y","parked_homepage","papers_found"');
+		expect(row).toContain('"Prof. A Rao, B Shah","sine-iitb",,,"hello@kadamb.example","https://kadamb.example/contact","2016-03-02","2019-07-14","","","","","","","2"');
 
 		// An address later found not to be theirs takes what was read off it with it.
 		await post({ source: 'sine-iitb', companies: [{ id: 'kadamb-biolabs', name: 'Kadamb Biolabs Pvt Ltd', website: 'https://kadamb.example', website_identity: 'discovered' }] });
@@ -2459,6 +2459,25 @@ describe('what a shared link shows', () => {
 		expect(list).toContain('<link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">');
 		await post({ source: 'test', companies: [{ id: 'card-co', name: 'Card Co' }] });
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/card-co`)).text()).toContain('<meta property="og:title" content="Card Co — Upstream">');
+	});
+});
+
+describe('signs of activity on their own site', () => {
+	it('says what the careers, team, code and archive show, from a verified site only', async () => {
+		const signals = { careers: 'https://act.example/careers', careers_hosted: null, roles: 3, says_no_openings: false, team: 'https://act.example/team', repo: 'https://github.com/actco', parked: false, versions: 5, last_change: '2026-08-01', since: '2024-09-15' };
+		await post({
+			source: 'sine-iitb',
+			companies: [{ id: 'act-co', name: 'Act Co', website: 'https://act.example', website_identity: 'verified', website_identity_note: 'name in the domain', site_signals: signals }],
+		});
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/act-co`)).text();
+		expect(html).toContain('3 roles listed');
+		expect(html).toContain('not headcount');
+		expect(html).toContain('<dt>Team page</dt>');
+		expect(html).toContain('github.com/actco');
+		expect(html).toContain('5 versions in two years, latest 1 Aug 2026');
+		// Found not to be theirs, and what was read off it goes.
+		await post({ source: 'sine-iitb', companies: [{ id: 'act-co', name: 'Act Co', website: 'https://act.example', website_identity: 'discovered' }] });
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/act-co`)).text()).not.toContain('roles listed');
 	});
 });
 

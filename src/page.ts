@@ -39,6 +39,7 @@ import {
 	BUILD_TAGS,
 	DOMAIN_TAGS,
 	tagsOf,
+	siteSignalsOf,
 } from './db';
 
 /**
@@ -1858,6 +1859,32 @@ function whoLines(company: Company): { label: string; text: string; note: string
 			note: 'the Wayback Machine’s oldest copy of their homepage: when the public web first noticed the page, not when the company began',
 			href: `https://web.archive.org/web/*/${new URL(site).hostname}`,
 		});
+	}
+	// Signs of activity, read off their own site and the web archive. Facts about the site, not
+	// the company: a careers page is not headcount, and a still homepage is not a still company.
+	const signals = verified ? siteSignalsOf(company.site_signals) : null;
+	if (signals) {
+		if (signals.parked) out.push({ label: 'Homepage', text: 'reads as parked, for sale or not built yet', note: 'what the page says about itself; the company may simply be elsewhere' });
+		if (signals.careers_hosted && signals.careers) out.push({ label: 'Careers', text: `on ${signals.careers_hosted}`, note: 'linked from their homepage; roles there were not counted', href: signals.careers });
+		else if (signals.careers) {
+			const roles = signals.roles ?? 0;
+			out.push({
+				label: 'Careers',
+				text: roles > 0 ? `${roles} ${roles === 1 ? 'role' : 'roles'} listed` : signals.says_no_openings ? 'page says no openings' : 'page, no roles named',
+				note: 'role titles counted on their careers page; roughly, and not headcount',
+				href: signals.careers,
+			});
+		}
+		if (signals.team) out.push({ label: 'Team page', text: 'yes', note: 'linked from their homepage', href: signals.team });
+		if (signals.repo) out.push({ label: 'Code', text: signals.repo.replace(/^https:\/\//, ''), note: 'a code account named like their site, linked from it', href: signals.repo });
+		if (signals.versions !== null && signals.versions !== undefined) {
+			const v = signals.versions;
+			out.push({
+				label: 'Site changes',
+				text: v === 0 ? 'no archived copy in two years' : v === 1 ? 'one version in two years' : `${v} versions in two years${signals.last_change ? `, latest ${shortDate(signals.last_change)}` : ''}`,
+				note: 'distinct copies of their homepage the Wayback Machine kept; how often the site changes, not the company',
+			});
+		}
 	}
 	return out;
 }

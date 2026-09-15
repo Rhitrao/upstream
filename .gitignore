@@ -187,6 +187,8 @@ ingest/cache/*
 !ingest/cache/contacts.json
 !ingest/cache/rdap.json
 !ingest/cache/wayback.json
+!ingest/cache/wayback_activity.json
+!ingest/cache/sitepages.json
 !ingest/cache/papers.json
 # ...and a Message Batch still being answered, so the next run collects rather than re-asks.
 !ingest/cache/batch_pending.json

@@ -79,6 +79,8 @@ export interface Company {
 	web_first_capture: string | null;
 	/** JSON arrays of keyword tags read from a real description (ingest/tags.py). NULL: not computed yet. */
 	build_tags: string | null;
+	/** JSON: careers url and roles, team page, code account, parked, homepage versions over two years. */
+	site_signals: string | null;
 	domain_tags: string | null;
 	/** JSON: {count, works: [{title, year, url}], query_url} from OpenAlex affiliations. */
 	papers: string | null;
@@ -206,6 +208,30 @@ export const DOMAIN_TAGS = [
 	'education',
 	'finance',
 ] as const;
+
+export interface SiteSignals {
+	careers: string | null;
+	careers_hosted: string | null;
+	roles: number | null;
+	says_no_openings: boolean;
+	team: string | null;
+	repo: string | null;
+	parked: boolean;
+	versions: number | null;
+	last_change: string | null;
+	since: string | null;
+}
+
+/** The stored site signals, or null when missing or malformed. */
+export function siteSignalsOf(raw: string | null | undefined): SiteSignals | null {
+	if (!raw) return null;
+	try {
+		const parsed = JSON.parse(raw);
+		return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as SiteSignals) : null;
+	} catch {
+		return null;
+	}
+}
 
 /** A stored tag list, or [] for a missing or malformed one. */
 export function tagsOf(raw: string | null | undefined): string[] {

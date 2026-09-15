@@ -24,7 +24,7 @@ import requests
 from ingest import classify as classifier
 from ingest import enrich as enricher
 from ingest import gaps as gap_labels
-from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap, tags, wayback
+from ingest import contact, duplicates, entity, health, identity, names, papers, places, rdap, sitepages, tags, wayback
 from ingest import register_labels
 from ingest.taxonomy import SUBSECTORS
 from ingest.sources import dpiit, fsid, grants_csv, nmicps, rtbi, sine, tides, venture_center
@@ -520,6 +520,8 @@ def main() -> int:
     contacts = contact.lookup(on_map, max_seconds=300)
     registered = rdap.lookup(on_map, max_seconds=300)
     captured = wayback.lookup(on_map, max_seconds=300)
+    sites = sitepages.lookup(on_map, max_seconds=600)
+    changes = wayback.activity(on_map, max_seconds=300)
     # By the name the page prints, which is the name the cache was filled with: a
     # capitalised register name reads differently to the rule that skips people's names.
     found_papers = papers.lookup([dataclasses.replace(c, name=names.display(c.name)) for c in on_map], max_seconds=600)
@@ -529,6 +531,21 @@ def main() -> int:
             company.contact_email, company.contact_page = found.email, found.page
         company.domain_registered = registered.get(company.id)
         company.web_first_capture = captured.get(company.id)
+        site, change = sites.get(company.id), changes.get(company.id)
+        if site is not None or change is not None:
+            careers = (site or {}).get("careers") or {}
+            company.site_signals = {
+                "careers": careers.get("url"),
+                "careers_hosted": careers.get("hosted"),
+                "roles": careers.get("roles"),
+                "says_no_openings": bool(careers.get("says_none")),
+                "team": (site or {}).get("team"),
+                "repo": (site or {}).get("repo"),
+                "parked": bool((site or {}).get("parked")),
+                "versions": (change or {}).get("versions"),
+                "last_change": (change or {}).get("last_change"),
+                "since": (change or {}).get("since"),
+            }
         # Read from the words a reader is shown, so a tag never rests on a label or on a
         # homepage nobody confirmed is theirs.
         company.build_tags, company.domain_tags = tags.tags(
@@ -623,6 +640,7 @@ def main() -> int:
                         "domain_registered": enriched.get(company.id, company).domain_registered,
                         "web_first_capture": enriched.get(company.id, company).web_first_capture,
                         "build_tags": enriched.get(company.id, company).build_tags,
+                        "site_signals": enriched.get(company.id, company).site_signals,
                         "domain_tags": enriched.get(company.id, company).domain_tags,
                         "papers": enriched.get(company.id, company).papers,
                     }

@@ -54,6 +54,7 @@ import {
 	BUILD_TAGS,
 	DOMAIN_TAGS,
 	tagsOf,
+	siteSignalsOf,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
 import { FAVICON_SVG, OG_PNG_BASE64 } from './og';
@@ -365,6 +366,8 @@ interface CompanyInput {
 	web_first_capture?: string | null;
 	/** Keyword tags from ingest/tags.py; an empty list is an answer, a missing one is not. */
 	build_tags?: unknown;
+	/** Careers, team, code, parked and change signals off a verified site: see ingest/sitepages.py. */
+	site_signals?: unknown;
 	domain_tags?: unknown;
 	/** {count, works, query_url}; stored as JSON. */
 	papers?: unknown;
@@ -441,9 +444,9 @@ INSERT INTO companies (
   sector_id, subsector_id, project_type, classify_note, classify_basis, product, product_status,
   website_identity, website_identity_note, entity_type, entity_note, source_year, source_year_type,
   founders, founders_source, dpiit_status, dpiit_stage, contact_email, contact_page, domain_registered, papers,
-  description_source, web_first_capture, build_tags, domain_tags, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
+  description_source, web_first_capture, build_tags, domain_tags, site_signals, first_seen, first_seen_basis, discovered, trace_count, tier, updated_at
 ) VALUES (?1, ?2, ?3, ?4, ?19, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28,
-  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?39, ?40, ?14, ?15, ?16, 0, 'C', ?17)
+  ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?39, ?40, ?41, ?14, ?15, ?16, 0, 'C', ?17)
 ON CONFLICT(id) DO UPDATE SET
   name          = excluded.name,
   -- A register label never replaces a real description; a real one replaces a label.
@@ -488,6 +491,9 @@ ON CONFLICT(id) DO UPDATE SET
   -- (an empty list included: a description that became a label takes its tags with it).
   build_tags    = COALESCE(excluded.build_tags,    companies.build_tags),
   domain_tags   = COALESCE(excluded.domain_tags,   companies.domain_tags),
+  -- Read off the site, so gone with it once the address is found not to be theirs.
+  site_signals  = CASE WHEN excluded.website_identity IS NOT NULL AND excluded.website_identity <> 'verified' THEN NULL
+                       ELSE COALESCE(excluded.site_signals, companies.site_signals) END,
   website_identity      = COALESCE(excluded.website_identity,      companies.website_identity),
   website_identity_note = COALESCE(excluded.website_identity_note, companies.website_identity_note),
   -- One source that publishes websites is enough to have looked.
@@ -706,6 +712,9 @@ async function ingest(request: Request, env: Env): Promise<Response> {
 			if (!Array.isArray(value) || value.some((t) => !(allowed as readonly string[]).includes(t as string))) {
 				return json({ error: `companies[${i}].${field} must be a list drawn from ${allowed.join(', ')}` }, 400);
 			}
+		}
+		if (c.site_signals !== undefined && c.site_signals !== null && (typeof c.site_signals !== 'object' || Array.isArray(c.site_signals))) {
+			return json({ error: `companies[${i}].site_signals must be an object` }, 400);
 		}
 		if (c.papers !== undefined && c.papers !== null && (typeof c.papers !== 'object' || Array.isArray(c.papers) || typeof (c.papers as { count?: unknown }).count !== 'number')) {
 			return json({ error: `companies[${i}].papers must be an object with a count` }, 400);
@@ -935,6 +944,7 @@ async function applyIngest(
 			str(c.web_first_capture),
 			Array.isArray(c.build_tags) ? JSON.stringify(c.build_tags) : null,
 			Array.isArray(c.domain_tags) ? JSON.stringify(c.domain_tags) : null,
+			c.site_signals && typeof c.site_signals === 'object' ? JSON.stringify(c.site_signals) : null,
 		);
 	});
 
@@ -1382,6 +1392,10 @@ const CSV_COLUMNS = [
 	'web_first_capture',
 	'build_tags',
 	'domain_tags',
+	'hiring_roles',
+	'team_page',
+	'site_versions_2y',
+	'parked_homepage',
 	'papers_found',
 	'city',
 	'state',
@@ -1440,6 +1454,10 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 			c.website_identity === 'verified' ? c.web_first_capture : '',
 			tagsOf(c.build_tags).join('; '),
 			tagsOf(c.domain_tags).join('; '),
+			siteSignalsOf(c.site_signals)?.roles ?? '',
+			siteSignalsOf(c.site_signals)?.team ?? '',
+			siteSignalsOf(c.site_signals)?.versions ?? '',
+			siteSignalsOf(c.site_signals)?.parked ? 'yes' : '',
 			papersOf(c.papers)?.count ?? '',
 			c.city,
 			c.state,
