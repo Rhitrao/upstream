@@ -3048,6 +3048,11 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .top-picks li > a { font-weight: 600; text-underline-offset: 3px; }
 .pick-builds { grid-column: 1; font-size: var(--t-sm); color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .pick-traces { grid-column: 2; grid-row: 1; font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); white-space: nowrap; }
+@media (max-width: 34rem) {
+  .top-picks li { grid-template-columns: 1fr; }
+  .pick-traces { grid-column: 1; grid-row: auto; }
+  .pick-builds { -webkit-line-clamp: 2; line-clamp: 2; }
+}
 .see-all { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s1); font-size: var(--t-sm); color: var(--ink); text-underline-offset: 3px; }
 .about-upstream { font-size: var(--t-sm); color: var(--muted); margin: 0 0 var(--s3); }
 .about-upstream a { color: var(--ink); }
