@@ -2511,6 +2511,16 @@ describe('rows read, and the edge cache', () => {
 		// Only the data version's one row.
 		expect(Number(again.response.headers.get('x-d1-rows-read'))).toBeLessThanOrEqual(1);
 
+		// Another server, whose own cache is empty: the shared page store answers for a row or two.
+		const version = await env.DB.prepare("SELECT value FROM site_state WHERE key = 'data'").first<{ value: string }>();
+		const url = new URL(`${ORIGIN}/upstream?q=cache`);
+		url.searchParams.set("__v", `${version!.value}.${(env as Env).CF_VERSION_METADATA?.id ?? "dev"}`);
+		await caches.default.delete(new Request(url.toString()));
+		const otherServer = await cachedFetch('/upstream?q=cache');
+		expect(otherServer.response.headers.get('x-edge-cache')).toBe('store');
+		expect(Number(otherServer.response.headers.get('x-d1-rows-read'))).toBeLessThanOrEqual(3);
+		expect(otherServer.body).toContain('Cache Co');
+
 		// An ingest moves the version, so the same url is computed afresh and shows the change.
 		await post({ source: 'sine-iitb', companies: [{ id: 'cache-co', name: 'Cache Co Renamed', description: 'Thermal cameras.', sector_id: '2', subsector_id: '2.2' }] });
 		const after = await cachedFetch('/upstream?q=cache');

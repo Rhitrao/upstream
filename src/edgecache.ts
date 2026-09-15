@@ -15,6 +15,67 @@
 
 const DAY = 86_400;
 
+/*
+ * Behind the Cache API, a page store in D1 shared by every server and region. The Cache API is
+ * local to the machine that answers, and on 15 September 2026 the same url missed two or three
+ * times in one Cloudflare region before a server that held it answered. A stored page costs its
+ * parts in rows read (one or two: gzipped, in parts under D1's size limits) wherever it is asked
+ * for, so a page is rendered once per data version, not once per server.
+ */
+const PART_BYTES = 90_000;
+const STORE_SQL = `CREATE TABLE IF NOT EXISTS page_store (
+  key TEXT NOT NULL, part INTEGER NOT NULL, meta TEXT, body BLOB NOT NULL, PRIMARY KEY (key, part)
+)`;
+
+async function gzip(bytes: ArrayBuffer): Promise<Uint8Array> {
+	const stream = new Response(bytes).body!.pipeThrough(new CompressionStream('gzip'));
+	return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function gunzip(bytes: Uint8Array): Promise<ArrayBuffer> {
+	const stream = new Response(bytes).body!.pipeThrough(new DecompressionStream('gzip'));
+	return new Response(stream).arrayBuffer();
+}
+
+async function storeGet(db: D1Database, key: string): Promise<{ meta: { status: number; headers: Record<string, string> }; body: ArrayBuffer } | null> {
+	try {
+		const { results } = await db.prepare('SELECT part, meta, body FROM page_store WHERE key = ?1 ORDER BY part').bind(key).all<{ part: number; meta: string | null; body: ArrayBuffer | number[] }>();
+		if (!results.length || !results[0].meta) return null;
+		const chunks = results.map((r) => (r.body instanceof ArrayBuffer ? new Uint8Array(r.body) : new Uint8Array(r.body as number[])));
+		const joined = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+		let at = 0;
+		for (const c of chunks) {
+			joined.set(c, at);
+			at += c.length;
+		}
+		const meta = JSON.parse(results[0].meta) as { status: number; headers: Record<string, string>; parts: number };
+		if (meta.parts !== results.length) return null; // a write still in progress
+		return { meta, body: await gunzip(joined) };
+	} catch {
+		return null;
+	}
+}
+
+async function storePut(db: D1Database, key: string, status: number, headers: Headers, body: ArrayBuffer): Promise<void> {
+	const packed = await gzip(body);
+	const parts: Uint8Array[] = [];
+	for (let at = 0; at < packed.length; at += PART_BYTES) parts.push(packed.subarray(at, at + PART_BYTES));
+	const meta = JSON.stringify({
+		status,
+		parts: parts.length,
+		headers: Object.fromEntries(['content-type', 'content-disposition'].flatMap((h) => (headers.get(h) ? [[h, headers.get(h)!]] : []))),
+	});
+	const write = () =>
+		db.batch(parts.map((part, i) => db.prepare('INSERT OR REPLACE INTO page_store (key, part, meta, body) VALUES (?1, ?2, ?3, ?4)').bind(key, i, i === 0 ? meta : null, part)));
+	try {
+		await write();
+	} catch {
+		// The table is made on first use, so a deploy needs no migration before it can store.
+		await db.prepare(STORE_SQL).run();
+		await write();
+	}
+}
+
 export interface EdgeCache {
 	enabled: boolean;
 	/** The data version could not be read: D1 is refusing, so serve the last good copy if there is one. */
@@ -22,6 +83,8 @@ export interface EdgeCache {
 	key: string; // data version and build, joined
 	origin: string;
 	ctx: ExecutionContext;
+	/** The database, for the shared page store behind the machine-local Cache API. */
+	db?: D1Database;
 }
 
 export async function edgeCache(env: Env, ctx: ExecutionContext, origin: string): Promise<EdgeCache> {
@@ -29,7 +92,7 @@ export async function edgeCache(env: Env, ctx: ExecutionContext, origin: string)
 	try {
 		const row = await env.DB.prepare("SELECT value FROM site_state WHERE key = 'data'").first<{ value: string }>();
 		const build = env.CF_VERSION_METADATA?.id ?? 'dev';
-		return { enabled: Boolean(row?.value), key: `${row?.value ?? ''}.${build}`, origin, ctx };
+		return { enabled: Boolean(row?.value), key: `${row?.value ?? ''}.${build}`, origin, ctx, db: env.DB };
 	} catch {
 		return { enabled: false, failed: true, key: '', origin, ctx };
 	}
@@ -40,6 +103,12 @@ export async function bumpDataVersion(env: Env, when: string): Promise<void> {
 	await env.DB.prepare("INSERT INTO site_state (key, value) VALUES ('data', ?1) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
 		.bind(when)
 		.run();
+	// Pages stored for an older version can never be asked for again.
+	try {
+		await env.DB.prepare('DELETE FROM page_store').run();
+	} catch {
+		/* no store yet */
+	}
 }
 
 export async function cachedResponse(request: Request, cache: EdgeCache, build: () => Promise<Response>): Promise<Response> {
@@ -81,6 +150,17 @@ export async function cachedResponse(request: Request, cache: EdgeCache, build: 
 		out.headers.set('x-edge-cache', 'hit');
 		return out;
 	}
+	const storeKey = `page:${new URL(request.url).pathname}${new URL(request.url).search}|${cache.key}`;
+	const fromD1 = cache.db ? await storeGet(cache.db, storeKey) : null;
+	if (fromD1) {
+		const headers = new Headers(fromD1.meta.headers);
+		headers.set('cache-control', `public, max-age=60, s-maxage=${DAY}`);
+		const fromStore = new Response(fromD1.body, { status: fromD1.meta.status, headers });
+		cache.ctx.waitUntil(caches.default.put(key, fromStore.clone()));
+		const out = new Response(fromStore.body, fromStore);
+		out.headers.set('x-edge-cache', 'store');
+		return out;
+	}
 	let response: Response;
 	try {
 		response = await build();
@@ -96,7 +176,14 @@ export async function cachedResponse(request: Request, cache: EdgeCache, build: 
 		stored.headers.delete('set-cookie');
 		const last = new Response(stored.clone().body, stored);
 		last.headers.set('cache-control', `public, s-maxage=${DAY * 30}`);
-		cache.ctx.waitUntil(Promise.all([caches.default.put(key, stored), response.status === 200 ? caches.default.put(lastKey, last) : Promise.resolve()]));
+		const forStore = stored.clone();
+		cache.ctx.waitUntil(
+			Promise.all([
+				caches.default.put(key, stored),
+				response.status === 200 ? caches.default.put(lastKey, last) : Promise.resolve(),
+				cache.db ? forStore.arrayBuffer().then((body) => storePut(cache.db!, storeKey, response.status, forStore.headers, body)).catch(() => undefined) : Promise.resolve(),
+			]),
+		);
 	}
 	const out = new Response(response.body, response);
 	out.headers.set('x-edge-cache', 'miss');
@@ -109,7 +196,18 @@ export async function memo<T>(cache: EdgeCache, name: string, compute: () => Pro
 	const key = new Request(`${cache.origin}/upstream/__memo/${encodeURIComponent(name)}?__v=${encodeURIComponent(cache.key)}`);
 	const hit = await caches.default.match(key);
 	if (hit) return (await hit.json()) as T;
+	const storeKey = `memo:${name}|${cache.key}`;
+	const fromD1 = cache.db ? await storeGet(cache.db, storeKey) : null;
+	if (fromD1) {
+		const text = new TextDecoder().decode(fromD1.body);
+		cache.ctx.waitUntil(caches.default.put(key, new Response(text, { headers: { 'content-type': 'application/json', 'cache-control': `public, s-maxage=${DAY}` } })));
+		return JSON.parse(text) as T;
+	}
 	const value = await compute();
+	if (cache.db) {
+		const bytes = new TextEncoder().encode(JSON.stringify(value));
+		cache.ctx.waitUntil(storePut(cache.db, storeKey, 200, new Headers({ 'content-type': 'application/json' }), bytes.buffer as ArrayBuffer).catch(() => undefined));
+	}
 	cache.ctx.waitUntil(
 		caches.default.put(key, new Response(JSON.stringify(value), { headers: { 'content-type': 'application/json', 'cache-control': `public, s-maxage=${DAY}` } })),
 	);
