@@ -2029,7 +2029,17 @@ describe('counts that reconcile', () => {
 		expect(html).toContain('Search: “grinntech”');
 		expect(rows(html)).toEqual(['grinntech']);
 
-		expect(await text('?q=nobody-by-this-name')).toContain('Nothing matches these filters.');
+		const none = await text('?q=nobody-by-this-name');
+		expect(none).toContain('No company in this view has &ldquo;nobody-by-this-name&rdquo; in its name or in what it builds.');
+		expect(none).toContain('Without &ldquo;Search: “nobody-by-this-name”&rdquo;');
+		expect(none).not.toContain('outside this view &mdash; show');
+	});
+
+	it('offers the matches outside the view when a search finds nothing inside it', async () => {
+		await post({ source: 'dpiit-startup-india', companies: [{ id: 'labelled-co', name: 'Labelled Co', description: 'DPIIT-recognised startup. Industry: Robotics. Stage: Prototype.', sector_id: '2', subsector_id: '2.7', classify_basis: 'register-label' }] });
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?q=labelled`)).text();
+		expect(html).toContain('No company in this view has &ldquo;labelled&rdquo;');
+		expect(html).toMatch(/1 record matches outside this view &mdash; show it/);
 	});
 
 	it('exports the rows the page is showing, not a wider default', async () => {

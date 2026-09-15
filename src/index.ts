@@ -1221,8 +1221,15 @@ async function page(url: URL, env: Env): Promise<Response> {
 			: queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null }),
 	]);
 	const ask = askMode(env);
+	// Only when the list came back empty: the same question over every record, so the empty
+	// state can offer the nearest thing that is not empty instead of reporting emptiness.
+	const wider =
+		!demo && companies.length === 0 && buckets.total === 0
+			? (await queryBuckets(env, { ...ranked, described: null, kind: null, dpiit: null, tiers: null, minOriginYear: null })).total
+			: null;
 
 	const html = renderPage({
+		wider,
 		coverage,
 		companies,
 		undated,

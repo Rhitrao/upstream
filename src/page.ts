@@ -95,6 +95,8 @@ export interface PageView {
 	origin: string;
 	/** Records in the chosen half (described, kind, register status) before any other filter. */
 	category: number;
+	/** When the list is empty: how many records match the same search and filters in every half, tier and year. */
+	wider?: number | null;
 	/** How many of those have at most one public trace — the obscurity claim, counted. */
 	oneTrace: number;
 	/** What became of the register's companies, for the methodology's own arithmetic. */
@@ -1355,6 +1357,26 @@ function truncated(shown: number, total: number): string {
 	return shown < total ? `<p class="note">Showing the first ${shown}.</p>` : '';
 }
 
+/**
+ * An empty result says what was asked, and offers the nearest thing that is not empty:
+ * the same question over every record, then each filter taken away one at a time.
+ */
+function emptyResult(view: PageView): string {
+	const asked = view.search
+		? `No company in this view has &ldquo;${esc(view.search)}&rdquo; in its name or in what it builds.`
+		: 'No company in this view matches every filter you have set.';
+	const ways: string[] = [];
+	if (view.wider) {
+		const everywhere = `${BASE_PATH}${query(viewParams(view, { described: 'all', kind: 'all', tier: 'all', age: 'all', dates: null, dpiit: null }))}#list`;
+		ways.push(`<a href="${esc(everywhere)}">${view.wider} ${view.wider === 1 ? 'record matches' : 'records match'} outside this view &mdash; show ${view.wider === 1 ? 'it' : 'them'}</a>`);
+	}
+	for (const f of activeFilters(view)) ways.push(`<a href="${esc(f.href)}">Without &ldquo;${esc(f.label)}&rdquo;</a>`);
+	return `<div class="empty">
+    <p>${asked}</p>
+    ${ways.length ? `<ul class="ways">${ways.map((w) => `<li>${w}</li>`).join('')}</ul>` : ''}
+  </div>`;
+}
+
 function list(view: PageView): string {
 	const { companies, now, demo } = view;
 
@@ -1370,7 +1392,7 @@ function list(view: PageView): string {
 					: ''
 				: view.tracked === 0
 					? '<p class="empty">Nothing matches yet. The ingest has not put anything here.</p>'
-					: '<p class="empty">Nothing matches these filters.</p>';
+					: emptyResult(view);
 		return `
 <section class="list" id="list">
   <h2>Companies</h2>
@@ -2838,6 +2860,7 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .trace-shape { font-size: var(--t-micro); line-height: 1.35; }
 /* On a company's page the count and what it is read as one fact in the line. */
 .facts .traces { display: inline; }
+.empty .ways { list-style: none; padding: 0; margin: var(--s2) 0 0; display: grid; gap: var(--s2); }
 .not-found .nearest { list-style: none; padding: 0; margin: 0 0 var(--s5); display: grid; gap: var(--s2); }
 .not-found h2 { font-size: var(--t-h); margin: var(--s5) 0 var(--s2); }
 .facts .trace-shape { font-size: inherit; }
