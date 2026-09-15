@@ -1397,8 +1397,7 @@ function companyRow(company: Company, now: Date, origin: string): string {
         <button type="button" class="mark" data-mark="shortlist" aria-pressed="false">Shortlist</button>
         <button type="button" class="mark" data-mark="seen" aria-pressed="false">Seen</button>
       </span>
-      <button type="button" class="copy-row" hidden>Copy brief</button>
-      <template class="brief">${esc(briefMarkdown(company, `${origin}${BASE_PATH}/c/${company.id}`, now))}</template>
+      <button type="button" class="copy-row" data-brief="${esc(`${BASE_PATH}/c/${company.id}/brief`)}" hidden>Copy brief</button>
     </div>
   </li>`;
 }
@@ -3558,12 +3557,22 @@ export const LIST_SCRIPT = `
     document.addEventListener('click', function (event) {
       var button = event.target.closest ? event.target.closest('button.copy-row') : null;
       if (!button) return;
-      var tpl = button.parentNode.querySelector('template.brief');
-      if (!tpl) return;
-      navigator.clipboard.writeText(tpl.content.textContent).then(function () {
-        button.textContent = 'Copied';
-        setTimeout(function () { button.textContent = 'Copy brief'; }, 1600);
-      }, function () { button.textContent = 'Copy failed'; });
+      // Fetched on the click, not carried by every row: 309 embedded briefs made the list page 1.3MB.
+      // The fetch goes to the clipboard as a promise where the browser allows it, so Safari, which
+      // wants the write inside the click, still copies.
+      var url = button.getAttribute('data-brief');
+      if (!url) return;
+      var done = function () { button.textContent = 'Copied'; setTimeout(function () { button.textContent = 'Copy brief'; }, 1600); };
+      var failed = function () { button.textContent = 'Copy failed'; };
+      button.textContent = 'Copying…';
+      var text = fetch(url).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.text(); });
+      if (window.ClipboardItem && navigator.clipboard.write) {
+        navigator.clipboard.write([new ClipboardItem({ 'text/plain': text.then(function (t) { return new Blob([t], { type: 'text/plain' }); }) })]).then(done, function () {
+          text.then(function (t) { return navigator.clipboard.writeText(t); }).then(done, failed);
+        });
+      } else {
+        text.then(function (t) { return navigator.clipboard.writeText(t); }).then(done, failed);
+      }
     });
   }
 

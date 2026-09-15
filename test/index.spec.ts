@@ -1588,11 +1588,16 @@ describe('searching and one company at a time', () => {
 		expect(brief).toMatch(/## Next step\n- (Ask |Write to |Their |No public contact route)/);
 		expect(brief).toMatch(/Last checked: \d{1,2} [A-Z][a-z]{2} \d{4}, the last run that read a source listing it/);
 
-		// And the same brief rides on the company's row, for copying without opening it.
+		// And the same brief is a click away on the company's row, fetched when copied rather than
+		// carried by every row.
 		const list = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&described=all&kind=all`)).text();
 		const row = list.slice(list.indexOf('id="c-kadamb-biolabs"'), list.indexOf('</li>', list.indexOf('id="c-kadamb-biolabs"')));
-		expect(row).toContain('<button type="button" class="copy-row" hidden>Copy brief</button>');
-		expect(row).toMatch(/<template class="brief"># Kadamb Biolabs\n/);
+		expect(row).toContain('<button type="button" class="copy-row" data-brief="/upstream/c/kadamb-biolabs/brief" hidden>Copy brief</button>');
+		expect(list).not.toContain('<template class="brief">');
+		const fetched = await SELF.fetch(`${ORIGIN}/upstream/c/kadamb-biolabs/brief`);
+		expect(fetched.headers.get('content-type')).toContain('text/markdown');
+		expect(await fetched.text()).toMatch(/^# Kadamb Biolabs\n/);
+		expect((await SELF.fetch(`${ORIGIN}/upstream/c/nobody/brief`)).status).toBe(404);
 
 		// The page lists the same unknowns, and the actions are there for the script.
 		expect(html).toContain('<h2>What is not known</h2>');

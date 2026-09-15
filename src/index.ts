@@ -64,7 +64,7 @@ import { organisationsOf, programmesOf, type ProgrammeSignal } from './programme
 import { accessConfig, identify } from './access';
 import { anthropicCreate, askMode, handleAsk, queryAskLog, renderAskLog } from './ask';
 import { PRIVATE_HEADERS, renderNotebook, renderNoteEditor } from './notes';
-import { BASE_PATH, renderCompanyPage, renderNotFound, renderPage, type AgeChoice, type TierChoice } from './page';
+import { BASE_PATH, briefMarkdown, renderCompanyPage, renderNotFound, renderPage, type AgeChoice, type TierChoice } from './page';
 import { demoCompanies, demoGaps, demoProductOutcomes, demoRegisterOutcomes, splitDemo } from './demo';
 
 const BASE = BASE_PATH;
@@ -1563,6 +1563,15 @@ async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 	});
 }
 
+/** The brief a row's Copy button puts on the clipboard: the same markdown the company page shows. */
+async function companyBrief(id: string, env: Env, url: URL): Promise<Response> {
+	const company = await queryCompany(env, id);
+	if (company === null) return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+	return new Response(briefMarkdown(company, `${url.origin}${BASE_PATH}/c/${company.id}`, new Date()), {
+		headers: { 'content-type': 'text/markdown; charset=utf-8', 'cache-control': PUBLIC_CACHE },
+	});
+}
+
 // --- the question box ------------------------------------------------------
 
 async function askApi(request: Request, env: Env): Promise<Response> {
@@ -1684,7 +1693,13 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
 		// is somebody probing, not a company.
 		if (path.startsWith(`${BASE}/c/`)) {
 			if (!isRead) return methodNotAllowed('GET, HEAD');
-			const id = path.slice(`${BASE}/c/`.length);
+			const rest = path.slice(`${BASE}/c/`.length);
+			// A row's brief, as markdown, fetched when someone copies it.
+			if (/^[^/]+\/brief$/.test(rest)) {
+				const briefId = rest.slice(0, -'/brief'.length);
+				return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyBrief(briefId, env, url));
+			}
+			const id = rest;
 			if (!id || id.includes('/')) return json({ error: 'not found' }, 404);
 			return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyPage(id, env, url));
 		}
