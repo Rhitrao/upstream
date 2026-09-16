@@ -2474,6 +2474,14 @@
   "rule": 1,
   "works": []
  },
+ "fabrica-stellaris-space-technologies": {
+  "checked": "2026-09-16T08:45:52+00:00",
+  "count": 0,
+  "needle": "Fabrica Stellaris Space Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fabrica%20Stellaris%20Space%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "farmassistant": {
   "checked": "2026-09-15T01:50:37+00:00",
   "count": 0,
@@ -3883,6 +3891,14 @@
   "count": 0,
   "needle": "Klonec Automation Systems",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Klonec%20Automation%20Systems%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "konnimart": {
+  "checked": "2026-09-16T08:45:52+00:00",
+  "count": 0,
+  "needle": "Konnimart",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Konnimart%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },
@@ -5627,6 +5643,14 @@
   "count": 0,
   "needle": "Rosa Technology",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rosa%20Technology%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "rotatum-mechatronics": {
+  "checked": "2026-09-16T08:45:52+00:00",
+  "count": 0,
+  "needle": "Rotatum Mechatronics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rotatum%20Mechatronics%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

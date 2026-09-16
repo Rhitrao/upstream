@@ -642,5 +642,65 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-15T08:53:23+00:00",
   "outcome": "timeout"
+ },
+ "extrawatts.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-16T08:40:23+00:00",
+  "outcome": "unavailable"
+ },
+ "eyerov.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-16T08:40:31+00:00",
+  "outcome": "unavailable"
+ },
+ "fabheads.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:41:02+00:00",
+  "outcome": "timeout"
+ },
+ "farmicon.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-16T08:41:09+00:00",
+  "outcome": "unavailable"
+ },
+ "fastsenseinnovations.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:41:41+00:00",
+  "outcome": "timeout"
+ },
+ "fe-rry.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:42:12+00:00",
+  "outcome": "timeout"
+ },
+ "femacare.info": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:42:44+00:00",
+  "outcome": "timeout"
+ },
+ "fermentechlabs.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:43:15+00:00",
+  "outcome": "timeout"
+ },
+ "feynmanenergy.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:43:57+00:00",
+  "outcome": "timeout"
+ },
+ "fibsol.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:44:29+00:00",
+  "outcome": "timeout"
+ },
+ "flashcryogenics.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:45:00+00:00",
+  "outcome": "timeout"
+ },
+ "fluoresight.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-16T08:45:50+00:00",
+  "outcome": "timeout"
  }
 }
