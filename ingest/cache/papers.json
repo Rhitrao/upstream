@@ -7179,6 +7179,14 @@
   "rule": 1,
   "works": []
  },
+ "yumitu-robotics": {
+  "checked": "2026-09-17T08:52:44+00:00",
+  "count": 0,
+  "needle": "Yumitu Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Yumitu%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "zedbee-technologies": {
   "checked": "2026-09-14T16:39:27+00:00",
   "count": 1,
