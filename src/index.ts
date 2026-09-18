@@ -75,6 +75,40 @@ const MAX_LIMIT = 500;
 /** D1 allows at most 100 bound parameters per statement. Leave room for the extras. */
 const BIND_CHUNK = 70;
 
+/**
+ * Every querystring parameter this Worker reads. Anything else is not a view, and the edge cache
+ * files a request under these alone (canonicalUrl).
+ */
+const KNOWN_PARAMS = [
+	'age', 'alone', 'build', 'dates', 'demo', 'described', 'domain', 'dpiit', 'ids', 'kind', 'limit',
+	'noticed', 'programmes', 'q', 'sector', 'site', 'sort', 'source', 'state', 'subsector', 'tier',
+	'traces', 'undated',
+] as const;
+
+/**
+ * The canonical spelling of the view a url asks for: known parameters only, in a fixed order,
+ * empty ones dropped, free text trimmed and capped.
+ *
+ * The edge cache files answers under this rather than the url as typed, because a cold render of
+ * the list costs about ten thousand rows read and every distinct spelling used to buy its own.
+ * `?sub=x`, `?sub=x&utm_campaign=…` and `?ref=…&sub=x` are one page; filing them separately is
+ * how page renders spent 96% of D1's free daily row limit on 15 September 2026. This does not
+ * change what any url returns — only which answers share an entry.
+ */
+function canonicalUrl(url: URL): string {
+	const out = new URL(url.origin + url.pathname.replace(/\/+$/, ''));
+	for (const name of KNOWN_PARAMS) {
+		const raw = url.searchParams.get(name);
+		if (raw === null) continue;
+		const value = raw.trim().slice(0, 200);
+		if (value === '') continue;
+		out.searchParams.set(name, value);
+	}
+	// searchParams sorts, so two orderings of the same filters are one entry.
+	out.searchParams.sort();
+	return out.toString();
+}
+
 // --- helpers ----------------------------------------------------------------
 
 function json(data: unknown, status = 200, cache = 'no-store'): Response {
@@ -1708,11 +1742,11 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
 			// A row's brief, as markdown, fetched when someone copies it.
 			if (/^[^/]+\/brief$/.test(rest)) {
 				const briefId = rest.slice(0, -'/brief'.length);
-				return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyBrief(briefId, env, url));
+				return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyBrief(briefId, env, url), canonicalUrl(url));
 			}
 			const id = rest;
 			if (!id || id.includes('/')) return json({ error: 'not found' }, 404);
-			return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyPage(id, env, url));
+			return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyPage(id, env, url), canonicalUrl(url));
 		}
 
 		// Public reads that change only when an ingest writes are answered from the edge cache.
@@ -1720,7 +1754,7 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
 		const cacheable =
 			isRead && [BASE, `${BASE}/about`, `${BASE}/export.csv`, `${BASE}/api/companies`, `${BASE}/api/coverage`, `${BASE}/api/gaps`, `${BASE}/api/sources`].includes(path) && !(path === BASE && url.searchParams.has('ids'));
 		const cache: EdgeCache = cacheable ? await edgeCache(env, ctx, url.origin) : { enabled: false, key: '', origin: url.origin, ctx };
-		const served = (build: () => Promise<Response>) => cachedResponse(request, cache, build);
+		const served = (build: () => Promise<Response>) => cachedResponse(request, cache, build, canonicalUrl(url));
 
 		switch (path) {
 			case BASE:

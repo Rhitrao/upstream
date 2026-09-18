@@ -111,11 +111,24 @@ export async function bumpDataVersion(env: Env, when: string): Promise<void> {
 	}
 }
 
-export async function cachedResponse(request: Request, cache: EdgeCache, build: () => Promise<Response>): Promise<Response> {
+/**
+ * The url a cached answer is filed under. Not the visitor's url: the canonical spelling of the
+ * view it asked for, with unknown parameters dropped and the known ones in a fixed order
+ * (canonicalUrl in src/index.ts).
+ *
+ * Every distinct spelling used to be its own entry, and a cold render of the list costs about ten
+ * thousand rows read. `?sub=drones`, `?sub=drones&utm_source=x` and `?ref=y&sub=drones` are one
+ * page and were three renders, so a crawler walking the filter links — or any link with a
+ * tracking parameter stapled to it — could mint new ten-thousand-row renders without limit. That
+ * is what spent 96% of the daily row limit on 15 September 2026. Filing by the canonical url
+ * bounds the cache to the views that actually exist.
+ */
+export async function cachedResponse(request: Request, cache: EdgeCache, build: () => Promise<Response>, keyUrl?: string): Promise<Response> {
 	if (request.method !== 'GET' && request.method !== 'HEAD') return build();
+	const filed = keyUrl ?? request.url;
 	// The last good answer for this url, kept outside any version: what a visitor gets if D1
 	// refuses (a spent daily limit, an outage) rather than an error page.
-	const lastUrl = new URL(request.url);
+	const lastUrl = new URL(filed);
 	lastUrl.searchParams.set('__v', 'last-good');
 	const lastKey = new Request(lastUrl.toString(), { method: 'GET' });
 	const stale = async () => {
@@ -141,7 +154,7 @@ export async function cachedResponse(request: Request, cache: EdgeCache, build: 
 		}
 		return build();
 	}
-	const url = new URL(request.url);
+	const url = new URL(filed);
 	url.searchParams.set('__v', cache.key);
 	const key = new Request(url.toString(), { method: 'GET' });
 	const hit = await caches.default.match(key);
@@ -150,7 +163,7 @@ export async function cachedResponse(request: Request, cache: EdgeCache, build: 
 		out.headers.set('x-edge-cache', 'hit');
 		return out;
 	}
-	const storeKey = `page:${new URL(request.url).pathname}${new URL(request.url).search}|${cache.key}`;
+	const storeKey = `page:${new URL(filed).pathname}${new URL(filed).search}|${cache.key}`;
 	const fromD1 = cache.db ? await storeGet(cache.db, storeKey) : null;
 	if (fromD1) {
 		const headers = new Headers(fromD1.meta.headers);

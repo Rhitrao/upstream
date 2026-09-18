@@ -2516,7 +2516,7 @@ describe('the shortlist and the methodology page', () => {
 		const ids = [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 		expect(ids).toEqual(['kept-co', 'label-co']);
 		expect(html).toContain('<h1>Companies you shortlisted</h1>');
-		expect(html).toContain('<meta name="robots" content="noindex">');
+		expect(html).toContain('<meta name="robots" content="noindex, follow">');
 		// One chip for the shortlist, and none for the widened defaults it needs.
 		const chipsHtml = html.slice(html.indexOf('id="chips"'), html.indexOf('</ul>', html.indexOf('id="chips"')));
 		expect(chipsHtml).toContain('Your shortlist (2)');
