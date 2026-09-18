@@ -1873,10 +1873,16 @@ function methodology(view: AboutView): string {
     as well; nothing collects it yet, so for now it does not, and the trace counts on this page are lower than they
     would be.</p>
   <ul class="rules">
-    <li><span class="tier ta">Tier A</span> Added to Upstream by a run under 90 days ago, with no source dating anything about it earlier than 90 days ago, and at most 2 traces. New and quiet. Read these first.</li>
-    <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Early, some visibility.</li>
-    <li><span class="tier tc">Tier C</span> Everything else. Known territory &mdash; listed, not promoted.</li>
+    <li><span class="tier ta">Tier A</span> Added to Upstream by a run under 90 days ago, with no source dating anything about it earlier than 90 days ago, and at most 2 traces. Recently on record, and carrying the fewest public traces of anything here.</li>
+    <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Recently on record, with some public visibility already.</li>
+    <li><span class="tier tc">Tier C</span> Everything else. Longer on record, or more widely traced.</li>
   </ul>
+  <p class="unvalidated"><strong>The tiers are unvalidated.</strong> They describe how recently a company reached a
+    public record and how little of it is published &mdash; nothing more. No one has tested whether a Tier A company is
+    a better research call than a Tier C one, because that would need outcomes this project does not have and cannot
+    currently collect: which calls were taken, which led anywhere, what happened next. The ordering is an argument about
+    where public information is thinnest, not a finding about where value is. Treat it as a way to see companies you
+    would otherwise not see, and not as a recommendation about which to call.</p>
   <p>Neither A nor B is open to a company whose only description is a list's label &mdash; the DPIIT register's dropdown, or the category a BIRAC grant list filed its award under. That is enough to
     list a company and to place it where the label names a sub-sector outright; it is not enough to call it a find.</p>
   <p>This will sometimes put a company nobody has heard of above a famous one. That is the point, not a bug.</p>
@@ -1899,17 +1905,21 @@ function methodology(view: AboutView): string {
     customers want the thing, whether anyone will pay for it, or whether a market exists. Those are separate questions,
     and this page does not answer any of them.</p>
 
-  <h3 id="crosswalk">Two official classifications that do not meet</h3>
+  <h3 id="crosswalk">One classifier run suggests the two official classifications may not line up</h3>
   <p>DPIIT's recognition register files every startup under its own industry vocabulary &mdash; 56 industries, chosen
     by the founder from a list when they applied. The RDI scheme has 44 sub-sectors, written by a different department
-    for a different purpose. Neither was drawn up with the other in mind, and putting the same companies through both
-    shows how little they overlap.</p>
-  <p>Where the two vocabularies happen to have a near-twin, a company places almost automatically: left to the
-    classifier on the run of ${CROSSWALK.run}, DPIIT's &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent
-    Systems &amp; Robotics&rdquo; placed ${CROSSWALK.robotics[0]} of ${CROSSWALK.robotics[1]}. Where they have none, almost nothing placed: ${CROSSWALK.vision[0]} of ${CROSSWALK.vision[1]} for &ldquo;Computer
-    Vision&rdquo;, ${CROSSWALK.ai[0]} of ${CROSSWALK.ai[1]} for &ldquo;AI&rdquo;. Same companies, same government, two filing systems that, as this
-    classifier maps them, do not meet. That is a finding about the two vocabularies as read by one model from one-line
-    labels, not a fault in either, and not a reviewed crosswalk.</p>
+    for a different purpose. Neither was drawn up with the other in mind.</p>
+  <p>Putting the same companies through both, on <strong>one run, with one model and one prompt</strong>, on
+    ${CROSSWALK.run}: where the two vocabularies happen to have a near-twin a company placed almost automatically
+    &mdash; DPIIT's &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent Systems &amp; Robotics&rdquo; placed
+    ${CROSSWALK.robotics[0]} of ${CROSSWALK.robotics[1]}. Where they have none, almost nothing placed:
+    ${CROSSWALK.vision[0]} of ${CROSSWALK.vision[1]} for &ldquo;Computer Vision&rdquo;, ${CROSSWALK.ai[0]} of
+    ${CROSSWALK.ai[1]} for &ldquo;AI&rdquo;.</p>
+  <p class="unvalidated"><strong>This is n=1 and should be read that way.</strong> It is one classifier's behaviour on
+    one-line labels on a single day &mdash; not re-run, not tried against a second model or prompt, and not checked by
+    hand against a reviewed crosswalk. The gap it points at may be real, or may be an artefact of how one prompt read
+    short strings. It is a reason to look, and worth rechecking before anyone leans on it. It is not a fault in either
+    vocabulary.</p>
   <p>Those few placements were also where the classifier guessed: five &ldquo;AI / NLP&rdquo; records had gone into AI in
     Healthcare. So a register label now keeps a company on the map only where the label names the sub-sector outright
     &mdash; &ldquo;Space Technology&rdquo;, &ldquo;Robotics&rdquo;, &ldquo;Electronics&rdquo; &mdash; and a company whose
@@ -2541,9 +2551,11 @@ ${nav('company')}
     </details>
     <details class="method-fold">
       <summary>Where it ranks</summary>
-      <p class="rank-line">${company.tier === 'A' ? 'New and quiet (Tier A)' : company.tier === 'B' ? 'Recent (Tier B)' : 'Listed, not promoted (Tier C)'}</p>
+      <p class="rank-line">${company.tier === 'A' ? 'Recently on record, fewest traces (Tier A)' : company.tier === 'B' ? 'Recently on record, some traces (Tier B)' : 'Longer on record, or more widely traced (Tier C)'}</p>
       <p class="provenance">${esc(whyOnList(company))}</p>
       <p class="provenance">${whyTier(company)}</p>
+      <p class="provenance">A tier says how recently this company reached a public record and how little of it is
+        published. It is not a rating, and nothing has tested whether one tier is a better research call than another.</p>
     </details>
   </section>
 </div>
@@ -3400,6 +3412,9 @@ input[type='search']:focus { border-color: var(--ink); box-shadow: var(--focus);
 .snapshot td.snap-n { font-family: var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .snapshot td:last-child { color: var(--muted); min-width: 22rem; }
 .cells-caveat { margin-top: 0.5rem; }
+/* A limit the reader has to see, not one they have to go looking for. */
+.unvalidated { font-size: var(--t-sm); color: var(--ink); max-width: var(--measure);
+  border-left: 3px solid var(--rule-strong); padding: 0.1rem 0 0.1rem 0.85rem; margin: 0.9rem 0; }
 /* The classifier's reasoning, printed as written. Set apart so it cannot be mistaken
    for the page speaking in its own voice. */
 .note-verbatim {

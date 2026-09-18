@@ -65,7 +65,7 @@ export const SNAPSHOT_TERMS: { term: string; value: (s: Snapshot) => string; mea
 		term: 'Records seen',
 		value: (s) => `${s.recordsSeen.toLocaleString('en-IN')}`,
 		means:
-			'Distinct records read from those sources, after entries naming the same company were folded together. Not companies: a record can be a research project or a name with nothing behind it.',
+			'Records read from those sources. Not companies: a record can be a research project or a name with nothing behind it. Treat this as an upper bound — duplicates are folded only where two names match once punctuation and legal suffixes are removed, or where a person read the pair and wrote it into ingest/aliases.json. Two sources spelling one company differently enough to defeat that test are still two records here.',
 	},
 	{
 		term: 'Placed',

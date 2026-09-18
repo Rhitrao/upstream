@@ -965,7 +965,13 @@ describe('GET /upstream (the page)', () => {
 		expect(rowOf('from-label')).not.toContain('register label only');
 
 		// And the finding is written up, not just marked, on the methodology page.
-		expect(await about()).toContain('Two official classifications that do not meet');
+		expect(await about()).toContain('One classifier run suggests the two official classifications may not line up');
+		// And it is framed as the single run it is, not as a settled finding.
+		expect(await about()).toContain('This is n=1 and should be read that way.');
+		// The tiers say what they select for and admit they have never been tested against outcomes.
+		// Losing this sentence would turn a description back into a recommendation.
+		expect(await about()).toContain('<strong>The tiers are unvalidated.</strong>');
+		expect(await about()).not.toContain('Read these first');
 	});
 
 	it('lets a register label place a company in a sub-sector and no further', async () => {
@@ -1232,7 +1238,7 @@ describe('GET /upstream (the page)', () => {
 		const tier = await env.DB.prepare('SELECT tier FROM companies WHERE id = ?').bind('spaceock').first<any>();
 		expect(tier.tier).toBe('A');
 		// Its page says why in words, not a letter; the row carries no tier at all.
-		expect(await detail('spaceock')).toContain('New and quiet (Tier A)');
+		expect(await detail('spaceock')).toContain('Recently on record, fewest traces (Tier A)');
 	});
 
 	it('opens on everything when the only B row is one the age gate holds back', async () => {
@@ -1660,7 +1666,7 @@ describe('searching and one company at a time', () => {
 		// And the tier, with the rule that produced it rather than just the letter.
 		// Kadamb was placed from a register label, and that is the rule that decided.
 		expect(html).toContain('<summary>Where it ranks</summary>');
-		expect(html).toContain('Listed, not promoted (Tier C)');
+		expect(html).toContain('Longer on record, or more widely traced (Tier C)');
 		expect(html).toContain("is a register's dropdown label");
 	});
 

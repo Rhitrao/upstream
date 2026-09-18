@@ -35,7 +35,7 @@ that move every night; these do not, and every argument below rests on these.
 | Number | As of 17 Sep 2026 | What it counts |
 | --- | --- | --- |
 | **Sources** | 8 configured, 7 contributing | Scrapers in the pipeline. One of the eight (the NM-ICPS technology hubs list) had put no record on the page by this date, so seven is the number that earned a row. |
-| **Records seen** | 2,218 | Distinct records read from those sources, after entries naming the same company were folded together. Not companies: a record can be a research project or a name with nothing behind it. |
+| **Records seen** | 2,218 | Records read from those sources. Not companies: a record can be a research project or a name with nothing behind it. **Treat this as an upper bound** — duplicates are folded only where two names match once punctuation and legal suffixes are removed, or where a person read the pair and wrote it into `ingest/aliases.json`. Two sources spelling one company differently enough to defeat that test are still two records here. |
 | **Placed** | 753 | Records given a row on the page and one of the 44 RDI sub-sectors. These are the only records the page shows. They fall in 36 of the 44 sub-sectors. |
 | **Dropped** | 1,465 | Records read but not placed, each kept in the `gaps` table with the reason. Dropped is not rejected: most were too thinly described to classify, not judged uninteresting. |
 | **Companies** | 618 | Placed records whose entity type is a company. The other 135 are unverified names, research projects and one laboratory, counted beside the companies and never inside them. |
@@ -60,7 +60,7 @@ Companies are placed in the Government of India's RDI Scheme taxonomy — 5 sunr
 sub-sectors — rather than a list of my own, because an empty cell in the government's list means
 something and an empty cell in mine would not. ([005](docs/decisions/005-rdi-taxonomy.md))
 
-**1. The scheme's priorities and the records' public trail barely overlap.** On 17 September 2026,
+**1. Where the scheme's priorities and these records meet is narrower than the scheme is.** On 17 September 2026,
 **8 of the 44 sub-sectors held no record** — among them modular nuclear reactors, fusion,
 seaweed-based energy, methane capture, ocean farming and photonics. In the other direction, 1,465
 records were read and dropped without reaching a sub-sector at all. The largest clusters are
@@ -73,26 +73,28 @@ not reach that work. Incubator portfolios and a startup register are not where f
 farming would show up first, so for several of the empty cells the second explanation is the more
 likely one. Neither count has been reviewed by hand. They are places to look, not proof.
 
-**2. Two government vocabularies do not meet.** DPIIT's startup register files companies under 56
-industries picked by the founder from a dropdown; the RDI scheme was written by another department.
-Left to the classifier, where the two have a near-twin companies place almost automatically —
-"Robotics" placed 79 of 80 — and where they have none almost nothing does: 3 of 87 for "Computer
-Vision", 7 of 83 for "AI". That is a finding about two filing systems as one model reads one-line
-labels, not a reviewed crosswalk. It also showed the risk: "AI / NLP" had put five companies in AI in
-Healthcare. Since 14 September a register label places a company only where it names the sub-sector
-outright, which withdrew 157 placements, those five among them.
+**2. One classifier run suggests the two government vocabularies may not line up.** DPIIT's startup
+register files companies under 56 industries picked by the founder from a dropdown; the RDI scheme
+was written by another department. On **one run, on 14 September 2026, with one model and one
+prompt**, where the two vocabularies have a near-twin a company placed almost automatically —
+"Robotics" placed 79 of 80 — and where they have none almost nothing did: 3 of 87 for "Computer
+Vision", 7 of 83 for "AI". The same run also showed the risk in the other direction: "AI / NLP" had
+put five companies in AI in Healthcare. Since 14 September a register label places a company only
+where it names the sub-sector outright, which withdrew 157 placements, those five among them.
 ([008](docs/decisions/008-two-call-classification.md))
 
-*The counts in this second finding are from the 14 September 2026 classification replay, not the
-17 September snapshot above: they describe a one-off experiment on how the two vocabularies map,
-which has not been re-run. Every other number in this README is from the 17 September snapshot.*
+*This is n=1 and should be read that way.* It has not been re-run, not tried against a second model
+or a second prompt, and not checked by hand against a reviewed crosswalk. A single classifier's
+behaviour on one-line labels is weak evidence about two filing systems; the gap it points at may be
+real, or may be an artefact of how one prompt read short strings on one day. It is worth rechecking
+before anyone leans on it. Every other number in this README is from the 17 September snapshot.
 
 ## The funnel, every record accounted for
 
 The database as of 17 September 2026, the same snapshot as the table above:
 
 ```
-2,218  records seen, after entries naming the same company were folded together
+2,218  records seen (an upper bound: see the dedup caveat above)
   753  placed: given a row and one of the 44 RDI sub-sectors, in 36 of the 44
          618  entity type "company"
          135  unverified names, research projects, one laboratory
