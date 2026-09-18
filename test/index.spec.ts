@@ -2483,7 +2483,9 @@ describe('arriving cold, and not getting stuck', () => {
 		expect(home).toContain('<a href="/upstream/c/grinntech">Grinntech Motors</a>');
 		expect(home).toContain('<label for="q" class="search-label">Find companies</label>');
 		expect(home).toContain('placeholder="Search companies or technologies"');
-		expect(home).toContain('<strong>2</strong> records from 8 public sources');
+		// How many sources are read, not how many earned a row: "records from 8 public sources" would
+		// assert that all eight contributed, and on 17 September one of them had contributed none.
+		expect(home).toContain('<strong>2</strong> records &middot; 8 public sources read');
 		// A preset is a link to the same sub-sector filter the form sets, and only where the records hold any.
 		expect(home).toContain('<a class="preset" href="/upstream?subsector=1.4#list">Energy Storage</a>');
 		expect(home).not.toContain('>Medical Devices &amp; Diagnostics</a>');

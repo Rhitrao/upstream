@@ -761,7 +761,11 @@ function coverageLine(view: PageView): string {
 	const health = view.sourceHealth.filter((h) => (SOURCES as readonly string[]).includes(h.source));
 	const latest = health.map((h) => h.last_success ?? '').sort().pop();
 	const failing = health.filter((h) => h.last_status !== 'ok').length;
-	const parts = [`<strong>${view.tracked}</strong> records from ${configured} public sources`];
+	// "records from 8 public sources" asserts that all eight put records here, and on 17 September
+	// one of them (NM-ICPS) had contributed none. How many sources are read is a fact about the
+	// pipeline; how many earned a row is a different number, and it is on the methodology page
+	// rather than guessed at from the filtered counts this view happens to hold.
+	const parts = [`<strong>${view.tracked}</strong> records &middot; ${configured} public sources read`];
 	if (latest) parts.push(`sources last checked ${shortDate(latest.slice(0, 10))}${failing ? ` (${failing} failed ${failing === 1 ? 'its' : 'their'} last check)` : ''}`);
 	parts.push(`<a href="${esc(`${BASE_PATH}/about`)}">How the data is collected</a>`);
 	return `<p class="coverage-line">${parts.join(' &middot; ')}</p>`;
