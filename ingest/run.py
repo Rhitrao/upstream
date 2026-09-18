@@ -693,7 +693,13 @@ def main() -> int:
     else:
         print("  no classification failures")
     for verdict in unhealthy:
-        print(f"  SOURCE {verdict.status.upper()} — {verdict.source}: {verdict.reason}. Nothing uploaded from it; its rows from the last good run stand.")
+        if health.expected(verdict):
+            # Not "SOURCE FAILED": the workflow's summary step greps for that phrase.
+            print(f"  expected failure — {verdict.source}: {health.EXPECTED_FAILURES[verdict.source]}. Set aside as usual; not alarming.")
+        else:
+            print(f"  SOURCE {verdict.status.upper()} — {verdict.source}: {verdict.reason}. Nothing uploaded from it; its rows from the last good run stand.")
+    for source in sorted(set(health.EXPECTED_FAILURES) & set(by_source)):
+        print(f"  {source} answered this run: take it off health.EXPECTED_FAILURES")
     print(f"  sources: {len(by_source)} ok, {len(unhealthy)} set aside{' — ' + ', '.join(v.source for v in unhealthy) if unhealthy else ''}")
     print(f"  companies: {len(unique)} seen, {len(placed)} placed, {dropped} dropped")
     print(f"  classification: {usage}")
@@ -705,8 +711,9 @@ def main() -> int:
     #
     # A source that failed or was set aside is not survivable in that sense: the page
     # now carries data that is older than the run's date, and the job has to go red so
-    # somebody looks. Everything healthy has already been uploaded by this point.
-    return 3 if unhealthy else 0
+    # somebody looks. Everything healthy has already been uploaded by this point. A source
+    # on health.EXPECTED_FAILURES is the exception: already known, already on the page.
+    return 3 if health.alarming(unhealthy) else 0
 
 
 if __name__ == "__main__":

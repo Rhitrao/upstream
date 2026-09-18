@@ -56,3 +56,27 @@ class ScrapingRecordsWhatHappened(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExpectedFailures(unittest.TestCase):
+    """A red run has to mean something new, or nobody reads it."""
+
+    def test_a_known_blocked_source_failing_to_connect_does_not_alarm(self):
+        verdict = health.failed("nmicps-tih", "ConnectTimeout: nmicpsbck.nmicps.gov.in timed out")
+        self.assertTrue(health.expected(verdict))
+        self.assertEqual(health.alarming([verdict]), [])
+
+    def test_it_is_still_set_aside_and_recorded_as_failed(self):
+        verdict = health.failed("nmicps-tih", "ConnectTimeout")
+        self.assertEqual(verdict.status, health.FAILED)
+        self.assertEqual(verdict.payload()["status"], "failed")
+
+    def test_the_same_source_answering_with_nothing_is_a_new_fault(self):
+        verdict = health.judge("nmicps-tih", 0, None)
+        self.assertFalse(health.expected(verdict))
+        self.assertEqual(health.alarming([verdict]), [verdict])
+
+    def test_a_source_that_normally_works_still_alarms_beside_an_expected_one(self):
+        blocked = health.failed("nmicps-tih", "ConnectTimeout")
+        broken = health.failed("rtbi-iitm", "ValueError: no portfolio blocks")
+        self.assertEqual(health.alarming([blocked, broken]), [broken])

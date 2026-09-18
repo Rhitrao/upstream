@@ -1816,7 +1816,10 @@ function sourceStatus(view: AboutView): string {
     <thead><tr><th scope="col">Source</th><th scope="col">Last check</th><th scope="col">Newest data</th></tr></thead>
     <tbody>${[...SOURCES, ...evidenceOnly].map(row).join('')}</tbody>
   </table></div>
-  <p class="provenance">A check that answered means the source was read, not that a person verified each record.</p>`;
+  <p class="provenance">A check that answered means the source was read, not that a person verified each record.</p>
+  <p class="provenance">The NM-ICPS server answers in 0.2 seconds from a machine in India and times out from GitHub&rsquo;s
+    runners, where the daily check runs, every time. Our best guess, unconfirmed, is that it blocks traffic from outside
+    India or from cloud hosts.</p>`;
 }
 
 /**

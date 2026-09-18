@@ -127,7 +127,9 @@ Measured, not guessed. All figures below are from the same 17 September 2026 sna
 - **Eight sources, seven of them contributing.** Five incubators (SINE IIT Bombay, IIT Madras
   Incubation Cell, Venture Center, FSID at IISc, TIDES at IIT Roorkee), grant programmes typed up by
   hand, and the newest pages of the DPIIT register. The eighth, the NM-ICPS innovation hubs list, is
-  configured but has put no record on the page. No patents, no MCA incorporations, no other
+  configured but has put no record on the page: its server answers in 0.2 seconds from a machine in
+  India and times out from GitHub's runners, where the daily check runs, every time. Best guess,
+  unconfirmed: it blocks traffic from outside India or from cloud hosts. No patents, no MCA incorporations, no other
   incubators. Tidy portfolio pages are over-represented.
 - **Founders only where an incubator names them; no funding, revenue or registration numbers.** 343
   of 753 rows carry founder names an incubator prints, attributed to that card. `cin` is empty on

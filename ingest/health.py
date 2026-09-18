@@ -15,6 +15,8 @@ So each source is judged against its own last good run:
 A failed or quarantined source uploads nothing, so the rows it put on the page last
 time stay as they are. The run still uploads the healthy sources, records every
 verdict with /api/source-runs, and exits non-zero so the Actions job goes red.
+The one exception is a source on EXPECTED_FAILURES below: known to be unreachable, already
+reported as failing on the page, and so not worth waking anyone for again.
 """
 
 from __future__ import annotations
@@ -65,6 +67,28 @@ def judge(source: str, records: int, previous: int | None, data_as_of: str | Non
 
 def failed(source: str, error: str) -> Verdict:
     return Verdict(source, FAILED, 0, reason=error[:300] or "the scraper raised")
+
+
+# Sources known to be unreachable from the runner, and already reported as failing on the
+# page. Each is still set aside and still recorded as failed; it just does not turn the job
+# red, because a red job that is red every morning for the same known reason teaches
+# everyone to stop reading it. Only a failure to connect is expected: if a listed source
+# answers and returns nothing, that is a new fault and it alarms like any other.
+EXPECTED_FAILURES = {
+    # Answers in 0.2s from a machine in India; connect timeout from GitHub's runners on
+    # every run since it was added on 15 September 2026. Probably blocks traffic from
+    # outside India or from cloud hosts; unconfirmed.
+    "nmicps-tih": "unreachable from GitHub's runners",
+}
+
+
+def expected(verdict: Verdict) -> bool:
+    return verdict.status == FAILED and verdict.source in EXPECTED_FAILURES
+
+
+def alarming(verdicts: list[Verdict]) -> list[Verdict]:
+    """The set-aside sources that should turn the run red: everything not expected."""
+    return [v for v in verdicts if v.status != OK and not expected(v)]
 
 
 def history(base_url: str) -> dict[str, dict]:
