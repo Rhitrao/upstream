@@ -1,25 +1,53 @@
 # Upstream
 
-**Live at [rohitrao.in/upstream](https://rohitrao.in/upstream)** · public data only · every claim links to where it came from
+**Live at [rohitrao.in/upstream](https://rohitrao.in/upstream)** · source at
+[github.com/Rhitrao/upstream](https://github.com/Rhitrao/upstream) · public data only · every claim
+links to where it came from
 
 ## The inversion
 
 Every list of startups ranks by how impressive a company looks: funding, press, investors,
-founders' pedigree. That is why every fund keeps finding the same twenty names — the signals are
-public at the same moment for everyone.
+founders' pedigree. Those signals become public at the same moment for everyone. Incubator and
+grant records do not work that way: **some early-stage companies appear in them before they are
+easy to find anywhere else.** That is a claim about what public records contain and when, and it
+is the only claim this project makes about sourcing.
 
-Upstream ranks the other way. **One incubator listing and no website beats a known name and a press
-cycle.** Two facts decide where a company sits: how recently it first appeared in a public record,
-and how few public traces it has left. No score, no pedigree, nothing about the founder's degree or
-the investor. It will sometimes put a company nobody has heard of above a famous one. That is the
-point. ([001](docs/decisions/001-rank-by-obscurity.md))
+Upstream ranks the other way round from the lists above. **One incubator listing and no website
+beats a known name and a press cycle.** Two facts decide where a company sits: how recently it
+first appeared in a public record, and how few public traces it has left. No score, no pedigree,
+nothing about the founder's degree or the investor. It will sometimes put a company nobody has
+heard of above a famous one. That is the point.
+([001](docs/decisions/001-rank-by-obscurity.md))
 
-The page counts substance, not coverage. It opens on the **387 companies a published sentence
-describes** — 166 of them with one public trace or none — and counts the rest beside that number
-rather than inside it: 191 records the DPIIT register knows only by name and dropdown industry, and 29
-research projects and unverified names (14 September 2026). Under the headline, four findings about
-Indian deep-tech sourcing, each number a link to the rows that prove it. Every row carries a brief to
-copy: what it builds, why it is here, the open questions, the evidence, its limits and a next step.
+The page counts substance, not coverage. It opens on the records a published sentence describes and
+counts the rest — register labels, research projects, unverified names — beside that number rather
+than inside it. Under the headline, findings about Indian deep-tech sourcing, each number a link to
+the rows that prove it. Every row carries a brief to copy: what it builds, why it is here, the open
+questions, the evidence, its limits and a next step.
+
+## The figures, as of 17 September 2026
+
+One dated set of counts, taken from the database as the ingest run of `2026-09-17T08:58:42Z` left
+it. The same table is on the [methodology page](https://rohitrao.in/upstream/about#snapshot), from
+the same source file (`src/snapshot.ts`), so the two cannot drift apart. The live site shows counts
+that move every night; these do not, and every argument below rests on these.
+
+| Number | As of 17 Sep 2026 | What it counts |
+| --- | --- | --- |
+| **Sources** | 8 configured, 7 contributing | Scrapers in the pipeline. One of the eight (the NM-ICPS technology hubs list) had put no record on the page by this date, so seven is the number that earned a row. |
+| **Records seen** | 2,218 | Distinct records read from those sources, after entries naming the same company were folded together. Not companies: a record can be a research project or a name with nothing behind it. |
+| **Placed** | 753 | Records given a row on the page and one of the 44 RDI sub-sectors. These are the only records the page shows. They fall in 36 of the 44 sub-sectors. |
+| **Dropped** | 1,465 | Records read but not placed, each kept in the `gaps` table with the reason. Dropped is not rejected: most were too thinly described to classify, not judged uninteresting. |
+| **Companies** | 618 | Placed records whose entity type is a company. The other 135 are unverified names, research projects and one laboratory, counted beside the companies and never inside them. |
+| **Described** | 525 | Placed records carrying a published sentence saying what they do — 180 quoted from a website confirmed as theirs, 345 from the source that listed them. The remaining 228 have only a register or grant label. |
+
+Placed and dropped account for every record seen (753 + 1,465 = 2,218), and companies for every
+record placed (618 + 135 = 753).
+
+**If the live site is down, the evidence is still here.** All 753 placed records, with their
+evidence columns, are committed as [`docs/snapshot-2026-09-17.csv`](docs/snapshot-2026-09-17.csv)
+and described in [`docs/snapshot-2026-09-17.md`](docs/snapshot-2026-09-17.md). Nothing in this
+README depends on a scrape completing.
 
 It only works if the page is honest about what it does not know, so it names its gaps instead of
 filling them: "No description published", "founding year unknown", "website not confirmed as
@@ -32,14 +60,18 @@ Companies are placed in the Government of India's RDI Scheme taxonomy — 5 sunr
 sub-sectors — rather than a list of my own, because an empty cell in the government's list means
 something and an empty cell in mine would not. ([005](docs/decisions/005-rdi-taxonomy.md))
 
-**1. The scheme's priorities and the companies' public trail barely overlap.** Replaying the 14
-September 2026 run under the current rules, 10 of the 44 sub-sectors had nothing in them, among
-them modular nuclear reactors, fusion, seaweed-based energy, methane capture, ocean farming and
-photonics. In the other direction, 560
-companies fit a sector and no sub-sector in it. The largest clusters on the page are computer vision
-applications, IoT platforms, enterprise AI, renewable energy infrastructure and drones. Neither
-count has been reviewed by hand, so they are places to look, not proof. An empty cell is also a
-blind spot in five sources, not evidence that nothing exists.
+**1. The scheme's priorities and the records' public trail barely overlap.** On 17 September 2026,
+**8 of the 44 sub-sectors held no record** — among them modular nuclear reactors, fusion,
+seaweed-based energy, methane capture, ocean farming and photonics. In the other direction, 1,465
+records were read and dropped without reaching a sub-sector at all. The largest clusters are
+computer vision applications, IoT platforms, enterprise AI, renewable energy infrastructure and
+drones.
+
+**An empty cell is not a finding about the market.** It has two possible causes and this project
+cannot currently tell them apart: either nobody in India is building there, or the eight sources do
+not reach that work. Incubator portfolios and a startup register are not where fusion or ocean
+farming would show up first, so for several of the empty cells the second explanation is the more
+likely one. Neither count has been reviewed by hand. They are places to look, not proof.
 
 **2. Two government vocabularies do not meet.** DPIIT's startup register files companies under 56
 industries picked by the founder from a dropdown; the RDI scheme was written by another department.
@@ -48,72 +80,75 @@ Left to the classifier, where the two have a near-twin companies place almost au
 Vision", 7 of 83 for "AI". That is a finding about two filing systems as one model reads one-line
 labels, not a reviewed crosswalk. It also showed the risk: "AI / NLP" had put five companies in AI in
 Healthcare. Since 14 September a register label places a company only where it names the sub-sector
-outright, which withdrew 157 placements in the replay below, those five among them. ([008](docs/decisions/008-two-call-classification.md))
+outright, which withdrew 157 placements, those five among them.
+([008](docs/decisions/008-two-call-classification.md))
 
-## The funnel, one run, every number accounted for
+*The counts in this second finding are from the 14 September 2026 classification replay, not the
+17 September snapshot above: they describe a one-off experiment on how the two vocabularies map,
+which has not been re-run. Every other number in this README is from the 17 September snapshot.*
 
-The ingest run of 14 September 2026, replayed at $0 from the committed cache with the current rules:
+## The funnel, every record accounted for
+
+The database as of 17 September 2026, the same snapshot as the table above:
 
 ```
-1,708  listings read from five public sources
-  −45  the same company in two or three sources
-1,663  distinct companies
-  −69  not yet classified: 65 Venture Center companies left at run #3's $0.45 ceiling,
-       and 4 DPIIT records that arrived after it
-1,594  classified
-         582  placed in one of the 44 sub-sectors
-                418  from a description of what the company does
-                164  from a register label that names that sub-sector outright
-         560  fit a sector, no sub-sector in it          → "Unmapped" on the page
-         304  too thinly described to place                → "Could not describe"
-                157  of these the model had placed from a label that does not name the cell
-         148  fit no sunrise sector at all
+2,218  records seen, after entries naming the same company were folded together
+  753  placed: given a row and one of the 44 RDI sub-sectors, in 36 of the 44
+         618  entity type "company"
+         135  unverified names, research projects, one laboratory
+         ── of the 753, by whose words say what it does ──
+         180  a sentence quoted from a website confirmed as theirs
+         345  a sentence from the source that listed it
+         228  a register or grant label only
+1,465  dropped: read but not placed, each kept in `gaps` with the reason
 ```
 
-582 + 560 + 304 + 148 = 1,594. The page counts from its own database, which also keeps companies a
-source has since stopped listing, so its totals run a little higher than one run's.
+753 + 1,465 = 2,218, and 618 + 135 = 753. "Dropped" is not "rejected": the great majority were too
+thinly described to classify, not judged uninteresting.
 
-Two more numbers about what "early" means here, from the live database after that night's run
-withdrew the label guesses. Of 607 records on the page, **25** were discovered — seen for the first time in a later run of a source
-already being watched; the rest came from a source's first sweep, which is a backfill and not a
-find ([003](docs/decisions/003-first-seen-honesty.md)). **23 of those 25 were register records with
-nothing but a label**, which is why a label alone no longer qualifies for Tier A or B. And **372 of
-607** had left one public trace or none.
+Two more numbers about what "early" means here. Of the 753 records, **49** were discovered — seen
+for the first time in a later run of a source already being watched. The rest came from a source's
+first sweep, which is a backfill and not a find
+([003](docs/decisions/003-first-seen-honesty.md)). **21 of those 49 were register records with
+nothing but a label**, which is why a label alone no longer qualifies for Tier A or B. And **384 of
+the 753** had left one public trace or none.
 
 ## What it misses
 
-Measured, not guessed.
+Measured, not guessed. All figures below are from the same 17 September 2026 snapshot.
 
-- **No LinkedIn, so no stealth companies.** A chosen constraint: every claim must link to a page
-  anyone can open, and LinkedIn is the network this list is trying to get ahead of.
-  ([006](docs/decisions/006-no-linkedin.md))
-- **Five sources.** Three incubators (SINE IIT Bombay, IIT Madras RTBI, Venture Center), two grant
-  programmes typed up by hand, and the newest pages of the DPIIT register. No patents, no MCA
-  incorporations, no other incubators. Tidy portfolio pages are over-represented.
-- **Founders only where an incubator names them; no funding, revenue or registration numbers.** 298
-  of 607 rows carry the founder names SINE IIT Bombay, Venture Center or IITM RTBI print, attributed
-  to that card. `cin` is empty on every row, so nothing joins to MCA filings, and the grant lists
-  publish no amounts.
-- **Being on the DPIIT register is not being recognised.** Of the 191 register rows with a cached
-  record on 14 September, 130 were recognised, 58 had a Startup India profile DPIIT never
-  recognised, and 3 had lapsed. Each row now says which; until then all of them read "DPIIT recognised".
-- **Contact and domain age only from a website checked to be theirs.** An address on the company's
-  own domain or a contact page, from 143 of 190 readable verified homepages, and the domain's RDAP
-  registration date for 208 of 220 domains. A domain's age is not the company's. .co and .io have no
-  public RDAP service, so those domains have no date. The Wayback Machine's first copy of the homepage
-  is shown the same way, as when the public web noticed the page; neither date ever dates the row
-  (98 of 170 undated rows have a domain date on 15 September, and none of those domains is recent
-  enough to reach Tier B if it did). The archive is often down, so a failed lookup is kept as a failure
-  and asked again, never as "not archived".
-- **Most rows cannot say what the company builds.** Only a homepage checked to be theirs is read, and
-  what it says is quoted as their words. 115 of 607 rows have such a sentence; 252 publish a website
-  at all. ([009](docs/decisions/009-homepage-product-read.md))
-- **Location is known for fewer than half.** 234 of 607 rows have a state, 197 of them because the
+- **This tool cannot identify or verify stealth companies at all.** That is the honest statement, and
+  it is a limit, not a feature. Reading no LinkedIn is a chosen constraint — every claim must link to
+  a page anyone can open — but it should not be read as evidence about stealth companies in either
+  direction. A company with no public record does not appear here, and nothing here indicates whether
+  such companies are few or many. ([006](docs/decisions/006-no-linkedin.md))
+- **Eight sources, seven of them contributing.** Five incubators (SINE IIT Bombay, IIT Madras
+  Incubation Cell, Venture Center, FSID at IISc, TIDES at IIT Roorkee), grant programmes typed up by
+  hand, and the newest pages of the DPIIT register. The eighth, the NM-ICPS innovation hubs list, is
+  configured but has put no record on the page. No patents, no MCA incorporations, no other
+  incubators. Tidy portfolio pages are over-represented.
+- **Founders only where an incubator names them; no funding, revenue or registration numbers.** 343
+  of 753 rows carry founder names an incubator prints, attributed to that card. `cin` is empty on
+  every row, so nothing joins to MCA filings, and the grant lists publish no amounts.
+- **Being on the DPIIT register is not being recognised.** Of the 196 rows with a register record,
+  140 were recognised, 52 had a Startup India profile DPIIT never recognised, and 4 had lapsed. Each
+  row says which.
+- **Contact and domain age only from a website checked to be theirs.** 235 of 753 rows have an
+  address on the company's own domain or a contact page; 341 have the domain's RDAP registration
+  date. A domain's age is not the company's. .co and .io have no public RDAP service, so those
+  domains have no date. The Wayback Machine's first copy of the homepage is shown the same way, as
+  when the public web noticed the page; neither date ever dates the row. The archive is often down,
+  so a failed lookup is kept as a failure and asked again, never as "not archived".
+- **Most rows cannot say what the company builds in its own words.** Only a homepage checked to be
+  theirs is read, and what it says is quoted as their words. 180 of 753 rows have such a sentence;
+  408 publish a website at all, and 368 of those have been confirmed as the company's own.
+  ([009](docs/decisions/009-homepage-product-read.md))
+- **Location is known for fewer than half.** 233 of 753 rows have a state, 196 of them because the
   DPIIT register publishes one. The state tiles say how many are unknown.
 - **Duplicates are caught only two ways.** A company two sources spell differently is folded into one
   row when the names match once punctuation and legal suffixes are gone, or when a person has read
-  the pair and written it into `ingest/aliases.json` with the reason. Seven pairs were found and folded
-  on 14 September ([near-duplicates](docs/near-duplicates-2026-09-14.md)); a pair nobody has read stays two rows.
+  the pair and written it into `ingest/aliases.json` with the reason
+  ([near-duplicates](docs/near-duplicates-2026-09-15.md)); a pair nobody has read stays two rows.
 - **Winning a grant pushes a company down.** A grant is a public trace, and the list sorts by fewest
   traces, so the week a company wins one it drops below companies nobody has funded — the week it is
   most worth a call. This is a flaw in ranking by obscurity, not a trade-off being defended.
@@ -122,17 +157,21 @@ Measured, not guessed.
 
 ## Next, not built
 
-- **Venture portfolios as a suppression signal, not a source.** A company on a VC's portfolio page
-  (Speciale Invest, pi Ventures, Blume and the rest) has already been found by a fund, which is the
-  one thing this list exists to get ahead of. Read those pages only to disqualify: a company that
-  appears on one leaves the obscurity ranking. Nothing from them is added, and nothing is shown
-  except the fact and the link. It is the strongest possible expression of the thesis.
+**Nothing in this section is built.** These are research choices argued for and deliberately not
+implemented, listed so the reasoning is on the record — not features, and not roadmap commitments.
+
+- **Venture portfolios as a suppression signal, not a source.** *Not implemented; no VC portfolio
+  page is read today and no row is suppressed by one.* The argument for doing it: a company on a
+  VC's portfolio page (Speciale Invest, pi Ventures, Blume and the rest) has already been found by a
+  fund, which is the one thing this list exists to get ahead of. Those pages would be read only to
+  disqualify — a company appearing on one would leave the obscurity ranking. Nothing from them would
+  be added, and nothing shown except the fact and the link.
 
 ## How it works
 
 ```
   GitHub Actions, 03:00 UTC daily (Python)            Cloudflare Worker + D1 (TypeScript)
-  scrape 5 sources → classify → read homepages   ──►  /upstream              the tool
+  scrape 8 sources → classify → read homepages   ──►  /upstream              the tool
        cached pages     Claude Haiku 4.5, cached       /upstream/c/:slug      one company, as a brief
        30 days          under a $ ceiling              /upstream/api/*        JSON
                         answers committed to git       /upstream/export.csv   the current view

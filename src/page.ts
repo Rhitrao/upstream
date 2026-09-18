@@ -7,6 +7,7 @@
  * without it: the filters are a GET form and every coverage cell is a link.
  */
 import { INDIA_MAP_HEIGHT, INDIA_MAP_WIDTH, INDIA_STATES } from './india-map';
+import { SNAPSHOT, SNAPSHOT_TERMS } from './snapshot';
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID, SUNRISE_SECTORS } from './taxonomy';
 import { daysSince, earliestEvent, MAX_AGE_YEARS, type Tier } from './rank';
 import {
@@ -843,7 +844,11 @@ ${cells}
 <section class="coverage" id="coverage" aria-labelledby="coverage-h">
   <div class="widget-head">
     <h2 id="coverage-h">RDI classification</h2>
-    <p class="widget-meta">${claim} Pick a sub-sector to narrow the list to it, or a sector&rsquo;s name for all of it. Numbers count matching records of any start year; a dashed cell has no record in current coverage, which is not proof that no such company exists.</p>
+    <p class="widget-meta">${claim} Pick a sub-sector to narrow the list to it, or a sector&rsquo;s name for all of it. Numbers count matching records of any start year.</p>
+    <p class="widget-meta cells-caveat"><strong>An empty cell is a gap in what these sources reach, not a finding about the market.</strong>
+      It can mean nobody in India is building there, or it can mean the ${SNAPSHOT.sourcesContributing} sources feeding this page
+      do not cover that work &mdash; and this tool cannot currently tell you which. Incubator portfolios and a startup register are
+      not where fusion or ocean farming would surface first. Read an empty cell as somewhere to look, never as evidence of absence.</p>
   </div>
   <div class="sectors">
 ${sectors}
@@ -1810,6 +1815,37 @@ function sourceStatus(view: AboutView): string {
   <p class="provenance">A check that answered means the source was read, not that a person verified each record.</p>`;
 }
 
+/**
+ * The one dated figure set, rendered from src/snapshot.ts so this page and the README cannot drift
+ * apart again. Live counts elsewhere on the site move every night; these do not, and they are the
+ * ones any claim on the site is allowed to rest on.
+ */
+function snapshotSection(): string {
+	const s = SNAPSHOT;
+	const rows = SNAPSHOT_TERMS.map(
+		(t) => `    <tr><th scope="row">${esc(t.term)}</th><td class="snap-n">${esc(t.value(s))}</td><td>${esc(t.means)}</td></tr>`,
+	).join('\n');
+	return `
+<section class="ref-section" id="snapshot" aria-labelledby="snapshot-h">
+  <h2 id="snapshot-h">The figures, as of ${esc(s.date)}</h2>
+  <p class="provenance">One dated set of counts, taken from the database as the ingest run of
+    ${esc(s.dataVersion)} left it. Every number below says what it counts, because several of them
+    could reasonably mean two different things. The list itself shows live counts, which move each
+    night; these do not, and they are the figures any argument here rests on.</p>
+  <table class="snapshot">
+    <thead><tr><th scope="col">Number</th><th scope="col">As of ${esc(s.date)}</th><th scope="col">What it counts</th></tr></thead>
+    <tbody>
+${rows}
+    </tbody>
+  </table>
+  <p class="provenance">Placed and dropped account for every record seen
+    (${s.placed} + ${s.dropped.toLocaleString('en-IN')} = ${s.recordsSeen.toLocaleString('en-IN')}), and companies for
+    every record placed (${s.companies} + ${s.notCompanies} = ${s.placed}). The ${s.placed} placed records are committed
+    to the repository as <code>${esc(s.exportFile)}</code>, so the evidence stays readable whether or not the live
+    pipeline is running.</p>
+</section>`;
+}
+
 function methodology(view: AboutView): string {
 	return `
 <section class="method" aria-labelledby="method-h">
@@ -1851,6 +1887,14 @@ function methodology(view: AboutView): string {
     counted in the coverage map, and one link away &mdash; they are history rather than a find, and putting them in the
     same list would be flattering the wrong thing.</p>
 
+  <h3 id="rdi-caveat">What the RDI taxonomy is, and is not</h3>
+  <p><strong>The RDI taxonomy is a government policy priority list, not evidence of market demand.</strong> It records
+    what one department decided to prioritise for research and development funding. It is used here for navigation
+    &mdash; a fixed, public, independently-authored set of cells to sort records into, so the shape of the map is not
+    one of my own choosing &mdash; and for nothing else. That a sub-sector appears on it says nothing about whether
+    customers want the thing, whether anyone will pay for it, or whether a market exists. Those are separate questions,
+    and this page does not answer any of them.</p>
+
   <h3 id="crosswalk">Two official classifications that do not meet</h3>
   <p>DPIIT's recognition register files every startup under its own industry vocabulary &mdash; 56 industries, chosen
     by the founder from a list when they applied. The RDI scheme has 44 sub-sectors, written by a different department
@@ -1873,12 +1917,16 @@ function methodology(view: AboutView): string {
 ${registerSplit(view)}
 
   <h3>What this misses</h3>
-  <p>A fair amount, and it is worth being blunt about it. There is no LinkedIn here, and no stealth companies: if a company
-    has not appeared anywhere public, this page cannot see it and will not pretend otherwise. The list leans toward
-    institutions that publish their portfolios, which means well-documented incubators are over-represented and quieter
-    regional ones are under-represented. An empty cell in the RDI coverage map means we have found nothing there yet
-    &mdash; it is a gap in our sources, not evidence that nothing exists. Classification into RDI sub-sectors is automated
-    and will sometimes be wrong.</p>
+  <p>A fair amount, and it is worth being blunt about it.</p>
+  <p><strong>This tool cannot identify or verify stealth companies at all.</strong> It reads no LinkedIn, by choice:
+    every claim here has to link to a page anyone can open. But that choice should not be read as a finding about
+    stealth companies in either direction. A company that has left no public record does not appear here, and nothing
+    on this page indicates whether such companies are few or many, or what they are working on. Their absence from the
+    list is a property of the list, not of the market.</p>
+  <p>The list also leans toward institutions that publish their portfolios, which means well-documented incubators are
+    over-represented and quieter regional ones are under-represented. An empty cell in the RDI coverage map can mean
+    nobody is building there or that these sources do not reach that work, and this tool cannot currently tell you
+    which. Classification into RDI sub-sectors is automated and will sometimes be wrong.</p>
 </section>`;
 }
 
@@ -3340,6 +3388,14 @@ input[type='search']:focus { border-color: var(--ink); box-shadow: var(--focus);
 /* Why a thing is what it is. Muted, because it is always explaining something else
    on the page rather than being the thing itself. */
 .provenance { font-size: var(--t-sm); color: var(--muted); max-width: var(--measure); }
+/* The dated figure set. Wide cells of prose, so it scrolls rather than crushes on a phone. */
+.snapshot { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: var(--t-sm); display: block; overflow-x: auto; }
+.snapshot th, .snapshot td { text-align: left; vertical-align: top; padding: 0.55rem 0.75rem 0.55rem 0; border-bottom: 1px solid var(--rule); }
+.snapshot thead th { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; }
+.snapshot tbody th { white-space: nowrap; font-weight: 600; }
+.snapshot td.snap-n { font-family: var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.snapshot td:last-child { color: var(--muted); min-width: 22rem; }
+.cells-caveat { margin-top: 0.5rem; }
 /* The classifier's reasoning, printed as written. Set apart so it cannot be mistaken
    for the page speaking in its own voice. */
 .note-verbatim {
@@ -4295,9 +4351,10 @@ ${nav('about')}
   <p class="lede">Which public sources Upstream reads, when each was last checked, what the records show, and the rules that
     order and limit the list. <a href="${esc(BASE_PATH)}">Back to Discover</a></p>
   <nav class="toc" aria-label="On this page">
-    <a href="#sources-h">Sources</a> <a href="#findings-h">What the records show</a> <a href="#funnel-h">Records reaching the list</a> <a href="#outside-map">Outside the map</a> <a href="#method-h">Ranking and limits</a>
+    <a href="#snapshot-h">The figures</a> <a href="#sources-h">Sources</a> <a href="#findings-h">What the records show</a> <a href="#funnel-h">Records reaching the list</a> <a href="#outside-map">Outside the map</a> <a href="#method-h">Ranking and limits</a>
   </nav>
 </header>
+${snapshotSection()}
 <section class="ref-section" id="reference" aria-labelledby="sources-h">
   <h2 id="sources-h">Sources and freshness</h2>
   ${sourceStatus(view)}
@@ -4342,7 +4399,12 @@ export function renderPage(view: PageView): string {
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-${view.ids ? '<meta name="robots" content="noindex">\n' : ''}<!-- The same list is reachable by several orderings of the same parameters, and by
+${view.ids || Object.values(viewParams(view)).some(Boolean) ? '<meta name="robots" content="noindex, follow">\n' : ''}<!-- A filtered view is not indexed, and neither is a shortlist. Each is one of a combinatorial
+     number of spellings of the same rows, and a crawler walking them costs a cold render each
+     (about ten thousand D1 rows). Crawlers still follow the links out to the company pages,
+     which are the pages worth indexing. The unfiltered list stays indexable.
+
+     The same list is reachable by several orderings of the same parameters, and by
      parameters sitting at their defaults. This is the one spelling of it. -->
 <link rel="canonical" href="${esc(`${BASE_PATH}${query(viewParams(view))}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
