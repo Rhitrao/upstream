@@ -388,7 +388,7 @@ function widgets(view: PageView): string {
 	// widget's filter. Over the filtered total, Karnataka chosen, the places header read
 	// "192 of 26 have a location".
 	const share = (n: number, of: number) => (of ? Math.round((n / of) * 1000) / 10 : 0);
-	const link = (key: string, value: string, on: boolean) => `${BASE_PATH}${query(viewParams(view, { [key]: on ? null : value }))}#widgets`;
+	const link = (key: string, value: string, on: boolean) => `${BASE_PATH}${query(viewParams(view, { [key]: on ? null : value }))}#list`;
 	const cell = (opts: { key: string; value: string; n: number; of: number; name: string; id?: string; title?: string; extra?: string; classes?: string[] }) => {
 		const on = (view as unknown as Record<string, unknown>)[opts.key] === opts.value;
 		const classes = ['cell', 'seg', opts.n > 0 ? 'filled' : 'empty', on ? 'active' : '', ...(opts.classes ?? [])].filter(Boolean).join(' ');
@@ -414,7 +414,7 @@ function widgets(view: PageView): string {
 	const under = p.located * 2 < t.places;
 	const datedUnder = p.datedLocated * 2 < p.dated;
 	const placesMeta = p.located
-		? `<strong>${p.located} of ${t.places}</strong> publish a location; the map shows those ${p.located}, not where the other ${p.unknown} are.`
+		? `<strong>${p.located} of ${t.places}</strong>${view.described === 'said' ? ' with a product description' : ' records here'} publish a location; the map shows those ${p.located}, not where the other ${p.unknown} are.`
 		: `None of these ${t.places} publishes a location.`;
 	const chosen = view.state && view.state !== 'unknown' ? p.states.find((s) => s.state === view.state) : undefined;
 	const places = `
@@ -462,7 +462,7 @@ function widgets(view: PageView): string {
       ${(() => {
 				// Two filters at once: in two or more programmes, and nothing else public.
 				const on = view.alone === '1' && view.programmes === '2';
-				const href = `${BASE_PATH}${query(viewParams(view, on ? { programmes: null, alone: null } : { programmes: '2', alone: '1' }))}#widgets`;
+				const href = `${BASE_PATH}${query(viewParams(view, on ? { programmes: null, alone: null } : { programmes: '2', alone: '1' }))}#list`;
 				return `<a class="cell seg ${pg.twoPlusAlone > 0 ? 'filled' : 'empty'}${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''} title="Two or more public programmes, and no website or press: ${pg.twoPlusAlone}">
         <span class="cell-head"><span class="cell-id"></span><span class="cell-n">${pg.twoPlusAlone}</span></span>
         <span class="cell-name">nothing else public</span>
@@ -744,7 +744,7 @@ function header(view: PageView): string {
 <header class="intro">
   <p class="eyebrow">Deep-tech sourcing for investors</p>
   <h1>Find Indian deep-tech companies worth your next research call.</h1>
-  <p class="lede">Explore companies listed by Indian incubators and public programmes. See <span class="hl">what they build</span>, <span class="hl">check the sources</span>, and <span class="hl">shortlist leads</span> for further research.</p>
+  <p class="lede">Upstream lists Indian deep-tech companies found in incubator, grant and startup-register records, and puts the least-documented first: one incubator listing and no website ranks above a known name with a press cycle. A list ranked by funding, press or pedigree shows every fund the same companies at the same moment; ranking by how little is public shows the ones those lists haven&rsquo;t reached, which is an argument about where to look, not a tested claim about which are good.</p>
   ${coverageLine(view)}
   <p class="since" id="since" hidden></p>
 </header>`;
@@ -757,7 +757,6 @@ function header(view: PageView): string {
  */
 function coverageLine(view: PageView): string {
 	if (view.tracked === 0 || view.demo) return '';
-	const configured = SOURCES.length;
 	const health = view.sourceHealth.filter((h) => (SOURCES as readonly string[]).includes(h.source));
 	const latest = health.map((h) => h.last_success ?? '').sort().pop();
 	const failing = health.filter((h) => h.last_status !== 'ok').length;
@@ -765,7 +764,11 @@ function coverageLine(view: PageView): string {
 	// one of them (NM-ICPS) had contributed none. How many sources are read is a fact about the
 	// pipeline; how many earned a row is a different number, and it is on the methodology page
 	// rather than guessed at from the filtered counts this view happens to hold.
-	const parts = [`<strong>${view.tracked}</strong> records &middot; ${configured} public sources read`];
+	// The counts are the frozen set, with their date, so the number a reader quotes is the one the
+	// README and the methodology page quote; the live count moves every night. "Last checked"
+	// beside it is the live part, and says so by being a date.
+	const s = SNAPSHOT;
+	const parts = [`<strong>${s.placed}</strong> records &middot; ${s.sourcesConfigured} sources, ${s.sourcesContributing} contributing, as of ${esc(s.date)}`];
 	if (latest) parts.push(`sources last checked ${shortDate(latest.slice(0, 10))}${failing ? ` (${failing} failed ${failing === 1 ? 'its' : 'their'} last check)` : ''}`);
 	parts.push(`<a href="${esc(`${BASE_PATH}/about`)}">How the data is collected</a>`);
 	return `<p class="coverage-line">${parts.join(' &middot; ')}</p>`;
@@ -4407,7 +4410,7 @@ export function renderPage(view: PageView): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Upstream &mdash; find Indian deep-tech companies to research</title>
-<meta name="description" content="Explore ${view.tracked} records of Indian deep-tech companies listed by incubators and public programmes. See what they build, check the sources, and shortlist leads for further research.">
+<meta name="description" content="Upstream lists Indian deep-tech companies found in incubator, grant and startup-register records, and puts the least-documented first: one incubator listing and no website ranks above a known name with a press cycle.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8">
@@ -4415,7 +4418,7 @@ export function renderPage(view: PageView): string {
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Upstream">
 <meta property="og:title" content="Upstream — find Indian deep-tech companies worth your next research call">
-<meta property="og:description" content="Indian deep-tech companies listed by incubators and public programmes: what they build, where the information came from, and a shortlist to take away.">
+<meta property="og:description" content="Upstream lists Indian deep-tech companies found in incubator, grant and startup-register records, and puts the least-documented first: one incubator listing and no website ranks above a known name with a press cycle.">
 <meta property="og:url" content="${esc(`${view.origin}${BASE_PATH}`)}">
 <meta property="og:image" content="${esc(`${view.origin}${BASE_PATH}/og.png`)}">
 <meta property="og:image:width" content="1200">
@@ -4449,13 +4452,17 @@ ${controls(view)}
     <summary><span class="explore-name">Explore by sector</span> <span class="explore-meta">RDI classification map</span></summary>
     ${coverageMap(view)}
   </details>
+</div>
+${list(view)}
+<div id="undated-slot">${undatedList(view)}</div>
+<!-- Below the list on purpose: five counts above it read as the point of the page, and a reader
+     who takes the text in order (a summariser does) met a taxonomy before a single company. -->
+<div class="explore explore-after">
   <details class="explore-fold" id="breakdown-fold">
     <summary><span class="explore-name">Break down these results</span> <span class="explore-meta">description, references, technology, sources, location</span></summary>
     ${widgets(view)}
   </details>
 </div>
-${list(view)}
-<div id="undated-slot">${undatedList(view)}</div>
 </main>
 <footer class="page-foot"><a href="${esc(`${BASE_PATH}/about`)}">Coverage &amp; methodology</a> &middot; public records only &middot; shortlist and marks are saved in this browser</footer>
 </div>

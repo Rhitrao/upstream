@@ -6,6 +6,7 @@ import { NO_GAP_NAMED } from '../src/db';
 import gapLabels from '../ingest/gap-labels.json';
 import { SUBSECTORS } from '../src/taxonomy';
 import { demoCompanies } from '../src/demo';
+import { SNAPSHOT } from '../src/snapshot';
 
 const KEY = 'test-ingest-key';
 const ORIGIN = 'https://rohitrao.in';
@@ -1299,7 +1300,7 @@ describe('GET /upstream (the page)', () => {
 			companies: [
 				// Two described companies with one trace apiece, one with three: the headline
 				// counts the described ones, and the quiet ones among them.
-				{ id: 'quiet-one', name: 'Quiet One', description: 'Solid-state battery cells.', sector_id: '5', subsector_id: '5.1' },
+				{ id: 'quiet-one', name: 'Quiet One', description: 'Solid-state battery cells.', sector_id: '5', subsector_id: '5.1', state: 'Karnataka' },
 				{ id: 'quiet-two', name: 'Quiet Two', description: 'Satellite radar payloads.', sector_id: '5', subsector_id: '5.1' },
 				{ id: 'noticed', name: 'Noticed Co', description: 'Drone autopilots.', sector_id: '5', subsector_id: '5.2' },
 				// Not in the headline: a name and a register label, and a described project.
@@ -1323,7 +1324,13 @@ describe('GET /upstream (the page)', () => {
 		// The research outcome first, in one headline and one sentence; the ranking is a lens beside the sort.
 		expect(html).toContain('<h1>Find Indian deep-tech companies worth your next research call.</h1>');
 		const lede = html.slice(html.indexOf('class="lede"'), html.indexOf('</p>', html.indexOf('class="lede"')));
-		expect(lede).toContain('Explore companies listed by Indian incubators and public programmes.');
+		// The claim before any number: what the list is, and why it is ordered the other way round.
+		expect(lede).toContain('puts the least-documented first');
+		expect(lede).toContain('not a tested claim about which are good');
+		expect(html.indexOf('class="lede"')).toBeLessThan(html.indexOf('class="coverage-line"'));
+		// Over the described records by default, and the location header says so: "51 of 401" read as
+		// a count of everything until it named the 401.
+		expect(html).toMatch(/<strong>\d+ of \d+<\/strong> with a product description publish a location/);
 		// No sweeping claim about every other list.
 		expect(html).not.toContain('Every other list');
 		expect(html).toContain('Sorted by the fewest references collected from the sources Upstream monitors.');
@@ -1439,8 +1446,9 @@ describe('GET /upstream (the page)', () => {
 		expect(html.indexOf('class="topnav"')).toBeLessThan(html.indexOf('</header>'));
 		expect(html.indexOf('</header>')).toBeLessThan(html.indexOf('id="controls"'));
 		expect(html.indexOf('id="controls"')).toBeLessThan(html.indexOf('id="coverage"'));
-		expect(html.indexOf('id="coverage"')).toBeLessThan(html.indexOf('id="widgets"'));
-		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="list"'));
+		// One breakdown above the list, the rest after it: five counts first read as the point of the page.
+		expect(html.indexOf('id="coverage"')).toBeLessThan(html.indexOf('id="list"'));
+		expect(html.indexOf('id="list"')).toBeLessThan(html.indexOf('id="widgets"'));
 		// The map and the breakdowns are secondary: folded until asked for, and a sector's name is still a filter.
 		expect(html).toMatch(/<details class="explore-fold" id="sector-fold">/);
 		expect(html).toMatch(/<details class="explore-fold" id="breakdown-fold">/);
@@ -1897,12 +1905,11 @@ describe('where they are', () => {
 	it('says what it does not know in the widget header, with unknown as the first tile', async () => {
 		await seed();
 		const html = await text('?tier=all');
-		// Under the controls, folded with the other breakdowns, and above the list.
-		expect(html.indexOf('id="widgets"')).toBeGreaterThan(html.indexOf('id="controls"'));
-		expect(html.indexOf('id="widgets"')).toBeLessThan(html.indexOf('id="list"'));
+		// Folded, and after the list.
+		expect(html.indexOf('id="widgets"')).toBeGreaterThan(html.indexOf('id="list"'));
 
 		const places = widget(html, 'w-places');
-		expect(places).toContain('<strong>4 of 7</strong> publish a location; the map shows those 4, not where the other 3 are.');
+		expect(places).toContain('<strong>4 of 7</strong> records here publish a location; the map shows those 4, not where the other 3 are.');
 		const tiles = [...places.matchAll(/<span class="cell-n">(\d+)<\/span><\/span>\s*<span class="cell-name">([^<]+)<\/span>/g)].map((m) => `${m[2]} ${m[1]}`);
 		expect(tiles).toEqual(['location unknown 3', 'Maharashtra 2', 'Gujarat 1', 'Karnataka 1']);
 		// No comparison with an earlier run, anywhere on the page.
@@ -1921,7 +1928,7 @@ describe('where they are', () => {
 		expect(map).toMatch(/style="--ink-share:80%" d="[^"]+"><title>Maharashtra: 2<\/title>/);
 		expect(map).toMatch(/style="--ink-share:61%" d="[^"]+"><title>Gujarat: 1<\/title>/);
 		// Out of the tab order: the tiles beside it are the control.
-		expect(map).toMatch(/<a href="\/upstream\?described=all&amp;kind=all&amp;age=all#widgets" tabindex="-1" class="state-link active">/);
+		expect(map).toMatch(/<a href="\/upstream\?described=all&amp;kind=all&amp;age=all#list" tabindex="-1" class="state-link active">/);
 		expect(map).toContain('<path class="state-outline"');
 		expect(map).toContain('CC BY 4.0');
 		// The unknown tile still comes before any state.
@@ -1952,11 +1959,11 @@ describe('where they are', () => {
 		// The coverage map sees only Maharashtra's two, in their cell.
 		expect(html).toContain('<span class="cell-id">2.3</span><span class="cell-n">2</span>');
 		// Over its own population, not the filtered one: "192 of 26" was this bug.
-		expect(widget(html, 'w-places')).toContain('<strong>4 of 7</strong> publish a location');
+		expect(widget(html, 'w-places')).toContain('<strong>4 of 7</strong> records here publish a location');
 		// The places widget still shows every state, so a reader can move to another.
 		expect(widget(html, 'w-places')).toMatch(/<span class="cell-n">1<\/span><\/span>\s*<span class="cell-name">Gujarat<\/span>/);
 		// And the chosen tile is marked, and links back to no location filter.
-		expect(widget(html, 'w-places')).toMatch(/class="cell seg filled active" href="\/upstream\?described=all&amp;kind=all&amp;age=all#widgets"/);
+		expect(widget(html, 'w-places')).toMatch(/class="cell seg filled active" href="\/upstream\?described=all&amp;kind=all&amp;age=all#list"/);
 	});
 });
 
@@ -2489,9 +2496,10 @@ describe('arriving cold, and not getting stuck', () => {
 		expect(home).toContain('<a href="/upstream/c/grinntech">Grinntech Motors</a>');
 		expect(home).toContain('<label for="q" class="search-label">Find companies</label>');
 		expect(home).toContain('placeholder="Search companies or technologies"');
-		// How many sources are read, not how many earned a row: "records from 8 public sources" would
-		// assert that all eight contributed, and on 17 September one of them had contributed none.
-		expect(home).toContain('<strong>2</strong> records &middot; 8 public sources read');
+		// The frozen, dated figures, not the live count: the number a reader quotes is the one the README
+		// quotes. Configured and contributing both, because on 17 September one source had put in none.
+		expect(home).toContain(`<strong>${SNAPSHOT.placed}</strong> records &middot; 8 sources, 7 contributing, as of ${SNAPSHOT.date}`);
+		expect(home).not.toContain('<strong>2</strong> records');
 		// A preset is a link to the same sub-sector filter the form sets, and only where the records hold any.
 		expect(home).toContain('<a class="preset" href="/upstream?subsector=1.4#list">Energy Storage</a>');
 		expect(home).not.toContain('>Medical Devices &amp; Diagnostics</a>');
