@@ -1683,6 +1683,14 @@
    }
   ]
  },
+ "cropper-technologies": {
+  "checked": "2026-09-18T08:37:23+00:00",
+  "count": 0,
+  "needle": "Cropper Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Cropper%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "curelink": {
   "checked": "2026-09-15T01:50:37+00:00",
   "count": 0,
@@ -5670,6 +5678,14 @@
   "rule": 1,
   "works": []
  },
+ "rursat-spectral-research-labs": {
+  "checked": "2026-09-18T08:37:23+00:00",
+  "count": 0,
+  "needle": "Rursat Spectral Research Labs",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Rursat%20Spectral%20Research%20Labs%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "rygen-dynamics": {
   "checked": "2026-09-14T16:39:30+00:00",
   "count": 0,
@@ -5803,6 +5819,14 @@
     "year": 2024
    }
   ]
+ },
+ "seanautics": {
+  "checked": "2026-09-18T08:37:23+00:00",
+  "count": 0,
+  "needle": "Seanautics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Seanautics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
  },
  "sedemac-mechatronics": {
   "checked": "2026-09-14T16:39:39+00:00",
@@ -6670,6 +6694,14 @@
   "count": 0,
   "needle": "Triraksha Robotics",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Triraksha%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "triyan-dynamics": {
+  "checked": "2026-09-18T08:37:23+00:00",
+  "count": 0,
+  "needle": "Triyan Dynamics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Triyan%20Dynamics%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

@@ -761,5 +761,66 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-17T08:52:43+00:00",
   "outcome": "timeout"
+ },
+ "gpclifesciences.com": {
+  "checked": "2026-09-18T08:32:30+00:00",
+  "last_change": "2026-06-09",
+  "outcome": "captured",
+  "since": "2024-09-18",
+  "versions": 9
+ },
+ "greencollar.ai": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:33:02+00:00",
+  "outcome": "timeout"
+ },
+ "greengrahi.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:33:33+00:00",
+  "outcome": "timeout"
+ },
+ "greenjams.org": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:34:05+00:00",
+  "outcome": "timeout"
+ },
+ "greenshiftnrg.com": {
+  "checked": "2026-09-18T08:34:21+00:00",
+  "last_change": "2026-06-10",
+  "outcome": "captured",
+  "since": "2024-09-18",
+  "versions": 17
+ },
+ "greentrek.co": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:34:53+00:00",
+  "outcome": "timeout"
+ },
+ "greyeast.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:35:25+00:00",
+  "outcome": "timeout"
+ },
+ "grinntech.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:35:56+00:00",
+  "outcome": "timeout"
+ },
+ "gurutvaa.com": {
+  "checked": "2026-09-18T08:36:19+00:00",
+  "last_change": "2025-07-27",
+  "outcome": "captured",
+  "since": "2024-09-18",
+  "versions": 3
+ },
+ "gut-buddy.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:36:51+00:00",
+  "outcome": "timeout"
+ },
+ "gyrfalconintelliedge.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-18T08:37:22+00:00",
+  "outcome": "timeout"
  }
 }

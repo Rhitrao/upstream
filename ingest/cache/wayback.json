@@ -523,5 +523,100 @@
   "checked": "2026-09-17T08:47:26+00:00",
   "first_capture": null,
   "outcome": "timeout"
+ },
+ "edhaainnovations.com": {
+  "checked": "2026-09-18T08:27:07+00:00",
+  "first_capture": "2021-12-02",
+  "outcome": "captured"
+ },
+ "ednams.com": {
+  "checked": "2026-09-18T08:27:09+00:00",
+  "first_capture": "2021-12-01",
+  "outcome": "captured"
+ },
+ "efeed.in": {
+  "checked": "2026-09-18T08:27:26+00:00",
+  "first_capture": "2015-01-28",
+  "outcome": "captured"
+ },
+ "ekosight.com": {
+  "checked": "2026-09-18T08:27:33+00:00",
+  "first_capture": "2011-01-28",
+  "outcome": "captured"
+ },
+ "electica.in": {
+  "checked": "2026-09-18T08:27:38+00:00",
+  "first_capture": "2023-03-29",
+  "outcome": "captured"
+ },
+ "elexo.energy": {
+  "checked": "2026-09-18T08:27:48+00:00",
+  "first_capture": "2024-01-21",
+  "outcome": "captured"
+ },
+ "embrightinfotech.com": {
+  "checked": "2026-09-18T08:27:51+00:00",
+  "first_capture": "2011-01-28",
+  "outcome": "captured"
+ },
+ "emertech.io": {
+  "checked": "2026-09-18T08:28:02+00:00",
+  "first_capture": "2019-06-06",
+  "outcome": "captured"
+ },
+ "emfluxenergy.com": {
+  "checked": "2026-09-18T08:28:17+00:00",
+  "first_capture": "2018-08-04",
+  "outcome": "captured"
+ },
+ "endimension.com": {
+  "checked": "2026-09-18T08:28:33+00:00",
+  "first_capture": "2001-03-02",
+  "outcome": "captured"
+ },
+ "energybae.in": {
+  "checked": "2026-09-18T08:28:43+00:00",
+  "first_capture": "2022-07-11",
+  "outcome": "captured"
+ },
+ "energyflow.co.in": {
+  "checked": "2026-09-18T08:28:59+00:00",
+  "first_capture": "2021-12-03",
+  "outcome": "captured"
+ },
+ "enlife.in": {
+  "checked": "2026-09-18T08:29:14+00:00",
+  "first_capture": "2015-07-09",
+  "outcome": "captured"
+ },
+ "epocare.in": {
+  "checked": "2026-09-18T08:29:33+00:00",
+  "first_capture": "2017-06-10",
+  "outcome": "captured"
+ },
+ "equinebiotech.org": {
+  "checked": "2026-09-18T08:30:04+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "etherx.ai": {
+  "checked": "2026-09-18T08:30:36+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "euphotic.io": {
+  "checked": "2026-09-18T08:31:07+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "evascalpcooling.co.in": {
+  "checked": "2026-09-18T08:31:49+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "exocanhealthcare.com": {
+  "checked": "2026-09-18T08:32:02+00:00",
+  "first_capture": "2016-04-17",
+  "outcome": "captured"
  }
 }
