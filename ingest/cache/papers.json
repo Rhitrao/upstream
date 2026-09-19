@@ -4846,6 +4846,14 @@
   "rule": 1,
   "works": []
  },
+ "novaaero-drone-technologies": {
+  "checked": "2026-09-19T08:14:54+00:00",
+  "count": 0,
+  "needle": "Novaaero Drone Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Novaaero%20Drone%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "nptech-green": {
   "checked": "2026-09-14T16:39:27+00:00",
   "count": 0,
@@ -5940,6 +5948,14 @@
   "count": 0,
   "needle": "Shieldnex Aerospace",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shieldnex%20Aerospace%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "shivastra-space-technologies": {
+  "checked": "2026-09-19T08:14:54+00:00",
+  "count": 0,
+  "needle": "Shivastra Space Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Shivastra%20Space%20Technologies%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

@@ -822,5 +822,66 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-18T08:37:22+00:00",
   "outcome": "timeout"
+ },
+ "gyrophint.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:10:04+00:00",
+  "outcome": "timeout"
+ },
+ "h2epower.net": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:10:36+00:00",
+  "outcome": "timeout"
+ },
+ "haystackanalytics.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:11:08+00:00",
+  "outcome": "timeout"
+ },
+ "hbslifesciences.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:11:39+00:00",
+  "outcome": "timeout"
+ },
+ "heatcrafters.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:12:11+00:00",
+  "outcome": "timeout"
+ },
+ "hemdimensions.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:12:42+00:00",
+  "outcome": "timeout"
+ },
+ "hmvdrives.com": {
+  "checked": "2026-09-19T08:12:49+00:00",
+  "last_change": "2026-06-16",
+  "outcome": "captured",
+  "since": "2024-09-19",
+  "versions": 15
+ },
+ "hornet.bio": {
+  "checked": "2026-09-19T08:13:10+00:00",
+  "last_change": "2026-06-08",
+  "outcome": "captured",
+  "since": "2024-09-19",
+  "versions": 16
+ },
+ "hrimtronenergy.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:13:42+00:00",
+  "outcome": "timeout"
+ },
+ "hycosys.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-19T08:14:13+00:00",
+  "outcome": "timeout"
+ },
+ "hydrovert.in": {
+  "checked": "2026-09-19T08:14:53+00:00",
+  "last_change": "2025-12-11",
+  "outcome": "captured",
+  "since": "2024-09-19",
+  "versions": 6
  }
 }
