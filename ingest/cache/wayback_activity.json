@@ -883,5 +883,73 @@
   "outcome": "captured",
   "since": "2024-09-19",
   "versions": 6
+ },
+ "icend.xyz": {
+  "checked": "2026-09-20T08:42:26+00:00",
+  "last_change": "2026-06-08",
+  "outcome": "captured",
+  "since": "2024-09-20",
+  "versions": 16
+ },
+ "ignitorlearning.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:42:57+00:00",
+  "outcome": "timeout"
+ },
+ "igrenenergi.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:43:29+00:00",
+  "outcome": "timeout"
+ },
+ "ikesiabiologics.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:44:00+00:00",
+  "outcome": "timeout"
+ },
+ "ikuber.in": {
+  "checked": "2026-09-20T08:44:10+00:00",
+  "last_change": "2026-06-11",
+  "outcome": "captured",
+  "since": "2024-09-20",
+  "versions": 26
+ },
+ "immunoact.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:44:41+00:00",
+  "outcome": "timeout"
+ },
+ "indent.co.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:45:13+00:00",
+  "outcome": "timeout"
+ },
+ "indiusmedical.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:45:44+00:00",
+  "outcome": "timeout"
+ },
+ "indrones.com": {
+  "checked": "2026-09-20T08:46:20+00:00",
+  "last_change": "2025-06-21",
+  "outcome": "captured",
+  "since": "2024-09-20",
+  "versions": 9
+ },
+ "inertialabs.in": {
+  "checked": "2026-09-20T08:46:23+00:00",
+  "last_change": "2026-02-15",
+  "outcome": "captured",
+  "since": "2024-09-20",
+  "versions": 8
+ },
+ "infab-tech.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:46:54+00:00",
+  "outcome": "timeout"
+ },
+ "infyulabs.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-20T08:47:26+00:00",
+  "outcome": "timeout"
  }
 }

@@ -227,6 +227,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "aaravi-engiventures": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "1d21b6b5e852cd97",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AARAVI ENGIVENTURES PRIVATE LIMITED",
+  "note": "AARAVI's IoT focus on manufacturing and warehouse operations aligns with advanced automation and control systems for assembly line optimization.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.3"
+ },
  "aarivix": {
   "classified_at": "2026-09-12T12:03:19+00:00",
   "hash": "4164d5db136fc502",
@@ -543,6 +555,18 @@
   "sector_id": "3",
   "source": "dpiit-startup-india",
   "subsector_id": null
+ },
+ "advaitha-enviro": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "66a06d9e037f0a40",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ADVAITHA ENVIRO LLP",
+  "note": "Advaitha Enviro's waste management focus aligns with the waste-to-energy and industrial symbiosis project types under Comprehensive Climate Action Initiatives, which directly address resource recovery and circular economy approaches.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.16"
  },
  "advanced-bio-nanoxplore": {
   "classified_at": "2026-09-12T12:01:24+00:00",
@@ -1391,6 +1415,18 @@
   "note": "Airth Research's air sterilization technology is an environmental control or HVAC-integrated device focused on pathogen removal from indoor air, which falls outside the biotechnology, biomanufacturing, synthetic biology, pharma, and medical device innovation areas covered by Sector 4.",
   "project_type": null,
   "sector_id": "4",
+  "subsector_id": null
+ },
+ "airthra-research": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "9183594bf631dcc4",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "AIRTHRA RESEARCH PRIVATE LIMITED",
+  "note": "AIRTHRA Research's specific technology focus cannot be determined from the available information provided.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "aishwarya-dasare": {
@@ -3261,6 +3297,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
+ "aurone-energy": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "4049b051a0b2ade8",
+  "missing": "renewable energy technology specification",
+  "model": "claude-haiku-4-5",
+  "name": "AURONE ENERGY PRIVATE LIMITED",
+  "note": "AURONE ENERGY's specific technology focus cannot be determined from the information provided; the company description only states it is a renewable energy startup at prototype stage without detailing which renewable energy technology (solar, wind, storage, hydrogen, etc.) it develops.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "aursys-dynamics": {
   "classified_at": "2026-09-12T12:01:51+00:00",
   "hash": "f5ecffcc0ddce815",
@@ -4234,6 +4282,18 @@
   "project_type": "Modular robotic platforms",
   "sector_id": "2",
   "subsector_id": "2.7"
+ },
+ "bkind": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "13f941b4188b1e4a",
+  "missing": "insufficient company detail",
+  "model": "claude-haiku-4-5",
+  "name": "BKIND LLP",
+  "note": "BKIND LLP's work cannot be reliably matched without knowing their specific technology focus within clean tech.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "blackfrog-technologies": {
   "classified_at": "2026-09-15T01:39:03+00:00",
@@ -9012,6 +9072,18 @@
   "sector_id": "4",
   "subsector_id": null
  },
+ "fabforge-innovations": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "e2f78adb34975602",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "FABFORGE INNOVATIONS PRIVATE LIMITED",
+  "note": "FabForge Innovations is a robotics startup, and modular robotic platforms is the core project type under Intelligent Systems & Robotics that captures general-purpose robotic systems development.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
+ },
  "fabheads-automation": {
   "classified_at": "2026-09-12T10:56:38+00:00",
   "hash": "b6db23ea62b07687",
@@ -10354,6 +10426,18 @@
   "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": "1.3"
+ },
+ "gravnex-energy": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "9df104b6d3b6284c",
+  "missing": "company technology description",
+  "model": "claude-haiku-4-5",
+  "name": "GRAVNEX ENERGY PRIVATE LIMITED",
+  "note": "GRAVNEX ENERGY's specific technology focus cannot be determined from the provided information (only that it is a renewable energy solutions startup in validation stage). Without clarity on whether they work on wind, solar, storage, hydrogen, or another energy technology, accurate placement is not possible.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "green-collar-agritech-solutions": {
   "classified_at": "2026-09-15T01:39:17+00:00",
@@ -12099,6 +12183,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "infinitisense": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "70724269fd744711",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "INFINITISENSE LLP",
+  "note": "INFINITISENSE's robotics work aligns with sub-sector 2.7 on Intelligent Systems & Robotics, and autonomous navigation and perception is the closest match to a robotics technology validation-stage startup's core capabilities.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
+ },
  "infixen-energy": {
   "classified_at": "2026-09-12T12:00:05+00:00",
   "hash": "f3580c8bbbe53cbe",
@@ -13038,6 +13134,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "jevanta-renewables": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "13b915d0fc70bc05",
+  "missing": "renewable energy company overview details",
+  "model": "claude-haiku-4-5",
+  "name": "JEVANTA RENEWABLES PRIVATE LIMITED",
+  "note": "Jevanta Renewables is a renewable energy solutions company, but the provided description does not specify their core technology focus (wind, solar, storage, hydrogen, or hybrid systems), making it impossible to assign them to a specific sub-sector within the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "jh-infra": {
   "classified_at": "2026-09-12T12:07:27+00:00",
   "hash": "b8e19472a15e32c4",
@@ -13273,6 +13381,18 @@
   "source": "fsid-iisc",
   "subsector_id": "4.2"
  },
+ "kaki-industries": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "20143a111d2844c9",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "KAKI INDUSTRIES PRIVATE LIMITED",
+  "note": "KAKI Industries is a DPIIT-recognized solar renewable energy startup at scaling stage, which aligns with utility-scale photovoltaic cost reduction initiatives under next-generation solar cells.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
+ },
  "kala-genset": {
   "classified_at": "2026-09-12T10:55:46+00:00",
   "hash": "ee1d6930d7df52ec",
@@ -13304,6 +13424,18 @@
   "note": "Kalbhorz Electric's axial flux motor and drive technology for eMobility is a powertrain component innovation that does not fit the taxonomy's focus on energy generation, storage, conversion, or industrial decarbonization.",
   "project_type": null,
   "sector_id": "1",
+  "subsector_id": null
+ },
+ "kalika-extrusions": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "5335ebfbd24fc87d",
+  "missing": "renewable energy equipment manufacturing",
+  "model": "claude-haiku-4-5",
+  "name": "KALIKA EXTRUSIONS PRIVATE LIMITED",
+  "note": "KALIKA EXTRUSIONS manufactures machinery and equipment (extrusion technology) for renewable energy applications, but the taxonomy focuses on energy technologies themselves (solar cells, batteries, hydrogen, wind turbines) rather than the manufacturing equipment or production machinery used to make them.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "kalki-robotics-opc": {
@@ -13692,6 +13824,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
+ "kisara-agritech": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "fc67618be0fdb835",
+  "missing": "agricultural biotechnology and crop improvement",
+  "model": "claude-haiku-4-5",
+  "name": "KISARA AGRITECH PRIVATE LIMITED",
+  "note": "KISARA AGRITECH's focus on agricultural biotechnology and crop improvement does not align with the Sector 4 taxonomy, which covers pharmaceutical, medical device, synthetic biology, and industrial biotech applications, not agricultural or food crop biotechnology.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "kissanconnect": {
   "classified_at": "2026-09-12T11:30:46+00:00",
   "hash": "96c3b873f692cbc6",
@@ -13987,6 +14131,18 @@
   "sector_id": "5",
   "subsector_id": "5.1"
  },
+ "krsnaye-industrial": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "d1117180dd2eb862",
+  "missing": "aerospace manufacturing and propulsion systems",
+  "model": "claude-haiku-4-5",
+  "name": "KRSNAYE INDUSTRIAL PRIVATE LIMITED",
+  "note": "KRSNAYE Industrial's work in aeronautics and aerospace appears to focus on aviation/defense applications not specifically covered by the deep-tech taxonomy.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "krushnam-ecoware": {
   "classified_at": "2026-09-16T08:33:21+00:00",
   "hash": "d2c9b0484d7f6bb0",
@@ -14179,6 +14335,18 @@
   "note": "LATENTLINKS is a Machine Learning company without disclosed focus on agriculture, healthcare, education, or the enabling technologies listed; the company's specific application domain cannot be determined from available information.",
   "project_type": null,
   "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "laujir-india": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "2a2675855a24ac12",
+  "missing": "electrical equipment manufacturing innovation",
+  "model": "claude-haiku-4-5",
+  "name": "LAUJIR INDIA LLP",
+  "note": "LAUJIR INDIA LLP is described as working in renewable energy and manufacture of electrical equipment, but without specific details about their technology or innovation focus, it cannot be confidently mapped to a particular sub-sector or project type.",
+  "project_type": null,
+  "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
@@ -14439,6 +14607,18 @@
   "note": "LOCATO ENGINEERING is a technology hardware manufacturing company at scaling stage, but the company description provided does not specify which deep-tech capability it focuses on (quantum, semiconductors, robotics, photonics, space, materials, or AI hardware).",
   "project_type": null,
   "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "locogrow-solutions": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "936e589971d5b006",
+  "missing": "sustainable agriculture technology",
+  "model": "claude-haiku-4-5",
+  "name": "LOCOGROW SOLUTIONS PRIVATE LIMITED",
+  "note": "LOCOGROW Solutions' work in controlled environment agriculture (CEA) and vertical farming for sustainable food production does not align with any sub-sectors in this energy security and climate action taxonomy, which focuses on energy generation, storage, and industrial decarbonization rather than agricultural innovation.",
+  "project_type": null,
+  "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
@@ -14762,6 +14942,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": "5.1"
  },
+ "maespl-turnkey": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "538d1dbb57562455",
+  "missing": "renewable energy project execution and systems integration",
+  "model": "claude-haiku-4-5",
+  "name": "MAESPL Turnkey Private Limited",
+  "note": "MAESPL Turnkey's focus on turnkey renewable energy solutions and system integration does not align with any specific sub-sector, which target either component innovation (cells, batteries, turbines) or specialized energy production methods (hydrogen, fusion, CCUS), rather than end-to-end project delivery and integration.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "magheals": {
   "classified_at": "2026-09-15T01:39:22+00:00",
   "hash": "3d6475bf04f25941",
@@ -14990,6 +15182,18 @@
   "sector_id": "2",
   "source": "tides-iitr",
   "subsector_id": null
+ },
+ "manu-engineering-fabrication": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "e816e2b775ed398e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "MANU ENGINEERING & FABRICATION LLP",
+  "note": "MANU Engineering's focus on IoT for manufacturing and warehouse operations aligns with automated control systems for production lines, which is a core application of their stated sector.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.3"
  },
  "manusoftech": {
   "classified_at": "2026-09-12T12:03:07+00:00",
@@ -16678,6 +16882,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "nespro-renewchem": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "390a6e5458a13b5a",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "NESPRO RENEWCHEM PRIVATE LIMITED",
+  "note": "NESPRO RENEWCHEM's specific technology focus cannot be determined from the company description provided, which only states 'Green Technology' and 'Clean Tech' without detailing their actual innovation area.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "netraksh": {
   "classified_at": "2026-09-12T12:02:50+00:00",
   "hash": "e01764dd0cb85376",
@@ -17290,6 +17506,18 @@
   "sector_id": "2",
   "subsector_id": "2.8"
  },
+ "nura-net-space-technologies-privatel": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "7bae95a3a25bccdb",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "NURA NET SPACE TECHNOLOGIES PRIVATEL LIMITED",
+  "note": "NURA NET SPACE TECHNOLOGIES is an aerospace startup in the space technology sector at prototype stage, indicating development of small satellite systems aligned with the miniaturized satellite category.",
+  "project_type": "Satellite systems (miniaturized CubeSats, NanoSats, MicroSats)",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.5"
+ },
  "nutricape": {
   "classified_at": "2026-09-12T11:30:59+00:00",
   "hash": "24fa3c9b5944310a",
@@ -17593,6 +17821,18 @@
   "sector_id": "3",
   "subsector_id": "3.2"
  },
+ "onfinitive-engicon": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "7bf1b863c0677d2a",
+  "missing": "company technical details",
+  "model": "claude-haiku-4-5",
+  "name": "ONFINITIVE ENGICON PRIVATE LIMITED",
+  "note": "Onfinitive Engicon is described only as operating in 'Renewable Energy Solutions' at early traction stage, with no specific technology or application details provided to map against the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "open-medlabs": {
   "classified_at": "2026-09-14T07:04:38+00:00",
   "hash": "5f63578adfc90260",
@@ -17696,6 +17936,18 @@
   "sector_id": "3",
   "source": "dpiit-startup-india",
   "subsector_id": "3.2"
+ },
+ "orbigreen-techsource": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "f1e134c7495beda1",
+  "missing": "company technical details",
+  "model": "claude-haiku-4-5",
+  "name": "ORBIGREEN TECHSOURCE PRIVATE LIMITED",
+  "note": "ORBIGREEN TECHSOURCE's specific renewable energy solutions and technical focus are not detailed enough to map to a particular sub-sector or project type within the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "orhin": {
   "classified_at": "2026-09-12T12:01:29+00:00",
@@ -17968,6 +18220,18 @@
   "note": "PARMANA SYSTEMS is a DPIIT-recognised AI startup at validation stage, but without specific information about their application domain (agriculture, health, education, disaster response, or MSME automation), cannot be definitively placed within the sector 3 taxonomy.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "parmar-digital-and-consultancy-services": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "ae870c458714ecbe",
+  "missing": "renewable energy consulting and digital services",
+  "model": "claude-haiku-4-5",
+  "name": "PARMAR DIGITAL AND CONSULTANCY SERVICES PRIVATE LIMITED",
+  "note": "The company is described as a digital and consultancy services provider in renewable solar energy, but the taxonomy focuses on hardware, materials, and engineering innovations (cells, batteries, turbines, reactors, etc.). A consultancy firm\u2014even one specialized in solar\u2014does not develop the technologies that the sub-sectors cover.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "pasidi-panta": {
@@ -18603,6 +18867,18 @@
   "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
+ },
+ "powerxchange-innovations": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "dd8005bf32fb84dc",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "POWERXCHANGE INNOVATIONS PRIVATE LIMITED",
+  "note": "PowerXchange Innovations focuses on renewable solar energy at prototype stage, which aligns with cost reduction and efficiency improvements in utility-scale photovoltaic systems.",
+  "project_type": "Reducing levelized cost of utility-scale PV",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.3"
  },
  "powerzest-energy-solutions": {
   "classified_at": "2026-09-15T01:39:36+00:00",
@@ -20787,6 +21063,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "s-r-elecon": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "6aeb3a677c9479df",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "S.R. ELECON PRIVATE LIMITED",
+  "note": "S.R. Elecon operates in renewable wind energy and as a DPIIT-recognised startup in early traction, most likely develops wind turbine technologies or components that align with advanced wind energy systems innovation.",
+  "project_type": "Offshore and vertical-axis turbine innovation",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.1"
+ },
  "sabuj-tech": {
   "classified_at": "2026-09-12T12:05:39+00:00",
   "hash": "f8010455e012a102",
@@ -22104,12 +22392,12 @@
   "subsector_id": "1.2"
  },
  "sivatech-advanced-systems": {
-  "classified_at": "2026-09-14T18:11:22+00:00",
-  "hash": "2bd0dcff5182a1d2",
-  "missing": "company technical details",
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "c5b59fb6865bde47",
+  "missing": "company technology description",
   "model": "claude-haiku-4-5",
-  "name": "SIVATECH ADVANCED SYSTEMS PVT. LTD.",
-  "note": "SIVATECH ADVANCED SYSTEMS is recognized as a clean-tech startup but no public information about their specific technology, product, or innovation focus is available to match against the taxonomy's detailed project types.",
+  "name": "SIVATECH ADVANCED SYSTEMS PRIVATE LIMITED",
+  "note": "SIVATECH ADVANCED SYSTEMS is identified only by sector (Clean Tech) and stage (Validation) with no detail of their specific technology, product, or application area within green technology.",
   "project_type": null,
   "sector_id": "1",
   "source": "dpiit-startup-india",
@@ -22698,6 +22986,18 @@
   "sector_id": "2",
   "subsector_id": "2.7"
  },
+ "spheera-labs": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "d09f8639e244da37",
+  "missing": "autonomous drone systems",
+  "model": "claude-haiku-4-5",
+  "name": "SPHEERA LABS PRIVATE LIMITED",
+  "note": "Spheera Labs is a drone company focused on aeronautics and aerospace, but the taxonomy does not include standalone drone/UAV development or drone-based services as a project type.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "spidersense-technologies": {
   "classified_at": "2026-09-12T12:00:16+00:00",
   "hash": "6f04449ae95a0d77",
@@ -22822,6 +23122,18 @@
   "note": "SRI KAMAKSHI AUTOMATION SYSTEMS appears to be a general machine learning/AI company without sufficient detail to map to a specific application domain (agriculture, health, education, or cross-domain enabling technologies).",
   "project_type": null,
   "sector_id": "3",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
+ "sri-suraas-ventures": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "96559df06f96beed",
+  "missing": "company-specific technology details",
+  "model": "claude-haiku-4-5",
+  "name": "SRI SURAAS VENTURES PRIVATE LIMITED",
+  "note": "Without specific information about Sri Suraas Ventures' actual technology or product focus, it is impossible to map them to a sub-sector; the company description only indicates they work in green technology/clean tech broadly.",
+  "project_type": null,
+  "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
@@ -23075,6 +23387,18 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "strategic-electronics-division": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "fc7d8dd1638cf868",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "STRATEGIC ELECTRONICS DIVISION PRIVATE LIMITED",
+  "note": "Strategic Electronics Division's focus on defence equipment aligns with electronic control systems, which are fundamental to aerospace and defence applications requiring specialized electronic solutions.",
+  "project_type": "Electronic control systems",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.2"
  },
  "stratosyn-orign": {
   "classified_at": "2026-09-12T12:04:38+00:00",
@@ -24614,6 +24938,18 @@
   "sector_id": "1",
   "subsector_id": "1.3"
  },
+ "trinity-tech-concepts": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "3f30b3652a4d5024",
+  "missing": "project technical specification",
+  "model": "claude-haiku-4-5",
+  "name": "TRINITY TECH CONCEPTS",
+  "note": "The project is identified only by name and stage with no technical details about what renewable energy solution it develops, making it impossible to match against specific sub-sectors or project types.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "trinnovate-synergy-technologies": {
   "classified_at": "2026-09-12T12:03:38+00:00",
   "hash": "974c327c264172f2",
@@ -24874,6 +25210,18 @@
   "sector_id": "2",
   "source": "dpiit-startup-india",
   "subsector_id": "2.7"
+ },
+ "ung-technologies": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "6a47941b258a9f2e",
+  "missing": "renewable energy technology specification",
+  "model": "claude-haiku-4-5",
+  "name": "UNG TECHNOLOGIES PRIVATE LIMITED",
+  "note": "UNG Technologies' specific focus area within renewable energy is not provided with sufficient detail to map to any sub-sector or project type in the taxonomy.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "unibose-engineering-india": {
   "classified_at": "2026-09-12T12:03:41+00:00",
@@ -25270,6 +25618,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "vajra-alloys": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "b7762025cc20449b",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VAJRA ALLOYS PRIVATE LIMITED",
+  "note": "Vajra Alloys specializes in advanced alloy development for aerospace and defence applications, which aligns with the subsector's focus on titanium/alloys and advanced manufacturing including jet engines for high-performance applications.",
+  "project_type": "Health and pharmaceutical materials: wound healing, non-invasive continuous monitoring, ceramic implants, titanium/alloys, silicon, biomaterials for prosthetics, spinal screws, sensors",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.6"
+ },
  "vajrasimha-industries": {
   "classified_at": "2026-09-12T12:06:34+00:00",
   "hash": "a1c60f85eaf68d1c",
@@ -25505,6 +25865,18 @@
   "note": "Veerayu Aerospace operates in defence equipment and aeronautics, which does not align with the deep-tech focus of Sector 2's sub-sectors that emphasize quantum, semiconductors, robotics, photonics, space technology, materials science, and neuromorphic computing.",
   "project_type": null,
   "sector_id": "2",
+  "subsector_id": null
+ },
+ "vegadyne-laboratories-opc": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "497a51b8b381ed50",
+  "missing": "company technology specifics",
+  "model": "claude-haiku-4-5",
+  "name": "VEGADYNE LABORATORIES (OPC) PRIVATE LIMITED",
+  "note": "Vegadyne Laboratories' specific technology focus cannot be determined from the provided description; the company is only identified generically as a DPIIT-recognised green technology startup at validation stage without details of their core innovation.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "vegayan-systems": {
@@ -26024,6 +26396,18 @@
   "sector_id": "3",
   "source": "fsid-iisc",
   "subsector_id": null
+ },
+ "vista-mechatronics": {
+  "classified_at": "2026-09-20T08:35:15+00:00",
+  "hash": "dcd8e17043654064",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "VISTA MECHATRONICS PRIVATE LIMITED",
+  "note": "VISTA Mechatronics is a renewable wind energy startup at prototype stage, which aligns with advanced wind energy systems innovation in the Advanced Wind Energy Systems sub-sector.",
+  "project_type": "Offshore and vertical-axis turbine innovation",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.1"
  },
  "vista-renewable": {
   "classified_at": "2026-09-12T12:06:16+00:00",

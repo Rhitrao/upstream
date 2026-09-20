@@ -2474,6 +2474,20 @@
   "rule": 1,
   "works": []
  },
+ "fabforge-innovations": {
+  "checked": "2026-09-20T08:47:26+00:00",
+  "count": 1,
+  "needle": "Fabforge Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fabforge%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "Development of hybrid multi-head, multi-material paste and ink extrusion type 3D printer for biomedical applications",
+    "url": "https://doi.org/10.1080/21870764.2023.2247210",
+    "year": 2023
+   }
+  ]
+ },
  "fabheads-automation": {
   "checked": "2026-09-14T16:39:42+00:00",
   "count": 0,
@@ -3475,6 +3489,14 @@
     "year": 2026
    }
   ]
+ },
+ "infinitisense": {
+  "checked": "2026-09-20T08:47:26+00:00",
+  "count": 0,
+  "needle": "Infinitisense",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Infinitisense%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
  },
  "infixen-energy": {
   "checked": "2026-09-14T16:39:32+00:00",
@@ -4899,6 +4921,14 @@
     "year": 2026
    }
   ]
+ },
+ "nura-net-space-technologies-privatel": {
+  "checked": "2026-09-20T08:47:26+00:00",
+  "count": 0,
+  "needle": "Nura Net Space Technologies Privatel",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Nura%20Net%20Space%20Technologies%20Privatel%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
  },
  "nutricape": {
   "checked": "2026-09-14T16:39:35+00:00",

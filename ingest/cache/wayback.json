@@ -678,5 +678,65 @@
   "checked": "2026-09-19T08:09:33+00:00",
   "first_capture": null,
   "outcome": "timeout"
+ },
+ "fluoresight.in": {
+  "checked": "2026-09-20T08:37:09+00:00",
+  "first_capture": "2024-04-17",
+  "outcome": "captured"
+ },
+ "flytbase.com": {
+  "checked": "2026-09-20T08:37:16+00:00",
+  "first_capture": "2015-10-18",
+  "outcome": "captured"
+ },
+ "fontierz.com": {
+  "checked": "2026-09-20T08:37:48+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "forhealth.co.in": {
+  "checked": "2026-09-20T08:38:20+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "forschmedx.com": {
+  "checked": "2026-09-20T08:38:51+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "fuselage.co.in": {
+  "checked": "2026-09-20T08:39:23+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "gamasusco.com": {
+  "checked": "2026-09-20T08:39:54+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "gdepl.org": {
+  "checked": "2026-09-20T08:40:26+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "geospekter.com": {
+  "checked": "2026-09-20T08:40:57+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "gigatonresearch.com": {
+  "checked": "2026-09-20T08:41:48+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "gloportphotonix.com": {
+  "checked": "2026-09-20T08:41:52+00:00",
+  "first_capture": "2024-09-07",
+  "outcome": "captured"
+ },
+ "glovatrix.com": {
+  "checked": "2026-09-20T08:42:11+00:00",
+  "first_capture": "2021-12-05",
+  "outcome": "captured"
  }
 }
