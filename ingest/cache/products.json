@@ -469,9 +469,9 @@
   "status": "described"
  },
  "emertech-innovations": {
-  "hash": "fc9478cada36f710",
+  "hash": "a8cab0df172a0fbc",
   "model": "claude-haiku-4-5",
-  "product": "A platform for enterprises that uses AI and blockchain to assign digital identities to products, track them through supply chains, generate compliance documentation, and verify sustainability claims.",
+  "product": "Blockchain-backed supply chain traceability and compliance systems that track products, certifications, and regulatory requirements for enterprises across industries like agriculture, leather, dairy, and manufacturing.",
   "prompt_version": 1,
   "status": "described"
  },

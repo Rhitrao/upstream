@@ -245,6 +245,14 @@
   "rule": 1,
   "works": []
  },
+ "aerolaunch-india": {
+  "checked": "2026-09-21T09:05:34+00:00",
+  "count": 0,
+  "needle": "Aerolaunch",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Aerolaunch%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "aerolith-technology": {
   "checked": "2026-09-14T16:39:30+00:00",
   "count": 0,
@@ -2394,6 +2402,20 @@
   "rule": 1,
   "works": []
  },
+ "ethereal-machines": {
+  "checked": "2026-09-21T09:05:34+00:00",
+  "count": 1,
+  "needle": "Ethereal Machines",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Ethereal%20Machines%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": [
+   {
+    "title": "An Investigation on Effects of Modes of Cooling on Mechanical Property of Sn-Cu Alloy",
+    "url": "https://doi.org/10.21203/rs.3.rs-2943612/v1",
+    "year": 2023
+   }
+  ]
+ },
  "etherx-ai": {
   "checked": "2026-09-15T01:50:36+00:00",
   "count": 0,
@@ -2749,6 +2771,14 @@
   "count": 0,
   "needle": "ForschMedX",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22ForschMedX%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "fpca-technologies": {
+  "checked": "2026-09-21T09:05:34+00:00",
+  "count": 0,
+  "needle": "Fpca Technologies",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Fpca%20Technologies%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

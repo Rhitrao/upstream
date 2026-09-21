@@ -129,6 +129,11 @@
   "first_capture": null,
   "outcome": "unavailable"
  },
+ "ammsemi.in": {
+  "checked": "2026-09-21T08:55:42+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
  "amylo.in": {
   "checked": "2026-09-15T01:47:12+00:00",
   "first_capture": null,
@@ -738,5 +743,90 @@
   "checked": "2026-09-20T08:42:11+00:00",
   "first_capture": "2021-12-05",
   "outcome": "captured"
+ },
+ "gpclifesciences.com": {
+  "checked": "2026-09-21T08:56:02+00:00",
+  "first_capture": "2021-12-02",
+  "outcome": "captured"
+ },
+ "greencollar.ai": {
+  "checked": "2026-09-21T08:56:09+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "greengrahi.com": {
+  "checked": "2026-09-21T08:56:15+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "greenjams.org": {
+  "checked": "2026-09-21T08:56:22+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "greenshiftnrg.com": {
+  "checked": "2026-09-21T08:56:54+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "greentrek.co": {
+  "checked": "2026-09-21T08:57:11+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "greyeast.in": {
+  "checked": "2026-09-21T08:57:28+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "grinntech.com": {
+  "checked": "2026-09-21T08:57:46+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "gurutvaa.com": {
+  "checked": "2026-09-21T08:58:03+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "gut-buddy.com": {
+  "checked": "2026-09-21T08:58:21+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "gyrfalconintelliedge.com": {
+  "checked": "2026-09-21T08:58:27+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "gyrophint.com": {
+  "checked": "2026-09-21T08:58:45+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "h2epower.net": {
+  "checked": "2026-09-21T08:59:02+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "haystackanalytics.in": {
+  "checked": "2026-09-21T08:59:20+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "hbslifesciences.com": {
+  "checked": "2026-09-21T08:59:37+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "heatcrafters.in": {
+  "checked": "2026-09-21T08:59:55+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "hemdimensions.com": {
+  "checked": "2026-09-21T09:00:12+00:00",
+  "first_capture": null,
+  "outcome": "error"
  }
 }

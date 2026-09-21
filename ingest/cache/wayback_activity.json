@@ -141,6 +141,11 @@
   "last_failure_at": "2026-09-15T04:33:10+00:00",
   "outcome": "unavailable"
  },
+ "ammsemi.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-21T09:00:19+00:00",
+  "outcome": "unavailable"
+ },
  "amylo.in": {
   "last_failure": "unavailable",
   "last_failure_at": "2026-09-15T04:33:35+00:00",
@@ -950,6 +955,91 @@
  "infyulabs.com": {
   "last_failure": "timeout",
   "last_failure_at": "2026-09-20T08:47:26+00:00",
+  "outcome": "timeout"
+ },
+ "ingeniumedu.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-21T09:00:25+00:00",
+  "outcome": "unavailable"
+ },
+ "innaumation.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-21T09:00:32+00:00",
+  "outcome": "unavailable"
+ },
+ "innovatecure.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-21T09:00:39+00:00",
+  "outcome": "unavailable"
+ },
+ "inopen.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-21T09:00:45+00:00",
+  "outcome": "unavailable"
+ },
+ "inspecity.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:01:11+00:00",
+  "outcome": "error"
+ },
+ "intignusbiotech.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:01:29+00:00",
+  "outcome": "error"
+ },
+ "inventionlabs.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:01:46+00:00",
+  "outcome": "error"
+ },
+ "iqsoft.ai": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:02:04+00:00",
+  "outcome": "error"
+ },
+ "jatayuhealth.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:02:21+00:00",
+  "outcome": "error"
+ },
+ "jeevatva.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:02:39+00:00",
+  "outcome": "error"
+ },
+ "jyoshrobot.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-21T09:03:10+00:00",
+  "outcome": "timeout"
+ },
+ "kaizatech.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:03:36+00:00",
+  "outcome": "error"
+ },
+ "kbcolssciences.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:03:53+00:00",
+  "outcome": "error"
+ },
+ "keralink.org": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:04:11+00:00",
+  "outcome": "error"
+ },
+ "koreammr.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-21T09:04:28+00:00",
+  "outcome": "error"
+ },
+ "kozhnosys.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-21T09:05:01+00:00",
+  "outcome": "timeout"
+ },
+ "kristelledentalimplant.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-21T09:05:32+00:00",
   "outcome": "timeout"
  }
 }

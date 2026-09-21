@@ -722,6 +722,23 @@
   "text_chars": 0,
   "website": "https://ameyaunisys.in/"
  },
+ "ammsemi": {
+  "careers": null,
+  "checked": "2026-09-21T09:00:12+00:00",
+  "contact_email": null,
+  "contact_page": null,
+  "pages": {
+   "home": {
+    "outcome": "unreachable",
+    "url": "https://www.ammsemi.in"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": null,
+  "text_chars": 0,
+  "website": "https://www.ammsemi.in"
+ },
  "amyscan-healthcare": {
   "careers": {
    "roles": 0,
