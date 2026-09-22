@@ -146,6 +146,18 @@
   "source": "sine-iitb",
   "subsector_id": "4.5"
  },
+ "aadvik-teklabs": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "f227331d1c1d3a28",
+  "missing": "consumer iot and smart home",
+  "model": "claude-haiku-4-5",
+  "name": "AADVIK TEKLABS PRIVATE LIMITED",
+  "note": "AADVIK TekLabs works on IoT and smart home solutions, which are neither deep-tech infrastructure components nor fundamental research capabilities.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "aagamiseq-technologies": {
   "classified_at": "2026-09-15T01:39:08+00:00",
   "hash": "67d2a4660cf1591d",
@@ -305,6 +317,18 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "abc-biorefinery": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "9937ca58eda1f8c5",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ABC BIOREFINERY PRIVATE LIMITED",
+  "note": "ABC Biorefinery's waste management focus through biorefining aligns with waste-to-energy and industrial symbiosis approaches under comprehensive climate action, converting waste streams into valuable products or energy.",
+  "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.16"
  },
  "abee-research-labs": {
   "classified_at": "2026-09-12T11:59:47+00:00",
@@ -863,6 +887,18 @@
   "project_type": "Composites: carbon, glass, silicon, lithium, nickel for wind blades, PV cells, batteries, smart grids",
   "sector_id": "2",
   "subsector_id": "2.6"
+ },
+ "aerosparke-industries": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "5c4737094d170c1a",
+  "missing": "unmanned aerial systems",
+  "model": "claude-haiku-4-5",
+  "name": "AEROSPARKE INDUSTRIES PRIVATE LIMITED",
+  "note": "Aerosparke Industries develops drones for aeronautics and defence applications, which falls under unmanned aerial vehicles rather than the deep-technology categories covered by this taxonomy.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "aerostreak-innovations": {
   "classified_at": "2026-09-12T12:04:25+00:00",
@@ -1452,6 +1488,18 @@
   "sector_id": "1",
   "source": "dpiit-startup-india",
   "subsector_id": null
+ },
+ "airvanta-medical-technologies": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "5e0985a15d165041",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AIRVANTA MEDICAL TECHNOLOGIES LLP",
+  "note": "Airvanta Medical Technologies develops wearable respiratory monitoring devices that track airway health in real-time, fitting the wearable health monitors category within medical devices and diagnostics.",
+  "project_type": "Wearable health monitors and implantable biosensors",
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
+  "subsector_id": "4.5"
  },
  "aishwarya-dasare": {
   "classified_at": "2026-09-14T07:03:49+00:00",
@@ -2317,6 +2365,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "antar-iot": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "9d31407533e8c60f",
+  "missing": "smart home and consumer IoT",
+  "model": "claude-haiku-4-5",
+  "name": "ANTAR IOT PRIVATE LIMITED",
+  "note": "ANTAR IoT operates in smart home IoT systems, which falls outside the taxonomy's focus on deep-tech infrastructure, agriculture, financial systems, governance, health, education, data platforms, and emerging digital economy applications.",
+  "project_type": null,
+  "sector_id": "5",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "antaya-biosciences": {
   "classified_at": "2026-09-12T12:02:40+00:00",
   "hash": "21ab8fe2839359bc",
@@ -2969,6 +3029,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "asp-aerotech": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "8768a696dc57e2cb",
+  "missing": "aerospace systems and components",
+  "model": "claude-haiku-4-5",
+  "name": "ASP AEROTECH PRIVATE LIMITED",
+  "note": "ASP Aerotech is an aeronautics company focused on aircraft/aerospace systems development, which falls under aerospace and defence but does not align with the deep-tech categories in Sector 2 (quantum, semiconductors, advanced manufacturing, photonics, space tech, materials, robotics, or neuromorphic computing).",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "aspacezz-aerospace": {
   "classified_at": "2026-09-12T12:03:59+00:00",
   "hash": "50e9696555358544",
@@ -3036,6 +3108,18 @@
   "project_type": null,
   "sector_id": "2",
   "subsector_id": null
+ },
+ "astrek-innovations": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "14cd698075db7aa2",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ASTREK INNOVATIONS PRIVATE LIMITED",
+  "note": "ASTREK INNOVATIONS is a robotics startup at early traction stage, and modular robotic platforms under Intelligent Systems & Robotics directly aligns with developing scalable robotic solutions.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
  },
  "astro-ai": {
   "classified_at": "2026-09-15T01:40:03+00:00",
@@ -3439,15 +3523,15 @@
   "subsector_id": null
  },
  "avgarde-systems": {
-  "classified_at": "2026-09-15T01:39:12+00:00",
-  "hash": "16c5434fbed18049",
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "14ee3a300b729e14",
   "missing": "wireless sensing and airspace management",
   "model": "claude-haiku-4-5",
-  "name": "AVGARDE SYSTEMS PVT. LTD.",
-  "note": "AVGARDE's core competency is RF/wireless sensing and AI for airspace management, which does not align with any of Sector 2's deep-tech focus areas; the taxonomy covers quantum, semiconductors, photonics, space, materials, and robotics, but lacks coverage of wireless sensing systems and unmanned traffic management infrastructure.",
+  "name": "AVGARDE SYSTEMS PRIVATE LIMITED",
+  "note": "AVGARDE's core competency is in RF/wireless sensing and AI-driven airspace management for drone detection and counter-UAS operations, which does not align with any of the listed deep-tech categories under Sector 2.",
   "project_type": null,
   "sector_id": "2",
-  "source": "fsid-iisc",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "avinya-leather": {
@@ -3507,6 +3591,18 @@
   "sector_id": "1",
   "source": "tides-iitr",
   "subsector_id": null
+ },
+ "avision-systems": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "204a46d9560b816c",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "AVISION SYSTEMS PRIVATE LIMITED",
+  "note": "Drones inherently require autonomous navigation and perception systems to operate, making this the closest match within the Intelligent Systems & Robotics sub-sector.",
+  "project_type": "Autonomous navigation and perception",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
  },
  "avistrat-engineering-opc": {
   "classified_at": "2026-09-12T12:04:29+00:00",
@@ -4390,6 +4486,18 @@
   "sector_id": "4",
   "subsector_id": "4.5"
  },
+ "blendmest-technologies": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "10ee325758ced783",
+  "missing": "aeronautics and aviation technologies",
+  "model": "claude-haiku-4-5",
+  "name": "BLENDMEST TECHNOLOGIES PRIVATE LIMITED",
+  "note": "BLENDMEST TECHNOLOGIES works in aeronautics and aviation, which falls outside the scope of Sector 2's deep technology focus on quantum computing, robotics, space, semiconductors, photonics, materials science, and neuromorphic systems.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "blu-cocoon-digital": {
   "classified_at": "2026-09-15T02:51:47+00:00",
   "hash": "5bca747e3de5d505",
@@ -4447,8 +4555,8 @@
   "subsector_id": "2.5"
  },
  "bng-spray-solutions": {
-  "classified_at": "2026-09-21T08:50:35+00:00",
-  "hash": "094862d4b5d5577b",
+  "classified_at": "2026-09-22T09:03:13+00:00",
+  "hash": "a797338e26e84b0e",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Bng Spray Solutions Pvt Ltd",
@@ -4534,6 +4642,18 @@
   "project_type": "Waste-to-energy, industrial symbiosis, rare earth / critical minerals / e-waste recycling, decarbonized desalination",
   "sector_id": "1",
   "subsector_id": "1.16"
+ },
+ "bortex": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "473aee1ea2b07e66",
+  "missing": "defence equipment and platforms",
+  "model": "claude-haiku-4-5",
+  "name": "BORTEX PRIVATE LIMITED",
+  "note": "BORTEX is an aerospace and defence equipment company, but the taxonomy under Sector 2 focuses on deep technologies (quantum, semiconductors, photonics, space systems, materials, robotics, and AI hardware) rather than defence platforms, weapons systems, or general aeronautics engineering that would be typical of the Defence Equipment sector.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "botanicaluxe-luxury-redefined-naturally": {
   "classified_at": "2026-09-12T12:02:25+00:00",
@@ -7598,6 +7718,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "e-yati-technology": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "2d397fd18d493519",
+  "missing": "industrial iot and smart factory systems",
+  "model": "claude-haiku-4-5",
+  "name": "E-YATI TECHNOLOGY PRIVATE LIMITED",
+  "note": "E-YATI Technology is an IoT company focused on manufacturing and warehouse management, which involves applying connected sensors and data analytics to industrial operations\u2014a software and systems integration play rather than deep technology R&D.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "e3-labs": {
   "classified_at": "2026-09-15T01:39:13+00:00",
   "hash": "75af19c230fe011e",
@@ -8125,6 +8257,18 @@
   "source": "tides-iitr",
   "subsector_id": null
  },
+ "electricx-hypercharge": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "d75e0189bcc9e89e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ELECTRICX HYPERCHARGE PRIVATE LIMITED",
+  "note": "ELECTRICX Hypercharge's name and stage suggest EV/energy charging infrastructure or advanced battery solutions, positioning it within energy storage innovations for the clean energy transition.",
+  "project_type": "Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.4"
+ },
  "electrifuel": {
   "classified_at": "2026-09-17T08:40:37+00:00",
   "hash": "08678a1df95c7d7d",
@@ -8480,6 +8624,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": "2.7"
  },
+ "endeavor-avionics": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "36de9308eb3b8a43",
+  "missing": "autonomous aerial vehicles and drone systems",
+  "model": "claude-haiku-4-5",
+  "name": "ENDEAVOR AVIONICS LLP",
+  "note": "Endeavor Avionics develops drones for aerospace and defence, which falls outside the deep-technology categories in Sector 2; drone development as a commercial product does not align with quantum computing, semiconductors, advanced manufacturing, photonics, space technologies, materials science, or robotics platforms.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "endimension-technology": {
   "classified_at": "2026-09-12T11:59:16+00:00",
   "hash": "5976bab2843279aa",
@@ -8626,6 +8782,18 @@
   "project_type": "Electronic control systems",
   "sector_id": "2",
   "subsector_id": "2.2"
+ },
+ "engrow-carbon-energy": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "2f007835a0a56e92",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ENGROW CARBON ENERGY PRIVATE LIMITED",
+  "note": "ENGROW CARBON ENERGY's focus on carbon energy solutions aligns with CCUS sub-sector work on capturing and managing CO2 for energy and material applications.",
+  "project_type": "Low-cost CO2 capture, mineralization, bioconversion, enhanced oil recovery",
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": "1.6"
  },
  "enlife": {
   "classified_at": "2026-09-15T01:39:16+00:00",
@@ -9922,6 +10090,18 @@
   "note": "FUTOPIA GLOBAL is a computer vision company without specified application domain; the taxonomy requires domain-specific AI solutions (agriculture, health, education, or cross-domain enablement) but this company's core offering appears to be generic computer vision technology.",
   "project_type": null,
   "sector_id": "3",
+  "subsector_id": null
+ },
+ "future-bioworld": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "2d08f74137d06e39",
+  "missing": "company technology specifics",
+  "model": "claude-haiku-4-5",
+  "name": "FUTURE BIOWORLD",
+  "note": "Company description provides only industry classification (Green Technology) and stage (Scaling) without sufficient technical detail about specific biotechnology work.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "future-quantum-innovations": {
@@ -14755,6 +14935,18 @@
   "source": "dpiit-startup-india",
   "subsector_id": null
  },
+ "liradolf-information-technologies-and-engineering-services": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "dd49858c49dae84e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "LIRADOLF INFORMATION TECHNOLOGIES AND ENGINEERING SERVICES PRIVATE LIMITED",
+  "note": "LIRADOLF's IoT focus on manufacturing and warehouse operations aligns with advanced automation and control systems for assembly lines, which is the core application area for IoT in industrial settings.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.3"
+ },
  "lisha-awasthi": {
   "classified_at": "2026-09-14T07:03:50+00:00",
   "hash": "7043172dad3dead4",
@@ -17244,6 +17436,18 @@
   "sector_id": "2",
   "subsector_id": "2.5"
  },
+ "newtrace": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "f5beede581fbe93f",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "NEWTRACE PRIVATE LIMITED",
+  "note": "NEWTRACE's specific technology and application area cannot be determined from the provided information (only 'Green Technology' and 'Clean Tech' are stated), making it impossible to match against the detailed project types listed.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "newttorr-pumps-and-systems": {
   "classified_at": "2026-09-15T01:39:25+00:00",
   "hash": "5fd4952193ca9097",
@@ -18106,6 +18310,18 @@
   "sector_id": "1",
   "subsector_id": "1.16"
  },
+ "optimized-electrotech": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "aa7d914ee369f7cc",
+  "missing": "defence systems integration",
+  "model": "claude-haiku-4-5",
+  "name": "OPTIMIZED ELECTROTECH PRIVATE LIMITED",
+  "note": "OPTIMIZED ELECTROTECH is described as working in Defence Equipment within Aeronautics Aerospace & Defence, but the taxonomy's Sector 2 focuses on deep technology categories (quantum, semiconductors, robotics, space, materials, AI hardware) rather than defence systems or aerospace platforms integration.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "optotech-mechanics": {
   "classified_at": "2026-09-12T12:01:39+00:00",
   "hash": "dc36d7bd3b35e3e1",
@@ -18230,6 +18446,18 @@
   "project_type": null,
   "sector_id": null,
   "subsector_id": null
+ },
+ "overwrite-robotics": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "afaccdd6a3a8675e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "OVERWRITE ROBOTICS PRIVATE LIMITED",
+  "note": "Overwrite Robotics is a robotics technology startup and falls squarely under Intelligent Systems & Robotics, with modular robotic platforms being the most aligned project type for a company building robotics technology solutions.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.7"
  },
  "ovolo-it-building-solutions": {
   "classified_at": "2026-09-15T01:39:41+00:00",
@@ -20162,8 +20390,8 @@
   "subsector_id": null
  },
  "rapture-innovation-labs": {
-  "classified_at": "2026-09-21T08:50:35+00:00",
-  "hash": "47c592c9dfc0f1f7",
+  "classified_at": "2026-09-22T09:03:13+00:00",
+  "hash": "ddb966ea462061eb",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Rapture Innovation Labs Pvt Ltd",
@@ -20294,6 +20522,18 @@
   "project_type": "Recycling systems for critical minerals and metals",
   "sector_id": "1",
   "subsector_id": "1.13"
+ },
+ "rdl-technologies": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "135d7210b5e514bd",
+  "missing": "industrial IoT and connected systems",
+  "model": "claude-haiku-4-5",
+  "name": "RDL TECHNOLOGIES PRIVATE LIMITED",
+  "note": "RDL Technologies is an IoT company focused on manufacturing and warehouse applications, which falls under industrial IoT and smart factory connectivity rather than the deep-tech categories listed in Sector 2.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "re-connect-energy-solutions": {
   "classified_at": "2026-09-12T10:56:08+00:00",
@@ -20665,6 +20905,18 @@
   "source": "tides-iitr",
   "subsector_id": null
  },
+ "resolve-biotech": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "4435578c8643df0d",
+  "missing": "company focus details",
+  "model": "claude-haiku-4-5",
+  "name": "RESOLVE BIOTECH PRIVATE LIMITED",
+  "note": "RESOLVE BIOTECH's specific focus area and capabilities cannot be determined from the information provided.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "resonating-mindz": {
   "classified_at": "2026-09-12T10:56:10+00:00",
   "hash": "0df746ae3f52f326",
@@ -21005,6 +21257,18 @@
   "note": "RoboTutor Tech develops robotics technology and is a DPIIT-recognised startup in the robotics sector, which aligns with the modular robotic platforms project type under Intelligent Systems & Robotics.",
   "project_type": "Modular robotic platforms",
   "sector_id": "2",
+  "subsector_id": "2.7"
+ },
+ "robuverse": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "defebfac86818cc6",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "Robuverse",
+  "note": "The project develops robotics technology aligned with modular robotic platforms, a core capability listed under Intelligent Systems & Robotics.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": "2.7"
  },
  "roha-precision-systems-development": {
@@ -21620,6 +21884,18 @@
   "sector_id": "2",
   "subsector_id": null
  },
+ "sarpada-bioinnovate": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "c389cb531bdaabbc",
+  "missing": "company technical focus details",
+  "model": "claude-haiku-4-5",
+  "name": "SARPADA BIOINNOVATE PRIVATE LIMITED",
+  "note": "Without specific information about SARPADA Bioinnovate's actual research focus, technology platform, or product pipeline, it is not possible to accurately assign them to a sub-sector or project type.",
+  "project_type": null,
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "sarthaksolar-system": {
   "classified_at": "2026-09-12T12:06:09+00:00",
   "hash": "ef92cb630f759c62",
@@ -21782,6 +22058,18 @@
   "sector_id": "1",
   "subsector_id": null
  },
+ "save-greeneco-industries": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "ecd38d3cdeb803a2",
+  "missing": "company technology details",
+  "model": "claude-haiku-4-5",
+  "name": "SAVE GREENECO INDUSTRIES PRIVATE LIMITED",
+  "note": "SAVE GREENECO INDUSTRIES is described only as a DPIIT-recognised green technology startup at scaling stage, with no information about its specific technology focus, products, or services.",
+  "project_type": null,
+  "sector_id": "1",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
+ },
  "sawai-intelligence": {
   "classified_at": "2026-09-12T12:06:38+00:00",
   "hash": "21ad1533ef738185",
@@ -21928,6 +22216,18 @@
   "note": null,
   "project_type": null,
   "sector_id": null,
+  "subsector_id": null
+ },
+ "sectr-consol": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "9d212290adc93641",
+  "missing": "internet of things platforms",
+  "model": "claude-haiku-4-5",
+  "name": "SECTR CONSOL PRIVATE LIMITED",
+  "note": "SECTR CONSOL operates in Internet of Things, which is a broad connectivity and data management domain. While IoT may incorporate elements from multiple deep-tech sectors (semiconductors, robotics, or AI hardware), the taxonomy focuses on specialized hardware innovation, materials science, and fundamental physics breakthroughs rather than general-purpose IoT platforms or services.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": null
  },
  "sedemac-mechatronics": {
@@ -22294,6 +22594,18 @@
   "sector_id": "2",
   "source": "dpiit-startup-india",
   "subsector_id": "2.5"
+ },
+ "shivoham-agri-orbit": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "17166e9fccaf76cf",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "SHIVOHAM AGRI ORBIT PRIVATE LIMITED",
+  "note": "The company name 'Agri Orbit' and agricultural focus suggests development of biological solutions for agricultural applications, which aligns with sustainable biologics for farming systems.",
+  "project_type": "Sustainable biologics for agriculture, aquaculture and animal health",
+  "sector_id": "4",
+  "source": "dpiit-startup-india",
+  "subsector_id": "4.7"
  },
  "shivpoojan-mahant": {
   "classified_at": "2026-09-12T12:03:16+00:00",
@@ -22930,6 +23242,18 @@
   "project_type": "Processing of critical minerals",
   "sector_id": "1",
   "subsector_id": "1.13"
+ },
+ "smowcode": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "7f3fbac5ff20360c",
+  "missing": "iot and embedded systems",
+  "model": "claude-haiku-4-5",
+  "name": "SMOWCODE PRIVATE LIMITED",
+  "note": "SMOWCODE is an IoT company, which is general-purpose connectivity and embedded systems infrastructure rather than deep technology in the specific domains listed.",
+  "project_type": null,
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": null
  },
  "snapper": {
   "classified_at": "2026-09-15T01:40:13+00:00",
@@ -24264,6 +24588,18 @@
   "sector_id": "3",
   "subsector_id": null
  },
+ "tachlog": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "2345ad15aa542da7",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TACHLOG PRIVATE LIMITED",
+  "note": "TACHLOG's IoT focus on manufacturing and warehouse operations aligns with advanced automation and control systems for assembly lines and warehouse management.",
+  "project_type": "Advanced automation / control systems for manufacturing assembly lines",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.3"
+ },
  "tactopus-learning-solutions": {
   "classified_at": "2026-09-12T10:56:23+00:00",
   "hash": "e733e9e17c147376",
@@ -25297,6 +25633,18 @@
   "project_type": "Field efficiency enhancements",
   "sector_id": "1",
   "subsector_id": "1.3"
+ },
+ "trinav-spacetech": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "45b1c02b06a3067e",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "TRINAV SPACETECH LLP",
+  "note": "TRINAV Spacetech's focus on aeronautics, aerospace and defence in the space technology sector aligns with space technologies sub-sector activities including space traffic management and on-orbit servicing capabilities.",
+  "project_type": "AI-based space traffic monitoring, active debris removal, on-orbit servicing / refuelling / life-extension",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
+  "subsector_id": "2.5"
  },
  "trinity-tech-concepts": {
   "classified_at": "2026-09-20T08:35:15+00:00",
@@ -28005,6 +28353,18 @@
   "note": "ZIROC is a robotics startup at prototype stage, and modular robotic platforms is the project type under Intelligent Systems & Robotics that best encompasses general robotics application development.",
   "project_type": "Modular robotic platforms",
   "sector_id": "2",
+  "subsector_id": "2.7"
+ },
+ "zon-robotics-and-ai": {
+  "classified_at": "2026-09-22T09:08:47+00:00",
+  "hash": "b21562e576266577",
+  "missing": null,
+  "model": "claude-haiku-4-5",
+  "name": "ZON ROBOTICS AND AI PRIVATE LIMITED",
+  "note": "ZON Robotics develops robotics technology at prototype stage, which aligns with the modular robotic platforms category under Intelligent Systems & Robotics that focuses on innovative robotic platform development.",
+  "project_type": "Modular robotic platforms",
+  "sector_id": "2",
+  "source": "dpiit-startup-india",
   "subsector_id": "2.7"
  },
  "zulu-defence-systems": {

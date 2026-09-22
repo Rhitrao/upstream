@@ -814,6 +814,14 @@
    }
   ]
  },
+ "astrek-innovations": {
+  "checked": "2026-09-22T09:21:25+00:00",
+  "count": 0,
+  "needle": "Astrek Innovations",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Astrek%20Innovations%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "astrome-technologies": {
   "checked": "2026-09-14T16:39:37+00:00",
   "count": 3,
@@ -5096,6 +5104,14 @@
   "rule": 1,
   "works": []
  },
+ "overwrite-robotics": {
+  "checked": "2026-09-22T09:21:25+00:00",
+  "count": 0,
+  "needle": "Overwrite Robotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Overwrite%20Robotics%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
  "oxobot-robotics": {
   "checked": "2026-09-14T16:39:32+00:00",
   "count": 0,
@@ -5695,6 +5711,14 @@
   "count": 0,
   "needle": "Robotutor Tech",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Robotutor%20Tech%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "robuverse": {
+  "checked": "2026-09-22T09:21:25+00:00",
+  "count": 0,
+  "needle": "Robuverse",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Robuverse%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },
@@ -6754,6 +6778,14 @@
   "count": 0,
   "needle": "Trinano Technologies",
   "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trinano%20Technologies%22&sort=publication_date:desc",
+  "rule": 1,
+  "works": []
+ },
+ "trinav-spacetech": {
+  "checked": "2026-09-22T09:21:25+00:00",
+  "count": 0,
+  "needle": "Trinav Spacetech",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Trinav%20Spacetech%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

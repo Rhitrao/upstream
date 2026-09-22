@@ -141,6 +141,11 @@
   "last_failure_at": "2026-09-15T04:33:10+00:00",
   "outcome": "unavailable"
  },
+ "ammsemi.ai": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:16:28+00:00",
+  "outcome": "timeout"
+ },
  "ammsemi.in": {
   "last_failure": "unavailable",
   "last_failure_at": "2026-09-21T09:00:19+00:00",
@@ -1040,6 +1045,71 @@
  "kristelledentalimplant.com": {
   "last_failure": "timeout",
   "last_failure_at": "2026-09-21T09:05:32+00:00",
+  "outcome": "timeout"
+ },
+ "kritsnam.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:17:00+00:00",
+  "outcome": "timeout"
+ },
+ "lamarkbiotech.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-22T09:17:17+00:00",
+  "outcome": "unavailable"
+ },
+ "lambdapoint.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:17:48+00:00",
+  "outcome": "timeout"
+ },
+ "languify.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-22T09:17:55+00:00",
+  "outcome": "unavailable"
+ },
+ "lifeandlimb.ai": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-22T09:18:02+00:00",
+  "outcome": "unavailable"
+ },
+ "lifeseedrepro.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-22T09:18:09+00:00",
+  "outcome": "unavailable"
+ },
+ "lifesparktech.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-22T09:18:15+00:00",
+  "outcome": "unavailable"
+ },
+ "log9materials.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:18:47+00:00",
+  "outcome": "timeout"
+ },
+ "logicboots.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:19:19+00:00",
+  "outcome": "timeout"
+ },
+ "logy.ai": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:19:50+00:00",
+  "outcome": "timeout"
+ },
+ "magheals.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:20:22+00:00",
+  "outcome": "timeout"
+ },
+ "magnimous.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:20:53+00:00",
+  "outcome": "timeout"
+ },
+ "manastik.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-22T09:21:25+00:00",
   "outcome": "timeout"
  }
 }

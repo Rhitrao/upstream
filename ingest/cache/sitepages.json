@@ -723,21 +723,40 @@
   "website": "https://ameyaunisys.in/"
  },
  "ammsemi": {
-  "careers": null,
-  "checked": "2026-09-21T09:00:12+00:00",
-  "contact_email": null,
-  "contact_page": null,
+  "careers": {
+   "roles": 0,
+   "says_none": false,
+   "titles": [],
+   "url": "https://ammsemi.ai/careers.html"
+  },
+  "checked": "2026-09-22T09:15:58+00:00",
+  "contact_email": "info@ammsemi.ai",
+  "contact_page": "https://ammsemi.ai/about.html#contact",
   "pages": {
-   "home": {
-    "outcome": "unreachable",
-    "url": "https://www.ammsemi.in"
+   "about": {
+    "meta": "AmmSemi Private Limited is a deep-tech fabless semiconductor company incubated at SINE, IIT Bombay, commercialising a novel Analog In-memory compute technology.",
+    "outcome": "ok",
+    "title": "About — AmmSemi",
+    "url": "https://ammsemi.ai/about.html"
+   },
+   "careers": {
+    "meta": "Join AmmSemi. Stay tuned for open roles, or reach out directly at info@ammsemi.ai.",
+    "outcome": "ok",
+    "title": "Careers — AmmSemi",
+    "url": "https://ammsemi.ai/careers.html"
+   },
+   "products": {
+    "meta": "AmmSemi's Analog Compute Core: an in-memory analog compute architecture delivering ultra-low power, low cost AI acceleration.",
+    "outcome": "ok",
+    "title": "Products & Technology — AmmSemi",
+    "url": "https://ammsemi.ai/products.html"
    }
   },
   "parked": false,
   "repo": null,
   "team": null,
-  "text_chars": 0,
-  "website": "https://www.ammsemi.in"
+  "text_chars": 4367,
+  "website": "https://ammsemi.ai/home"
  },
  "amyscan-healthcare": {
   "careers": {
@@ -7063,6 +7082,23 @@
   "team": null,
   "text_chars": 0,
   "website": "https://www.sedemac.com"
+ },
+ "sense-it-out-intelligent-solutions": {
+  "careers": null,
+  "checked": "2026-09-22T09:15:55+00:00",
+  "contact_email": null,
+  "contact_page": null,
+  "pages": {
+   "home": {
+    "outcome": "unreachable",
+    "url": "https://www.senseitout.com"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": null,
+  "text_chars": 0,
+  "website": "https://www.senseitout.com"
  },
  "senseqube-technologies": {
   "careers": null,
