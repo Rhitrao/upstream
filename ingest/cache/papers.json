@@ -6866,10 +6866,10 @@
   "works": []
  },
  "umarobotics-technology": {
-  "checked": "2026-09-14T16:39:36+00:00",
+  "checked": "2026-09-23T09:24:11+00:00",
   "count": 0,
-  "needle": "Umarobotics Technology",
-  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Umarobotics%20Technology%22&sort=publication_date:desc",
+  "needle": "Umarobotics",
+  "query_url": "https://api.openalex.org/works?filter=raw_affiliation_strings.search:%22Umarobotics%22&sort=publication_date:desc",
   "rule": 1,
   "works": []
  },

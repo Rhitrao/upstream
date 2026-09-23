@@ -118,6 +118,13 @@
   "prompt_version": 1,
   "status": "unclear"
  },
+ "ammsemi": {
+  "hash": "6862bef388b84a1d",
+  "model": "claude-haiku-4-5",
+  "product": "AI accelerator processors using in-memory analog compute technology for low-power AI inference.",
+  "prompt_version": 1,
+  "status": "described"
+ },
  "amyscan-healthcare": {
   "hash": "3799e1e79c88d015",
   "model": "claude-haiku-4-5",
@@ -147,9 +154,9 @@
   "status": "described"
  },
  "astrome-technologies": {
-  "hash": "0c8ebd914fb0c949",
+  "hash": "ff4fd5eb687ffaa5",
   "model": "claude-haiku-4-5",
-  "product": "Wireless backhaul radios, flat-panel satellite antennas, software-defined modems, and satellite transceivers for terrestrial and satellite communications networks.",
+  "product": "Wireless backhaul radios, satellite antennas, modems, and transceivers that provide terrestrial and satellite connectivity for broadband infrastructure and space-to-ground communications.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -251,6 +258,13 @@
   "prompt_version": 1,
   "status": "described"
  },
+ "bramhansh-technologies": {
+  "hash": "7d298cea0805f832",
+  "model": "claude-haiku-4-5",
+  "product": "Migraelief, a neurostimulation device for migraine reduction and prevention for patients seeking drug-free treatment.",
+  "prompt_version": 1,
+  "status": "described"
+ },
  "byas-biorefineries": {
   "hash": "1f7c38474c0295c3",
   "model": "claude-haiku-4-5",
@@ -297,6 +311,13 @@
   "hash": "2e39914ca4142dfc",
   "model": "claude-haiku-4-5",
   "product": "AI software including agentic RAG systems, video analytics, and predictive maintenance for industrial automation, plus machine learning and DC motor kits for education.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "cellsion-technologies": {
+  "hash": "3b27f08bc27625a6",
+  "model": "claude-haiku-4-5",
+  "product": "Human organoids and engineered tissues for drug testing, clinical trials, and regenerative medicine applications.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -406,9 +427,9 @@
   "status": "described"
  },
  "durjeya-solutions": {
-  "hash": "65495b0d019dd236",
+  "hash": "a27ef00dd8f14318",
   "model": "claude-haiku-4-5",
-  "product": "Nexa is an offline-capable digital testing platform for conducting exams in schools, universities, and recruitment settings with end-to-end encrypted question paper distribution and response collection.",
+  "product": "CORTEX is an offline, cryptographically sealed exam delivery system for educational boards that encrypts question papers in the vault, keeps them unreadable during transit, and releases them only at exam time on candidate devices, with answers returned in a verifiable evidence chain.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -504,9 +525,9 @@
   "status": "described"
  },
  "euphotic-labs": {
-  "hash": "372c4b68ddd2722d",
+  "hash": "db4a556c696b1e9f",
   "model": "claude-haiku-4-5",
-  "product": "Nosh is an AI-powered robot that automatically cooks meals for home users.",
+  "product": "Nosh is an AI-powered robotic chef that automatically cooks fresh meals from a library of 500+ recipes for home users.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -532,9 +553,9 @@
   "status": "described"
  },
  "ferry-lifesciences": {
-  "hash": "d8bc3ea31d1cd71b",
+  "hash": "a0b32a3e442bac25",
   "model": "claude-haiku-4-5",
-  "product": "A modular point-of-care diagnostic platform for lab-grade testing in resource-limited settings, for patients, clinicians, and health workers.",
+  "product": "A portable, modular point-of-care diagnostic platform that performs lab-grade testing in resource-limited settings, for patients and clinicians in underserved communities.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -640,6 +661,13 @@
   "hash": "3fa23f2ce0f89a85",
   "model": "claude-haiku-4-5",
   "product": "A mobile app for people with IBS that provides virtual consultations with gastroenterologists and dietitians, personalized meal plans, symptom tracking, AI-driven dietary recommendations, and cognitive behavioral therapy sessions.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "gyrfalcon-intelliedge-solutions-india": {
+  "hash": "b888a51085729231",
+  "model": "claude-haiku-4-5",
+  "product": "IoT gateways with cloud-enabled dashboards for monitoring sensor data, asset tracking, and equipment diagnostics for industrial customers.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -798,9 +826,9 @@
   "status": "described"
  },
  "kaiza-health": {
-  "hash": "6064d2df4da7f100",
+  "hash": "2b4e9c8e81fd07d9",
   "model": "claude-haiku-4-5",
-  "product": "A product called KAIZA BASPro that uses beneficial microbes and plant-derived bio-extracts to support immunity and digestive health in cattle, buffalo, and goats.",
+  "product": "Microbe and phyto-extract-based health products for humans, animals, and crops to reduce antibiotic dependence, along with digital platforms for one-health coordination.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -836,6 +864,13 @@
   "hash": "2d68b3e63d0616e6",
   "model": "claude-haiku-4-5",
   "product": "WALK, a wearable device that uses neuromodulation and personalized therapy guidance to help people with Parkinson's disease improve their walking and reduce freezing episodes.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "magheals": {
+  "hash": "056ebac55db40c2f",
+  "model": "claude-haiku-4-5",
+  "product": "Magnetic hyperthermia therapy for solid tumors, consisting of an alternating magnetic field generator called MagnaTheron and magnetic nanoparticles called ThermoHeals that generate targeted heat to kill cancer cells.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -945,9 +980,9 @@
   "status": "described"
  },
  "ncf-green-energy": {
-  "hash": "820ee212883fe847",
+  "hash": "8a83df03afe16d8e",
   "model": "claude-haiku-4-5",
-  "product": "Solar heating products for hot water, space heating, and industrial drying that use NCF (Nano Carbon Florets) material to convert sunlight to heat.",
+  "product": "Solar heating systems and materials for industrial and residential applications using Nano Carbon Florets, a nanomaterial that converts sunlight into heat.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1001,9 +1036,9 @@
   "status": "described"
  },
  "ostic-pharma": {
-  "hash": "3ad1a1d871d8d3b6",
+  "hash": "10c5221ac6c791f5",
   "model": "claude-haiku-4-5",
-  "product": "Diagnostic kits for healthcare professionals in India.",
+  "product": "AI-powered rapid diagnostic test kits and molecular diagnostics for infectious diseases like TB, malaria, and dengue for healthcare providers and patients.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1050,9 +1085,9 @@
   "status": "described"
  },
  "powai-labs-technologies": {
-  "hash": "3ff3f31f56296d69",
+  "hash": "1aa745602579984a",
   "model": "claude-haiku-4-5",
-  "product": "Electronics design automation tools for chip design engineers.",
+  "product": "Semiconductor IP including a configurable processor core (AJIT), an AI accelerator (APARAJIT), and a navigation processor (NavIC) for organizations developing intelligent system-on-chip platforms.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1102,6 +1137,13 @@
   "hash": "bdb26feb2714114d",
   "model": "claude-haiku-4-5",
   "product": "Silicon-photonics gas sensors for industrial quality control and environmental monitoring that can detect gases down to hundreds of parts per billion.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "quan2d-technologies": {
+  "hash": "41971be7ec176c1c",
+  "model": "claude-haiku-4-5",
+  "product": "2D nanomaterial-based technology for water purification, advanced coatings, composite materials, and packaging for companies and communities.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1210,6 +1252,13 @@
   "prompt_version": 1,
   "status": "described"
  },
+ "sickle-innovations": {
+  "hash": "35eb5fe1d018f68d",
+  "model": "claude-haiku-4-5",
+  "product": "Hand tools and low-powered equipment for harvesting and pre-harvesting in farming, for micro farm farmers in India.",
+  "prompt_version": 1,
+  "status": "described"
+ },
  "skylark-drones": {
   "hash": "4fbfabe1f555b163",
   "model": "claude-haiku-4-5",
@@ -1218,9 +1267,9 @@
   "status": "described"
  },
  "solinas-integrity": {
-  "hash": "760eecf2401e90a8",
+  "hash": "d0c5c22715b884bb",
   "model": "claude-haiku-4-5",
-  "product": "Robots that inspect, clean, and digitize water pipelines, sewers, septic tanks, and stormwater drains for water utilities and municipalities.",
+  "product": "Robots that inspect, clean, and digitize water pipelines, sewers, septic tanks, stormwater drains, and manholes for water utilities and municipalities.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1288,9 +1337,9 @@
   "status": "described"
  },
  "taypro": {
-  "hash": "840f1beb7e47056c",
+  "hash": "afb1012613e33871",
   "model": "claude-haiku-4-5",
-  "product": "Waterless robotic solar panel cleaning robots and fleet management software for utility-scale solar plants in India.",
+  "product": "Waterless robotic solar panel cleaning systems and fleet management software for utility-scale solar plants in India.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1312,6 +1361,13 @@
   "hash": "36f6bbf4977a9358",
   "model": "claude-haiku-4-5",
   "product": "A platform that combines location data from multiple sources to provide property assessments and neighborhood intelligence for consumer credit lenders and financial decision-makers.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "theranautilus": {
+  "hash": "4a891a16d93b4c2a",
+  "model": "claude-haiku-4-5",
+  "product": "Nanorobots for targeted diagnosis and treatment of cancers and dental conditions in hard-to-reach body locations.",
   "prompt_version": 1,
   "status": "described"
  },

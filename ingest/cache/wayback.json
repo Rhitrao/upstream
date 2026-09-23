@@ -883,5 +883,65 @@
   "checked": "2026-09-22T09:15:55+00:00",
   "first_capture": null,
   "outcome": "timeout"
+ },
+ "immunoact.com": {
+  "checked": "2026-09-23T09:12:25+00:00",
+  "first_capture": "2021-08-14",
+  "outcome": "captured"
+ },
+ "indent.co.in": {
+  "checked": "2026-09-23T09:12:33+00:00",
+  "first_capture": "2010-09-25",
+  "outcome": "captured"
+ },
+ "indiusmedical.com": {
+  "checked": "2026-09-23T09:13:04+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "indrones.com": {
+  "checked": "2026-09-23T09:13:36+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "inertialabs.in": {
+  "checked": "2026-09-23T09:14:07+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "infab-tech.com": {
+  "checked": "2026-09-23T09:14:39+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "infyulabs.com": {
+  "checked": "2026-09-23T09:15:10+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "ingeniumedu.com": {
+  "checked": "2026-09-23T09:15:42+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "innaumation.com": {
+  "checked": "2026-09-23T09:16:14+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "innovatecure.com": {
+  "checked": "2026-09-23T09:16:45+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "inopen.in": {
+  "checked": "2026-09-23T09:16:55+00:00",
+  "first_capture": "2009-12-04",
+  "outcome": "captured"
+ },
+ "inspecity.com": {
+  "checked": "2026-09-23T09:17:26+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
  }
 }

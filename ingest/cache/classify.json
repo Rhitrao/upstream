@@ -3523,27 +3523,27 @@
   "subsector_id": null
  },
  "avgarde-systems": {
-  "classified_at": "2026-09-22T09:08:47+00:00",
-  "hash": "14ee3a300b729e14",
-  "missing": "wireless sensing and airspace management",
+  "classified_at": "2026-09-23T09:10:12+00:00",
+  "hash": "16c5434fbed18049",
+  "missing": "RF sensing and airspace management",
   "model": "claude-haiku-4-5",
-  "name": "AVGARDE SYSTEMS PRIVATE LIMITED",
-  "note": "AVGARDE's core competency is in RF/wireless sensing and AI-driven airspace management for drone detection and counter-UAS operations, which does not align with any of the listed deep-tech categories under Sector 2.",
+  "name": "AVGARDE SYSTEMS PVT. LTD.",
+  "note": "AVGARDE's core competency is RF/wireless sensing and AI for airspace management, specifically counter-drone systems and unmanned traffic management, which does not align with the deep-tech focus areas listed in Sector 2.",
   "project_type": null,
   "sector_id": "2",
-  "source": "dpiit-startup-india",
+  "source": "fsid-iisc",
   "subsector_id": null
  },
  "avinya-leather": {
-  "classified_at": "2026-09-15T08:38:05+00:00",
-  "hash": "77d1992d33e84e52",
+  "classified_at": "2026-09-23T09:04:07+00:00",
+  "hash": "23de7265041d6462",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "AVINYA LEATHER PRIVATE LIMITED",
+  "name": "Avinya Leather Private Limited",
   "note": null,
   "project_type": null,
   "sector_id": null,
-  "source": "dpiit-startup-india",
+  "source": "venture-center",
   "subsector_id": null
  },
  "avinya-neurotech": {
@@ -15042,15 +15042,15 @@
   "subsector_id": null
  },
  "logicboots": {
-  "classified_at": "2026-09-15T01:38:54+00:00",
-  "hash": "f3cfc49126c1b097",
+  "classified_at": "2026-09-23T09:10:12+00:00",
+  "hash": "bac40eafbc88519a",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "LOGICBOOTS PRIVATE LIMITED",
-  "note": "Logicboots develops domestic and medical robots with custom design and programming services, which directly aligns with HRI applications in non-manufacturing robotic systems.",
+  "name": "Logicboots Pvt Ltd",
+  "note": "Logicboots develops domestic and medical robots with custom design and programming services, directly addressing human-robot interaction applications in non-industrial settings.",
   "project_type": "Human-robot interaction (HRI)",
   "sector_id": "2",
-  "source": "dpiit-startup-india",
+  "source": "tides-iitr",
   "subsector_id": "2.7"
  },
  "logiquad-solutions": {
@@ -15966,15 +15966,15 @@
   "subsector_id": "4.5"
  },
  "meerkats-heatcrafters": {
-  "classified_at": "2026-09-15T01:38:54+00:00",
-  "hash": "97bcd1ba116cbe1b",
+  "classified_at": "2026-09-23T09:10:12+00:00",
+  "hash": "33386856da68d3ab",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "MEERKATS HEATCRAFTERS PRIVATE LIMITED",
-  "note": "Meerkats Heatcrafters develops nano-scale coatings that enhance thermal conductivity for semiconductors, which directly supports advanced semiconductor fabrication and next-generation chip performance.",
+  "name": "Meerkats HeatCrafters",
+  "note": "The project develops nano-scale coatings to enhance thermal properties of semiconductors, which directly supports advanced semiconductor manufacturing and next-generation chip performance.",
   "project_type": "Chip design and advanced node fabrication",
   "sector_id": "2",
-  "source": "dpiit-startup-india",
+  "source": "fsid-iisc",
   "subsector_id": "2.2"
  },
  "meerkats-innovative-technotools": {
@@ -16770,15 +16770,15 @@
   "subsector_id": "2.2"
  },
  "nanoai-technology": {
-  "classified_at": "2026-09-15T01:38:54+00:00",
-  "hash": "879d2e49a530d6d3",
+  "classified_at": "2026-09-23T09:10:12+00:00",
+  "hash": "e3ba4f24482f1c3a",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "NANOAI TECHNOLOGY PRIVATE LIMITED",
-  "note": "NanoAI's focus on edge computing, novel hardware architectures for AI, VLSI technologies, and reduction in computational resources and power directly aligns with designing specialized hardware for edge AI acceleration.",
+  "name": "NanoAI Technology Private Limited",
+  "note": "NanoAI's focus on edge computing, reduction in processing time and computational resources, novel hardware architectures, and embedded AI systems directly aligns with edge AI accelerator development.",
   "project_type": "Edge AI accelerators",
   "sector_id": "2",
-  "source": "dpiit-startup-india",
+  "source": "tides-iitr",
   "subsector_id": "2.8"
  },
  "nanoalpha-innovatics": {
@@ -20595,15 +20595,15 @@
   "subsector_id": "2.7"
  },
  "rechargion-energy": {
-  "classified_at": "2026-09-15T01:38:56+00:00",
-  "hash": "4f71ea7e7c004d82",
+  "classified_at": "2026-09-23T09:10:12+00:00",
+  "hash": "09945ec7f52a8a2c",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "RECHARGION ENERGY PRIVATE LIMITED",
-  "note": "Rechargion develops sodium-ion and lithium-sulfur battery chemistries with proprietary hard carbon anode technology, directly matching the energy storage innovation focus.",
+  "name": "Rechargion Energy",
+  "note": "The project develops sodium-ion and lithium-sulfur battery chemistries with proprietary hard carbon anode technology for energy storage applications in EVs and drones, directly matching the innovative battery chemistries focus area.",
   "project_type": "Innovative battery chemistries (lithium-ion, sodium-ion, solid-state)",
   "sector_id": "1",
-  "source": "dpiit-startup-india",
+  "source": "venture-center",
   "subsector_id": "1.4"
  },
  "recogsquare": {
@@ -25296,15 +25296,15 @@
   "subsector_id": null
  },
  "tiea-connectors": {
-  "classified_at": "2026-09-15T01:38:57+00:00",
-  "hash": "2846d0d45fb60bb0",
+  "classified_at": "2026-09-23T09:04:07+00:00",
+  "hash": "aafebcd37a6e1805",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "TIEA CONNECTORS PRIVATE LIMITED",
+  "name": "TIEA Connectors",
   "note": null,
   "project_type": null,
   "sector_id": null,
-  "source": "dpiit-startup-india",
+  "source": "fsid-iisc",
   "subsector_id": null
  },
  "times-innovations-india": {
@@ -25375,15 +25375,15 @@
   "subsector_id": null
  },
  "tracexero-technologies": {
-  "classified_at": "2026-09-15T01:38:54+00:00",
-  "hash": "ea6f1793d1c37aa6",
+  "classified_at": "2026-09-23T09:10:12+00:00",
+  "hash": "9ee9cae897d1a3b0",
   "missing": null,
   "model": "claude-haiku-4-5",
-  "name": "TRACEXERO TECHNOLOGIES PRIVATE LIMITED",
-  "note": "Tracexero's direct air capture and industrial emission capture technology that decomposes CO\u2082 into graphitic carbon and oxygen aligns directly with CCUS sub-sector's focus on low-cost CO2 capture and conversion into useful materials.",
-  "project_type": "Low-cost CO2 capture, mineralization, bioconversion, enhanced oil recovery",
+  "name": "TraceXero Technologies",
+  "note": "The project captures CO\u2082 from air and industrial emissions, then decomposes it into valuable materials like graphitic carbon and oxygen, directly matching CCUS utilization pathways for converting captured carbon into useful products.",
+  "project_type": "Utilization for building materials, chemicals, fuels",
   "sector_id": "1",
-  "source": "dpiit-startup-india",
+  "source": "venture-center",
   "subsector_id": "1.6"
  },
  "trachealth-technologies": {
