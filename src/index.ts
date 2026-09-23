@@ -57,6 +57,9 @@ import {
 	siteSignalsOf,
 } from './db';
 import { SUBSECTOR_BY_ID } from './taxonomy';
+import { withOverrides } from './overrides';
+import { renderPicksPage, type Picks } from './picks';
+import roboticsPicks from '../data/picks/robotics.json';
 import { FAVICON_SVG, OG_PNG_BASE64 } from './og';
 import { meter } from './d1meter';
 import { bumpDataVersion, cachedResponse, edgeCache, memo, type EdgeCache } from './edgecache';
@@ -1608,7 +1611,9 @@ async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 			: [];
 		return new Response(renderNotFound(id, nearest), { status: 404, headers: { 'content-type': 'text/html; charset=utf-8' } });
 	}
-	return new Response(renderCompanyPage({ company, now: new Date(), pageUrl: `${url.origin}${BASE_PATH}/c/${company.id}` }), {
+	// Facts checked by hand are laid over the ingested row here, so the nightly run cannot undo them.
+	const shown = withOverrides(company);
+	return new Response(renderCompanyPage({ company: shown.company, incorporated: shown.incorporated, now: new Date(), pageUrl: `${url.origin}${BASE_PATH}/c/${company.id}` }), {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
@@ -1617,7 +1622,7 @@ async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 async function companyBrief(id: string, env: Env, url: URL): Promise<Response> {
 	const company = await queryCompany(env, id);
 	if (company === null) return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
-	return new Response(briefMarkdown(company, `${url.origin}${BASE_PATH}/c/${company.id}`, new Date()), {
+	return new Response(briefMarkdown(withOverrides(company).company, `${url.origin}${BASE_PATH}/c/${company.id}`, new Date()), {
 		headers: { 'content-type': 'text/markdown; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
@@ -1752,6 +1757,14 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
 			const id = rest;
 			if (!id || id.includes('/')) return json({ error: 'not found' }, 404);
 			return cachedResponse(request, await edgeCache(env, ctx, url.origin), () => companyPage(id, env, url), canonicalUrl(url));
+		}
+
+		// A hand-made view, drawn from a file in the repo: no database, nothing to cache but the page.
+		if (path === `${BASE}/picks/robotics`) {
+			if (!isRead) return methodNotAllowed('GET, HEAD');
+			return new Response(renderPicksPage(roboticsPicks as Picks), {
+				headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE, 'x-robots-tag': 'noindex' },
+			});
 		}
 
 		// Public reads that change only when an ingest writes are answered from the edge cache.

@@ -1,0 +1,52 @@
+{
+  "id": "robotics",
+  "title": "Two robotics companies I would look at first",
+  "checked_on": "2026-09-23",
+  "method": "Found through Upstream's Intelligent Systems & Robotics and Advanced Manufacturing & Robotics cells. Of 115 recent entries, 105 had only a DPIIT register label and 10 had a product description. I checked these two by hand against MCA filings, company websites and founder posts. I have not spoken to either founder.",
+  "funnel": [
+    { "label": "Recent robotics entries in Upstream", "value": 115 },
+    { "label": "With a real product description", "value": 10 },
+    { "label": "Doing the job my thesis is about: moving material on Indian factory floors", "value": 2 }
+  ],
+  "thesis": "Robots reach Indian factories before building sites, and machines built for one job earn their cost before humanoids do.",
+  "picks": [
+    {
+      "upstream_id": "vctr-labs",
+      "name": "Vector Robotics",
+      "legal_name": "VCTR Labs Private Limited",
+      "place": "Pune, Maharashtra",
+      "facts": [
+        { "label": "Incorporated", "value": "October 2024 (CIN U62099PN2024PTC234756), status active", "basis": "government record", "source": "https://www.zaubacorp.com/VCTR-LABS-PRIVATE-LIMITED-U62099PN2024PTC234756" },
+        { "label": "Incubation", "value": "SINE, IIT Bombay", "basis": "Upstream source, and stated on the company site", "source": "https://getvectorbots.com/" },
+        { "label": "Website", "value": "getvectorbots.com is theirs: the page is authored by VCTR Labs and names SINE IIT Bombay. Upstream had marked it unconfirmed.", "basis": "checked by hand", "source": "https://getvectorbots.com/about" },
+        { "label": "Founder", "value": "Swaraj Mohapatra, founder and CEO. Previously engineering lead and business unit lead at Peppermint Robotics, where he deployed AGVs and AMRs for customers including Taikisha India, Mahindra and Denso. Those were Peppermint's customers, not Vector's.", "basis": "company's own account", "source": "https://getvectorbots.com/about" },
+        { "label": "Products", "value": "Magnum mobile robot (up to 1,000 kg, maps its own route, no floor changes); Magnum AGV (up to 3 t); Mega AGV (3 to 20+ t, for heavy vehicle assembly); humanoids for CNC machine tending, material staging and bin picking; Vector OS fleet software", "basis": "company's own account", "source": "https://getvectorbots.com/agv-amr" },
+        { "label": "Latest public signal", "value": "8 Aug 2026: founder posts about sending humanoids and mobile robots out for field work, with \"exciting news coming soon\"", "basis": "founder's post", "source": "https://www.linkedin.com/posts/swaraj-innovate_at-vector-robotics-we-believe-in-extreme-activity-7491839103928557569-vZdc" },
+        { "label": "Funding", "value": "None found in public search", "basis": "absence in search, not proof", "source": null }
+      ],
+      "why": "The founder has already done installation and service, the hardest part of this business, at another company. The product I would back first is the mobile robot and heavy AGV line: one job, with buyers who already pay for it. The humanoid earns its place where re-tooling a space built for people costs more, such as tending CNC machines.",
+      "risk": "A young team running two hardware roadmaps at once.",
+      "question": "Of the units shipped so far, how many are mobile robots and how many humanoids, and who services them?"
+    },
+    {
+      "upstream_id": "umarobotics-technology",
+      "name": "UMA Robotics",
+      "legal_name": "Umarobotics Technology Private Limited",
+      "place": "Haridwar, Uttarakhand",
+      "facts": [
+        { "label": "Incorporated", "value": "28 August 2021 (CIN U72900UR2021PTC012847). Upstream had no founding year.", "basis": "government record", "source": "https://www.zaubacorp.com/UMAROBOTICS-TECHNOLOGY-PRIVATE-LIMITED-U72900UR2021PTC012847" },
+        { "label": "Founder", "value": "Suchit Sharma, who came back from Germany: \"robotic solutions are not suitable for the bigger part of the Indian market. I wanted to bring a solution which is robust for uneven surface.\"", "basis": "founder's own words", "source": "https://www.invstt.com/public/company/uma-robotics" },
+        { "label": "Product", "value": "Robots that move heavy totes and boxes from conveyors and shelves up to 200 cm, from warehouse to assembly line, on ramps and rough floors", "basis": "company's own account", "source": "https://umarobotics.com/" },
+        { "label": "Buyer and model", "value": "Small and mid-size factories and warehouses; sold outright or as a service", "basis": "company's own account", "source": "https://www.invstt.com/public/company/uma-robotics" },
+        { "label": "Claims", "value": "\"Deploy 10x faster with 3x affordability\"", "basis": "self-reported, not verified", "source": "https://www.invstt.com/public/company/uma-robotics" },
+        { "label": "Team and recognition", "value": "Team of eight; MeitY excellence award; Startup Uttarakhand Grand Challenge 2022", "basis": "company's own account", "source": "https://umarobotics.com/" },
+        { "label": "Product range", "value": "Ten products listed, from warehouse and rail-guided handlers to a forklift pedestrian alert, an under-chassis inspection robot and surveillance and off-road vehicles", "basis": "company site", "source": "https://umarobotics.com/content/products.html" },
+        { "label": "Funding", "value": "One round and one investor listed, investor not named", "basis": "third-party database", "source": "https://www.tryfundable.ai/company/uma-robotics" }
+      ],
+      "why": "Built for the floors most imported robots can't handle, and for the small factory owner, with the option to rent so the risk moves off his books.",
+      "risk": "Focus: a team of eight lists ten products.",
+      "question": "Which one product has repeat orders?"
+    }
+  ],
+  "portfolio_note": "Both overlap with Peer Robotics in Kalaari's portfolio. I would want to know where they don't: heavy loads for Vector, rough floors for UMA."
+}
