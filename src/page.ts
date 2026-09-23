@@ -6,7 +6,6 @@
  * The only JavaScript on the page submits the filter form on change. Everything works
  * without it: the filters are a GET form and every coverage cell is a link.
  */
-import { INDIA_MAP_HEIGHT, INDIA_MAP_WIDTH, INDIA_STATES } from './india-map';
 import { SNAPSHOT, SNAPSHOT_TERMS } from './snapshot';
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID, SUNRISE_SECTORS } from './taxonomy';
 import { daysSince, earliestEvent, MAX_AGE_YEARS, type Tier } from './rank';
@@ -335,241 +334,102 @@ function freshness(view: AboutView): string {
 }
 
 /**
- * India by state, each state shaded by how many of the records in view it holds and
- * linked to the view filtered to it.
+ * The three breakdowns that sit beside the RDI map: technology type, application and source.
  *
- * Ink, thinned, not a colour: a stronger shade holds more (lighter, in the dark theme),
- * and the yellow stays spent on what nobody has noticed. The shade goes by the square
- * root of the count, so Karnataka's 37 does not wash every state with one or two
- * companies out to the paper.
- *
- * A picture of the tiles beside it, not a second control: hidden from screen readers and
- * out of the tab order, since each state is already a tile with its count written on it.
- * The records with no location are not on it anywhere, which is why the unknown tile
- * stays first beside the map and the header says how many there are.
- */
-function indiaMap(states: { state: string; n: number }[], chosen: string | null, href: (state: string, on: boolean) => string): string {
-	const counts = new Map(states.map((s) => [s.state, s.n]));
-	const max = Math.max(0, ...states.map((s) => s.n));
-	const shapes = Object.entries(INDIA_STATES).map(([name, d]) => {
-		const n = counts.get(name) ?? 0;
-		if (n === 0 || max === 0) return `<path class="state none" d="${d}"><title>${esc(name)}: none in view</title></path>`;
-		const ink = Math.round(14 + 66 * Math.sqrt(n / max));
-		const on = chosen === name;
-		return `<a href="${esc(href(name, on))}" tabindex="-1" class="state-link${on ? ' active' : ''}"><path class="state" style="--ink-share:${ink}%" d="${d}"><title>${esc(name)}: ${n}</title></path></a>`;
-	});
-	// The chosen state is drawn again on top, so its outline is not hidden under a neighbour's edge.
-	const outline =
-		chosen && INDIA_STATES[chosen] ? `<path class="state-halo" d="${INDIA_STATES[chosen]}"/><path class="state-outline" d="${INDIA_STATES[chosen]}"/>` : '';
-	return `<figure class="india-map">
-      <svg viewBox="0 0 ${INDIA_MAP_WIDTH} ${INDIA_MAP_HEIGHT}" aria-hidden="true" focusable="false">${shapes.join('')}${outline}</svg>
-      <figcaption>The stronger the shade, the more companies${max ? `, up to ${max}` : ''}. Boundaries: <a href="https://github.com/datameet/maps">DataMeet</a>, CC BY 4.0.</figcaption>
-    </figure>`;
-}
-
-/**
- * The widget row: the records in view, five ways, each segment a filter.
- *
- * Under the masthead and above the controls, so the page reads as one instrument: every
- * count here is taken under the filters already chosen (leaving out the widget's own),
- * every segment is a link to the view it names, and the list under it is that view.
- *
- * The cell is the coverage map's cell. What a widget does not know goes in its header,
- * in the sentence a reader sees first, not under it: 373 of 607 records have no
- * location, and a row of state tiles that said so only in a footnote would draw the
- * page's knowledge as geography.
+ * Each row is a count of the records in view under every other filter (leaving out the
+ * panel's own), and a link to the view it names: clicking it applies that filter, clicking the
+ * chosen row again takes it away. The chosen row is marked, so the panels and the filter
+ * controls always say the same thing. Always open: no fold, no "show more".
  *
  * No deltas, anywhere. The data has days of history.
  */
-function widgets(view: PageView): string {
+function panels(view: PageView): string {
 	const w = view.widgets;
-	if (!w || w.total === 0) return '<section class="widgets" id="widgets" hidden></section>';
-	// Each widget's share and "of N" are over its own population: the view without that
-	// widget's filter. Over the filtered total, Karnataka chosen, the places header read
-	// "192 of 26 have a location".
-	const share = (n: number, of: number) => (of ? Math.round((n / of) * 1000) / 10 : 0);
-	const link = (key: string, value: string, on: boolean) => `${BASE_PATH}${query(viewParams(view, { [key]: on ? null : value }))}#list`;
-	const cell = (opts: { key: string; value: string; n: number; of: number; name: string; id?: string; title?: string; extra?: string; classes?: string[] }) => {
-		const on = (view as unknown as Record<string, unknown>)[opts.key] === opts.value;
-		const classes = ['cell', 'seg', opts.n > 0 ? 'filled' : 'empty', on ? 'active' : '', ...(opts.classes ?? [])].filter(Boolean).join(' ');
-		return `<a class="${classes}" href="${esc(link(opts.key, opts.value, on))}" title="${esc(opts.title ?? `${opts.name}: ${opts.n}`)}"${on ? ' aria-current="true"' : ''}>
-        <span class="cell-head"><span class="cell-id">${opts.id ?? ''}</span><span class="cell-n">${opts.n}</span></span>
-        <span class="cell-name">${esc(opts.name)}</span>${opts.extra ?? ''}
-        <span class="share" style="width:${share(opts.n, opts.of)}%" aria-hidden="true"></span>
-      </a>`;
-	};
+	if (!w) return '';
 	const t = w.totals;
+	const share = (n: number, of: number) => (of ? Math.round((n / of) * 1000) / 10 : 0);
+	const row = (opts: { key: 'build' | 'domain' | 'source'; value: string; n: number; of: number; name: string; title?: string; extra?: string }) => {
+		const on = view[opts.key] === opts.value;
+		const href = `${BASE_PATH}${query(viewParams(view, { [opts.key]: on ? null : opts.value }))}#list`;
+		// A row that would lead to an empty list is said, not offered, unless it is the one chosen.
+		if (opts.n === 0 && !on) {
+			return `<li class="brow zero" title="${esc(`${opts.name}: none in this view`)}"><span class="brow-name">${esc(opts.name)}</span>${opts.extra ?? ''}<span class="brow-n">0</span></li>`;
+		}
+		return `<li><a class="brow${on ? ' active' : ''}" href="${esc(href)}" title="${esc(opts.title ?? `${opts.name}: ${opts.n}`)}"${on ? ' aria-current="true"' : ''}>
+        <span class="brow-name">${esc(opts.name)}</span>${opts.extra ?? ''}<span class="brow-n">${opts.n}</span>
+        <span class="share" style="width:${share(opts.n, opts.of)}%" aria-hidden="true"></span>
+      </a></li>`;
+	};
 	const head = (id: string, title: string, meta: string) =>
-		`<div class="widget-head"><h2 id="${id}">${title}</h2><p class="widget-meta">${meta}</p></div>`;
+		`<div class="panel-head"><h2 id="${id}">${title}</h2><p class="panel-meta">${meta}</p></div>`;
+	const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
-	// Where they are.
-	const p = w.places;
-	const shownStates = 11;
-	const districts = (s: { districts: { name: string; n: number }[] }) => s.districts.map((d) => `${d.name} ${d.n}`).join(', ');
-	const stateCell = (s: Widgets['places']['states'][number]) =>
-		cell({ key: 'state', value: s.state, n: s.n, of: t.places, name: s.state, title: `${s.state}: ${s.n}${s.districts.length ? ` — ${districts(s)}` : ''}` });
-	const first = p.states.slice(0, shownStates);
-	const rest = p.states.slice(shownStates);
-	const restHoldsChoice = rest.some((s) => s.state === view.state);
-	const under = p.located * 2 < t.places;
-	const datedUnder = p.datedLocated * 2 < p.dated;
-	const placesMeta = p.located
-		? `<strong>${p.located} of ${t.places}</strong>${view.described === 'said' ? ' with a product description' : ' records here'} publish a location; the map shows those ${p.located}, not where the other ${p.unknown} are.`
-		: `None of these ${t.places} publishes a location.`;
-	const chosen = view.state && view.state !== 'unknown' ? p.states.find((s) => s.state === view.state) : undefined;
-	const places = `
-  <div class="widget widget-places" aria-labelledby="w-places">
-    ${head('w-places', 'Location', placesMeta)}
-    <div class="places-body">
-    ${indiaMap(p.states, view.state ?? null, (state, on) => link('state', state, on))}
-    <div class="places-tiles">
-    <div class="grid seg-grid place-grid">
-      ${cell({ key: 'state', value: 'unknown', n: p.unknown, of: t.places, name: 'location unknown', id: '?', classes: ['unknown-place'] })}
-      ${first.map(stateCell).join('\n      ')}
-    </div>
-    ${
-			rest.length
-				? `<details class="more-places"${restHoldsChoice ? ' open' : ''}><summary>${rest.length} more ${rest.length === 1 ? 'state' : 'states'}</summary>
-      <div class="grid seg-grid place-grid">${rest.map(stateCell).join('\n      ')}</div></details>`
-				: ''
-		}
-    ${
-			chosen && chosen.districts.length
-				? `<p class="districts">In ${esc(chosen.state)}, by city or district: ${chosen.districts.map((d) => `${esc(d.name)} <span class="n">${d.n}</span>`).join(' &middot; ')}</p>`
-				: ''
-		}
-    </div>
-    </div>
-  </div>`;
-
-	const plural = (k: number, one: string, many: string) => (k === 1 ? one : many);
-
-	// 0. The quality signal no commercial database models: public programmes that selected a company,
-	// and how many of those have no other public trace. Counted, never ranked.
-	const pg = w.programmes;
-	const progWidget = `
-  <div class="widget widget-lead" aria-labelledby="w-programmes">
+	const technology = `
+  <div class="panel" aria-labelledby="p-build">
     ${head(
-			'w-programmes',
-			'Selected by public programmes',
-			pg.twoPlus
-				? `<strong>${pg.twoPlus}</strong> ${plural(pg.twoPlus, 'company here has', 'companies here have')} been selected into two or more public support programmes &mdash; incubation, DPIIT recognition, BIRAC, DST, MeitY, TDB or iDEX. <a href="${esc(`${BASE_PATH}${query(viewParams(view, { programmes: '2', alone: '1' }))}#list`)}"><strong>${pg.twoPlusAlone}</strong> of them</a> have no other collected reference: no website of their own and no press. Programme participation is not proof of traction.`
-				: 'No company in this view has been selected into two or more public programmes.',
-		)}
-    <div class="grid seg-grid">
-      ${cell({ key: 'programmes', value: '2', n: pg.twoPlus, of: pg.total, name: 'two or more' })}
-      ${cell({ key: 'programmes', value: '3', n: pg.three, of: pg.total, name: 'three or more' })}
-      ${(() => {
-				// Two filters at once: in two or more programmes, and nothing else public.
-				const on = view.alone === '1' && view.programmes === '2';
-				const href = `${BASE_PATH}${query(viewParams(view, on ? { programmes: null, alone: null } : { programmes: '2', alone: '1' }))}#list`;
-				return `<a class="cell seg ${pg.twoPlusAlone > 0 ? 'filled' : 'empty'}${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''} title="Two or more public programmes, and no website or press: ${pg.twoPlusAlone}">
-        <span class="cell-head"><span class="cell-id"></span><span class="cell-n">${pg.twoPlusAlone}</span></span>
-        <span class="cell-name">nothing else public</span>
-        <span class="share" style="width:${share(pg.twoPlusAlone, pg.total)}%" aria-hidden="true"></span>
-      </a>`;
-			})()}
-    </div>
-  </div>`;
-
-	// 1. Can I form a view on these? The same count as "what they build", in the reader's terms.
-	const d = w.described;
-	const said = d.own + d.source;
-	const view1 = `
-  <div class="widget" aria-labelledby="w-view">
-    ${head(
-			'w-view',
-			'Product description',
-			said
-				? `<strong>${said}</strong> ${plural(said, 'company here has', 'companies here have')} a product description${
-						d.own ? `, <strong>${d.own}</strong> of them from their own website` : ''
-					}.${d.label + d.none ? ` ${d.label + d.none} more have only a category label or nothing.` : ''}`
-				: 'Nothing in this view says what it builds.',
-		)}
-    <div class="grid seg-grid">
-      ${DESCRIBED_STATES.filter((k) => k !== 'none' || d.none > 0 || view.described === 'none')
-				.map((k) => cell({ key: 'described', value: k, n: d[k], of: t.described, name: DESCRIBED_LABELS[k].toLowerCase(), classes: k === 'label' || k === 'none' ? ['weak-seg'] : [] }))
-				.join('\n      ')}
-    </div>
-  </div>`;
-
-	// 2. Has anyone noticed them? The thesis as a claim, checked by clicking.
-	const low = w.traces['1'];
-	const two = low + w.traces['2'];
-	const pctTwo = t.traces ? Math.round((two / t.traces) * 100) : 0;
-	const traces = `
-  <div class="widget" aria-labelledby="w-traces">
-    ${head(
-			'w-traces',
-			'Collected references',
-			t.traces
-				? `<strong>${pctTwo}%</strong> have two collected references or fewer; <strong>${low}</strong> ${plural(low, 'has', 'have')} one or none. A reference is a listing, grant, award, register record, press mention or live website Upstream has collected.`
-				: 'No company in this view to count.',
-		)}
-    <div class="grid seg-grid">
-      ${TRACE_BUCKETS.map((b) => cell({ key: 'traces', value: b, n: w.traces[b], of: t.traces, name: TRACE_LABELS[b].toLowerCase(), id: b === '3+' ? '3+' : b === '1' ? '≤1' : '2' })).join('\n      ')}
-    </div>
-  </div>`;
-
-	// 3. What do they build, and for what? A thesis filter within the map's choice.
-	const topDomain = DOMAIN_TAGS.map((tag) => [tag, w.domain[tag] ?? 0] as const).sort((a, b) => b[1] - a[1])[0];
-	const tags = `
-  <div class="widget" aria-labelledby="w-tags">
-    ${head(
-			'w-tags',
-			'Technology type and application, by keyword',
+			'p-build',
+			'Technology type',
 			t.tags
-				? `<strong>${w.build.hardware ?? 0}</strong> build hardware, <strong>${w.build.software ?? 0}</strong> software, <strong>${w.build['biological or chemical'] ?? 0}</strong> work in biology or chemistry${
-						topDomain && topDomain[1] ? `; ${esc(topDomain[0])} is the most common use, with ${topDomain[1]}` : ''
-					}.${w.untagged ? ` ${w.untagged} matched no keyword.` : ''}`
+				? `What they build, matched on words in the description.${w.untagged ? ` ${w.untagged} matched no keyword.` : ''}`
 				: 'No company in this view to tag.',
 		)}
-    <div class="grid seg-grid">
-      ${BUILD_TAGS.map((tag) => cell({ key: 'build', value: tag, n: w.build[tag] ?? 0, of: t.tags, name: tag })).join('\n      ')}
-    </div>
-    <div class="grid seg-grid tag-grid">
-      ${DOMAIN_TAGS.filter((tag) => (w.domain[tag] ?? 0) > 0 || view.domain === tag)
-				.map((tag) => cell({ key: 'domain', value: tag, n: w.domain[tag] ?? 0, of: t.tags, name: tag }))
-				.join('\n      ')}
-    </div>
+    <ul class="brows">
+      ${BUILD_TAGS.map((tag) => row({ key: 'build', value: tag, n: w.build[tag] ?? 0, of: t.tags, name: cap(tag) })).join('\n      ')}
+    </ul>
   </div>`;
 
-	// 4. Where does this come from, and is it current? Question 1, without a paragraph.
+	const application = `
+  <div class="panel" aria-labelledby="p-domain">
+    ${head('p-domain', 'Application', t.tags ? 'Where it is used, matched on words in the description.' : 'No company in this view to tag.')}
+    <ul class="brows">
+      ${DOMAIN_TAGS.map((tag) => row({ key: 'domain', value: tag, n: w.domain[tag] ?? 0, of: t.tags, name: cap(tag) })).join('\n      ')}
+    </ul>
+  </div>`;
+
+	// Where each record comes from, and whether that source answered on its last run.
 	const health = new Map(view.sourceHealth.map((h) => [h.source, h]));
 	const failing = view.sourceHealth.filter((h) => h.last_status !== 'ok').length;
-	const latest = view.sourceHealth.map((h) => h.last_success ?? '').sort().pop();
 	const sources = `
-  <div class="widget" aria-labelledby="w-sources">
+  <div class="panel" aria-labelledby="p-sources">
     ${head(
-			'w-sources',
+			'p-sources',
 			'Sources',
-			`Records in this view carry evidence from <strong>${w.sources.filter((src) => src.n > 0).length}</strong> sources${
-				latest ? `, last checked ${shortDate(latest.slice(0, 10))}` : ''
-			}${failing ? `; ${failing} did not answer on the last run, and their rows stand from the run before` : ''}. A company two sources list counts under both.`,
+			`Records in view come from <strong>${w.sources.filter((src) => src.n > 0).length}</strong> sources${
+				failing ? `; ${failing} did not answer on the last run, and their rows stand from the run before` : ''
+			}. A company two sources list counts under both.`,
 		)}
-    <div class="grid seg-grid source-grid">
+    <ul class="brows">
       ${w.sources
 				.map((src) => {
 					const h = health.get(src.source);
 					const checked = h?.last_success ? `checked ${shortDate(h.last_success.slice(0, 10))}` : 'no successful check yet';
-					const bad = h && h.last_status !== 'ok' ? ` <strong class="failing">no answer ${shortDate(h.last_attempt.slice(0, 10))}</strong>` : '';
+					const bad = h && h.last_status !== 'ok' ? ` &middot; <strong class="failing">no answer ${shortDate(h.last_attempt.slice(0, 10))}</strong>` : '';
 					const name = SOURCE_LABELS[src.source] ?? src.source;
-					return cell({ key: 'source', value: src.source, n: src.n, of: t.sources, name, title: `${name}: ${src.n} records, ${checked}`, extra: `<span class="cell-when">${esc(checked)}${bad}</span>` });
+					return row({ key: 'source', value: src.source, n: src.n, of: t.sources, name, title: `${name}: ${src.n} records, ${checked}`, extra: `<span class="brow-when">${esc(checked)}${bad}</span>` });
 				})
 				.join('\n      ')}
-    </div>
+    </ul>
   </div>`;
 
 	return `
-<section class="widgets" id="widgets" aria-label="The companies in view, stated and filterable">
-  ${progWidget}
-  <div class="widget-row">
-  ${view1}
-  ${traces}
-  ${tags}
+  <div class="panel-row">
+  ${technology}
+  ${application}
   ${sources}
-  </div>
-  ${places}
+  </div>`;
+}
+
+/**
+ * The breakdowns, directly under the masthead and above the search: the RDI map across the
+ * full width, and technology type, application and source in a row under it. Every count is a
+ * link that applies its filter, and the one a filter has chosen is marked.
+ */
+function breakdown(view: PageView): string {
+	if (view.ids) return '<section class="breakdown" id="breakdown" hidden></section>';
+	return `
+<section class="breakdown" id="breakdown" aria-label="The records in view, by sector, technology, application and source">
+${coverageMap(view)}
+${panels(view)}
 </section>`;
 }
 
@@ -825,34 +685,35 @@ function coverageMap(view: PageView): string {
 					// Clicking the active cell clears the filter, so the map is a toggle.
 					const href = `${query(viewParams(view, { subsector: active ? null : cell.subsector_id, sector: null }))}#list`;
 					const classes = ['cell', cell.n === 0 ? 'empty' : n > 0 ? 'filled' : 'zero', active ? 'active' : ''].filter(Boolean).join(' ');
-					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${n}${cell.n === 0 ? ', none in any record' : ''}"${
+					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${n}${cell.n === 0 ? ', a coverage gap: none in any record' : ''}"${
 						active ? ' aria-current="true"' : ''
 					}>
         <span class="cell-head"><span class="cell-id">${esc(cell.subsector_id)}</span><span class="cell-n">${n}</span></span>
-        <span class="cell-name">${esc(cell.subsector)}</span>
+        <span class="cell-name">${esc(cell.subsector)}</span>${cell.n === 0 ? '<span class="visually-hidden"> (coverage gap)</span>' : ''}
       </a>`;
 				})
 				.join('\n');
 			const on = sector === group.sector_id && !subsector;
 			const href = `${query(viewParams(view, { sector: on ? null : group.sector_id, subsector: null }))}#list`;
 			const inSector = group.subsectors.reduce((k, c) => k + (inView ? (inView[c.subsector_id] ?? 0) : c.n), 0);
-			// A details element, open, so a phone can fold the 44 cells to five lines (the script
-			// folds them there) while a desktop and a script-less browser see the whole map.
-			return `<details class="sector" open${group.subsectors.some((c) => c.subsector_id === subsector) || on ? ' data-chosen' : ''}>
-      <summary><h3><a class="sector-link${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''}>${sectorIcon(group.sector_id)}<span class="sector-id">${esc(group.sector_id)}</span> ${esc(group.sector)}</a> <span class="sector-n">${inSector}</span></h3></summary>
+			// Always open: the whole map, on a phone too. The sector a filter is in is marked.
+			const chosen = sector === group.sector_id || group.subsectors.some((c) => c.subsector_id === subsector);
+			return `<div class="sector${chosen ? ' chosen' : ''}">
+      <h3><a class="sector-link${on ? ' active' : ''}" href="${esc(href)}"${on ? ' aria-current="true"' : ''}>${sectorIcon(group.sector_id)}<span class="sector-id">${esc(group.sector_id)}</span> ${esc(group.sector)}</a> <span class="sector-n">${inSector}</span></h3>
       <div class="grid">
 ${cells}
       </div>
-    </details>`;
+    </div>`;
 		})
 		.join('\n');
 
 	return `
 <section class="coverage" id="coverage" aria-labelledby="coverage-h">
-  <div class="widget-head">
-    <h2 id="coverage-h">RDI classification</h2>
-    <p class="widget-meta">${claim} Pick a sub-sector to narrow the list to it, or a sector&rsquo;s name for all of it. Numbers count matching records of any start year.</p>
-    <p class="widget-meta cells-caveat"><strong>An empty cell is a gap in what these sources reach, not a finding about the market.</strong>
+  <div class="panel-head">
+    <h2 id="coverage-h">Explore by sector <span class="panel-kicker">RDI classification</span></h2>
+    <p class="panel-meta">${claim} Pick a sub-sector to narrow the list to it, or a sector&rsquo;s name for all of it. Numbers count matching records of any start year.</p>
+    <p class="panel-legend"><span class="legend-cell legend-gap" aria-hidden="true"></span> Dashed: a coverage gap, no record in any source. <span class="legend-cell legend-on" aria-hidden="true"></span> Outlined: the filter in use.</p>
+    <p class="panel-meta cells-caveat"><strong>An empty cell is a gap in what these sources reach, not a finding about the market.</strong>
       It can mean nobody in India is building there, or it can mean the ${SNAPSHOT.sourcesContributing} sources feeding this page
       do not cover that work &mdash; and this tool cannot currently tell you which. Incubator portfolios and a startup register are
       not where fusion or ocean farming would surface first. Read an empty cell as somewhere to look, never as evidence of absence.</p>
@@ -935,10 +796,11 @@ const SORT_NOTES: Record<SortChoice, string> = {
 	name: 'Sorted by name.',
 };
 
-const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all: 'Everything' };
-const DATES_LABELS: Record<PageView['dates'], string> = { both: 'With and without a source date', dated: 'With a source date', undated: 'No source date' };
+/* Option wording: the choice that narrows nothing is "Any" in every select. */
+const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all: 'Any' };
+const DATES_LABELS: Record<PageView['dates'], string> = { both: 'Any', dated: 'With a source date', undated: 'No source date' };
 const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website listed' };
-const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Any year' };
+const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Any' };
 const TRACE_LABELS: Record<TraceBucket, string> = { '1': 'One or none', '2': 'Two', '3+': 'Three or more' };
 const DESCRIBED_LABELS: Record<DescribedChoice, string> = {
 	said: 'Has a product description',
@@ -969,13 +831,13 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		['subsector', view.subsector ? `Sub-sector: ${sub?.subsector ?? view.subsector}` : null],
 		['tier', view.tier !== view.defaultTier ? `Rank tier: ${TIER_LABELS[view.tier]}` : null],
 		['source', view.source ? `Source: ${SOURCE_LABELS[view.source] ?? view.source}` : null],
-		['dates', view.dates !== 'both' ? `Dates: ${DATES_LABELS[view.dates].toLowerCase()}` : null],
+		['dates', view.dates !== 'both' ? `Source date: ${DATES_LABELS[view.dates].toLowerCase()}` : null],
 		['site', view.site ? `Website: ${SITE_LABELS[view.site].toLowerCase()}` : null],
 		['state', view.state ? `Location: ${view.state === 'unknown' ? 'unknown' : view.state}` : null],
 		['traces', view.traces ? `Collected references: ${TRACE_LABELS[view.traces].toLowerCase()}` : null],
 		[
 			'described',
-			view.described === 'said' || (shortlist && !view.described) ? null : `Description: ${view.described ? DESCRIBED_LABELS[view.described].toLowerCase() : 'with or without'}`,
+			view.described === 'said' || (shortlist && !view.described) ? null : `Product description: ${view.described ? DESCRIBED_LABELS[view.described].toLowerCase() : 'any'}`,
 		],
 		['kind', view.kind === 'company' || (shortlist && !view.kind) ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
@@ -984,7 +846,7 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		['noticed', view.noticed ? 'Referenced by: one outside source' : null],
 		['build', view.build ? `Technology type: ${view.build}` : null],
 		['domain', view.domain ? `Application: ${view.domain}` : null],
-		['age', view.age === 'recent' || shortlist ? null : `Started: ${AGE_LABELS[view.age].toLowerCase()}`],
+		['age', view.age === 'recent' || shortlist ? null : 'Started: any year'],
 	];
 	return named
 		.filter((entry): entry is [string, string] => entry[1] !== null)
@@ -1004,9 +866,9 @@ function chips(view: PageView): string {
 				`<li><a class="chip filter-chip" href="${esc(f.href)}" aria-label="Remove ${esc(f.label)}">${esc(f.label)} <span aria-hidden="true">&times;</span></a></li>`,
 		)
 		.join('');
-	// Clearing everything is still offered, but only beside the chips that say what it clears.
-	const all = active.length > 1 ? `<li><a class="clear" href="${esc(`${BASE_PATH}#list`)}">Remove all ${active.length}</a></li>` : '';
-	return `<ul class="chips active-chips" id="chips">${items}${all}</ul>`;
+	// Back to the default view: every filter off, the default order.
+	const all = active.length ? `<li><a class="clear" href="${esc(`${BASE_PATH}#list`)}">Clear all</a></li>` : '';
+	return `<ul class="chips active-chips" id="chips" aria-label="Filters in use">${items}${all}</ul>`;
 }
 
 /**
@@ -1017,14 +879,20 @@ function chips(view: PageView): string {
  * shows those records. Built from the same buckets as the list, so the parts add up: shown +
  * hidden by filters + held back by age or tier + outside this view = every record.
  */
+/** Under the count: how much of it the page lists, and the order it is in. */
+function sortNote(view: PageView): string {
+	const { total, onPage } = listing(view);
+	const showing = onPage < total ? `Showing 1&ndash;${onPage} of ${total}; narrow the search or filters to see the rest. ` : '';
+	return `${showing}${SORT_NOTES[view.sort]}`;
+}
+
 function resultLine(view: PageView): string {
 	const b = view.buckets;
 	// The demo rows are not the database, so they account for themselves.
 	const universe = view.demo ? b.total : Math.max(view.category, b.total);
 	const outside = view.demo ? 0 : view.tracked - universe;
 	// The undated rows continue the same list, so they count in what it shows.
-	const shown = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
-	const onPage = (view.dates === 'undated' ? 0 : view.companies.length) + (view.dates === 'dated' ? 0 : view.undated.length);
+	const { total: shown } = listing(view);
 	const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 	const noun = view.kind === 'company' ? plural(shown, 'company', 'companies') : plural(shown, 'record', 'records');
 	const parts: string[] = [];
@@ -1066,7 +934,6 @@ function resultLine(view: PageView): string {
 	}
 
 	const what = view.dates === 'undated' ? 'undated' : 'in the list';
-	const showing = onPage < shown ? `Showing the first ${onPage} of ${shown}. ` : '';
 	// The rules the default view applies, said as the query applies them.
 	const rules: string[] = [];
 	if (view.described === 'said') rules.push('a product description, from the company&rsquo;s own website or from a source');
@@ -1077,7 +944,6 @@ function resultLine(view: PageView): string {
 	const unknownAge = view.buckets.unknownAge;
 	return `<div class="result-head" id="result-line">
       <p class="result-line"><strong>${shown}</strong> ${noun} ${view.dates === 'undated' ? 'with no source date ' : ''}${plural(shown, 'matches', 'match')}<span class="marks-line" hidden></span></p>
-      <p class="sort-note">${showing}${SORT_NOTES[view.sort]}</p>
       <details class="about-results" id="about-results">
         <summary>About these results</summary>
         <div class="about-results-body">
@@ -1095,100 +961,107 @@ function resultLine(view: PageView): string {
 }
 
 function controls(view: PageView): string {
-	const { sector, subsector, search, source, site, sort, dates, tier, age } = view;
+	const { subsector, search, source, site, dates, tier, age } = view;
 	const option = (value: string, label: string, current: string) =>
 		`<option value="${esc(value)}"${current === value ? ' selected' : ''}>${esc(label)}</option>`;
+	const cap = (t: string) => t[0].toUpperCase() + t.slice(1);
 
-	const sectorOptions = [option('', 'All sectors', sector ?? '')].concat(SUNRISE_SECTORS.map((g) => option(g.sector_id, g.sector, sector ?? ''))).join('');
-	// Grouped by sector, and the sector in the data attribute so the script can drop a
-	// sub-sector that the newly chosen sector does not contain.
-	const subsectorOptions = [option('', 'All sub-sectors', subsector ?? '')]
+	// A sub-sector belongs to one sector, so the sector box says which even when only the
+	// sub-sector was chosen (a map click sets ?subsector= alone).
+	const sector = view.sector ?? (subsector ? (SUBSECTOR_BY_ID.get(subsector)?.sector_id ?? null) : null);
+	const sectorOptions = [option('', 'Any', sector ?? '')].concat(SUNRISE_SECTORS.map((g) => option(g.sector_id, g.sector, sector ?? ''))).join('');
+	// A chosen sector narrows the sub-sectors to its own, so no pair on offer is one that can only
+	// come back empty. Each keeps its sector in a data attribute for the script.
+	const subOption = (g: (typeof SUNRISE_SECTORS)[number], sub: (typeof SUNRISE_SECTORS)[number]['subsectors'][number]) =>
+		`<option value="${esc(sub.subsector_id)}" data-sector="${esc(g.sector_id)}"${subsector === sub.subsector_id ? ' selected' : ''}>${esc(sub.subsector)}</option>`;
+	const inSector = sector ? SUNRISE_SECTORS.find((g) => g.sector_id === sector) : undefined;
+	const subsectorOptions = [option('', 'Any', subsector ?? '')]
 		.concat(
-			SUNRISE_SECTORS.map(
-				(g) =>
-					`<optgroup label="${esc(g.sector)}">${g.subsectors
-						.map((sub) => `<option value="${esc(sub.subsector_id)}" data-sector="${esc(g.sector_id)}"${subsector === sub.subsector_id ? ' selected' : ''}>${esc(sub.subsector)}</option>`)
-						.join('')}</optgroup>`,
-			),
+			inSector
+				? inSector.subsectors.map((sub) => subOption(inSector, sub))
+				: SUNRISE_SECTORS.map((g) => `<optgroup label="${esc(g.sector)}">${g.subsectors.map((sub) => subOption(g, sub)).join('')}</optgroup>`),
 		)
 		.join('');
-	const tierOptions = (Object.keys(TIER_LABELS) as TierChoice[]).map((v) => option(v, TIER_LABELS[v], tier)).join('');
-	const sourceOptions = [option('', 'Any source', source ?? '')].concat(SOURCES.map((id) => option(id, SOURCE_LABELS[id] ?? id, source ?? ''))).join('');
-	const datesOptions = (Object.keys(DATES_LABELS) as Array<PageView['dates']>).map((v) => option(v, DATES_LABELS[v], dates)).join('');
-	const siteOptions = [option('', 'Any', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
+	const buildOptions = [option('', 'Any', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, cap(t), view.build ?? ''))).join('');
+	const domainOptions = [option('', 'Any', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, cap(t), view.domain ?? ''))).join('');
 	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
-	// In the reader's words, and no tier letters: the order a reader chooses, not our rule's name.
-	const sortOptions = (['quietest', 'programmes', 'described', 'newest', 'name'] as SortChoice[]).map((v) => option(v, SORT_LABELS[v], sort)).join('');
-	const traceOptions = [option('', 'Any number', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
+
+	const sourceOptions = [option('', 'Any', source ?? '')].concat(SOURCES.map((id) => option(id, SOURCE_LABELS[id] ?? id, source ?? ''))).join('');
+	const siteOptions = [option('', 'Any', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
 	const describedNow = view.described === 'said' ? '' : (view.described ?? 'all');
 	const describedOptions = [option('', DESCRIBED_LABELS.said, describedNow)]
 		.concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], describedNow)))
-		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'With or without', describedNow)])
+		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'Any', describedNow)])
 		.join('');
-	// Keyword tags, and said to be keywords in the label: a filter a reader cannot tell was
-	// read off the words would pass for someone's judgement.
-	const buildOptions = [option('', 'Any technology', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.build ?? ''))).join('');
-	const domainOptions = [option('', 'Any', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, t[0].toUpperCase() + t.slice(1), view.domain ?? ''))).join('');
-	// The count on "More filters" is the filters inside it, so a reader knows to look there.
-	const inside = new Set(['subsector', 'tier', 'source', 'dates', 'site', 'traces', 'described', 'domain', 'age']);
+	const traceOptions = [option('', 'Any', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
+	const datesOptions = (Object.keys(DATES_LABELS) as Array<PageView['dates']>).map((v) => option(v, DATES_LABELS[v], dates)).join('');
+	// Any first, like every other select; the tiers after it, narrowest last.
+	const tierOptions = (['all', 'ab', 'a'] as TierChoice[]).map((v) => option(v, TIER_LABELS[v], tier)).join('');
+
+	// The count on "More filters" is the filters inside it, and any of them keeps it open.
+	const inside = new Set(['source', 'site', 'described', 'traces', 'dates', 'tier']);
 	const count = activeFilters(view).filter((f) => inside.has(f.key)).length;
 
-	const field = (id: string, label: string, options: string, extra = '') =>
-		`<div class="field${extra}"><label for="${id}">${label}</label><select id="${id}" name="${id}">${options}</select></div>`;
+	const field = (id: string, label: string, options: string, hint?: string) =>
+		`<div class="field"><label for="${id}">${label}</label><select id="${id}" name="${id}"${hint ? ` aria-describedby="${id}-hint"` : ''}>${options}</select>${
+			hint ? `<p class="field-hint" id="${id}-hint">${hint}</p>` : ''
+		}</div>`;
+	const clearSearch = `${BASE_PATH}${query(viewParams(view, { q: null }))}#list`;
 
-	// Only the search box and the filter bar are inside the pinned form, and nothing in it changes
-	// size when it pins: a bar that hid its own parts once pinned made the page shorter, which
-	// unpinned it, which made the page longer again, and the page snapped back while scrolling.
-	// Everything else a reader needs once (the label, the presets, the chips, the count) sits
-	// outside it and scrolls away.
 	return `
-<label for="q" class="search-label">Find companies</label>
 <form class="controls" id="controls" method="get" action="${esc(BASE_PATH)}#list" role="search">
-  <div class="search-block">
+  <div class="field search-field">
+    <label for="q">Find companies</label>
     <div class="search-row">
       <input type="search" id="q" name="q" value="${esc(search ?? '')}" placeholder="Search companies or technologies"
-        autocomplete="off" spellcheck="false" aria-describedby="q-hint">
-      <button type="submit" class="search-go">Search</button>
+        autocomplete="off" spellcheck="false" enterkeyhint="search" aria-describedby="q-hint">
+      <a class="search-clear" id="q-clear" href="${esc(clearSearch)}" aria-label="Clear search"${search ? '' : ' hidden'}><span aria-hidden="true">&times;</span></a>
     </div>
-    <p class="visually-hidden" id="q-hint">Searches company names and what their descriptions say they build.</p>
+    <p class="field-hint" id="q-hint">Company names and what their descriptions say they build. Press Enter to search.</p>
   </div>
-  <div class="bar">
-    ${field('sector', 'Sector', sectorOptions, ' field-inline')}
-    ${field('build', 'Technology type', buildOptions, ' field-inline')}
-    <details class="filter-menu">
-      <summary>More filters<span class="filter-count" id="filter-count">${count ? ` (${count})` : ''}</span></summary>
-      <div class="filter-panel">
-        ${field('subsector', 'Sub-sector (RDI)', subsectorOptions, ' field-wide')}
-        ${field('domain', 'Application (keyword match)', domainOptions)}
-        ${field('described', 'Product description', describedOptions)}
-        ${field('source', 'Source', sourceOptions)}
-        ${field('traces', 'Collected references', traceOptions)}
-        ${field('site', 'Website', siteOptions)}
-        ${field('age', 'Started', ageOptions)}
-        ${field('dates', 'Source date', datesOptions)}
-        ${field('tier', 'Rank tier (see methodology)', tierOptions)}
-        <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
-        <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
-        <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
-        <input type="hidden" name="noticed" value="${esc(view.noticed ?? '')}">
-        <input type="hidden" name="programmes" value="${esc(view.programmes ?? '')}">
-        <input type="hidden" name="alone" value="${esc(view.alone ?? '')}">
-        <input type="hidden" name="ids" value="${esc(viewParams(view).ids ?? '')}">
-        <button type="submit" class="apply">Apply filters</button>
-      </div>
-    </details>
-    ${field('sort', 'Sort', sortOptions, ' field-inline field-sort')}
+  <div class="filter-grid" id="primary-filters">
+    ${field('sector', 'Sector', sectorOptions)}
+    ${field('subsector', 'Sub-sector', subsectorOptions)}
+    ${field('build', 'Technology type', buildOptions)}
+    ${field('domain', 'Application', domainOptions, 'matched on words in the description')}
+    ${field('age', 'Started', ageOptions)}
   </div>
+  <details class="more-filters" id="more-filters"${count ? ' open' : ''}>
+    <summary>More filters<span class="filter-count" id="filter-count">${count ? ` (${count})` : ''}</span></summary>
+    <div class="filter-grid">
+      ${field('source', 'Source', sourceOptions)}
+      ${field('site', 'Website', siteOptions)}
+      ${field('described', 'Product description', describedOptions)}
+      ${field('traces', 'Collected references', traceOptions)}
+      ${field('dates', 'Source date', datesOptions)}
+      ${field('tier', 'Rank tier', tierOptions, '<a href="' + esc(`${BASE_PATH}/about#method-h`) + '">How tiers are set</a>')}
+    </div>
+  </details>
+  <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
+  <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
+  <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
+  <input type="hidden" name="noticed" value="${esc(view.noticed ?? '')}">
+  <input type="hidden" name="programmes" value="${esc(view.programmes ?? '')}">
+  <input type="hidden" name="alone" value="${esc(view.alone ?? '')}">
+  <input type="hidden" name="ids" value="${esc(viewParams(view).ids ?? '')}">
+  <noscript><div class="apply-row"><button type="submit" class="apply">Apply filters</button></div></noscript>
 </form>
 ${quickStarts(view)}
 ${chips(view)}
+<div class="results-bar">
+  ${resultLine(view)}
+  <div class="field field-sort">
+    <label for="sort">Sort</label>
+    <select id="sort" name="sort" form="controls">${(['quietest', 'programmes', 'described', 'newest', 'name'] as SortChoice[]).map((v) => option(v, SORT_LABELS[v], view.sort)).join('')}</select>
+  </div>
+</div>
 <div class="bar-foot">
-    ${resultLine(view)}
-    <span class="bar-links">
-      <button type="button" class="linkish seen-toggle" hidden aria-pressed="false">Hide seen</button>
-      <a class="linkish shortlist-export" hidden href="#">Export shortlist</a>
-      <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Export results</a>
-    </span>
+  <p class="sort-note" id="sort-note">${sortNote(view)}</p>
+  <span class="bar-links">
+    <button type="button" class="linkish seen-toggle" hidden aria-pressed="false">Hide seen</button>
+    <a class="linkish shortlist-export" hidden href="#">Export shortlist</a>
+    <a class="export" id="export" href="${esc(`${BASE_PATH}/export.csv${query(viewParams(view))}`)}">Export results</a>
+  </span>
 </div>`;
 }
 
@@ -1401,7 +1274,7 @@ function eventPhrase(company: Company): string | null {
  * click are carried by how the row looks as well as by what it says: described or not,
  * dated or not, a website confirmed as theirs or not.
  */
-function companyRow(company: Company, now: Date, origin: string): string {
+function companyRow(company: Company, now: Date, origin: string, position: number): string {
 	const builds = buildsLine(company);
 	const dated = company.first_seen !== null;
 	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
@@ -1436,7 +1309,7 @@ function companyRow(company: Company, now: Date, origin: string): string {
 	return `
   <li class="company ${state}" id="c-${esc(company.id)}" data-id="${esc(company.id)}" data-added="${esc((company.discovered ?? '').slice(0, 10))}">
     <div class="row-main">
-      <h3><a href="${esc(href)}">${esc(company.name)}</a>${entityTag(company)}</h3>
+      <h3><span class="row-n" aria-hidden="true">${position}</span><a href="${esc(href)}">${esc(company.name)}</a>${entityTag(company)}</h3>
       ${builds.html}
       ${context.length ? `<p class="context-row">${context.join('')}</p>` : ''}
       <p class="trail evidence-row">${evidence.join('')}</p>
@@ -1504,12 +1377,22 @@ function traceName(signal: Signal, dpiitStatus: string | null): string | null {
 }
 
 /**
- * How many companies the ranked list is actually offering. The buckets always split at
- * the age gate, because the held-back line needs that number even when the gate is off
- * — so with the gate lifted, the older ones are part of what is listed.
+ * What the page lists, as one numbered order: the dated rows first, then the undated ones in
+ * the same order. The count, the "showing" line and the row numbers are all read from this, so
+ * they cannot disagree.
+ *
+ * Each half is fetched up to a limit. When the dated half is cut short, the undated rows would
+ * not follow on from the last one shown, so they are not listed: the page shows 1 to N of the
+ * whole and says how to reach the rest, rather than two runs with a hole between them.
  */
-function listed(view: PageView): number {
-	return view.buckets.ranked;
+function listing(view: PageView): { total: number; ranked: number; undated: number; onPage: number; undatedHeld: boolean } {
+	const b = view.buckets;
+	const total = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
+	const ranked = view.dates === 'undated' ? 0 : view.companies.length;
+	const rankedCut = view.dates !== 'undated' && view.companies.length < b.ranked;
+	const undatedHeld = view.dates === 'both' && rankedCut && b.undated > 0;
+	const undated = view.dates === 'dated' || undatedHeld ? 0 : view.undated.length;
+	return { total, ranked, undated, onPage: ranked + undated, undatedHeld };
 }
 
 /**
@@ -1525,11 +1408,6 @@ function backfillNote(view: PageView): string {
 	return `<p class="note">Too few companies here qualify for Tier A or B today, so the list is showing every tier. Those tiers take a
     company we watched arrive, recently, in a source we were already reading, with few public traces &mdash; and with
     more than a register&rsquo;s dropdown label to say what it does. A new source&rsquo;s first read never qualifies.</p>`;
-}
-
-/** Said only when the limit actually bit, so the count above stays trustworthy. */
-function truncated(shown: number, total: number): string {
-	return shown < total ? `<p class="note">Showing the first ${shown} of ${total} in this part of the list. Narrow the search or filters to see the rest.</p>` : '';
 }
 
 /**
@@ -1594,12 +1472,11 @@ function list(view: PageView): string {
 
 	return `
 <section class="list" id="list" aria-labelledby="list-h">
-  <h2 id="list-h" class="visually-hidden">Results <span class="count">${listed(view)}</span></h2>
+  <h2 id="list-h" class="visually-hidden">Results <span class="count">${listing(view).total}</span></h2>
   ${banner}
   ${backfillNote(view)}
-  ${truncated(companies.length, listed(view))}
   <ol class="companies">
-${companies.map((company) => companyRow(company, now, view.origin)).join('\n')}
+${companies.map((company, i) => companyRow(company, now, view.origin, i + 1)).join('\n')}
   </ol>
 </section>`;
 }
@@ -1611,16 +1488,27 @@ ${companies.map((company) => companyRow(company, now, view.origin)).join('\n')}
  */
 function undatedList(view: PageView): string {
 	const { undated, buckets, now } = view;
-	if (undated.length === 0) return '';
-
 	const n = buckets.undated;
+	const shown = listing(view);
+	if (shown.undatedHeld) {
+		// The dated half was cut short, so these would not follow on from the last row shown.
+		const only = `${BASE_PATH}${query(viewParams(view, { dates: 'undated' }))}#list`;
+		return `
+<section class="list undated-list" id="undated" aria-labelledby="undated-h">
+  <h2 id="undated-h">No source date <span class="count">${n}</span></h2>
+  <p class="note">These ${n} come after the ${buckets.ranked} dated records in the same order, past the ${shown.ranked} listed above.
+    <a href="${esc(only)}">List only the ${n} with no source date</a>, or narrow the search or filters.</p>
+</section>`;
+	}
+	if (undated.length === 0) return '';
+	// Numbered on from the dated rows: one list, in one order.
+	const from = shown.ranked + 1;
 	return `
 <section class="list undated-list" id="undated" aria-labelledby="undated-h">
   <h2 id="undated-h">No source date <span class="count">${n}</span></h2>
   <p class="note">The same order, continued. No source gives a date for anything about these records, so none is dated here.</p>
-  ${truncated(undated.length, n)}
-  <ol class="companies">
-${undated.map((company) => companyRow(company, now, view.origin)).join('\n')}
+  <ol class="companies" start="${from}">
+${undated.map((company, i) => companyRow(company, now, view.origin, from + i)).join('\n')}
   </ol>
 </section>`;
 }
@@ -2816,7 +2704,8 @@ section > h2, .section-h {
    flex-shrink: 0 so a long sector name cannot squash it. */
 .sector-icon { width: 1.35em; height: 1.35em; flex: 0 0 auto; opacity: 0.75; }
 .sector-id { font-family: var(--mono); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: var(--s1); }
+/* Wide enough for a sub-sector's name to read on a phone too, now that the map never folds. */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: var(--s1); }
 .cell {
   display: flex;
   flex-direction: column;
@@ -2833,7 +2722,6 @@ section > h2, .section-h {
 .cell-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s1); line-height: 1.2; }
 .cell-id { font-family: var(--mono); font-size: var(--t-nano); color: var(--muted); }
 .list.loading { opacity: 0.55; transition: opacity 120ms ease-out; }
-.resume { color: var(--ink); text-underline-offset: 3px; display: inline-flex; min-height: 44px; align-items: center; }
 .since { font-size: var(--t-sm); margin: var(--s3) 0 0; padding: var(--s2) var(--s3); border-left: 3px solid var(--mark); background: var(--raise); }
 .hide-seen .company.is-seen { display: none; }
 .only-new .company:not(.is-new) { display: none; }
@@ -2841,24 +2729,11 @@ section > h2, .section-h {
 /* The map leads the page and is the control: sector names are links, cells filter. */
 .coverage { margin: var(--s6) 0 var(--s5); }
 .coverage .widget-head { margin-bottom: var(--s3); }
-.sector > summary { list-style: none; cursor: pointer; }
-.sector > summary::-webkit-details-marker { display: none; }
-.sector > summary h3 { display: flex; align-items: baseline; gap: var(--s2); }
 .sector-n { font-family: var(--mono); font-size: var(--t-micro); color: var(--muted); font-variant-numeric: tabular-nums; }
-@media (max-width: 34rem) {
-  .sector { margin-bottom: 0; border-bottom: 1px solid var(--rule); }
-  .sector > summary { min-height: 44px; display: flex; align-items: center; }
-  .sector > summary h3 { margin: 0; width: 100%; }
-  .sector > summary h3::after { content: '+'; margin-left: auto; color: var(--muted); }
-  .sector.unfolded > summary h3::after, .sector[data-chosen] > summary h3::after { content: '–'; }
-  .sector:not(.unfolded):not([data-chosen]) > .grid { display: none; }
-  .sector > .grid { padding-bottom: var(--s3); }
-}
 .sector-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: var(--s1); }
 .sector-link:hover, .sector-link.active { text-decoration: underline; text-underline-offset: 3px; }
 .cell.zero { color: var(--muted); }
 .cell.zero .cell-n { opacity: 0.55; }
-.tag-grid { margin-top: var(--s2); }
 /* The reference half: collapsed, labelled, and set apart from the tool above. */
 .reference { margin-top: var(--s7); padding-top: var(--s5); border-top: 2px solid var(--rule-strong); }
 .reference > h2 { font-size: var(--t-h); margin: 0 0 var(--s1); }
@@ -2869,7 +2744,7 @@ section > h2, .section-h {
 /* On paper: the rows and what they rest on, in black on white, without the controls. */
 @media print {
   :root { --paper: #fff; --raise: #fff; --ink: #000; --muted: #444; --rule: #bbb; --rule-strong: #888; }
-  .controls, .filter-menu, .row-actions, .copy-row, .mark, .ask, .bar-links, script, .device-note { display: none !important; }
+  .controls, .breakdown, .results-bar .field-sort, .row-actions, .copy-row, .mark, .ask, .bar-links, script, .device-note { display: none !important; }
   .company { break-inside: avoid; }
   details { display: block; }
   details > summary { list-style: none; }
@@ -2877,7 +2752,7 @@ section > h2, .section-h {
   .row-main h3 a::after { content: ' — ' attr(href); font-weight: 400; font-size: var(--t-micro); color: var(--muted); }
 }
 /* Figures that sit in columns or beside each other keep one width, so counts line up. */
-.cell-n, .result-line strong, .count, .districts .n, .trace-n, .finding-list strong, .widget-meta strong { font-variant-numeric: tabular-nums; }
+.cell-n, .brow-n, .result-line strong, .count, .trace-n, .finding-list strong, .panel-meta strong { font-variant-numeric: tabular-nums; }
 .cell-name {
   font-size: var(--t-nano);
   line-height: 1.2;
@@ -2902,88 +2777,7 @@ section > h2, .section-h {
 .cell.active { border-color: var(--ink); border-style: solid; background: var(--mark-soft); box-shadow: inset 0 0 0 1px var(--ink); }
 
 
-/* the control bar: controls before explanation, and still there after a scroll */
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.controls {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--paper);
-  padding: var(--s2) 0 var(--s3);
-  margin: 0 0 var(--s3);
-}
-.bar { position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s2) var(--s3); margin-top: var(--s2); }
-.bar .field-inline { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
-.bar .field-inline label, .filter-panel label { font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.04em; color: var(--muted); }
-.bar .field-sort { margin-left: auto; }
-select {
-  font: inherit;
-  font-size: var(--t-sm);
-  color: inherit;
-  background: var(--raise);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
-  padding: var(--s2) var(--s3);
-  min-height: 40px;
-  max-width: 100%;
-  min-width: 0;
-}
-select:hover { border-color: var(--ink); }
-.filter-menu > summary {
-  list-style: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-  font-size: var(--t-sm);
-  font-weight: 500;
-  padding: var(--s2) var(--s3);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
-  background: var(--raise);
-  white-space: nowrap;
-}
-.filter-menu > summary::-webkit-details-marker { display: none; }
-.filter-menu > summary::after { content: ''; width: 0.4em; height: 0.4em; margin-left: var(--s2); border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
-.filter-menu[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
-.filter-menu > summary:hover { border-color: var(--ink); }
-.filter-menu[open] > summary { border-color: var(--ink); box-shadow: var(--focus); }
-.filter-count { font-variant-numeric: tabular-nums; font-weight: 700; }
-/* Positioned against the bar rather than the button, so on a phone it spans the width
-   instead of hanging off whichever line the button wrapped onto. */
-.filter-panel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + var(--s1));
-  z-index: 11;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-  gap: var(--s3);
-  padding: var(--s4);
-  background: var(--raise);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 12%, transparent);
-}
-.filter-panel .field { display: flex; flex-direction: column; gap: var(--s1); }
-.filter-panel select { width: 100%; }
-.apply {
-  font: inherit;
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: var(--s2) var(--s4);
-  min-height: 40px;
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: var(--on-accent);
-  cursor: pointer;
-  align-self: end;
-}
-.apply:hover { box-shadow: inset 0 -4px 0 var(--mark); }
 .active-chips { margin: var(--s2) 0 0; align-items: center; }
 .active-chips:empty { display: none; }
 /* A chosen filter is a chosen thing, so it takes the yellow fill; its × takes it away. */
@@ -2991,43 +2785,11 @@ select:hover { border-color: var(--ink); }
 .filter-chip span { margin-left: var(--s1); font-weight: 400; }
 a.chip.filter-chip:hover { border-color: #111111; }
 .clear { font-size: var(--t-xs); color: var(--muted); }
-.bar-foot {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--s1) var(--s4);
-  margin-top: var(--s2);
-  font-size: var(--t-xs);
-  color: var(--muted);
-}
-.result-head { flex: 1 1 28rem; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); }
-.result-head .about-results-body { flex-basis: 100%; }
-.result-head .about-results[open] { flex-basis: 100%; }
 .result-line { margin: 0; font-size: var(--t-sm); color: var(--ink); }
 .result-line strong { font-size: var(--t-name); color: var(--ink); font-weight: 600; }
 .result-line a, .linkish { color: var(--ink); text-decoration: none; box-shadow: inset 0 -0.3em 0 var(--mark-soft); }
 .result-line a:hover, .linkish:hover { box-shadow: inset 0 -0.3em 0 var(--hl); }
 .bar-links { display: flex; flex-wrap: wrap; gap: var(--s3); }
-@media (max-width: 34rem) {
-  /* A thumb, not a cursor: controls reach 44px, and pills keep their look while an invisible
-     margin around them takes the tap. */
-  .mark, .copy-row, .chip, select, input[type='search'], .filter-menu > summary, .apply, .linkish { min-height: 44px; }
-  .row-side .mark, .row-side .copy-row { padding-inline: var(--s3); border-radius: var(--radius); }
-  a.rdi, .result-line a, .bar-links a { position: relative; }
-  a.rdi::after, .result-line a::after, .bar-links a::after { content: ''; position: absolute; inset: -14px -4px; }
-  /* Pinned on a phone: the search box and a two-by-two grid of choices, each saying what it is
-     in its own first option, so the bar stays about a fifth of the screen and never changes. */
-  .bar { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
-  .bar .field-inline label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .bar .field-inline select, .filter-menu > summary { width: 100%; min-height: 40px; }
-  .bar .field-sort { margin-left: 0; }
-  .controls { padding-block: var(--s2); }
-  /* The panel scrolls inside itself and keeps Apply in reach instead of below the fold. */
-  .filter-panel { max-height: calc(100dvh - var(--pinned, 10rem) - 1rem); overflow-y: auto; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding: var(--s3); }
-  .filter-panel .field-wide { grid-column: 1 / -1; }
-  .apply { position: sticky; bottom: 0; grid-column: 1 / -1; width: 100%; min-height: 44px; }
-}
 .linkish { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .linkish[aria-pressed='true'] { font-weight: 600; box-shadow: inset 0 -0.3em 0 var(--hl); }
 .export { color: var(--muted); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
@@ -3233,9 +2995,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 /* On a company's page the count and what it is read as one fact in the line. */
 .facts .traces { display: inline; }
 .f-prog { font-weight: 600; }
-.widget-lead { border: 1px solid var(--rule-strong); border-radius: var(--radius); padding: var(--s4); background: var(--raise); margin-bottom: var(--s5); }
-.widget-lead .widget-meta { font-size: var(--t-body); color: var(--ink); max-width: var(--measure); }
-.widget-lead .widget-meta a { color: inherit; text-underline-offset: 3px; }
 .finding-lead { font-size: var(--t-body); }
 .finding-lead a { color: inherit; }
 .f-kind { font-weight: 500; }
@@ -3264,42 +3023,10 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .fact-site { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
 .fact-site:hover { text-decoration-color: currentColor; }
 /* the widget row: the population in view, five ways, in the coverage map's cells */
-.widgets { margin: calc(-1 * var(--s5)) 0 var(--s5); display: grid; gap: var(--s5); }
-.widget { min-width: 0; border-top: 1px solid var(--rule); padding-top: var(--s3); }
-.widget-head { margin: 0 0 var(--s2); }
-.widget-head h2 { font-family: var(--mono); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); font-weight: 500; margin: 0 0 var(--s1); }
-.widget-meta { margin: 0; font-size: var(--t-xs); color: var(--muted); max-width: var(--measure); }
-.widget-meta strong { color: var(--ink); font-weight: 500; }
-.widget-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
-@media (min-width: 46rem) { .widget-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.seg-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
-.cell.seg { overflow: hidden; padding-bottom: var(--s1); }
-.cell.seg .cell-id { display: inline-flex; align-items: center; gap: 0.3em; }
-.cell.seg .sector-icon { width: 1.1em; height: 1.1em; }
 /* The share of the records in view, as a hairline along the cell's foot. A proportion
    drawn in ink, not a colour: the yellow stays spent on what nobody has noticed. */
-.cell .share { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--mark-deep); opacity: 0.85; }
-.cell.weak-seg { border-style: dashed; }
-.cell-when { font-size: var(--t-nano); color: var(--muted); line-height: 1.2; margin-top: var(--s0); }
-.cell-when .failing { color: var(--ink); font-weight: 500; }
 /* The map beside the tiles on a wide screen, above them on a phone. Capped, so a state is
    big enough to hit and the list is not pushed a screen down to make room for Kashmir. */
-.places-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s3) var(--s5); align-items: start; }
-@media (min-width: 46rem) { .places-body { grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); } }
-.places-tiles { min-width: 0; }
-.india-map { margin: 0 auto; width: 100%; max-width: 20rem; }
-.india-map svg { display: block; width: 100%; height: auto; }
-.india-map .state { fill: color-mix(in srgb, var(--ink) var(--ink-share), var(--paper)); stroke: var(--paper); stroke-width: 1; stroke-linejoin: round; }
-.india-map .state.none { fill: var(--raise); stroke: var(--rule-strong); }
-.india-map .state-link:hover .state { stroke: var(--ink); stroke-width: 1.5; }
-.india-map .state-halo { fill: none; stroke: var(--paper); stroke-width: 5; stroke-linejoin: round; pointer-events: none; }
-.india-map .state-outline { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; pointer-events: none; }
-.india-map figcaption { font-size: var(--t-nano); color: var(--muted); margin-top: var(--s1); }
-.india-map figcaption a { color: inherit; }
-.more-places { margin-top: var(--s1); }
-.more-places > summary { cursor: pointer; font-size: var(--t-xs); color: var(--muted); }
-.more-places > .grid { margin-top: var(--s1); }
-.districts { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
 .who { margin: 0; display: grid; gap: var(--s3); }
 .who > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 var(--s4); }
 @media (min-width: 46rem) { .who > div { grid-template-columns: 11rem minmax(0, 1fr); } .who .why { grid-column: 2; } }
@@ -3309,7 +3036,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .papers { margin-top: var(--s4); }
 .paper-list { margin: var(--s2) 0 0; padding-left: var(--s4); font-size: var(--t-sm); }
 .paper-list li { margin-bottom: var(--s1); }
-.districts .n { font-family: var(--mono); color: var(--ink); }
 /* the question box */
 .ask { margin: 0 0 var(--s5); }
 .ask-form label { display: block; font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 500; margin-bottom: var(--s1); }
@@ -3327,11 +3053,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .ask-examples { list-style: none; padding: 0; margin: 0; }
 .ask-examples li { padding: var(--s2) 0; border-top: 1px solid var(--rule); }
 .ask-q { font-weight: 500; margin: 0 0 var(--s0); }
-.place-grid { margin-top: var(--s3); grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
-.place-grid .cell-name { overflow-wrap: normal; word-break: normal; hyphens: auto; }
-.place-grid .cell-name { -webkit-line-clamp: 2; line-clamp: 2; }
-.cell.unknown-place { border-width: 1.5px; }
-.cell.unknown-place .cell-n { opacity: 1; font-weight: 500; color: var(--ink); }
 .note strong { color: var(--ink); font-weight: 500; }
 .place { border: 1px solid var(--rule); padding: 2px var(--s1); color: var(--ink); text-decoration: none; font-size: var(--t-xs); white-space: nowrap; }
 .place:hover { border-color: var(--rule-strong); }
@@ -3384,21 +3105,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
   padding: var(--s3) var(--s4);
   margin: var(--s4) 0 var(--s1);
 }
-input[type='search'] {
-  font: inherit;
-  font-size: var(--t-body);
-  color: inherit;
-  background: var(--raise);
-  border: 1px solid var(--ink);
-  border-radius: var(--radius);
-  padding: var(--s2) var(--s4);
-  min-height: 52px;
-  width: 100%;
-  min-width: 0;
-}
-input[type='search']::placeholder { color: var(--muted); opacity: 1; }
-input[type='search']:hover { border-color: var(--ink); }
-input[type='search']:focus { border-color: var(--ink); box-shadow: var(--focus); outline: none; }
 
 
 /* one company */
@@ -3572,12 +3278,6 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   transition: box-shadow 160ms ease-out;
 }
 .coverage-line a:hover, .about-results a:hover, .page-foot a:hover, .crumb a:hover, .about-upstream a:hover, .toc a:hover, .example:hover, .export:hover, .toast a:hover, .lede a:hover { box-shadow: inset 0 -1.2em 0 var(--mark); color: #111111; }
-.search-block { padding-top: 0; }
-.search-label { display: block; font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); margin: 0; }
-.search-row { display: flex; gap: var(--s2); }
-.search-row input { flex: 1 1 auto; }
-.search-go { font: inherit; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; min-height: 52px; padding: 0 var(--s5); border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent); color: var(--on-accent); cursor: pointer; }
-.search-go:hover { box-shadow: inset 0 -4px 0 var(--mark); }
 .quick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: 0 0 var(--s2); font-size: var(--t-xs); }
 .quick-label { font-family: var(--mono); color: var(--muted); }
 .quick-or { margin-left: var(--s3); }
@@ -3587,17 +3287,7 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .preset:hover { background: var(--mark); color: #111111; }
 .preset.active { background: var(--mark); color: #111111; }
 .preset.active::before { content: '✓'; margin-right: var(--s1); }
-/* The pinned bar is a solid band across the whole width, like the site's own top bar. Drawn by a
-   layer behind it rather than a clip, so the More filters panel can hang below it; the page clips
-   sideways overflow so the band cannot widen the page. Pinned or not, only its shadow changes. */
-.controls::before { content: ''; position: absolute; z-index: -1; top: 0; bottom: 0; left: calc(50% - 50vw); right: calc(50% - 50vw); background: var(--paper); border-bottom: 1px solid var(--rule-strong); }
-.controls.pinned::before { box-shadow: 0 10px 18px -16px rgba(17, 17, 17, 0.45); }
-/* At rest, with the script there to tell the two apart, the band steps aside so the page's wash runs
-   unbroken; only paint changes, never size. */
-.js .controls:not(.pinned), .js .controls:not(.pinned)::before { background: transparent; border-bottom-color: transparent; }
 html, body { overflow-x: clip; }
-/* Anchors and "back to results" land below the pinned bar, whatever height it has here. */
-html { scroll-padding-top: calc(var(--pinned, 10rem) + var(--s3)); }
 .result-line strong { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; }
 .sort-note { margin: 0; font-size: var(--t-xs); color: var(--muted); }
 .about-results { margin: 0; }
@@ -3610,19 +3300,6 @@ html { scroll-padding-top: calc(var(--pinned, 10rem) + var(--s3)); }
 .export { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; }
 .toast { position: fixed; left: 0; right: 0; bottom: calc(var(--s4) + env(safe-area-inset-bottom, 0px)); width: min(40rem, calc(100vw - 2rem)); z-index: 20; margin: 0 auto; padding: var(--s2) var(--s3); border: 1px solid var(--rule); border-left: 4px solid var(--mark); border-radius: var(--radius); background: var(--raise); box-shadow: var(--shadow); font-size: var(--t-sm); }
 .toast a { margin-left: var(--s1); }
-.explore { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s3) 0 var(--s1); }
-.explore-fold { flex: 0 1 auto; }
-.explore-fold[open] { flex-basis: 100%; order: 2; padding: var(--s3) var(--s4) var(--s1); border: 1px solid var(--rule); border-radius: var(--radius-lg); background: var(--raise); box-shadow: var(--shadow); }
-.explore-fold > summary { cursor: pointer; list-style: none; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s2); min-height: 36px; padding: var(--s1) var(--s3); border: 1px solid var(--rule-strong); border-radius: var(--radius); font-size: var(--t-sm); background: var(--raise); }
-.explore-fold > summary::-webkit-details-marker { display: none; }
-.explore-fold > summary::before { content: '+'; font-family: var(--mono); color: var(--muted); }
-.explore-fold[open] > summary::before { content: '–'; }
-.explore-fold[open] > summary { border-color: transparent; padding-inline: 0; margin-bottom: var(--s2); background: none; }
-.explore-fold > summary:hover { border-color: var(--ink); }
-.explore-name { font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
-.explore-meta { font-size: var(--t-xs); color: var(--muted); }
-.explore-fold .coverage, .explore-fold .widgets { margin: 0 0 var(--s3); }
-.explore-fold .widgets[hidden] { display: none; }
 .context-row, .evidence-row { display: block; max-width: none; margin: var(--s1) 0 0; font-size: var(--t-xs); line-height: 1.6; color: var(--muted); }
 .context-row > span:not(:last-child)::after, .evidence-row > span:not(:last-child)::after { content: '·'; margin: 0 var(--s2); color: var(--muted); }
 .context-row { margin-top: var(--s1); }
@@ -3677,12 +3354,9 @@ html { scroll-padding-top: calc(var(--pinned, 10rem) + var(--s3)); }
   .topnav-links { gap: 0 var(--s3); flex-wrap: nowrap; white-space: nowrap; font-size: var(--t-xs); }
   .nav-shortlist { letter-spacing: 0.08em; }
   .nav-discover, .nav-long { display: none; }
-  /* Enter or the keyboard's search key submits; the box keeps the whole width for its words. */
-  .search-go { display: none; }
   .quick { flex-wrap: nowrap; overflow-x: auto; padding-bottom: var(--s1); margin-inline: calc(-1 * var(--s4)); padding-inline: var(--s4); scrollbar-width: none; }
   .quick > * { flex: 0 0 auto; }
   .preset { min-height: 36px; }
-  .explore-meta { display: none; }
 }
 @media (max-width: 22rem) {
   .topnav-inner { gap: 0 var(--s2); padding-inline: var(--s3); }
@@ -3701,18 +3375,92 @@ html { scroll-padding-top: calc(var(--pinned, 10rem) + var(--s3)); }
 /* wider screens */
 @media (min-width: 46rem) {
   .wrap { padding: var(--s5) var(--s6) calc(var(--s7) * 1.5); }
-  .grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
-  .place-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   .company { padding-inline: var(--s4); margin-inline: calc(var(--s4) * -1); }
 }
 
 /* The radio inputs behind the segmented control are visually hidden but still
    focusable, so the focus ring has to be drawn on the label. */
-.seg:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: -2px; }
 a:focus-visible, select:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
+/* the breakdown: the RDI map across the width, three panels under it, every count a filter */
+.breakdown { margin: var(--s5) 0 var(--s4); display: grid; gap: var(--s5); }
+.breakdown[hidden] { display: none; }
+.coverage, .panel { min-width: 0; margin: 0; border-top: 1px solid var(--rule-strong); padding-top: var(--s3); }
+.panel-head { margin: 0 0 var(--s3); }
+.panel-head h2 { font-size: var(--t-h); font-weight: 700; line-height: 1.3; margin: 0 0 var(--s1); color: var(--ink); }
+.panel-kicker { font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-left: var(--s2); white-space: nowrap; }
+.panel-meta { margin: 0 0 var(--s2); font-size: var(--t-xs); color: var(--muted); max-width: var(--measure); }
+.panel-meta strong { color: var(--ink); font-weight: 500; }
+.panel-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); margin: 0 0 var(--s2); font-size: var(--t-xs); color: var(--muted); max-width: none; }
+.legend-cell { display: inline-block; width: 1.25em; height: 0.9em; border-radius: 2px; border: 1px dashed var(--rule-strong); }
+.legend-on { border: 2px solid var(--ink); background: var(--mark-soft); }
+.sector.chosen > h3 { color: var(--ink); }
+.panel-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
+@media (min-width: 46rem) { .panel-row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.brows { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
+.brow { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--s2); min-height: 36px; padding: var(--s1) var(--s2); border: 1px solid var(--rule); border-radius: var(--radius); color: var(--ink); text-decoration: none; font-size: var(--t-sm); line-height: 1.3; overflow: hidden; }
+a.brow { background: var(--raise); border-color: color-mix(in srgb, var(--ink) 22%, transparent); }
+a.brow:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+.brow.active { border-color: var(--ink); background: var(--mark-soft); box-shadow: inset 0 0 0 1px var(--ink); font-weight: 600; }
+.brow.zero { color: var(--muted); border-style: dashed; }
+.brow-name { grid-column: 1; grid-row: 1; min-width: 0; overflow-wrap: anywhere; }
+.brow-n { grid-column: 2; grid-row: 1; font-family: var(--mono); font-size: var(--t-xs); }
+.brow-when { grid-column: 1 / -1; grid-row: 2; font-size: var(--t-nano); color: var(--muted); }
+.brow-when .failing { color: var(--ink); font-weight: 500; }
+.brow .share { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--mark-deep); opacity: 0.85; }
+
+/* the filters: one spacing scale (--s*), one control height, each label on its control's left edge */
+:root { --control-h: 40px; }
+@media (max-width: 34rem) { :root { --control-h: 44px; } }
+.controls { display: grid; gap: var(--s4); margin: var(--s5) 0 var(--s4); }
+.field { display: flex; flex-direction: column; align-items: stretch; gap: var(--s1); min-width: 0; }
+.field > label { font-size: var(--t-sm); font-weight: 600; line-height: 1.3; color: var(--ink); }
+.field-hint { margin: 0; font-size: var(--t-xs); line-height: 1.4; color: var(--muted); }
+.field-hint a { color: inherit; text-underline-offset: 3px; }
+select, input[type='search'], .search-clear, .more-filters > summary, .apply { box-sizing: border-box; height: var(--control-h); min-height: var(--control-h); font: inherit; font-size: var(--t-sm); border-radius: var(--radius); }
+select { width: 100%; max-width: 100%; min-width: 0; padding: 0 var(--s3); color: inherit; background: var(--raise); border: 1px solid var(--rule-strong); text-overflow: ellipsis; }
+select:hover { border-color: var(--ink); }
+.search-row { display: flex; gap: var(--s2); }
+input[type='search'] { flex: 1 1 auto; width: 100%; min-width: 0; padding: 0 var(--s3); color: inherit; background: var(--raise); border: 1px solid var(--ink); }
+input[type='search']::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+input[type='search']::placeholder { color: var(--muted); opacity: 1; }
+.search-clear { flex: 0 0 var(--control-h); display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--rule-strong); background: var(--raise); color: var(--ink); font-size: 1.25rem; line-height: 1; text-decoration: none; }
+.search-clear[hidden] { display: none; }
+.search-clear:hover { border-color: var(--ink); }
+.filter-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s3) var(--s4); align-items: start; }
+@media (min-width: 34rem) { .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 46rem) { .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 64rem) { .filter-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.more-filters > summary { display: inline-flex; align-items: center; gap: var(--s2); padding: 0 var(--s3); border: 1px solid var(--rule-strong); background: var(--raise); font-weight: 600; cursor: pointer; list-style: none; }
+.more-filters > summary::-webkit-details-marker { display: none; }
+.more-filters > summary::after { content: ''; width: 0.4em; height: 0.4em; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.more-filters[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+.more-filters > summary:hover { border-color: var(--ink); }
+.more-filters[open] > summary { margin-bottom: var(--s3); }
+.filter-count { font-variant-numeric: tabular-nums; }
+.apply-row { display: flex; }
+.apply { padding: 0 var(--s4); border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font-weight: 600; cursor: pointer; }
+.active-chips { gap: var(--s2); margin: 0 0 var(--s3); }
+.active-chips .chip, .active-chips .clear { display: inline-flex; align-items: center; min-height: 32px; }
+.active-chips .chip { padding: 0 var(--s3); }
+.clear { color: var(--ink); font-size: var(--t-xs); font-weight: 600; text-underline-offset: 3px; }
+.results-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3) var(--s4); padding-top: var(--s3); border-top: 1px solid var(--rule-strong); }
+.result-head { flex: 1 1 16rem; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); }
+.result-head .about-results[open] { flex-basis: 100%; }
+.about-results > summary { white-space: nowrap; }
+.results-bar .field-sort { flex: 0 1 18rem; flex-direction: row; align-items: center; gap: var(--s2); }
+.results-bar .field-sort label { white-space: nowrap; }
+.bar-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--s1) var(--s4); margin: var(--s2) 0 var(--s4); font-size: var(--t-xs); color: var(--muted); }
+.row-n { font-family: var(--mono); font-size: var(--t-xs); font-weight: 400; letter-spacing: 0; color: var(--muted); margin-right: var(--s2); font-variant-numeric: tabular-nums; }
+@media (max-width: 34rem) {
+  /* Still one row on a phone: the count takes what the sort leaves, and the sort box narrows. */
+  .results-bar { flex-wrap: nowrap; align-items: flex-start; }
+  .result-head { flex: 1 1 0; }
+  .results-bar .field-sort { flex: 0 1 11.5rem; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .cell, .chip, .apply, .company, select, .seg, .mark, .copy-row { transition: border-color 160ms ease-out, background 160ms ease-out, color 160ms ease-out; }
+  .cell, .brow, .chip, .apply, .company, select, .mark, .copy-row { transition: border-color 160ms ease-out, background 160ms ease-out, color 160ms ease-out; }
 }
 `;
 
@@ -3848,20 +3596,12 @@ export const LIST_SCRIPT = `
   var form = document.getElementById('controls');
   if (!form || !window.fetch || !window.DOMParser || !window.URLSearchParams) return;
   var marks = window.upstreamMarks;
-  var apply = form.querySelector('.apply');
-  if (apply) apply.hidden = true;
+  // "Resume where you left off" is gone; the view it saved would only offer a stale link.
+  try { localStorage.removeItem('upstream.lastView'); } catch (e) {}
 
   // Where "back to results" should go: the view as it is now, canonical spelling.
   function remember() {
     try { sessionStorage.setItem('upstream.results', location.pathname + location.search); } catch (e) {}
-    // Across days, the last narrowed view, named as its chips name it, so a return visit can resume it.
-    try {
-      if (location.search) {
-        var chipLabels = Array.prototype.map.call(document.querySelectorAll('#chips a.filter-chip'), function (a) { return a.firstChild ? a.firstChild.textContent.trim() : ''; }).filter(Boolean);
-        var count = document.querySelector('#result-line strong');
-        if (chipLabels.length) localStorage.setItem('upstream.lastView', JSON.stringify({ url: location.pathname + location.search, label: chipLabels.join(' · '), n: count ? count.textContent : '' }));
-      }
-    } catch (e) {}
   }
   remember();
 
@@ -3927,8 +3667,6 @@ export const LIST_SCRIPT = `
 
     // Since the last visit: quiet on a first visit and when nothing below is newer.
     var since = document.getElementById('since');
-    var resume = null;
-    try { resume = !location.search && JSON.parse(localStorage.getItem('upstream.lastView') || 'null'); } catch (e) {}
     if (since && lastVisit) {
       var fresh = 0;
       for (var r = 0; r < rows.length; r++) {
@@ -3937,22 +3675,13 @@ export const LIST_SCRIPT = `
         rows[r].classList.toggle('is-new', isNew);
         if (isNew) fresh++;
       }
-      since.hidden = fresh === 0 && !resume;
-      if (!fresh && resume) since.innerHTML = '';
+      since.hidden = fresh === 0;
       if (fresh) {
         var parts = lastVisit.split('-');
         var day = Number(parts[2]) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(parts[1]) - 1];
         since.innerHTML = 'Added to Upstream since your last visit on ' + day + ': <strong>' + fresh + '</strong> of the records below. '
           + '<button type="button" class="linkish" data-act="only-new" aria-pressed="' + (onlyNew ? 'true' : 'false') + '">' + (onlyNew ? 'Show everything' : 'Show only those') + '</button>';
       }
-    }
-    if (since && resume && resume.url) {
-      since.hidden = false;
-      var link = document.createElement('a');
-      link.href = resume.url + '#controls';
-      link.className = 'resume';
-      link.textContent = 'Resume where you left off: ' + resume.label + (resume.n ? ' (' + resume.n + ')' : '');
-      if (!since.querySelector('a.resume')) { if (since.innerHTML) since.appendChild(document.createElement('br')); since.appendChild(link); }
     }
     var seenCount = Object.keys(m.seen).length;
     var seenToggle = document.querySelector('.seen-toggle');
@@ -4019,22 +3748,24 @@ export const LIST_SCRIPT = `
   });
 
   // --- filters that apply as they change ---
-  var timer = null;
   var sector = form.querySelector('#sector');
   var subsector = form.querySelector('#subsector');
-  var slots = ['quick', 'widgets', 'chips', 'result-line', 'filter-count', 'export', 'list', 'coverage', 'undated-slot'];
+  var search = form.querySelector('#q');
+  var slots = ['quick', 'breakdown', 'chips', 'result-line', 'sort-note', 'filter-count', 'q-clear', 'export', 'list', 'undated-slot'];
   var seq = 0;
   function refresh(opts) {
-    var params = new URLSearchParams(new FormData(form));
-    // Empty fields are defaults; the canonical url leaves them out and so does this.
-    Array.from(params.keys()).forEach(function (k) { if (!params.get(k)) params.delete(k); });
-    load(form.getAttribute('action').split('#')[0] + '?' + params.toString(), opts);
+    // form.elements, not the form's children: the sort box sits by the count and joins the form by its form attribute.
+    var params = new URLSearchParams();
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name || el.disabled || el.type === 'submit') return;
+      if (el.value) params.append(el.name, el.value);
+    });
+    load(form.getAttribute('action').split('#')[0] + (params.toString() ? '?' + params.toString() : ''), opts);
   }
-  // One way to change the view, whether a control changed or a widget segment was picked:
+  // One way to change the view, whether a control changed or a panel count was picked:
   // fetch the page for that url, put its pieces in place, and make the controls say what
   // the server says the view is.
-  // opts.history: 'push' (a filter the reader chose, so Back undoes it), 'replace' (typing in
-  // search, one entry per pause would bury Back), 'none' (arriving from Back itself).
+  // opts.history: 'push' (a filter the reader chose, so Back undoes it), 'none' (arriving from Back itself).
   // opts.reveal: bring the result line into view when the change happened out of sight.
   function load(url, opts) {
     opts = opts || {};
@@ -4047,18 +3778,21 @@ export const LIST_SCRIPT = `
         if (mine !== seq) return;
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var aboutOpen = document.getElementById('about-results') && document.getElementById('about-results').open;
-        var moreOpen = document.querySelector('.more-places') && document.querySelector('.more-places').open;
         slots.forEach(function (id) {
           var now = document.getElementById(id), next = doc.getElementById(id);
           if (now && next) now.replaceWith(next);
         });
-        var more = document.querySelector('.more-places');
-        if (more && moreOpen) more.open = true;
-        var fields = form.querySelectorAll('select[name], input[name]');
-        for (var i = 0; i < fields.length; i++) {
-          var mine2 = fields[i], theirs = doc.querySelector('#controls [name="' + mine2.name + '"]');
+        // The sub-sector choices follow the sector, so they come from the server too.
+        var theirSub = doc.getElementById('subsector');
+        if (subsector && theirSub) subsector.innerHTML = theirSub.innerHTML;
+        Array.prototype.forEach.call(form.elements, function (mine2) {
+          if (!mine2.name) return;
+          var theirs = doc.querySelector('[name="' + mine2.name + '"][id="' + mine2.id + '"]') || doc.querySelector('#controls [name="' + mine2.name + '"]');
           if (theirs && !(mine2 === document.activeElement && mine2.id === 'q')) mine2.value = theirs.value;
-        }
+        });
+        // A secondary filter in use keeps "More filters" open; the reader can still open it themselves.
+        var more = document.getElementById('more-filters'), theirMore = doc.getElementById('more-filters');
+        if (more && theirMore && theirMore.hasAttribute('open')) more.open = true;
         var about = document.getElementById('about-results');
         if (about && aboutOpen) about.open = true;
         var canonical = doc.querySelector('link[rel=canonical]');
@@ -4073,15 +3807,13 @@ export const LIST_SCRIPT = `
         paint();
         var stale = document.getElementById('toast');
         if (stale && /could not be updated/.test(stale.textContent)) stale.hidden = true;
-        // A view the reader chose starts at its first result: from deep in the old list, the page
-        // would otherwise open the new one somewhere in its middle. Back and Forward keep their place.
-        if (opts.history !== 'none') {
-          var head = document.getElementById('result-line');
-          var pinnedBottom = form.getBoundingClientRect().bottom;
+        // A view chosen from the panels above starts at its first result, not wherever the page was.
+        if (opts.history !== 'none' && opts.reveal) {
+          var head = document.querySelector('.results-bar');
           var top = head ? head.getBoundingClientRect().top : 0;
-          if (head && (top < pinnedBottom || (opts.reveal && top > window.innerHeight * 0.6))) {
+          if (head && (top < 0 || top > window.innerHeight * 0.6)) {
             var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-            window.scrollTo({ top: Math.max(0, window.scrollY + top - pinnedBottom - 8), behavior: smooth ? 'smooth' : 'auto' });
+            window.scrollTo({ top: Math.max(0, window.scrollY + top - 8), behavior: smooth ? 'smooth' : 'auto' });
           }
         }
       })
@@ -4104,42 +3836,50 @@ export const LIST_SCRIPT = `
       });
   }
   // Back and Forward step through the filters the reader chose.
-  window.addEventListener('popstate', function () { clearTimeout(timer); load(location.pathname + location.search, { history: 'none' }); });
+  window.addEventListener('popstate', function () { load(location.pathname + location.search, { history: 'none' }); });
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('#widgets a.seg, #coverage a.cell, #coverage a.sector-link, #quick a') : null;
+    var link = event.target.closest ? event.target.closest('#breakdown a.cell, #breakdown a.sector-link, #breakdown a.brow, #quick a') : null;
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    clearTimeout(timer);
     load(link.getAttribute('href'), { history: 'push', reveal: true });
   });
-  form.addEventListener('input', function (event) {
-    if (event.target.id !== 'q') return;
-    clearTimeout(timer);
-    // Each pause in typing is a full page render on the server: wait for a word, not a letter.
-    var typed = event.target.value.trim();
-    if (typed.length > 0 && typed.length < 3) return;
-    timer = setTimeout(function () { refresh({ history: 'replace' }); }, 450);
+  // Search runs on Enter (the form's submit). The clear button shows only while there is text.
+  function paintClear() {
+    var clear = document.getElementById('q-clear');
+    if (clear && search) clear.hidden = search.value === '';
+  }
+  if (search) search.addEventListener('input', paintClear);
+  document.addEventListener('click', function (event) {
+    var clear = event.target.closest ? event.target.closest('#q-clear') : null;
+    if (!clear || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    search.value = '';
+    paintClear();
+    search.focus();
+    refresh({ history: 'push' });
   });
-  form.addEventListener('change', function (event) {
-    // A sub-sector belongs to one sector; choosing a different sector drops it, and
-    // choosing a sub-sector brings its sector along.
+  function changed(event) {
+    // A sub-sector belongs to one sector: choosing a sector drops a sub-sector outside it
+    // (Any drops it too), and choosing a sub-sector brings its sector along.
     if (event.target === sector && subsector && subsector.value) {
       var chosen = subsector.options[subsector.selectedIndex];
-      if (sector.value && chosen.getAttribute('data-sector') !== sector.value) subsector.value = '';
+      if (!sector.value || chosen.getAttribute('data-sector') !== sector.value) subsector.value = '';
     }
     if (event.target === subsector && sector && subsector.value) {
       sector.value = subsector.options[subsector.selectedIndex].getAttribute('data-sector') || sector.value;
     }
     if (event.target.id === 'q') return;
     refresh({ history: 'push' });
-  });
-  form.addEventListener('submit', function (event) { event.preventDefault(); clearTimeout(timer); refresh({ history: 'push', reveal: true }); });
+  }
+  form.addEventListener('change', changed);
+  var sortBox = document.getElementById('sort');
+  if (sortBox && sortBox.form === form && !form.contains(sortBox)) sortBox.addEventListener('change', changed);
+  form.addEventListener('submit', function (event) { event.preventDefault(); refresh({ history: 'push' }); });
   // A chip removed, or a link inside the list's own counts, changes the view in place too.
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('#chips a, #result-line a[href^="/"], .empty .ways a, #top-picks a.see-all-none') : null;
+    var link = event.target.closest ? event.target.closest('#chips a, #result-line a[href^="/"], #undated a[href^="/"], .empty .ways a, #top-picks a.see-all-none') : null;
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    clearTimeout(timer);
     load(link.getAttribute('href'), { history: 'push' });
   });
 
@@ -4168,36 +3908,6 @@ export const LIST_SCRIPT = `
     next.focus();
     next.closest('li.company').scrollIntoView({ block: 'nearest' });
   });
-  var menu = form.querySelector('.filter-menu');
-  document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && menu) menu.open = false; });
-  document.addEventListener('click', function (event) { if (menu && menu.open && !menu.contains(event.target)) menu.open = false; });
-
-  // The pinned bar's height, for anchors and the filter panel to clear. Measured, not assumed, and
-  // measuring it changes nothing on the page.
-  function measure() { document.documentElement.style.setProperty('--pinned', Math.ceil(form.getBoundingClientRect().height) + 'px'); }
-  measure();
-  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(form);
-  else window.addEventListener('resize', measure);
-  // Pinned or resting, only the bar's shadow changes: never its size, so the page cannot jump.
-  if ('IntersectionObserver' in window) {
-    var sentinel = document.createElement('div');
-    sentinel.setAttribute('aria-hidden', 'true');
-    form.parentNode.insertBefore(sentinel, form);
-    new IntersectionObserver(function (entries) {
-      form.classList.toggle('pinned', !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0);
-    }).observe(sentinel);
-  }
-
-  // On a phone the map folds to its five sectors, keeping open the one a filter is in.
-  // The fold itself is CSS, so nothing moves after the first paint; a tap on a sector's
-  // summary (not its link) unfolds it.
-  document.addEventListener('click', function (event) {
-    var summary = event.target.closest ? event.target.closest('#coverage details.sector > summary') : null;
-    if (!summary || event.target.closest('a') || !window.matchMedia || !window.matchMedia('(max-width: 34rem)').matches) return;
-    event.preventDefault();
-    summary.parentNode.classList.toggle('unfolded');
-  });
-
   // A link into the reference half opens the section that holds its target.
   function openFor(hash) {
     if (!hash || hash.length < 2) return;
@@ -4443,26 +4153,13 @@ ${view.ids || Object.values(viewParams(view)).some(Boolean) ? '<meta name="robot
 ${nav('discover')}
 <div class="wrap">
 ${header(view)}
+${breakdown(view)}
 ${askBox(view)}
 <main class="tool">
 ${controls(view)}
 <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
-<div class="explore" id="explore">
-  <details class="explore-fold" id="sector-fold"${view.sector || view.subsector ? ' data-chosen' : ''}>
-    <summary><span class="explore-name">Explore by sector</span> <span class="explore-meta">RDI classification map</span></summary>
-    ${coverageMap(view)}
-  </details>
-</div>
 ${list(view)}
 <div id="undated-slot">${undatedList(view)}</div>
-<!-- Below the list on purpose: five counts above it read as the point of the page, and a reader
-     who takes the text in order (a summariser does) met a taxonomy before a single company. -->
-<div class="explore explore-after">
-  <details class="explore-fold" id="breakdown-fold">
-    <summary><span class="explore-name">Break down these results</span> <span class="explore-meta">description, references, technology, sources, location</span></summary>
-    ${widgets(view)}
-  </details>
-</div>
 </main>
 <footer class="page-foot"><a href="${esc(`${BASE_PATH}/about`)}">Coverage &amp; methodology</a> &middot; public records only &middot; shortlist and marks are saved in this browser</footer>
 </div>

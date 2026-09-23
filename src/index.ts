@@ -1231,9 +1231,14 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	const age = parseAgeChoice(url.searchParams.get('age'));
 	const dates = parseDates(url.searchParams.get('dates'));
 
+	// A sub-sector outside the chosen sector can only come back empty, so the narrower choice
+	// wins: ?sector=1&subsector=2.7 is read as ?subsector=2.7.
+	const subsectorParam = url.searchParams.get('subsector') || null;
+	const sectorParam = url.searchParams.get('sector') || null;
+	const sectorOfSub = subsectorParam ? SUBSECTOR_BY_ID.get(subsectorParam)?.sector_id : undefined;
 	const ranked: Filters = {
-		sector: url.searchParams.get('sector') || null,
-		subsector: url.searchParams.get('subsector') || null,
+		sector: sectorOfSub && sectorParam && sectorParam !== sectorOfSub ? null : sectorParam,
+		subsector: subsectorParam,
 		// Trimmed here rather than in the query, so what the box shows, what the URL
 		// says and what was searched for are one string.
 		search: (url.searchParams.get('q') || '').trim() || null,

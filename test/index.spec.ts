@@ -7,6 +7,7 @@ import gapLabels from '../ingest/gap-labels.json';
 import { SUBSECTORS } from '../src/taxonomy';
 import { demoCompanies } from '../src/demo';
 import { SNAPSHOT } from '../src/snapshot';
+import { LAYOUT_VERSION } from '../src/edgecache';
 
 const KEY = 'test-ingest-key';
 const ORIGIN = 'https://rohitrao.in';
@@ -1192,12 +1193,12 @@ describe('GET /upstream (the page)', () => {
 		await post({ source: 'live-source', mode: 'live', companies: [{ id: 'found', name: 'Found Co' }] });
 
 		// Every company a reader can form a view on, not the few a tier rule promotes.
-		expect(await page()).toContain('<option value="all" selected>Everything</option>');
+		expect(await page()).toContain('<option value="all" selected>Any</option>');
 		expect(await page('?tier=a')).toContain('<option value="a" selected>A only</option>');
 		expect(await page('?tier=ab')).toContain('<option value="ab" selected>A + B</option>');
 		// A tier other than the default is a filter, and says so as a chip.
 		expect(await page('?tier=a')).toContain('Rank tier: A only');
-		expect(await page()).not.toContain('Rank tier: Everything');
+		expect(await page()).not.toContain('Rank tier: Any');
 	});
 
 	it('opens on every tier, backfill or not, with nothing to explain', async () => {
@@ -1328,18 +1329,17 @@ describe('GET /upstream (the page)', () => {
 		expect(lede).toContain('puts the least-documented first');
 		expect(lede).toContain('not a tested claim about which are good');
 		expect(html.indexOf('class="lede"')).toBeLessThan(html.indexOf('class="coverage-line"'));
-		// Over the described records by default, and the location header says so: "51 of 401" read as
-		// a count of everything until it named the 401.
-		expect(html).toMatch(/<strong>\d+ of \d+<\/strong> with a product description publish a location/);
 		// No sweeping claim about every other list.
 		expect(html).not.toContain('Every other list');
 		expect(html).toContain('Sorted by the fewest references collected from the sources Upstream monitors.');
 		// No stats above the list: each number is a widget sentence that filters by it.
 		expect(html).not.toContain('class="stats"');
-		expect(widgetText(html, 'w-view')).toContain('<strong>3</strong> companies here have a product description.');
-		// Search is the first control, before the results and before the secondary exploration.
+		// Over the described records by default: the count says three.
+		expect(html).toContain('<p class="result-line"><strong>3</strong> companies match');
+		// The breakdown under the masthead, then the search, then the results.
+		expect(html.indexOf('</header>')).toBeLessThan(html.indexOf('id="coverage"'));
+		expect(html.indexOf('id="coverage"')).toBeLessThan(html.indexOf('id="q"'));
 		expect(html.indexOf('id="q"')).toBeLessThan(html.indexOf('id="list"'));
-		expect(html.indexOf('id="q"')).toBeLessThan(html.indexOf('id="coverage"'));
 
 		// The list is the headline's three, and the line under it says where the other two are.
 		const rows = [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
@@ -1440,24 +1440,102 @@ describe('GET /upstream (the page)', () => {
 		expect(html).not.toContain('placed in no sub-sector at all');
 	});
 
-	it('leads with the search and its controls, then the sector map and breakdowns folded, then the list', async () => {
+	it('leads with the breakdowns under the masthead, then the search and filters, then the list', async () => {
 		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
 		const html = await page('');
 		expect(html.indexOf('class="topnav"')).toBeLessThan(html.indexOf('</header>'));
-		expect(html.indexOf('</header>')).toBeLessThan(html.indexOf('id="controls"'));
-		expect(html.indexOf('id="controls"')).toBeLessThan(html.indexOf('id="coverage"'));
-		// One breakdown above the list, the rest after it: five counts first read as the point of the page.
-		expect(html.indexOf('id="coverage"')).toBeLessThan(html.indexOf('id="list"'));
-		expect(html.indexOf('id="list"')).toBeLessThan(html.indexOf('id="widgets"'));
-		// The map and the breakdowns are secondary: folded until asked for, and a sector's name is still a filter.
-		expect(html).toMatch(/<details class="explore-fold" id="sector-fold">/);
-		expect(html).toMatch(/<details class="explore-fold" id="breakdown-fold">/);
+		// The RDI map and three breakdowns sit directly under the hero, above the search.
+		expect(html.indexOf('</header>')).toBeLessThan(html.indexOf('id="breakdown"'));
+		expect(html.indexOf('id="breakdown"')).toBeLessThan(html.indexOf('id="coverage"'));
+		for (const id of ['p-build', 'p-domain', 'p-sources']) expect(html.indexOf(`id="${id}"`)).toBeGreaterThan(html.indexOf('id="coverage"'));
+		expect(html.indexOf('id="p-sources"')).toBeLessThan(html.indexOf('id="controls"'));
+		expect(html.indexOf('id="controls"')).toBeLessThan(html.indexOf('id="list"'));
+		// Always open: nothing in the breakdown folds, and the other panels are gone.
+		const breakdown = html.slice(html.indexOf('id="breakdown"'), html.indexOf('id="controls"'));
+		expect(breakdown).not.toContain('<details');
+		expect(breakdown).not.toContain('<summary');
+		for (const gone of ['id="widgets"', 'breakdown-fold', 'sector-fold', 'id="w-places"', 'id="w-programmes"', 'id="w-view"', 'id="w-traces"', 'india-map']) expect(html).not.toContain(gone);
+		// A sector's name is still a filter.
 		expect(html).toMatch(/<a class="sector-link" href="[^"]*sector=1[^"]*#list">/);
 		// The reference half is not sent with the list; its old anchors are sent on to /about.
 		expect(html).not.toContain('id="reference"');
 		expect(html).toContain('location.replace("/upstream/about#"+h)');
-		// No prose paragraph between the masthead and the list other than widget sentences.
+		// No prose paragraph between the masthead and the list other than panel sentences.
 		expect(html.slice(html.indexOf('</header>'), html.indexOf('id="list"'))).not.toContain('class="note"');
+	});
+
+	it('lays out the filters: search, a primary row, More filters, chips, then the count beside the sort', async () => {
+		await post({ source: 'archive', companies: [{ id: 'backfilled', name: 'Backfilled Co', origin_year: THIS_YEAR }] });
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
+		const form = html.slice(html.indexOf('<form class="controls"'), html.indexOf('</form>'));
+		// Every control has a label, in sentence case, in this order.
+		const primary = form.slice(form.indexOf('id="primary-filters"'), form.indexOf('id="more-filters"'));
+		expect([...primary.matchAll(/<label for="([^"]+)">([^<]+)<\/label>/g)].map((m) => `${m[1]}:${m[2]}`)).toEqual([
+			'sector:Sector',
+			'subsector:Sub-sector',
+			'build:Technology type',
+			'domain:Application',
+			'age:Started',
+		]);
+		expect(primary).toContain('matched on words in the description');
+		const more = form.slice(form.indexOf('id="more-filters"'), form.indexOf('</details>'));
+		expect([...more.matchAll(/<label for="([^"]+)">([^<]+)<\/label>/g)].map((m) => `${m[1]}:${m[2]}`)).toEqual([
+			'source:Source',
+			'site:Website',
+			'described:Product description',
+			'traces:Collected references',
+			'dates:Source date',
+			'tier:Rank tier',
+		]);
+		// Closed with nothing in it chosen, and no count.
+		expect(form).toContain('<details class="more-filters" id="more-filters">');
+		expect(form).toContain('<summary>More filters<span class="filter-count" id="filter-count"></span></summary>');
+		// "Any" is the unfiltered choice in every select.
+		for (const id of ['sector', 'subsector', 'build', 'domain', 'source', 'site', 'traces']) {
+			expect(form.match(new RegExp(`<select id="${id}"[^>]*><option value=""[^>]*>([^<]+)<`))?.[1], id).toBe('Any');
+		}
+		expect(form).toContain('<option value="all">Any</option>'); // started, product description
+		expect(form).toContain('<option value="both" selected>Any</option>');
+		expect(form).toContain('<option value="all" selected>Any</option>');
+		expect(form).not.toMatch(/All sectors|All sub-sectors|Any number|With or without|Any technology|Any source/);
+		// Search on its own row, its clear button only when there is text, Apply only without script.
+		expect(form).toContain('<label for="q">Find companies</label>');
+		expect(form).toMatch(/<a class="search-clear" id="q-clear" href="[^"]*" aria-label="Clear search" hidden>/);
+		expect(form).toContain('<noscript><div class="apply-row"><button type="submit" class="apply">Apply filters</button></div></noscript>');
+		expect(form.replace(/<noscript>[\s\S]*?<\/noscript>/, '')).not.toContain('type="submit"');
+		// The count on the left and the sort on the right, the sort still part of the form.
+		const bar = html.slice(html.indexOf('class="results-bar"'), html.indexOf('class="bar-foot"'));
+		expect(bar.indexOf('id="result-line"')).toBeLessThan(bar.indexOf('id="sort"'));
+		expect(bar).toContain('<label for="sort">Sort</label>');
+		expect(bar).toContain('<select id="sort" name="sort" form="controls">');
+		// Chips sit above the results.
+		expect(html.indexOf('id="chips"')).toBeLessThan(html.indexOf('class="results-bar"'));
+
+		// A secondary filter opens More filters and is counted on it; with a search, the clear button shows.
+		const filtered = await (await SELF.fetch(`${ORIGIN}/upstream?source=sine-iitb&site=has&q=backfilled`)).text();
+		expect(filtered).toContain('<details class="more-filters" id="more-filters" open>');
+		expect(filtered).toContain('More filters<span class="filter-count" id="filter-count"> (2)</span>');
+		expect(filtered).toMatch(/<a class="search-clear" id="q-clear" href="\/upstream\?source=sine-iitb&amp;site=has#list" aria-label="Clear search">/);
+		expect(filtered).toContain('<li><a class="clear" href="/upstream#list">Clear all</a></li>');
+	});
+
+	it('keeps sector and sub-sector in step, and never offers a pair that can only be empty', async () => {
+		await post({ source: 'archive', companies: [{ id: 'drone-co', name: 'Drone Co', origin_year: THIS_YEAR, sector_id: '2', subsector_id: '2.7', description: 'Builds drones.' }] });
+		// A sub-sector alone: the sector box names its sector, and the sub-sectors are that sector's only.
+		const sub = await page('?subsector=2.7');
+		const form = sub.slice(sub.indexOf('<form class="controls"'), sub.indexOf('</form>'));
+		expect(form).toMatch(/<select id="sector" name="sector">[\s\S]*?<option value="2" selected>/);
+		const subSelect = form.slice(form.indexOf('<select id="subsector"'), form.indexOf('</select>', form.indexOf('<select id="subsector"')));
+		expect(subSelect).toContain('<option value="2.7" data-sector="2" selected>');
+		expect(subSelect).not.toContain('data-sector="1"');
+		expect(subSelect).not.toContain('<optgroup');
+		// The map cell and the panel agree with the filter.
+		expect(sub).toMatch(/<a class="cell filled active" href="[^"]*"[^>]*aria-current="true">\s*<span class="cell-head"><span class="cell-id">2\.7<\/span>/);
+		expect(sub).toContain('Drone Co');
+		// A sub-sector outside the chosen sector is read as the sub-sector alone, not as nothing.
+		const clash = await page('?sector=1&subsector=2.7');
+		expect(clash).toContain('Drone Co');
+		expect(clash).not.toContain('Sector: ');
 	});
 
 	it('keeps an explicit tier choice when the default is something else', async () => {
@@ -1896,54 +1974,27 @@ describe('where they are', () => {
 	const text = async (qs: string) => (await SELF.fetch(`${ORIGIN}/upstream${every(qs)}`)).text();
 	const rows = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
 
-	const widget = (html: string, id: string) => {
+	const panel = (html: string, id: string) => {
 		const at = html.indexOf(`aria-labelledby="${id}"`);
-		const next = html.indexOf('aria-labelledby="w-', at + 1);
-		return html.slice(at, next === -1 ? html.indexOf('</section>', at) : next);
+		return html.slice(at, html.indexOf('</ul>', at));
 	};
 
-	it('says what it does not know in the widget header, with unknown as the first tile', async () => {
+	it('has no location panel, and an old ?state= link still filters and says so in a chip', async () => {
 		await seed();
 		const html = await text('?tier=all');
-		// Folded, and after the list.
-		expect(html.indexOf('id="widgets"')).toBeGreaterThan(html.indexOf('id="list"'));
-
-		const places = widget(html, 'w-places');
-		expect(places).toContain('<strong>4 of 7</strong> records here publish a location; the map shows those 4, not where the other 3 are.');
-		const tiles = [...places.matchAll(/<span class="cell-n">(\d+)<\/span><\/span>\s*<span class="cell-name">([^<]+)<\/span>/g)].map((m) => `${m[2]} ${m[1]}`);
-		expect(tiles).toEqual(['location unknown 3', 'Maharashtra 2', 'Gujarat 1', 'Karnataka 1']);
+		expect(html).not.toContain('id="w-places"');
+		expect(html).not.toContain('india-map');
 		// No comparison with an earlier run, anywhere on the page.
 		expect(html).not.toMatch(/vs\.? (previous|last)|since yesterday|[+−-]\d+%/);
 	});
 
-	it('draws India with each state shaded by its count and linked to its view', async () => {
-		await seed();
-		const places = widget(await text('?tier=all&age=all&state=Maharashtra'), 'w-places');
-		const map = places.slice(places.indexOf('<figure class="india-map">'), places.indexOf('</figure>'));
-		expect(map).toContain('aria-hidden="true"');
-		// Every state and union territory is drawn, the ones with nothing in view too.
-		expect(map.match(/<path class="state[ "]/g)).toHaveLength(36);
-		expect(map).toContain('<title>Ladakh: none in view</title>');
-		// The most gets the most ink; a state with half as many gets less.
-		expect(map).toMatch(/style="--ink-share:80%" d="[^"]+"><title>Maharashtra: 2<\/title>/);
-		expect(map).toMatch(/style="--ink-share:61%" d="[^"]+"><title>Gujarat: 1<\/title>/);
-		// Out of the tab order: the tiles beside it are the control.
-		expect(map).toMatch(/<a href="\/upstream\?described=all&amp;kind=all&amp;age=all#list" tabindex="-1" class="state-link active">/);
-		expect(map).toContain('<path class="state-outline"');
-		expect(map).toContain('CC BY 4.0');
-		// The unknown tile still comes before any state.
-		expect(places.indexOf('location unknown')).toBeLessThan(places.indexOf('<span class="cell-name">Maharashtra</span>'));
-	});
-
-	it('filters the list, the counts and the file by a tile, unknown included', async () => {
+	it('filters the list, the counts and the file by a state, unknown included', async () => {
 		await seed();
 		const maharashtra = await text('?tier=all&age=all&state=Maharashtra');
 		expect(rows(maharashtra)).toEqual(['pune-co', 'thane-co']);
 		expect(maharashtra).toContain('5 hidden by filters');
 		expect(maharashtra).toContain('Location: Maharashtra');
 		expect(maharashtra).toContain('<input type="hidden" id="state" name="state" value="Maharashtra">');
-		// The district is the detail, as the source wrote it.
-		expect(maharashtra).toContain('In Maharashtra, by city or district: Pune <span class="n">1</span>');
 
 		const unknown = await text('?tier=all&age=all&state=unknown');
 		expect(rows(unknown)).toEqual(['a', 'b', 'c']);
@@ -1953,17 +2004,18 @@ describe('where they are', () => {
 		expect(csv).toContain('Surat Co');
 	});
 
-	it('counts every widget under the other filters, and its own dimension in full', async () => {
+	it('counts every panel under the other filters, and its own dimension in full', async () => {
 		await seed();
 		const html = await text('?tier=all&age=all&state=Maharashtra');
 		// The coverage map sees only Maharashtra's two, in their cell.
 		expect(html).toContain('<span class="cell-id">2.3</span><span class="cell-n">2</span>');
-		// Over its own population, not the filtered one: "192 of 26" was this bug.
-		expect(widget(html, 'w-places')).toContain('<strong>4 of 7</strong> records here publish a location');
-		// The places widget still shows every state, so a reader can move to another.
-		expect(widget(html, 'w-places')).toMatch(/<span class="cell-n">1<\/span><\/span>\s*<span class="cell-name">Gujarat<\/span>/);
-		// And the chosen tile is marked, and links back to no location filter.
-		expect(widget(html, 'w-places')).toMatch(/class="cell seg filled active" href="\/upstream\?described=all&amp;kind=all&amp;age=all#list"/);
+		// The sources panel counts the same two, and a source with none here is said, not offered as a link.
+		const sources = panel(html, 'p-sources');
+		expect(sources).toMatch(/<span class="brow-name">DPIIT register<\/span><span class="brow-when">[^<]*<\/span><span class="brow-n">2<\/span>/);
+		expect(sources).toMatch(/<li class="brow zero"[^>]*><span class="brow-name">SINE IIT Bombay<\/span>/);
+		// Choosing a source marks its row, and the row links back to no source filter.
+		const chosen = panel(await text('?tier=all&age=all&source=dpiit-startup-india'), 'p-sources');
+		expect(chosen).toMatch(/<a class="brow active" href="\/upstream\?described=all&amp;kind=all&amp;age=all#list"[^>]*aria-current="true">\s*<span class="brow-name">DPIIT register<\/span>/);
 	});
 });
 
@@ -1992,10 +2044,11 @@ describe('what they build, and how many traces', () => {
 	it('filters by whose words say what a company builds, and says how many have none', async () => {
 		await seed();
 		const all = await text('?tier=all&age=all');
-		expect(all).toContain('<strong>2</strong> companies here have a product description. 1 more have only a category label or nothing.');
+		// The product-description panel is gone; the filter stays, under More filters.
+		expect(all).not.toContain('id="w-view"');
 		expect(rows(await text('?tier=all&age=all&described=label'))).toEqual(['label-co']);
 		expect(rows(await text('?tier=all&age=all&described=source'))).toEqual(['loud-co', 'said-co']);
-		expect(await text('?tier=all&age=all&described=label')).toContain('Description: category label only');
+		expect(await text('?tier=all&age=all&described=label')).toContain('Product description: category label only');
 		const api = await (await SELF.fetch(`${ORIGIN}/upstream/api/companies?tier=all&age=all&undated=1&described=label`)).json<any>();
 		expect(api.companies.map((c: any) => c.id)).toEqual(['label-co']);
 		expect((await SELF.fetch(`${ORIGIN}/upstream/api/companies?described=vibes`)).status).toBe(400);
@@ -2004,7 +2057,8 @@ describe('what they build, and how many traces', () => {
 	it('filters by public traces, and draws the thesis as one or none, two, three or more', async () => {
 		await seed();
 		const all = await text('?tier=all&age=all');
-		expect(all).toContain('<strong>67%</strong> have two collected references or fewer; <strong>2</strong> have one or none.');
+		// The references panel is gone; the filter stays, under More filters.
+		expect(all).not.toContain('id="w-traces"');
 		expect(rows(await text('?tier=all&age=all&traces=3%2B'))).toEqual(['loud-co']);
 		expect(rows(await text('?tier=all&age=all&traces=1'))).toEqual(['label-co', 'said-co']);
 		const csv = await text('/export.csv?tier=all&age=all&traces=1');
@@ -2086,7 +2140,7 @@ describe('counts that reconcile', () => {
 				.slice(1)
 				.map((line) => line.split(',')[0].replace(/"/g, ''))
 				.sort();
-			const shown = [...html.matchAll(/<li class="company [^"]*" id="c-[^"]+"[\s\S]*?<h3><a [^>]*>([^<]+)<\/a>/g)].map((m) => m[1]).sort();
+			const shown = [...html.matchAll(/<li class="company [^"]*" id="c-[^"]+"[\s\S]*?<h3>(?:<span class="row-n"[^>]*>\d+<\/span>)?<a [^>]*>([^<]+)<\/a>/g)].map((m) => m[1]).sort();
 			expect(names, qs).toEqual(shown);
 		}
 	});
@@ -2202,13 +2256,13 @@ describe('slicing the list', () => {
 		expect(html).toMatch(/href="\/upstream\/export\.csv\?q=bare&amp;source=sine-iitb&amp;site=none&amp;described=all&amp;kind=all&amp;sort=name[^"]*"/);
 		// Every filter is its own chip, and each chip's link removes that filter and no other.
 		const chipsHtml = html.slice(html.indexOf('id="chips"'), html.indexOf('</ul>', html.indexOf('id="chips"')));
-		for (const label of ['Search: “bare”', 'Source: SINE IIT Bombay', 'Website: no website listed', 'Started: any year', 'Description: with or without', 'Showing: companies, projects and unverified names']) {
+		for (const label of ['Search: “bare”', 'Source: SINE IIT Bombay', 'Website: no website listed', 'Started: any year', 'Product description: any', 'Showing: companies, projects and unverified names']) {
 			expect(chipsHtml).toContain(label);
 		}
 		const searchChip = chipsHtml.match(/<a class="chip filter-chip" href="([^"]+)" aria-label="Remove Search/)![1].replace(/&amp;/g, '&');
 		expect(searchChip).not.toContain('q=');
 		for (const part of ['source=sine-iitb', 'site=none', 'sort=name', 'age=all', 'described=all', 'kind=all']) expect(searchChip).toContain(part);
-		expect(chipsHtml).toContain('Remove all 6');
+		expect(chipsHtml).toContain('<a class="clear" href="/upstream#list">Clear all</a>');
 	});
 
 	it('states one spelling of the view as canonical', async () => {
@@ -2494,7 +2548,7 @@ describe('arriving cold, and not getting stuck', () => {
 		// One results surface: no preview list above it.
 		expect(home).not.toContain('id="top-picks"');
 		expect(home).toContain('<a href="/upstream/c/grinntech">Grinntech Motors</a>');
-		expect(home).toContain('<label for="q" class="search-label">Find companies</label>');
+		expect(home).toContain('<label for="q">Find companies</label>');
 		expect(home).toContain('placeholder="Search companies or technologies"');
 		// The frozen, dated figures, not the live count: the number a reader quotes is the one the README
 		// quotes. Configured and contributing both, because on 17 September one source had put in none.
@@ -2550,19 +2604,19 @@ describe('the shortlist and the methodology page', () => {
 		expect(html).toContain('<li class="nav-shortlist-item" hidden><a class="nav-shortlist"');
 	});
 
-	it('pins only the search box and the filter bar, and nothing pinned changes size when it pins', async () => {
+	it('keeps the filters in the page flow: nothing pinned, and the sort joins the form from beside the count', async () => {
 		await post({ source: 'sine-iitb', companies: [{ id: 'pin-co', name: 'Pin Co', description: 'Tidal turbines.' }] });
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream`)).text();
 		const form = html.slice(html.indexOf('<form class="controls"'), html.indexOf('</form>', html.indexOf('<form class="controls"')));
 		expect(form).toContain('id="q"');
-		expect(form).toContain('id="sort"');
-		// The parts a reader needs once scroll away with the page, outside the pinned form.
+		// The sort sits by the count, outside the form, and is still submitted with it.
+		expect(form).not.toContain('id="sort"');
+		expect(html).toContain('<select id="sort" name="sort" form="controls">');
 		for (const id of ['quick', 'chips', 'result-line', 'export']) expect(form).not.toContain(`id="${id}"`);
-		expect(form).not.toContain('class="search-label"');
-		// A bar that hid its own parts once pinned shortened the page, unpinned itself, and snapped the
-		// page back while scrolling (15 Sep 2026). No rule may depend on the pinned state but paint.
+		// A pinned bar that held five filters and More filters would cover a phone's screen.
 		const css = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
-		expect(css).not.toMatch(/\.(stuck|pinned)[^{]*\{[^}]*(display|height|padding|margin)\s*:/);
+		expect(css).not.toMatch(/\.controls\s*\{[^}]*position:\s*sticky/);
+		expect(css).not.toMatch(/\.(stuck|pinned)[^{]*\{/);
 	});
 
 	it('serves coverage and methodology on its own page, with the source status and no list', async () => {
@@ -2650,7 +2704,7 @@ describe('rows read, and the edge cache', () => {
 		// Another server, whose own cache is empty: the shared page store answers for a row or two.
 		const version = await env.DB.prepare("SELECT value FROM site_state WHERE key = 'data'").first<{ value: string }>();
 		const url = new URL(`${ORIGIN}/upstream?q=cache`);
-		url.searchParams.set("__v", `${version!.value}.${(env as Env).CF_VERSION_METADATA?.id ?? "dev"}`);
+		url.searchParams.set("__v", `${version!.value}.${(env as Env).CF_VERSION_METADATA?.id ?? "dev"}.${LAYOUT_VERSION}`);
 		await caches.default.delete(new Request(url.toString()));
 		const otherServer = await cachedFetch('/upstream?q=cache');
 		expect(otherServer.response.headers.get('x-edge-cache')).toBe('store');
@@ -2717,16 +2771,19 @@ describe('public programmes, counted and not ranked', () => {
 			{ id: 'site-co', programme_count: 2, organisation_count: 1 },
 		]);
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream?age=all`)).text();
-		expect(html).toMatch(/<strong>2<\/strong> companies here have been selected into two or more public support programmes/);
-		expect(html).toMatch(/<strong>1<\/strong> of them<\/a> have no other collected reference: no website of their own and no press\. Programme participation is not proof of traction\./);
+		// The list page's programmes panel is gone; the finding stays on the methodology page, and the
+		// filter links it makes still work and say so in a chip.
+		expect(html).not.toContain('id="w-programmes"');
 		expect(await about()).toMatch(/>2 companies<\/a> here have been selected into two or more public support programmes\. <a href="[^"]+">1 of them<\/a> have no other public trace/);
-		expect(html.indexOf('id="w-programmes"')).toBeLessThan(html.indexOf('id="w-view"'));
 		const row = html.slice(html.indexOf('id="c-many-co"'), html.indexOf('</li>', html.indexOf('id="c-many-co"')));
 		expect(row).toContain('>3 public programmes</span>');
 
 		const ids = (h: string) => [...h.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]);
 		expect(ids(await (await SELF.fetch(`${ORIGIN}/upstream?age=all&programmes=2`)).text()).sort()).toEqual(['many-co', 'site-co']);
-		expect(ids(await (await SELF.fetch(`${ORIGIN}/upstream?age=all&programmes=2&alone=1`)).text())).toEqual(['many-co']);
+		const alone = await (await SELF.fetch(`${ORIGIN}/upstream?age=all&programmes=2&alone=1`)).text();
+		expect(ids(alone)).toEqual(['many-co']);
+		expect(alone).toContain('Public programmes: 2 or more');
+		expect(alone).toContain('No website or press');
 		expect(ids(await (await SELF.fetch(`${ORIGIN}/upstream?age=all&sort=programmes`)).text())[0]).toBe('many-co');
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/c/many-co`)).text()).toContain('<dt>Public programmes</dt>');
 	});
@@ -2839,5 +2896,29 @@ describe('merging what each source knows', () => {
 		expect(row).toEqual({ description: 'Carbon capture sorbents.', description_source: 'sine-iitb' });
 		const page = await (await SELF.fetch(`${ORIGIN}/upstream/c/gigaton`)).text();
 		expect(page).toContain('as SINE IIT Bombay described it');
+	});
+});
+
+describe('the count, the total and the row numbers agree', () => {
+	it('numbers one order across both sections, and lists 1 to N of the whole when the dated half is cut short', async () => {
+		const dated = Array.from({ length: 203 }, (_, i) => ({ id: `d-${String(i).padStart(3, '0')}`, name: `Dated ${i}`, origin_year: THIS_YEAR, description: 'Sensors.' }));
+		const undated = [0, 1].map((i) => ({ id: `u-${i}`, name: `Undated ${i}`, description: 'Sensors.' }));
+		await post({ source: 'sine-iitb', companies: [...dated, ...undated] });
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all`)).text();
+		const numbers = [...html.matchAll(/<span class="row-n" aria-hidden="true">(\d+)<\/span>/g)].map((m) => Number(m[1]));
+		// 205 match; 200 are listed, numbered 1 to 200, and the line above says exactly that.
+		expect(html).toContain('<p class="result-line"><strong>205</strong> companies match');
+		expect(html).toContain('Showing 1&ndash;200 of 205;');
+		expect(numbers).toEqual(Array.from({ length: 200 }, (_, i) => i + 1));
+		// The undated rows would not follow on from row 200, so they are counted and linked, not listed.
+		expect(html).toContain('<h2 id="undated-h">No source date <span class="count">2</span></h2>');
+		expect(html).not.toContain('id="c-u-0"');
+		expect(html).toMatch(/href="\/upstream\?[^"]*dates=undated[^"]*#list">List only the 2 with no source date<\/a>/);
+
+		// Narrowed below the limit: every row listed, the undated numbered on from the dated.
+		const few = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&q=Undated`)).text();
+		expect(few).not.toContain('Showing 1&ndash;');
+		expect([...few.matchAll(/<span class="row-n" aria-hidden="true">(\d+)<\/span>/g)].map((m) => Number(m[1]))).toEqual([1, 2]);
+		expect(few).toContain('<ol class="companies" start="1">');
 	});
 });
