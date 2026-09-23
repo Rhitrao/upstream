@@ -2922,3 +2922,57 @@ describe('the count, the total and the row numbers agree', () => {
 		expect(few).toContain('<ol class="companies" start="1">');
 	});
 });
+
+describe('the robotics picks view', () => {
+	it('renders from the file alone, labelled as a hand-made view, and is not indexed', async () => {
+		const res = await SELF.fetch(`${ORIGIN}/upstream/picks/robotics`);
+		expect(res.status).toBe(200);
+		const html = await res.text();
+		expect(html).toContain('<meta name="robots" content="noindex">');
+		expect(html).toContain('A view made for my Kalaari Fellowship application. Checked by hand on 23 Sep 2026 from public sources. I have not spoken to either founder.');
+		// Close is a plain link: a reader arriving from a form has no history to go back to.
+		expect(html).toMatch(/<a class="picks-close" href="\/upstream" aria-label="[^"]+">/);
+		expect(html).not.toContain('history.back');
+		// Title, thesis, the funnel in order, then the two cards in file order, each linked to its record.
+		expect(html).toContain('<h1>Two robotics companies I would look at first</h1>');
+		expect([...html.matchAll(/<span class="funnel-n">(\d+)<\/span>/g)].map((m) => m[1])).toEqual(['115', '10', '2']);
+		expect(html.indexOf('id="vctr-labs"')).toBeLessThan(html.indexOf('id="umarobotics-technology"'));
+		expect(html).toContain('href="/upstream/c/vctr-labs"');
+		expect(html).toContain('href="/upstream/c/umarobotics-technology"');
+		for (const h of ['Why I&rsquo;d look', 'Risk', 'First question']) expect(html).toContain(`<h3>${h}</h3>`);
+		// The opinions are the author's, and say so.
+		expect(html.match(/My read, not a finding of Upstream/g)).toHaveLength(2);
+		// A company's own claim is tagged apart from anything checked.
+		const claims = html.slice(html.indexOf('<th scope="row">Claims</th>'), html.indexOf('</tr>', html.indexOf('<th scope="row">Claims</th>')));
+		expect(claims).toContain('<span class="basis basis-unverified">self-reported, not verified</span>');
+		expect(html).toContain('<span class="basis basis-record">government record</span>');
+		expect(html).toContain('<span class="basis basis-checked">checked by hand</span>');
+		// Plain words: AGV/AMR is said once in full, and so is every other acronym.
+		expect(html.match(/self-driving carts? \(AGV\/AMR\)/g)).toHaveLength(1);
+		for (const gloss of ['CNC (computer-controlled)', 'CEO (chief executive)', 'MeitY (Ministry of Electronics and Information Technology)', 'CIN, the company identification number,']) expect(html).toContain(gloss);
+		expect(html).toContain('Both overlap with Peer Robotics');
+		expect(html).toContain('<a href="/upstream">&larr; All of Upstream</a>');
+	});
+
+	it('lays a hand check over the ingested row on the company page, and a nightly run cannot undo it', async () => {
+		const seed = () =>
+			post({
+				source: 'sine-iitb',
+				companies: [
+					{ id: 'vctr-labs', name: 'VCTR Labs Private Limited', website: 'https://getvectorbots.com/', website_identity: 'associated', website_identity_note: 'name not in the domain' },
+					{ id: 'umarobotics-technology', name: 'Umarobotics Technology Private Limited' },
+				],
+			});
+		await seed();
+		await seed(); // the nightly run, writing the same rows again
+		const vctr = await (await SELF.fetch(`${ORIGIN}/upstream/c/vctr-labs`)).text();
+		expect(vctr).toContain('checked by hand 23 Sep 2026: page authored by VCTR Labs, names SINE IIT Bombay');
+		expect(vctr).toContain('<a class="fact-site" href="https://getvectorbots.com/"');
+		expect(vctr).not.toContain('Website not confirmed.');
+		const row = await env.DB.prepare("SELECT website_identity FROM companies WHERE id = 'vctr-labs'").first<{ website_identity: string }>();
+		expect(row!.website_identity).toBe('associated');
+		const uma = await (await SELF.fetch(`${ORIGIN}/upstream/c/umarobotics-technology`)).text();
+		expect(uma).toContain('<span>Incorporated 28 Aug 2021 (MCA)</span>');
+		expect(uma).not.toContain('founding year unknown');
+	});
+});

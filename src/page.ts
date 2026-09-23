@@ -2131,6 +2131,8 @@ export interface CompanyView {
 	now: Date;
 	/** The company page's own absolute URL, for the brief. */
 	pageUrl: string;
+	/** A hand-checked incorporation date (src/overrides.ts), said in place of the founding year. */
+	incorporated?: string | null;
 }
 
 /** Why this company is in the tier it is in, in the words of the rule that decided. */
@@ -2318,7 +2320,11 @@ export function renderCompanyPage(view: CompanyView): string {
 		sub ? `<a class="fact-sub" href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}#list`)}" title="RDI sub-sector, placed automatically">${esc(sub.subsector)}</a>` : '',
 		located ? `<span>${esc(located)}</span>` : '<span class="unknown-inline">location unknown</span>',
 		site && company.website_identity === 'verified' ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : '',
-		company.founded_year ? `<span>founded ${esc(company.founded_year)}</span>` : '<span class="unknown-inline">founding year unknown</span>',
+		view.incorporated
+			? `<span>${esc(view.incorporated)}</span>`
+			: company.founded_year
+				? `<span>founded ${esc(company.founded_year)}</span>`
+				: '<span class="unknown-inline">founding year unknown</span>',
 	].filter(Boolean);
 
 	return `<!doctype html>
