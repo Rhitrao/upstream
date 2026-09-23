@@ -40,6 +40,9 @@ import {
 	DOMAIN_TAGS,
 	tagsOf,
 	siteSignalsOf,
+	STRUCK_STATUSES,
+	type Enrichment,
+	type EnrichmentSummary,
 } from './db';
 
 /**
@@ -89,6 +92,8 @@ export interface PageView {
 	/** '2' or '3' when narrowed to companies in at least that many public programmes; alone '1' for no other trace. */
 	programmes?: string | null;
 	alone?: string | null;
+	/** 'active' (the default) leaves out companies the registry lists as struck off or closed; 'any' keeps them. */
+	status?: 'active' | 'any';
 	/** This site's origin, for the absolute links a copied brief carries. */
 	origin: string;
 	/** Records in the chosen half (described, kind, register status) before any other filter. */
@@ -136,6 +141,8 @@ export interface AboutView {
 	/** What came of reading company websites — including every way it failed. */
 	products: ProductOutcomes;
 	discoveredThisWeek: number;
+	/** The registry and website enrichment: its method and counts, or null when none is loaded. */
+	enrichment?: EnrichmentSummary | null;
 	now: Date;
 }
 
@@ -743,6 +750,7 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		noticed: view.noticed ?? null,
 		programmes: view.programmes ?? null,
 		alone: view.alone ?? null,
+		status: view.status === 'any' ? 'any' : null,
 		ids: view.ids?.length ? view.ids.join(',') : null,
 		sort: view.sort === 'quietest' || view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
@@ -836,6 +844,7 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
 		['programmes', view.programmes ? `Public programmes: ${view.programmes} or more` : null],
 		['alone', view.alone ? 'No website or press' : null],
+		['status', view.status === 'any' ? 'Status: any, struck off included' : null],
 		['noticed', view.noticed ? 'Referenced by: one outside source' : null],
 		['build', view.build ? `Technology type: ${view.build}` : null],
 		['domain', view.domain ? `Application: ${view.domain}` : null],
@@ -890,7 +899,8 @@ function resultLine(view: PageView): string {
 	const noun = view.kind === 'company' ? plural(shown, 'company', 'companies') : plural(shown, 'record', 'records');
 	const parts: string[] = [];
 
-	const byFilters = universe - b.total;
+	// Struck off or closed in the registry is said on its own, not folded into "hidden by filters".
+	const byFilters = universe - b.total - b.struck;
 	if (byFilters > 0) {
 		const keep = viewParams(view);
 		const cleared = `${BASE_PATH}${query({ sort: keep.sort, tier: keep.tier, age: keep.age, described: keep.described, kind: keep.kind, dpiit: keep.dpiit })}#list`;
@@ -900,6 +910,7 @@ function resultLine(view: PageView): string {
 	}
 
 	const held = view.dates === 'undated' ? 0 : b.older + b.tierHidden;
+	const minYearOf = (v: PageView) => v.now.getUTCFullYear() - MAX_AGE_YEARS;
 	if (held > 0) {
 		const why: string[] = [];
 		if (b.older > 0) why.push(`${b.older} started more than ${MAX_AGE_YEARS} years ago and ${plural(b.older, 'is', 'are')} held back by the age filter`);
@@ -909,8 +920,21 @@ function resultLine(view: PageView): string {
 			why.push(`${b.tierHidden} ${plural(b.tierHidden, 'is', 'are')} ${outsideTier}, and the list is showing ${showing}`);
 		}
 		const everything = `${BASE_PATH}${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
-		const label = b.tierHidden === 0 ? `${b.older} started over ${MAX_AGE_YEARS} years ago` : b.older === 0 ? `${b.tierHidden} outside the tier shown` : `${held} held back by age or tier`;
-		parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${label}</a>`);
+		// Those a government registry date put outside the window are counted on their own, below.
+		const bySources = b.older - b.olderRegistry;
+		const heldHere = bySources + b.tierHidden;
+		const label = b.tierHidden === 0 ? `${bySources} started over ${MAX_AGE_YEARS} years ago` : bySources === 0 ? `${b.tierHidden} outside the tier shown` : `${heldHere} held back by age or tier`;
+		if (heldHere > 0) parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${label}</a>`);
+	}
+	if (b.olderRegistry > 0) {
+		const anyYear = `${BASE_PATH}${query(viewParams(view, { age: 'all' }))}#list`;
+		parts.push(
+			`<a href="${esc(anyYear)}" title="Registered before ${minYearOf(view)} according to the government registry record Upstream looked up. Follow to include them.">${b.olderRegistry} started before ${minYearOf(view)}, by government registry date</a>`,
+		);
+	}
+	if (b.struck > 0) {
+		const any = `${BASE_PATH}${query(viewParams(view, { status: 'any' }))}#list`;
+		parts.push(`<a href="${esc(any)}" title="Listed as struck off, dissolved or inactive in the government registry. Follow to include them.">${b.struck} closed or struck off in the registry</a>`);
 	}
 
 	if (view.dates === 'dated' && b.undated > 0) {
@@ -992,7 +1016,8 @@ function controls(view: PageView): string {
 	const tierOptions = (['all', 'ab', 'a'] as TierChoice[]).map((v) => option(v, TIER_LABELS[v], tier)).join('');
 
 	// The count on "More filters" is the filters inside it, and any of them keeps it open.
-	const inside = new Set(['source', 'site', 'described', 'traces', 'dates', 'tier']);
+	const statusOptions = [option('', 'Active or unknown', view.status === 'any' ? 'any' : ''), option('any', 'Any', view.status === 'any' ? 'any' : '')].join('');
+	const inside = new Set(['source', 'site', 'described', 'traces', 'dates', 'tier', 'status']);
 	const count = activeFilters(view).filter((f) => inside.has(f.key)).length;
 
 	const field = (id: string, label: string, options: string, hint?: string) =>
@@ -1028,6 +1053,7 @@ function controls(view: PageView): string {
       ${field('traces', 'Collected references', traceOptions)}
       ${field('dates', 'Source date', datesOptions)}
       ${field('tier', 'Rank tier', tierOptions, '<a href="' + esc(`${BASE_PATH}/about#method-h`) + '">How tiers are set</a>')}
+      ${field('status', 'Status', statusOptions, 'in the government registry')}
     </div>
   </details>
   <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
@@ -1268,7 +1294,14 @@ function eventPhrase(company: Company): string | null {
  * dated or not, a website confirmed as theirs or not.
  */
 function companyRow(company: Company, now: Date, origin: string, position: number): string {
-	const builds = buildsLine(company);
+	const found = buildsLine(company);
+	// No description from the pipeline: the company's own sentence from the enrichment, as its
+	// words, with the page it came from. Never used to place or rank the row.
+	const quoteSource = safeUrl(company.enrich_quote_source ?? null);
+	const builds =
+		!found.described && company.enrich_quote && quoteSource
+			? { ...found, html: `<p class="builds quoted"><q data-source="company">${esc(company.enrich_quote)}</q> <a class="from-site" href="${esc(quoteSource)}" rel="noopener nofollow">(from their site)</a></p>` }
+			: found;
 	const dated = company.first_seen !== null;
 	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
 	const siteState = site ? (company.website_identity === 'verified' ? 'verified' : 'unconfirmed') : company.website_checked ? 'none' : 'unknown';
@@ -2058,7 +2091,7 @@ function nextStep(company: Company): string {
  * because a forwarded lead that buries its gaps is how a guess becomes a fact two
  * emails later.
  */
-export function briefMarkdown(company: Company, pageUrl: string, now: Date): string {
+export function briefMarkdown(company: Company, pageUrl: string, now: Date, checkedByPerson = false): string {
 	const sub = company.subsector_id ? SUBSECTOR_BY_ID.get(company.subsector_id) : undefined;
 	const site = company.website_identity === 'verified' ? safeUrl(company.website) : null;
 	const lines: string[] = [`# ${company.name}`, ''];
@@ -2121,7 +2154,9 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date): str
 		'',
 		`Upstream record: ${pageUrl}`,
 		`Last checked: ${shortDate(company.updated_at)}, the last run that read a source listing it`,
-		`_Assembled from public records on ${shortDate(now.toISOString())} by a template. No person has checked it, and the placement is automated._`,
+		checkedByPerson
+			? `_Assembled from public records on ${shortDate(now.toISOString())} by a template. Its registry and website facts were checked by hand; the placement is automated._`
+			: `_Assembled from public records on ${shortDate(now.toISOString())} by a template. No person has checked it, and the placement is automated._`,
 	);
 	return lines.join('\n');
 }
@@ -2133,6 +2168,100 @@ export interface CompanyView {
 	pageUrl: string;
 	/** A hand-checked incorporation date (src/overrides.ts), said in place of the founding year. */
 	incorporated?: string | null;
+	/** The registry and website enrichment for this company, if it has a row. */
+	enrichment?: Enrichment | null;
+}
+
+const SITE_BASIS: Record<string, string> = { 'names company': 'names the company', 'names founder': 'names a founder', 'names incubator': 'names its incubator' };
+
+/** "the government registry lists this company as struck off", per status. */
+const STRUCK_WORDS: Record<string, string> = {
+	'Strike Off': 'struck off',
+	'Converted and Dissolved': 'converted and dissolved',
+	'Under Process of Striking Off': 'being struck off',
+	'Inactive for e-filing': 'inactive for e-filing',
+};
+
+function hostOf(url: string): string {
+	try {
+		return new URL(url).hostname.replace(/^www\./, '');
+	} catch {
+		return url;
+	}
+}
+
+/** A source link in the enrichment block: always present beside a fact, or the fact is not drawn. */
+function enrichLink(url: string | null, words: (host: string) => string): string {
+	const safe = safeUrl(url);
+	return safe ? `<a class="enrich-src" href="${esc(safe)}" rel="noopener nofollow">${esc(words(hostOf(safe)))}</a>` : '';
+}
+
+/**
+ * The registry and website block on a company page, from the one-off enrichment. Plain words, a
+ * source link beside every fact, the company's own words as quotes attributed to it, and a grey
+ * line with the reason wherever a lookup found nothing.
+ */
+function enrichmentBlock(company: Company, e: Enrichment): string {
+	const items: string[] = [];
+	const missing = (what: string, reason: string | null, ambiguous = false) =>
+		`<p class="enrich-missing">${esc(what)}: ${ambiguous ? 'two possible matches, not shown' : 'not found'}${reason ? ` (${esc(reason)})` : ''}</p>`;
+
+	// The registry record.
+	const regLink = enrichLink(e.reg_source, (h) => `government registry record (via ${h})`);
+	if (e.cin && regLink) {
+		const llp = /^[A-Z]{3}-\d{4}$/.test(e.cin);
+		const when = e.incorporated_on ? ` on ${esc(shortDate(e.incorporated_on))}` : e.incorporated_year ? ` in ${esc(e.incorporated_year)} (year from the registration number)` : '';
+		const parts = [e.reg_status ? esc(e.reg_status) : '', e.reg_state ? esc(e.reg_state) : ''].filter(Boolean);
+		items.push(`<p class="enrich-reg">${llp ? 'Registered as an LLP:' : 'Registered as'} <strong>${esc(e.legal_name ?? company.name)}</strong>${when}${parts.length ? ` &middot; ${parts.join(' &middot; ')}` : ''}
+      <span class="enrich-meta">${regLink} <span class="enrich-id">${llp ? 'LLP number' : 'CIN'} ${esc(e.cin)}</span></span></p>`);
+		if (e.reg_status && (STRUCK_STATUSES as readonly string[]).includes(e.reg_status)) {
+			items.push(`<p class="enrich-struck">The government registry lists this company as ${esc(STRUCK_WORDS[e.reg_status] ?? e.reg_status.toLowerCase())}.</p>`);
+		}
+	} else {
+		items.push(missing('Registry record', e.reg_reason, /^ambiguous/i.test(e.reg_reason ?? '')));
+	}
+
+	// The website, only where the pipeline has none confirmed: a verified one is already on the page.
+	const pipelineSite = company.website_identity === 'verified' ? safeUrl(company.website) : null;
+	const site = safeUrl(e.site_url);
+	const siteSource = enrichLink(e.site_source, (h) => `checked on ${h}`);
+	if (!pipelineSite) {
+		if (site && siteSource) {
+			const basis = SITE_BASIS[e.site_identity ?? ''];
+			items.push(`<p class="enrich-site">Website: <a href="${esc(site)}" rel="noopener nofollow">${esc(hostOf(site))}</a>${basis ? ` <span class="enrich-basis">${esc(basis)}</span>` : ''}
+      <span class="enrich-meta">${siteSource}</span></p>`);
+		} else {
+			items.push(missing('Website', e.site_reason));
+		}
+	}
+
+	// What they say they build: their words, attributed to them.
+	const productSource = enrichLink(e.product_source, () => 'from their website');
+	if (e.product_quote && productSource) {
+		items.push(`<figure class="enrich-quote">
+      <figcaption>What they say they build</figcaption>
+      <blockquote data-source="company">${esc(e.product_quote)}</blockquote>
+      <p class="enrich-meta">&mdash; ${productSource}</p>
+    </figure>`);
+	} else {
+		items.push(missing('What they say they build', e.product_reason));
+	}
+
+	const claims = e.claims
+		.map((c) => ({ c, link: enrichLink(c.source_url, (h) => h) }))
+		.filter((x) => x.link)
+		.map(({ c, link }) => `<li><q data-source="company">${esc(c.quote)}</q> <span class="enrich-tag">self-reported</span> <span class="enrich-meta">${link}</span></li>`);
+	if (claims.length) items.push(`<div class="enrich-claims"><p class="enrich-h">The company says</p><ul>${claims.join('')}</ul></div>`);
+
+	const footer = e.checked_by_person
+		? `Checked by hand on ${esc(shortDate(e.enriched_on))}.`
+		: `Gathered automatically from public sources on ${esc(shortDate(e.enriched_on))}. Not checked by a person.`;
+	return `
+    <section class="enrich" aria-labelledby="enrich-h">
+      <h2 id="enrich-h">Registry and website</h2>
+      ${items.join('\n      ')}
+      <p class="enrich-foot">${footer}</p>
+    </section>`;
 }
 
 /** Why this company is in the tier it is in, in the words of the rule that decided. */
@@ -2300,13 +2429,15 @@ export function renderCompanyPage(view: CompanyView): string {
 	const notFound = allUnknowns.filter((u) => !notCollected(u));
 	const outsideScope = allUnknowns.filter(notCollected);
 
-	const brief = briefMarkdown(company, pageUrl, now);
+	const brief = briefMarkdown(company, pageUrl, now, Boolean(view.enrichment?.checked_by_person));
 
 	// Who lists it, in one line above the evidence table: the summary a reader checks the rows against.
 	const listedBy = traceTrail(company);
 	const shape = traceShape(company);
+	// The enrichment found the same address and says what on it names the company: said there, not warned here.
+	const enrichedSite = view.enrichment?.site_url && safeUrl(company.website) ? hostOf(view.enrichment.site_url) === hostOf(safeUrl(company.website)!) : false;
 	const identityWarning =
-		safeUrl(company.website) && company.website_identity !== 'verified'
+		safeUrl(company.website) && company.website_identity !== 'verified' && !enrichedSite
 			? `<p class="caution"><strong>Website not confirmed.</strong> ${
 					company.website_identity === 'discovered'
 						? `${esc(new URL(safeUrl(company.website)!).hostname)} was given for this company and is not treated as theirs: ${esc(company.website_identity_note ?? 'nothing ties the address to them')}.`
@@ -2367,6 +2498,7 @@ ${nav('company')}
     </div>
     <p class="facts">${facts.join('')}</p>
     ${identityWarning}
+    ${view.enrichment ? enrichmentBlock(company, view.enrichment) : ''}
     <div class="actions">
       <button type="button" class="action mark mark-shortlist" data-mark="shortlist" aria-pressed="false" hidden>Shortlist</button>
       <button type="button" class="action copy-brief" hidden>Copy brief</button>
@@ -3454,6 +3586,27 @@ input[type='search']::placeholder { color: var(--muted); opacity: 1; }
   .results-bar .field-sort { flex: 0 1 11.5rem; }
 }
 
+/* the registry and website block on a company page (enrichment) */
+.enrich { margin: var(--s4) 0 var(--s2); padding: var(--s3) var(--s4); border: 1px solid var(--rule); border-left: 3px solid var(--rule-strong); border-radius: var(--radius); background: var(--raise); max-width: var(--measure); font-size: var(--t-sm); }
+.enrich h2 { font-family: var(--sans); font-size: var(--t-sm); font-weight: 700; letter-spacing: 0; margin: 0 0 var(--s2); padding: 0; border: 0; display: block; }
+.enrich p { margin: 0 0 var(--s2); }
+.enrich-meta { font-size: var(--t-xs); color: var(--muted); }
+.enrich-src { color: var(--ink); font-family: var(--mono); font-size: var(--t-xs); text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.enrich-id { font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); margin-left: var(--s2); white-space: nowrap; }
+.enrich-basis { font-size: var(--t-xs); color: var(--body-ink); border: 1px solid var(--rule-strong); border-radius: 3px; padding: 0 var(--s1); margin-left: var(--s1); white-space: nowrap; }
+.enrich-struck { color: var(--warn-ink); background: var(--warn-bg); border: 1px solid var(--warn-rule); border-radius: var(--radius); padding: var(--s1) var(--s2); font-weight: 600; }
+.enrich-missing { color: var(--muted); font-size: var(--t-xs); }
+.enrich-quote { margin: var(--s3) 0; }
+.enrich-quote figcaption, .enrich-h { font-size: var(--t-xs); font-weight: 600; color: var(--ink); margin: 0 0 var(--s1); }
+.enrich-quote blockquote { margin: 0; padding: 0 0 0 var(--s3); border-left: 3px solid var(--mark); font-style: italic; color: var(--body-ink); }
+.enrich-quote .enrich-meta { margin: var(--s1) 0 0; }
+.enrich-claims ul { list-style: none; margin: 0 0 var(--s2); padding: 0; display: grid; gap: var(--s2); }
+.enrich-claims q { font-style: italic; color: var(--body-ink); }
+.enrich-tag { font-size: var(--t-xs); font-weight: 600; color: var(--warn-ink); background: var(--warn-bg); border: 1px solid var(--warn-rule); border-radius: 3px; padding: 0 var(--s1); white-space: nowrap; }
+.enrich-foot { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0 !important; }
+.builds.quoted q { color: var(--body-ink); }
+.from-site { font-size: var(--t-xs); color: var(--muted); text-underline-offset: 3px; }
+
 @media (prefers-reduced-motion: no-preference) {
   .cell, .brow, .chip, .apply, .company, select, .mark, .copy-row { transition: border-color 160ms ease-out, background 160ms ease-out, color 160ms ease-out; }
 }
@@ -4051,6 +4204,36 @@ const MOVED_ANCHORS = ['reference', 'reference-h', 'findings-h', 'off-map', 'off
  * system rather than using it. It used to ride, collapsed, under every list page (about 50 KB and
  * four aggregate queries a render) for the few readers who opened it.
  */
+/**
+ * The one-off registry and website lookup, on the methodology page: how it was gathered, in its
+ * own words, and what it found, counted from the table rather than written down.
+ */
+function enrichmentSection(view: AboutView): string {
+	const e = view.enrichment;
+	if (!e) return '';
+	const minYear = view.now.getUTCFullYear() - MAX_AGE_YEARS;
+	const rows: [string, number][] = [
+		['Records enriched', e.enriched],
+		['Matched to a registry record', e.matched],
+		['Ambiguous or not found in the registry', e.unmatched],
+		[`Started before ${minYear}, the five-year window, by registry date`, e.beforeWindow],
+		['Struck off or closed in the registry', e.struck],
+		['Websites added where Upstream had none confirmed', e.websitesAdded],
+		['Product quotes added, in the company&rsquo;s own words', e.quotes],
+	];
+	return `
+<section class="ref-section" id="enrichment" aria-labelledby="enrichment-h">
+  <h2 id="enrichment-h">Registry and website enrichment</h2>
+  <p class="provenance">${esc(e.method)}</p>
+  <table class="snapshot enrichment-counts">
+    <tbody>
+      ${rows.map(([label, n]) => `<tr><th scope="row">${label}</th><td class="snap-n">${n}</td></tr>`).join('\n      ')}
+    </tbody>
+  </table>
+  <p>Enrichment does not change the ranking: a registry lookup is something Upstream did, not a public trace of the company.</p>
+</section>`;
+}
+
 export function renderAboutPage(view: AboutView): string {
 	const fresh =
 		view.discoveredThisWeek > 0
@@ -4081,7 +4264,7 @@ ${nav('about')}
   <p class="lede">Which public sources Upstream reads, when each was last checked, what the records show, and the rules that
     order and limit the list. <a href="${esc(BASE_PATH)}">Back to Discover</a></p>
   <nav class="toc" aria-label="On this page">
-    <a href="#snapshot-h">The figures</a> <a href="#sources-h">Sources</a> <a href="#findings-h">What the records show</a> <a href="#funnel-h">Records reaching the list</a> <a href="#outside-map">Outside the map</a> <a href="#method-h">Ranking and limits</a>
+    <a href="#snapshot-h">The figures</a> <a href="#sources-h">Sources</a> <a href="#findings-h">What the records show</a> <a href="#funnel-h">Records reaching the list</a> <a href="#outside-map">Outside the map</a> <a href="#enrichment-h">Registry enrichment</a> <a href="#method-h">Ranking and limits</a>
   </nav>
 </header>
 ${snapshotSection()}
@@ -4101,6 +4284,7 @@ ${snapshotSection()}
   <h2 id="off-map-h-all" class="section-h">Records outside the map</h2>
   ${offMap(view) || '<p class="provenance">None: every record reached an RDI sub-sector.</p>'}
 </div>
+${enrichmentSection(view)}
 ${methodology(view)}
 </div>
 <script>${MARKS_SCRIPT}</script>

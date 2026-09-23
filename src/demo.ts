@@ -398,6 +398,9 @@ export function splitDemo(companies: Company[], now: Date): { ranked: Company[];
 			ranked: ranked.length,
 			older: older.length,
 			undated: undated.length,
+			// The sample rows carry no registry enrichment.
+			olderRegistry: 0,
+			struck: 0,
 			// The sample is not tier-filtered: every dated recent row is on screen.
 			tierHidden: 0,
 			unknownAge: ranked.filter((c) => c.origin_year === null && c.founded_year === null).length,

@@ -4,8 +4,9 @@
 # first, so a red suite never reaches the live page. Needs two repository secrets:
 # CLOUDFLARE_API_TOKEN (the "Edit Cloudflare Workers" template) and CLOUDFLARE_ACCOUNT_ID.
 #
-# It deploys code only. A new file in migrations/ is still applied by hand
-# (npx wrangler d1 migrations apply upstream --remote) before the deploy that needs it.
+# Before deploying it applies any new migration and loads the committed enrichment data, both
+# safe to run again: a migration already applied is not applied twice, and the data is loaded only
+# when the table does not yet hold this version's rows (and is INSERT OR REPLACE if it is).
 name: deploy
 
 on:
@@ -38,6 +39,47 @@ jobs:
       - name: Test
         run: npx vitest run
 
+      # Only migrations newer than this workflow may be pending. Everything up to 0029 was applied
+      # before the workflow applied any; if one of those shows as pending, the remote migration log
+      # does not match the database, and applying it again could fail half-way. Stop instead.
+      - name: Apply new database migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          listed=$(npx wrangler d1 migrations list upstream --remote 2>&1) || { echo "$listed"; exit 1; }
+          echo "$listed"
+          pending=$(echo "$listed" | grep -oE '[0-9]{4}_[a-z0-9_]+\.sql' | sort -u || true)
+          if [ -z "$pending" ]; then echo "No migrations to apply."; exit 0; fi
+          old=$(echo "$pending" | awk -F_ '$1 + 0 <= 29' || true)
+          if [ -n "$old" ]; then
+            echo "::error::These migrations show as pending but predate this workflow: $old. Check the remote d1_migrations table before deploying."
+            exit 1
+          fi
+          npx wrangler d1 migrations apply upstream --remote
+
+      # The committed enrichment (data/enrichment/2026-09-23.json, as SQL). Loaded once: skipped when
+      # the table already holds this version's rows. Every row is INSERT OR REPLACE and guarded by
+      # EXISTS in companies, so a second run changes nothing. Records whose id is not in the live
+      # database are named in the log before loading, and insert nothing.
+      - name: Load the registry and website enrichment
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION: "2026-09-23"
+        run: |
+          set -euo pipefail
+          count() { node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log(r[0].results[0].n)'; }
+          have=$(npx wrangler d1 execute upstream --remote --json --command "SELECT COUNT(*) AS n FROM company_enrichment WHERE enriched_on = '$VERSION'" | count)
+          if [ "$have" -gt 0 ]; then echo "Enrichment $VERSION already loaded ($have rows); skipping."; exit 0; fi
+          npx wrangler d1 execute upstream --remote --json --command "SELECT id FROM companies" \
+            | node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log(r[0].results.map((x) => x.id).join("\n"))' > "$RUNNER_TEMP/ids.txt"
+          python3 scripts/load_enrichment.py "data/enrichment/$VERSION.json" --ids "$RUNNER_TEMP/ids.txt" --check-only
+          npx wrangler d1 execute upstream --remote --file="migrations/data/enrichment_$VERSION.sql"
+          loaded=$(npx wrangler d1 execute upstream --remote --json --command "SELECT COUNT(*) AS n FROM company_enrichment WHERE enriched_on = '$VERSION'" | count)
+          echo "Loaded $loaded enrichment rows for $VERSION."
+
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -45,13 +87,13 @@ jobs:
         run: npx wrangler deploy
 
       # The pages that must answer after a deploy: the portfolio, the list, a filtered list, the
-      # picks view, a company page and another route on the same domain. Redirects are followed: /parts answers 301 to
+      # picks view, three company pages and another route on the same domain. Redirects are followed: /parts answers 301 to
       # its canonical address, and what matters is that the page at the end of it answers.
       - name: Check the live pages answer
         run: |
           set -euo pipefail
           sleep 10
-          for url in "https://rohitrao.in/" "https://rohitrao.in/upstream" "https://rohitrao.in/upstream?subsector=2.7" "https://rohitrao.in/upstream/picks/robotics" "https://rohitrao.in/upstream/c/vctr-labs" "https://rohitrao.in/parts"; do
+          for url in "https://rohitrao.in/" "https://rohitrao.in/upstream" "https://rohitrao.in/upstream?subsector=2.7" "https://rohitrao.in/upstream/picks/robotics" "https://rohitrao.in/upstream/c/vctr-labs" "https://rohitrao.in/upstream/c/umarobotics-technology" "https://rohitrao.in/upstream/c/solinas-integrity" "https://rohitrao.in/parts"; do
             code=$(curl -sL -o /dev/null -w '%{http_code}' --max-time 30 "$url")
             echo "$code $url"
             [ "$code" = "200" ]

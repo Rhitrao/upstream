@@ -94,6 +94,9 @@ export interface Company {
 	trace_count: number;
 	tier: Tier;
 	updated_at: string;
+	/** The company's own product sentence from the enrichment (company_enrichment), and where it was read. List rows only. */
+	enrich_quote?: string | null;
+	enrich_quote_source?: string | null;
 	signals: Signal[];
 }
 
@@ -109,6 +112,16 @@ export interface Filters {
 	dated: DateState | null;
 	/** Drop anything that started earlier than this year. null lifts the age gate. */
 	minOriginYear: number | null;
+	/**
+	 * The same gate, applied only where the registry gives a year (company_enrichment): what the
+	 * undated section uses, since it has no source date for the ordinary gate to read.
+	 */
+	registryMinYear?: number | null;
+	/**
+	 * 'active' leaves out companies the government registry lists as struck off, dissolved or
+	 * inactive (see STRUCK_STATUSES); 'any' and null keep them.
+	 */
+	status?: 'active' | 'any' | null;
 	/**
 	 * Free text, matched against the name and against both descriptions of what the
 	 * company does. null and empty are the same thing: no search.
@@ -419,6 +432,13 @@ export interface Buckets {
 	older: number;
 	/** Dated, inside the age gate, and in a tier the current choice leaves out. */
 	tierHidden: number;
+	/** Of `older`, those held back by a year from the government registry (company_enrichment). */
+	olderRegistry: number;
+	/**
+	 * Matching every other filter, and listed by the registry as struck off, dissolved or inactive:
+	 * left out of the view while Status is 'active'. Not part of `total`. 0 when Status is 'any'.
+	 */
+	struck: number;
 	/**
 	 * Ranked, but with no founding year to judge — a recognition register dates the
 	 * record without saying when the company started. Part of `ranked`, not a fifth
@@ -455,6 +475,22 @@ export interface Coverage {
  * COALESCE chain behind it is for.
  */
 const ORIGIN_YEAR = 'COALESCE(MIN(c.origin_year, c.founded_year), c.origin_year, c.founded_year)';
+
+/**
+ * The year the government registry gives, from the one-off enrichment (migration 0030), or NULL.
+ * A lookup by primary key; the enrichment is joined at read time and never copied into companies.
+ */
+const REGISTRY_YEAR = '(SELECT ce.incorporated_year FROM company_enrichment ce WHERE ce.id = c.id)';
+
+/**
+ * When a company started, for the "Started" filter: the registry's year where it has one, and the
+ * sources' origin year otherwise. The filter compares years, not dates (see minOriginYear).
+ */
+const STARTED_YEAR = `COALESCE(${REGISTRY_YEAR}, ${ORIGIN_YEAR})`;
+
+/** Registry statuses that take a company out of the default view. */
+export const STRUCK_STATUSES = ['Strike Off', 'Converted and Dissolved', 'Under Process of Striking Off', 'Inactive for e-filing'] as const;
+const STRUCK = `EXISTS (SELECT 1 FROM company_enrichment ce WHERE ce.id = c.id AND ce.reg_status IN (${STRUCK_STATUSES.map((s) => `'${s}'`).join(', ')}))`;
 
 /**
  * Every filter as a clause and its binds, in the order they have to be bound. Built as
@@ -551,9 +587,14 @@ function conditions(filters: Filters): { clauses: string[]; binds: unknown[] } {
 
 	if (filters.minOriginYear !== null) {
 		// An unknown origin year is not an old one, so those rows stay put.
-		clauses.push(`(${ORIGIN_YEAR} IS NULL OR ${ORIGIN_YEAR} >= ?)`);
+		clauses.push(`(${STARTED_YEAR} IS NULL OR ${STARTED_YEAR} >= ?)`);
 		binds.push(filters.minOriginYear);
 	}
+	if (filters.registryMinYear != null) {
+		clauses.push(`(${REGISTRY_YEAR} IS NULL OR ${REGISTRY_YEAR} >= ?)`);
+		binds.push(filters.registryMinYear);
+	}
+	if (filters.status === 'active') clauses.push(`NOT ${STRUCK}`);
 
 	return { clauses, binds };
 }
@@ -573,7 +614,9 @@ export async function queryCompanies(env: Env, filters: Filters): Promise<Compan
 SELECT c.*,
   (SELECT json_group_array(json_object(
       'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date))
-   FROM signals s WHERE s.company_id = c.id) AS signals
+   FROM signals s WHERE s.company_id = c.id) AS signals,
+  (SELECT ce.product_quote FROM company_enrichment ce WHERE ce.id = c.id) AS enrich_quote,
+  (SELECT ce.product_source FROM company_enrichment ce WHERE ce.id = c.id) AS enrich_quote_source
 FROM companies c
 ${whereSql(clauses)}
 ORDER BY ${SORTS[filters.sort] ?? SORTS.obscurity}
@@ -614,38 +657,45 @@ FROM companies c WHERE c.id = ?`,
  * each other — "showing 12, 30 older, 42 undated" has to add up.
  */
 export async function queryBuckets(env: Env, filters: Filters): Promise<Buckets> {
-	// The date state, the age gate and the tier choice are what is being counted, so
-	// none of them may also filter the count. Each becomes a condition inside the SUM
-	// instead, built once and used in every bucket that needs it, in bind order.
-	const { clauses, binds } = conditions({ ...filters, tiers: null, dated: null, minOriginYear: null });
+	// The date state, the age gate, the tier choice and the registry status are what is being
+	// counted, so none of them may also filter the count. Each becomes a condition inside the SUM
+	// instead; every fragment carries its own binds, and they are bound in the order written.
+	const { clauses, binds } = conditions({ ...filters, tiers: null, dated: null, minOriginYear: null, registryMinYear: null, status: 'any' });
 	const gate = filters.minOriginYear;
 	const tiers = filters.tiers ?? [];
+	type Frag = { sql: string; binds: unknown[] };
+	const f = (sql: string, ...b: unknown[]): Frag => ({ sql, binds: b });
+	const join = (parts: Frag[], glue = ' AND '): Frag => ({ sql: parts.map((p) => `(${p.sql})`).join(glue), binds: parts.flatMap((p) => p.binds) });
 
-	const aged = gate === null ? { sql: '0', binds: [] as unknown[] } : { sql: `(${ORIGIN_YEAR} IS NOT NULL AND ${ORIGIN_YEAR} < ?)`, binds: [gate] };
-	const inTier = tiers.length ? { sql: `c.tier IN (${tiers.map(() => '?').join(', ')})`, binds: [...tiers] } : { sql: '1', binds: [] as unknown[] };
+	// Dated rows are held back by the year they started; undated ones only by a registry year.
+	const aged = gate === null ? f('0') : f(`${STARTED_YEAR} IS NOT NULL AND ${STARTED_YEAR} < ?`, gate);
+	const regAged = gate === null ? f('0') : f(`${REGISTRY_YEAR} IS NOT NULL AND ${REGISTRY_YEAR} < ?`, gate);
+	const inTier = tiers.length ? f(`c.tier IN (${tiers.map(() => '?').join(', ')})`, ...tiers) : f('1');
+	const struck = filters.status === 'active' ? f(STRUCK) : f('0');
+	const live = f(`NOT (${struck.sql})`, ...struck.binds);
+	const dated = f('c.first_seen IS NOT NULL');
+	const undated = f('c.first_seen IS NULL');
+	const not = (p: Frag): Frag => f(`NOT (${p.sql})`, ...p.binds);
+	const older = join([join([dated, aged]), join([undated, regAged])], ' OR ');
 
+	const sums: [string, Frag][] = [
+		['total', live],
+		['undated', join([live, undated, not(regAged)])],
+		['older', join([live, older])],
+		['older_registry', join([live, older, regAged])],
+		['tier_hidden', join([live, dated, not(aged), not(inTier)])],
+		['ranked', join([live, dated, not(aged), inTier])],
+		['unknown_age', join([live, dated, not(aged), inTier, f(`${STARTED_YEAR} IS NULL`)])],
+		['struck', struck],
+	];
 	const sql = `
 SELECT
-  COUNT(*) AS total,
-  SUM(CASE WHEN c.first_seen IS NULL THEN 1 ELSE 0 END) AS undated,
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND ${aged.sql} THEN 1 ELSE 0 END) AS older,
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND NOT ${aged.sql} AND NOT ${inTier.sql} THEN 1 ELSE 0 END) AS tier_hidden,
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND NOT ${aged.sql} AND ${inTier.sql} THEN 1 ELSE 0 END) AS ranked,
-  SUM(CASE WHEN c.first_seen IS NOT NULL AND NOT ${aged.sql} AND ${inTier.sql} AND ${ORIGIN_YEAR} IS NULL THEN 1 ELSE 0 END) AS unknown_age
+  ${sums.map(([name, p]) => `SUM(CASE WHEN ${p.sql} THEN 1 ELSE 0 END) AS ${name}`).join(',\n  ')}
 FROM companies c
 ${whereSql(clauses)}`;
 
 	const row = await env.DB.prepare(sql)
-		.bind(
-			...aged.binds,
-			...aged.binds,
-			...inTier.binds,
-			...aged.binds,
-			...inTier.binds,
-			...aged.binds,
-			...inTier.binds,
-			...binds,
-		)
+		.bind(...sums.flatMap(([, p]) => p.binds), ...binds)
 		.first<Record<string, number | null>>();
 
 	// SUM over no rows is NULL, not 0.
@@ -657,6 +707,8 @@ ${whereSql(clauses)}`;
 		older: n('older'),
 		tierHidden: n('tier_hidden'),
 		unknownAge: n('unknown_age'),
+		olderRegistry: n('older_registry'),
+		struck: n('struck'),
 	};
 }
 
@@ -1085,7 +1137,7 @@ export interface Widgets {
 }
 
 export async function queryWidgets(env: Env, filters: Filters): Promise<Widgets> {
-	const base: Filters = { ...filters, tiers: null, dated: null, minOriginYear: null };
+	const base: Filters = { ...filters, tiers: null, dated: null, minOriginYear: null, registryMinYear: null };
 	const without = (patch: Partial<Filters>) => conditions({ ...base, ...patch });
 	const all = <T>(sql: string, parts: { binds: unknown[] }) => env.DB.prepare(sql).bind(...parts.binds).all<T>();
 
@@ -1375,4 +1427,105 @@ export async function queryFindings(env: Env): Promise<Findings> {
 		noticed: { companies: n('companies_said'), once: n('noticed_once') },
 		programmes: { twoPlus: n('prog_two'), alone: n('prog_alone'), orgs: n('prog_orgs'), three: n('prog_three') },
 	};
+}
+
+// --- registry and website enrichment (migration 0030) ----------------------------------------
+
+/** A company's own words, with the page they were read from. */
+export interface EnrichmentClaim {
+	quote: string;
+	source_url: string;
+}
+
+/**
+ * One row of company_enrichment: a one-off lookup of the government registry, the company's
+ * website and its own words (data/enrichment/<version>.json). Every present fact carries the url
+ * it came from; every absent one carries the reason it is absent. Not a public trace, and never
+ * copied into companies.
+ */
+export interface Enrichment {
+	id: string;
+	cin: string | null;
+	legal_name: string | null;
+	incorporated_on: string | null;
+	incorporated_year: number | null;
+	reg_status: string | null;
+	reg_state: string | null;
+	reg_source: string | null;
+	reg_note: string | null;
+	reg_reason: string | null;
+	site_url: string | null;
+	site_identity: string | null;
+	site_source: string | null;
+	site_reason: string | null;
+	product_quote: string | null;
+	product_source: string | null;
+	product_reason: string | null;
+	claims: EnrichmentClaim[];
+	checked_by_person: boolean;
+	enriched_on: string;
+}
+
+/** A company's enrichment row, or null when there is none (or the table is not there yet). */
+export async function queryEnrichment(env: Env, id: string): Promise<Enrichment | null> {
+	try {
+		const row = await env.DB.prepare('SELECT * FROM company_enrichment WHERE id = ?').bind(id).first<Record<string, unknown>>();
+		if (!row) return null;
+		let claims: EnrichmentClaim[] = [];
+		try {
+			const parsed = JSON.parse(String(row.claims_json ?? '[]'));
+			if (Array.isArray(parsed)) claims = parsed.filter((c) => c && typeof c.quote === 'string' && typeof c.source_url === 'string');
+		} catch {
+			/* no claims */
+		}
+		return { ...(row as unknown as Enrichment), claims, checked_by_person: Number(row.checked_by_person) === 1 };
+	} catch {
+		return null;
+	}
+}
+
+/** What the methodology page says about the enrichment: its method, verbatim, and counts from the table. */
+export interface EnrichmentSummary {
+	version: string;
+	method: string;
+	enriched: number;
+	matched: number;
+	unmatched: number;
+	beforeWindow: number;
+	struck: number;
+	websitesAdded: number;
+	quotes: number;
+}
+
+export async function queryEnrichmentSummary(env: Env, minYear: number): Promise<EnrichmentSummary | null> {
+	try {
+		const meta = await env.DB.prepare('SELECT version, method FROM enrichment_meta ORDER BY version DESC LIMIT 1').first<{ version: string; method: string }>();
+		if (!meta) return null;
+		const row = await env.DB.prepare(
+			`SELECT COUNT(*) AS enriched,
+			   SUM(e.cin IS NOT NULL) AS matched,
+			   SUM(e.cin IS NULL) AS unmatched,
+			   SUM(e.incorporated_year IS NOT NULL AND e.incorporated_year < ?) AS before_window,
+			   SUM(e.reg_status IN (${STRUCK_STATUSES.map((st) => `'${st}'`).join(', ')})) AS struck,
+			   SUM(e.site_url IS NOT NULL AND NOT (COALESCE(c.website_identity, '') = 'verified' AND COALESCE(c.website, '') <> '')) AS websites_added,
+			   SUM(e.product_quote IS NOT NULL) AS quotes
+			 FROM company_enrichment e JOIN companies c ON c.id = e.id`,
+		)
+			.bind(minYear)
+			.first<Record<string, number | null>>();
+		const n = (k: string) => Number(row?.[k] ?? 0);
+		return {
+			version: meta.version,
+			method: meta.method,
+			enriched: n('enriched'),
+			matched: n('matched'),
+			unmatched: n('unmatched'),
+			beforeWindow: n('before_window'),
+			struck: n('struck'),
+			websitesAdded: n('websites_added'),
+			quotes: n('quotes'),
+		};
+	} catch {
+		return null;
+	}
 }
