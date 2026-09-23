@@ -669,12 +669,10 @@ function coverageMap(view: PageView): string {
 	const inView = view.widgets?.subsectors ?? null;
 	const allCells = coverage.sectors.flatMap((g) => g.subsectors);
 	const empty = allCells.filter((c) => c.n === 0);
-	const named = empty.slice(0, 3).map((c) => esc(c.subsector));
+	// One line: how many cells are empty, what an empty cell does and does not mean, and what a click does.
 	const claim = empty.length
-		? `<strong>${empty.length} of the ${coverage.subsector_count}</strong> sunrise sub-sectors have no company in them yet${
-				named.length ? `: ${named.join(', ')}${empty.length > named.length ? ` and ${empty.length - named.length} more` : ''}` : ''
-			}.`
-		: `Every one of the ${coverage.subsector_count} sunrise sub-sectors has at least one company.`;
+		? `<strong>${empty.length} of the ${coverage.subsector_count}</strong> sub-sectors are empty (dashed): a gap in what these sources reach, not proof nobody builds there. Click a cell to filter.`
+		: `All ${coverage.subsector_count} sub-sectors have at least one company. Click a cell to filter.`;
 
 	const sectors = coverage.sectors
 		.map((group) => {
@@ -711,12 +709,7 @@ ${cells}
 <section class="coverage" id="coverage" aria-labelledby="coverage-h">
   <div class="panel-head">
     <h2 id="coverage-h">Explore by sector <span class="panel-kicker">RDI classification</span></h2>
-    <p class="panel-meta">${claim} Pick a sub-sector to narrow the list to it, or a sector&rsquo;s name for all of it. Numbers count matching records of any start year.</p>
-    <p class="panel-legend"><span class="legend-cell legend-gap" aria-hidden="true"></span> Dashed: a coverage gap, no record in any source. <span class="legend-cell legend-on" aria-hidden="true"></span> Outlined: the filter in use.</p>
-    <p class="panel-meta cells-caveat"><strong>An empty cell is a gap in what these sources reach, not a finding about the market.</strong>
-      It can mean nobody in India is building there, or it can mean the ${SNAPSHOT.sourcesContributing} sources feeding this page
-      do not cover that work &mdash; and this tool cannot currently tell you which. Incubator portfolios and a startup register are
-      not where fusion or ocean farming would surface first. Read an empty cell as somewhere to look, never as evidence of absence.</p>
+    <p class="panel-meta">${claim}</p>
   </div>
   <div class="sectors">
 ${sectors}
@@ -3123,7 +3116,6 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .snapshot tbody th { white-space: nowrap; font-weight: 600; }
 .snapshot td.snap-n { font-family: var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .snapshot td:last-child { color: var(--muted); min-width: 22rem; }
-.cells-caveat { margin-top: 0.5rem; }
 /* A limit the reader has to see, not one they have to go looking for. */
 .unvalidated { font-size: var(--t-sm); color: var(--ink); max-width: var(--measure);
   border-left: 3px solid var(--rule-strong); padding: 0.1rem 0 0.1rem 0.85rem; margin: 0.9rem 0; }
@@ -3391,9 +3383,6 @@ a:focus-visible, select:focus-visible, button:focus-visible, input:focus-visible
 .panel-kicker { font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-left: var(--s2); white-space: nowrap; }
 .panel-meta { margin: 0 0 var(--s2); font-size: var(--t-xs); color: var(--muted); max-width: var(--measure); }
 .panel-meta strong { color: var(--ink); font-weight: 500; }
-.panel-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); margin: 0 0 var(--s2); font-size: var(--t-xs); color: var(--muted); max-width: none; }
-.legend-cell { display: inline-block; width: 1.25em; height: 0.9em; border-radius: 2px; border: 1px dashed var(--rule-strong); }
-.legend-on { border: 2px solid var(--ink); background: var(--mark-soft); }
 .sector.chosen > h3 { color: var(--ink); }
 .panel-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
 @media (min-width: 46rem) { .panel-row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

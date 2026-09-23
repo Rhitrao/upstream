@@ -829,7 +829,7 @@ describe('GET /upstream (the page)', () => {
 		expect(cells.every((c) => c.includes('empty'))).toBe(true);
 		// The stat counts the empty squares, not the covered ones: an RDI priority with
 		// nothing in it is the finding, and on an empty database all 44 are that.
-		expect(html).toContain('<strong>44 of the 44</strong> sunrise sub-sectors have no company in them yet');
+		expect(html).toContain('<strong>44 of the 44</strong> sub-sectors are empty (dashed): a gap in what these sources reach, not proof nobody builds there.');
 	});
 
 	it('fills a cell once a company lands in it, and keeps the other 43', async () => {
