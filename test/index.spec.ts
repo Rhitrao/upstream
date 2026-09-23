@@ -22,6 +22,8 @@ async function clearDb() {
 		env.DB.prepare('DELETE FROM runs'),
 		env.DB.prepare('DELETE FROM gaps'),
 		env.DB.prepare('DELETE FROM source_runs'),
+		env.DB.prepare('DELETE FROM company_enrichment'),
+		env.DB.prepare('DELETE FROM enrichment_meta'),
 	]);
 }
 
@@ -1486,6 +1488,7 @@ describe('GET /upstream (the page)', () => {
 			'traces:Collected references',
 			'dates:Source date',
 			'tier:Rank tier',
+			'status:Status',
 		]);
 		// Closed with nothing in it chosen, and no count.
 		expect(form).toContain('<details class="more-filters" id="more-filters">');
@@ -2974,5 +2977,183 @@ describe('the robotics picks view', () => {
 		const uma = await (await SELF.fetch(`${ORIGIN}/upstream/c/umarobotics-technology`)).text();
 		expect(uma).toContain('<span>Incorporated 28 Aug 2021 (MCA)</span>');
 		expect(uma).not.toContain('founding year unknown');
+	});
+});
+
+describe('registry and website enrichment', () => {
+	type Rec = {
+		id: string;
+		registry: { cin: string; legal_name: string; incorporated_on: string | null; incorporated_year: number | null; status: string | null; state: string | null; source_url: string; match_note?: string } | null;
+		registry_reason?: string | null;
+		website?: { url: string; identity: string; source_url: string } | null;
+		website_reason?: string | null;
+		product?: { quote: string; source_url: string } | null;
+		product_reason?: string | null;
+		claims?: { quote: string; source_url: string }[];
+		checked_by_person?: boolean;
+	};
+	// The same mapping scripts/load_enrichment.py writes.
+	async function enrich(rec: Rec) {
+		const r = rec.registry;
+		await env.DB.prepare(
+			`INSERT OR REPLACE INTO company_enrichment (id, cin, legal_name, incorporated_on, incorporated_year, reg_status, reg_state, reg_source, reg_note, reg_reason,
+			   site_url, site_identity, site_source, site_reason, product_quote, product_source, product_reason, claims_json, checked_by_person, enriched_on)
+			 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, '2026-09-23')`,
+		)
+			.bind(
+				rec.id, r?.cin ?? null, r?.legal_name ?? null, r?.incorporated_on ?? null, r?.incorporated_year ?? null, r?.status ?? null, r?.state ?? null, r?.source_url ?? null,
+				r?.match_note ?? null, rec.registry_reason ?? null, rec.website?.url ?? null, rec.website?.identity ?? null, rec.website?.source_url ?? null, rec.website_reason ?? null,
+				rec.product?.quote ?? null, rec.product?.source_url ?? null, rec.product_reason ?? null, JSON.stringify(rec.claims ?? []), rec.checked_by_person ? 1 : 0,
+			)
+			.run();
+	}
+	const solinas: Rec = {
+		id: 'solinas-integrity',
+		registry: { cin: 'U72900TN2018PTC121452', legal_name: 'SOLINAS INTEGRITY PRIVATE LIMITED', incorporated_on: '2018-03-15', incorporated_year: 2018, status: 'Active', state: 'Tamil Nadu', source_url: 'https://www.instafinancials.com/company/solinas-integrity-private-limited-U72900TN2018PTC121452' },
+		website: { url: 'http://solinas.in/', identity: 'names company', source_url: 'https://solinas.in/' },
+		product: { quote: 'Through state-of-the-art inspection, cleaning, and digitization, we are making operations and maintenance of water pipelines, sewers, stormwater drains, manholes, and septic tanks smarter and safer.', source_url: 'https://solinas.in/' },
+		claims: [{ quote: 'Characterized > 50 Biosimilar Products', source_url: 'https://solinas.in/' }],
+	};
+	const coin: Rec = {
+		id: 'coin-mobile-technologies',
+		registry: { cin: 'U74999MH2014PTC260317', legal_name: 'COIN MOBILE TECHNOLOGIES PRIVATE LIMITED', incorporated_on: '2014-12-22', incorporated_year: 2014, status: 'Strike Off', state: 'Maharashtra', source_url: 'https://www.filesure.in/company/coin-mobile-technologies-private-limited/U74999MH2014PTC260317' },
+		website_reason: 'no website found',
+		product_reason: 'no company website',
+	};
+	// Struck off, but registered inside the window, so only the status takes it out.
+	const struckRecent: Rec = { ...coin, id: 'struck-recent', registry: { ...coin.registry!, cin: 'U74999MH2024PTC260317', incorporated_on: '2024-01-02', incorporated_year: 2024 } };
+	const seed = async () => {
+		await post({
+			source: 'rtbi-iitm',
+			companies: [
+				{ id: 'solinas-integrity', name: 'Solinas Integrity Private Limited', origin_year: THIS_YEAR - 1, description: 'Pipe inspection robots.', trace_count: 1 },
+				{ id: 'coin-mobile-technologies', name: 'Coin Mobile Technologies', origin_year: THIS_YEAR - 1, description: 'Payments hardware.' },
+				{ id: 'struck-recent', name: 'Struck Recent', origin_year: THIS_YEAR - 1, description: 'Sensors.' },
+				{ id: 'plain-co', name: 'Plain Co', origin_year: THIS_YEAR - 1, description: 'Drones.' },
+				{ id: 'quiet-co', name: 'Quiet Co', origin_year: THIS_YEAR - 1 },
+			],
+			signals: ['solinas-integrity', 'coin-mobile-technologies', 'struck-recent', 'plain-co', 'quiet-co'].map((id) => ({ company_id: id, type: 'incubator', label: 'IITM cohort' })),
+		});
+	};
+	const ids = (html: string) => [...html.matchAll(/<li class="company [^"]*" id="c-([^"]+)"/g)].map((m) => m[1]).sort();
+	const page = async (qs = '') => (await SELF.fetch(`${ORIGIN}/upstream${qs}`)).text();
+
+	it('leaves trace_count and tier exactly as they were, before and after loading, and after the next ingest', async () => {
+		await seed();
+		const snap = async () => (await env.DB.prepare("SELECT id, trace_count, tier, first_seen FROM companies ORDER BY id").all()).results;
+		const before = await snap();
+		for (const r of [solinas, coin, struckRecent]) await enrich(r);
+		expect(await snap()).toEqual(before);
+		await seed(); // the nightly run, writing the same rows again
+		expect(await snap()).toEqual(before);
+		// And the enrichment is still there: the ingest never touches it.
+		expect((await env.DB.prepare('SELECT COUNT(*) AS n FROM company_enrichment').first<{ n: number }>())!.n).toBe(3);
+	});
+
+	it('takes a company registered before the window out of the default view, and brings it back with Started = Any', async () => {
+		await seed();
+		await enrich(solinas);
+		expect(ids(await page())).not.toContain('solinas-integrity');
+		expect(ids(await page('?age=all'))).toContain('solinas-integrity');
+		const html = await page();
+		expect(html).toMatch(/>1 started before \d{4}, by government registry date<\/a>/);
+	});
+
+	it('takes a struck-off company out of the default view, and shows it with Status = Any', async () => {
+		await seed();
+		await enrich(struckRecent);
+		expect(ids(await page())).not.toContain('struck-recent');
+		const any = await page('?status=any');
+		expect(ids(any)).toContain('struck-recent');
+		expect(any).toContain('Status: any, struck off included');
+		expect(await page()).toMatch(/>1 closed or struck off in the registry<\/a>/);
+		expect(await page()).toContain('<option value="" selected>Active or unknown</option>');
+		const company = await (await SELF.fetch(`${ORIGIN}/upstream/c/struck-recent`)).text();
+		expect(company).toContain('<p class="enrich-struck">The government registry lists this company as struck off.</p>');
+	});
+
+	it('shows every enrichment fact on the company page with its source link, and the company&rsquo;s words as its quotes', async () => {
+		await seed();
+		await enrich(solinas);
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/solinas-integrity`)).text();
+		const block = html.slice(html.indexOf('<section class="enrich"'), html.indexOf('</section>', html.indexOf('<section class="enrich"')));
+		expect(block).toContain('<h2 id="enrich-h">Registry and website</h2>');
+		expect(block).toContain('Registered as <strong>SOLINAS INTEGRITY PRIVATE LIMITED</strong> on 15 Mar 2018 &middot; Active &middot; Tamil Nadu');
+		expect(block).toContain('government registry record (via instafinancials.com)');
+		expect(block).toContain('<span class="enrich-id">CIN U72900TN2018PTC121452</span>');
+		// Each fact element (registry, website, quote, each claim) carries a source link.
+		const facts = [...block.matchAll(/<(p class="enrich-(?:reg|site)"|figure class="enrich-quote"|li)>?[\s\S]*?<\/(p|figure|li)>/g)].map((m) => m[0]);
+		expect(facts).toHaveLength(4);
+		for (const fact of facts) expect(fact).toMatch(/class="enrich-src" href="https?:\/\//);
+		expect(block).toContain('Website: <a href="http://solinas.in/"');
+		expect(block).toContain('<span class="enrich-basis">names the company</span>');
+		// The company's own words: a quote attributed to them, never Upstream's statement.
+		expect(block).toMatch(/<blockquote data-source="company">Through state-of-the-art inspection/);
+		expect(block).toContain('&mdash; <a class="enrich-src" href="https://solinas.in/" rel="noopener nofollow">from their website</a>');
+		expect(block).toMatch(/<q data-source="company">Characterized &gt; 50 Biosimilar Products<\/q> <span class="enrich-tag">self-reported<\/span>/);
+		expect(block).toContain('Gathered automatically from public sources on 23 Sep 2026. Not checked by a person.');
+	});
+
+	it('says what was not found, in plain words, and marks an ambiguous match and an LLP', async () => {
+		await post({ source: 'rtbi-iitm', companies: ['uniurja', 'roha', 'coin-mobile-technologies'].map((id) => ({ id, name: id, origin_year: THIS_YEAR })) });
+		await enrich(coin);
+		await enrich({ id: 'uniurja', registry: null, registry_reason: 'ambiguous: UNIURJA PRIVATE LIMITED (BR, struck off), UNIURJA LABS PRIVATE LIMITED (UP)', website_reason: 'no website found', product_reason: 'no confirmed company website' });
+		await enrich({
+			id: 'roha',
+			registry: { cin: 'AAU-0767', legal_name: 'ROHA PRECISION SYSTEMS DEVELOPMENT LLP', incorporated_on: '2020-10-06', incorporated_year: 2020, status: 'Converted and Dissolved', state: 'West Bengal', source_url: 'https://www.falconebiz.com/LLP/ROHA-PRECISION-SYSTEMS-DEVELOPMENT-LLP-AAU-0767' },
+			product_reason: 'no company website',
+			website_reason: 'no website found',
+		});
+		const c = await (await SELF.fetch(`${ORIGIN}/upstream/c/coin-mobile-technologies`)).text();
+		expect(c).toContain('<p class="enrich-missing">Website: not found (no website found)</p>');
+		expect(c).toContain('<p class="enrich-missing">What they say they build: not found (no company website)</p>');
+		const u = await (await SELF.fetch(`${ORIGIN}/upstream/c/uniurja`)).text();
+		expect(u).toContain('<p class="enrich-missing">Registry record: two possible matches, not shown (ambiguous: UNIURJA PRIVATE LIMITED (BR, struck off), UNIURJA LABS PRIVATE LIMITED (UP))</p>');
+		const r = await (await SELF.fetch(`${ORIGIN}/upstream/c/roha`)).text();
+		expect(r).toContain('Registered as an LLP: <strong>ROHA PRECISION SYSTEMS DEVELOPMENT LLP</strong>');
+		expect(r).toContain('<span class="enrich-id">LLP number AAU-0767</span>');
+		expect(r).toContain('lists this company as converted and dissolved.');
+	});
+
+	it('says a hand-checked record was checked by hand, and drops "no person has checked it" there', async () => {
+		await post({ source: 'sine-iitb', companies: [{ id: 'umarobotics-technology', name: 'Umarobotics', origin_year: THIS_YEAR, description: 'Robots that move totes.' }] });
+		await enrich({
+			id: 'umarobotics-technology',
+			registry: { cin: 'U72900UR2021PTC012847', legal_name: 'UMAROBOTICS TECHNOLOGY PRIVATE LIMITED', incorporated_on: '2021-08-28', incorporated_year: 2021, status: 'Active', state: 'Uttarakhand', source_url: 'https://www.zaubacorp.com/UMAROBOTICS-TECHNOLOGY-PRIVATE-LIMITED-U72900UR2021PTC012847' },
+			website: { url: 'https://umarobotics.com/', identity: 'names company', source_url: 'https://umarobotics.com/' },
+			product_reason: 'none',
+			checked_by_person: true,
+		});
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/c/umarobotics-technology`)).text();
+		expect(html).toContain('<p class="enrich-foot">Checked by hand on 23 Sep 2026.</p>');
+		expect(html).not.toContain('No person has checked it');
+		// 2021 is inside the window by the year-based rule, so it stays in the default view.
+		expect(ids(await page())).toContain('umarobotics-technology');
+	});
+
+	it('uses the company&rsquo;s quote on a list row only when the row has no description, and says whose words they are', async () => {
+		await seed();
+		await enrich({ id: 'quiet-co', registry: null, registry_reason: 'no registry record found', product: { quote: 'We build quiet pumps.', source_url: 'https://quiet.example/' } });
+		await enrich({ id: 'plain-co', registry: null, registry_reason: 'no registry record found', product: { quote: 'Not shown: the row has its own description.', source_url: 'https://plain.example/' } });
+		const html = await page('?described=all');
+		const row = (id: string) => html.slice(html.indexOf(`id="c-${id}"`), html.indexOf('</li>', html.indexOf(`id="c-${id}"`)));
+		expect(row('quiet-co')).toContain('<q data-source="company">We build quiet pumps.</q> <a class="from-site" href="https://quiet.example/" rel="noopener nofollow">(from their site)</a>');
+		expect(row('plain-co')).not.toContain('Not shown');
+		// Not a classification: the sub-sector and the order are the pipeline's.
+		expect((await env.DB.prepare("SELECT subsector_id FROM companies WHERE id = 'quiet-co'").first<{ subsector_id: string | null }>())!.subsector_id).toBe(null);
+	});
+
+	it('explains the enrichment on the methodology page with counts from the table', async () => {
+		await seed();
+		for (const r of [solinas, coin, struckRecent]) await enrich(r);
+		await env.DB.prepare("INSERT OR REPLACE INTO enrichment_meta (version, method, count) VALUES ('2026-09-23', 'Enriched on 23 Sep 2026 by automated web lookup.', 3)").run();
+		const html = await (await SELF.fetch(`${ORIGIN}/upstream/about`)).text();
+		const section = html.slice(html.indexOf('id="enrichment"'), html.indexOf('</section>', html.indexOf('id="enrichment"')));
+		expect(section).toContain('<h2 id="enrichment-h">Registry and website enrichment</h2>');
+		expect(section).toContain('Enriched on 23 Sep 2026 by automated web lookup.');
+		expect(section).toMatch(/Records enriched<\/th><td class="snap-n">3</);
+		expect(section).toMatch(/Struck off or closed in the registry<\/th><td class="snap-n">2</);
+		expect(section).toMatch(/the five-year window, by registry date<\/th><td class="snap-n">2</);
+		expect(section).toContain('Enrichment does not change the ranking: a registry lookup is something Upstream did, not a public trace of the company.');
 	});
 });

@@ -1,0 +1,141 @@
+"""
+Turn a committed enrichment file into SQL for D1.
+
+    python scripts/load_enrichment.py data/enrichment/2026-09-23.json
+    python scripts/load_enrichment.py data/enrichment/2026-09-23.json --ids ids.txt
+
+Reads the JSON, checks every record, and writes migrations/data/enrichment_<version>.sql:
+INSERT OR REPLACE statements, safe to run twice. No network: the file is the only source.
+
+A record that fails a check is skipped, named on stderr, and the rest are written. The checks:
+  - a non-null registry, website or product section (or a claim) with no source_url
+  - a CIN whose year digits disagree with incorporated_on, or an incorporated_year that
+    disagrees with incorporated_on
+  - an id that is not in companies. Without --ids that list is not known here, so every row
+    is written guarded by EXISTS (SELECT 1 FROM companies ...) and a missing id inserts nothing;
+    with --ids (one id per line, e.g. exported from D1) such records are skipped and named.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+CIN = re.compile(r"^[LU]\d{5}[A-Z]{2}(\d{4})[A-Z]{3}\d{6}$")
+LLPIN = re.compile(r"^[A-Z]{3}-\d{4}$")
+COLUMNS = [
+    "id", "cin", "legal_name", "incorporated_on", "incorporated_year", "reg_status", "reg_state",
+    "reg_source", "reg_note", "reg_reason", "site_url", "site_identity", "site_source", "site_reason",
+    "product_quote", "product_source", "product_reason", "claims_json", "checked_by_person", "enriched_on",
+]
+
+
+def sql(value: object) -> str:
+    """A SQL literal. Strings are single-quoted with quotes doubled; nothing else is spliced."""
+    if value is None:
+        return "NULL"
+    if isinstance(value, bool):
+        return "1" if value else "0"
+    if isinstance(value, int):
+        return str(value)
+    text = str(value).replace("\x00", "")
+    return "'" + text.replace("'", "''") + "'"
+
+
+def problems(key: str, rec: dict, known: set[str] | None) -> list[str]:
+    out: list[str] = []
+    if rec.get("id") != key:
+        out.append(f"id {rec.get('id')!r} does not match its key")
+    for section in ("registry", "website", "product"):
+        part = rec.get(section)
+        if part is not None and not (isinstance(part, dict) and part.get("source_url")):
+            out.append(f"{section} has no source_url")
+    for i, claim in enumerate(rec.get("claims") or []):
+        if not claim.get("source_url"):
+            out.append(f"claim {i} has no source_url")
+    reg = rec.get("registry")
+    if reg:
+        cin = reg.get("cin") or ""
+        on = reg.get("incorporated_on")
+        year = reg.get("incorporated_year")
+        m = CIN.match(cin)
+        if on is not None and not re.match(r"^\d{4}-\d{2}-\d{2}$", str(on)):
+            out.append(f"incorporated_on {on!r} is not YYYY-MM-DD")
+        elif m and on and m.group(1) != on[:4]:
+            out.append(f"CIN {cin} says {m.group(1)}, incorporated_on says {on}")
+        if on and year is not None and int(on[:4]) != int(year):
+            out.append(f"incorporated_year {year} disagrees with incorporated_on {on}")
+        if cin and not m and not LLPIN.match(cin):
+            out.append(f"registration number {cin!r} is neither a CIN nor an LLP number")
+    if known is not None and key not in known:
+        out.append("id is not in companies")
+    return out
+
+
+def row(rec: dict, version: str) -> list[object]:
+    reg = rec.get("registry") or {}
+    site = rec.get("website") or {}
+    product = rec.get("product") or {}
+    return [
+        rec["id"], reg.get("cin"), reg.get("legal_name"), reg.get("incorporated_on"), reg.get("incorporated_year"),
+        reg.get("status"), reg.get("state"), reg.get("source_url"), reg.get("match_note"), rec.get("registry_reason"),
+        site.get("url"), site.get("identity"), site.get("source_url"), rec.get("website_reason"),
+        product.get("quote"), product.get("source_url"), rec.get("product_reason"),
+        json.dumps(rec.get("claims") or [], ensure_ascii=False), bool(rec.get("checked_by_person")), version,
+    ]
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("path")
+    ap.add_argument("--ids", help="file of known company ids, one per line")
+    ap.add_argument("--out", help="where to write the SQL (default migrations/data/enrichment_<version>.sql)")
+    ap.add_argument("--check-only", action="store_true", help="report problems, write nothing")
+    args = ap.parse_args()
+
+    data = json.loads(Path(args.path).read_text(encoding="utf-8"))
+    version = data["version"]
+    companies = data["companies"]
+    if data.get("count") != len(companies):
+        print(f"count says {data.get('count')}, file holds {len(companies)}", file=sys.stderr)
+    known = None
+    if args.ids:
+        known = {line.strip() for line in Path(args.ids).read_text(encoding="utf-8").splitlines() if line.strip()}
+
+    skipped: dict[str, list[str]] = {}
+    lines = [
+        f"-- Generated by scripts/load_enrichment.py from {Path(args.path).as_posix()}. Do not edit by hand.",
+        f"-- Enrichment version {version}. INSERT OR REPLACE, and only for ids that exist in companies: safe to run again.",
+        f"INSERT OR REPLACE INTO enrichment_meta (version, method, count) VALUES ({sql(version)}, {sql(data['method'])}, {len(companies)});",
+    ]
+    written = 0
+    for key in sorted(companies):
+        rec = companies[key]
+        found = problems(key, rec, known)
+        if found:
+            skipped[key] = found
+            continue
+        values = ", ".join(sql(v) for v in row(rec, version))
+        lines.append(
+            f"INSERT OR REPLACE INTO company_enrichment ({', '.join(COLUMNS)}) "
+            f"SELECT {values} WHERE EXISTS (SELECT 1 FROM companies WHERE id = {sql(key)});"
+        )
+        written += 1
+
+    for key, found in skipped.items():
+        print(f"skipped {key}: {'; '.join(found)}", file=sys.stderr)
+    print(f"{written} records written, {len(skipped)} skipped", file=sys.stderr)
+    if args.check_only:
+        return 0
+    out = Path(args.out or f"migrations/data/enrichment_{version}.sql")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {out}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -24,6 +24,8 @@ import {
 	queryOneTraceCount,
 	deleteNote,
 	queryCompany,
+	queryEnrichment,
+	queryEnrichmentSummary,
 	queryNote,
 	queryNotes,
 	queryProductOutcomes,
@@ -84,7 +86,7 @@ const BIND_CHUNK = 70;
  */
 const KNOWN_PARAMS = [
 	'age', 'alone', 'build', 'dates', 'demo', 'described', 'domain', 'dpiit', 'ids', 'kind', 'limit',
-	'noticed', 'programmes', 'q', 'sector', 'site', 'sort', 'source', 'state', 'subsector', 'tier',
+	'noticed', 'programmes', 'q', 'sector', 'site', 'sort', 'source', 'state', 'status', 'subsector', 'tier',
 	'traces', 'undated',
 ] as const;
 
@@ -1261,6 +1263,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		noticedOnce: url.searchParams.get('noticed') === '1',
 		programmesAtLeast: ['2', '3'].includes(url.searchParams.get('programmes') ?? '') ? Number(url.searchParams.get('programmes')) : null,
 		alone: url.searchParams.get('alone') === '1',
+		// Struck off, dissolved or inactive in the government registry: out of the view unless asked for.
+		status: url.searchParams.get('status') === 'any' ? 'any' : 'active',
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
 		minOriginYear: age === 'all' ? null : minOriginYear(now),
@@ -1269,7 +1273,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	// The undated section sits outside the ranking, so the tier toggle and the age gate
 	// have nothing to say about it. Sector and sub-sector still apply: clicking a
 	// coverage cell has to filter the whole page, not half of it.
-	const undated: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null };
+	// A registry year still ages an undated record: the "Started" filter reads it wherever one exists.
+	const undated: Filters = { ...ranked, tiers: null, dated: 'undated', minOriginYear: null, registryMinYear: ranked.minOriginYear };
 
 	return { demo, hasRanked, defaultTier, tier, age, dates, ranked, undated, wantRanked: dates !== 'undated', wantUndated: dates !== 'dated' };
 }
@@ -1347,14 +1352,14 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 		// The chosen half on its own, so the result line counts out of it.
 		demo
 			? Promise.resolve(null)
-			: once(`category:${JSON.stringify(half)}`, () => queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null, programmesAtLeast: null, alone: false, noticedOnce: false })),
+			: once(`category:${JSON.stringify(half)}`, () => queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null, programmesAtLeast: null, alone: false, noticedOnce: false, status: 'any' })),
 	]);
 	const ask = askMode(env);
 	// Only when the list came back empty: the same question over every record, so the empty
 	// state can offer the nearest thing that is not empty instead of reporting emptiness.
 	const wider =
 		!demo && companies.length === 0 && buckets.total === 0
-			? (await queryBuckets(env, { ...ranked, described: null, kind: null, dpiit: null, tiers: null, minOriginYear: null })).total
+			? (await queryBuckets(env, { ...ranked, described: null, kind: null, dpiit: null, tiers: null, minOriginYear: null, status: 'any' })).total
 			: null;
 
 	// A search that finds nothing anywhere offers the nearest names: "grinntek" is Grinntech.
@@ -1380,6 +1385,7 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 		noticed: ranked.noticedOnce ? '1' : null,
 		programmes: ranked.programmesAtLeast ? String(ranked.programmesAtLeast) : null,
 		alone: ranked.alone ? '1' : null,
+		status: ranked.status === 'any' ? 'any' : 'active',
 		domain: ranked.domain ?? null,
 		ids: ranked.ids ?? null,
 		origin: url.origin,
@@ -1411,7 +1417,7 @@ async function aboutPage(url: URL, env: Env, cache: EdgeCache): Promise<Response
 	const now = new Date();
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
 	const once = <T>(name: string, compute: () => Promise<T>) => memo(cache, name, compute);
-	const [coverage, gaps, discoveredThisWeek, register, products, sourceHealth, findings] = await Promise.all([
+	const [coverage, gaps, discoveredThisWeek, register, products, sourceHealth, findings, enrichment] = await Promise.all([
 		once('coverage', () => queryCoverage(env)),
 		once('gaps', () => queryGaps(env)),
 		once(`discovered:${weekAgo}`, () => queryDiscoveredSince(env, weekAgo)),
@@ -1419,8 +1425,10 @@ async function aboutPage(url: URL, env: Env, cache: EdgeCache): Promise<Response
 		once('products', () => queryProductOutcomes(env)),
 		once('source-health', () => querySourceHealth(env)),
 		once('findings', () => queryFindings(env)),
+		once(`enrichment:${minOriginYear(now)}`, () => queryEnrichmentSummary(env, minOriginYear(now))),
 	]);
 	const html = renderAboutPage({
+		enrichment,
 		coverage,
 		gaps,
 		// The two tables are disjoint — a company is a row or a hole, never both —
@@ -1613,7 +1621,8 @@ async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 	}
 	// Facts checked by hand are laid over the ingested row here, so the nightly run cannot undo them.
 	const shown = withOverrides(company);
-	return new Response(renderCompanyPage({ company: shown.company, incorporated: shown.incorporated, now: new Date(), pageUrl: `${url.origin}${BASE_PATH}/c/${company.id}` }), {
+	const enrichment = await queryEnrichment(env, company.id);
+	return new Response(renderCompanyPage({ company: shown.company, incorporated: shown.incorporated, enrichment, now: new Date(), pageUrl: `${url.origin}${BASE_PATH}/c/${company.id}` }), {
 		headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
@@ -1622,7 +1631,8 @@ async function companyPage(id: string, env: Env, url: URL): Promise<Response> {
 async function companyBrief(id: string, env: Env, url: URL): Promise<Response> {
 	const company = await queryCompany(env, id);
 	if (company === null) return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
-	return new Response(briefMarkdown(withOverrides(company).company, `${url.origin}${BASE_PATH}/c/${company.id}`, new Date()), {
+	const checked = Boolean((await queryEnrichment(env, company.id))?.checked_by_person);
+	return new Response(briefMarkdown(withOverrides(company).company, `${url.origin}${BASE_PATH}/c/${company.id}`, new Date(), checked), {
 		headers: { 'content-type': 'text/markdown; charset=utf-8', 'cache-control': PUBLIC_CACHE },
 	});
 }
