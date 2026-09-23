@@ -1,0 +1,57 @@
+# Deploy the Worker to rohitrao.in/upstream.
+#
+# Runs on every push to main, and by hand from the Actions tab (Run workflow). The tests run
+# first, so a red suite never reaches the live page. Needs two repository secrets:
+# CLOUDFLARE_API_TOKEN (the "Edit Cloudflare Workers" template) and CLOUDFLARE_ACCOUNT_ID.
+#
+# It deploys code only. A new file in migrations/ is still applied by hand
+# (npx wrangler d1 migrations apply upstream --remote) before the deploy that needs it.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time; a newer push waits rather than racing an older one.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test
+        run: npx vitest run
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+      # The four pages that must answer after a deploy: the portfolio, the list, a filtered
+      # list and another route on the same domain.
+      - name: Check the live pages answer
+        run: |
+          set -euo pipefail
+          sleep 10
+          for url in "https://rohitrao.in/" "https://rohitrao.in/upstream" "https://rohitrao.in/upstream?subsector=2.7" "https://rohitrao.in/parts"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url")
+            echo "$code $url"
+            [ "$code" = "200" ]
+          done
