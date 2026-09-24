@@ -39,9 +39,11 @@ jobs:
       - name: Test
         run: npx vitest run
 
-      # Only migrations newer than this workflow may be pending. Everything up to 0029 was applied
+      # Only migrations newer than this workflow may be pending. Everything up to 0028 was applied
       # before the workflow applied any; if one of those shows as pending, the remote migration log
       # does not match the database, and applying it again could fail half-way. Stop instead.
+      # 0029 is the exception: the Worker creates page_store on first use, so the table exists
+      # without 0029 in the log, and the migration is CREATE TABLE IF NOT EXISTS, safe to apply.
       - name: Apply new database migrations
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -52,7 +54,7 @@ jobs:
           echo "$listed"
           pending=$(echo "$listed" | grep -oE '[0-9]{4}_[a-z0-9_]+\.sql' | sort -u || true)
           if [ -z "$pending" ]; then echo "No migrations to apply."; exit 0; fi
-          old=$(echo "$pending" | awk -F_ '$1 + 0 <= 29' || true)
+          old=$(echo "$pending" | awk -F_ '$1 + 0 <= 28' || true)
           if [ -n "$old" ]; then
             echo "::error::These migrations show as pending but predate this workflow: $old. Check the remote d1_migrations table before deploying."
             exit 1
