@@ -742,9 +742,9 @@
   "status": "described"
  },
  "infab-semiconductor": {
-  "hash": "1ad97dfb63af355c",
+  "hash": "49afbe732424fe81",
   "model": "claude-haiku-4-5",
-  "product": "MEMS sensors, microfluidic chips, and semiconductor fabrication services for aerospace, defence, and healthcare industries.",
+  "product": "MEMS sensors, microfluidic chips, and semiconductor fabrication services for aerospace, defence, healthcare, and life sciences sectors.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1211,11 +1211,11 @@
   "status": "described"
  },
  "sal-biosciences": {
-  "hash": "8d815970174b475d",
+  "hash": "f054696830710274",
   "model": "claude-haiku-4-5",
-  "product": "Light-pulsing technology that increases yields in fermentation-based drug and agricultural manufacturing.",
+  "product": null,
   "prompt_version": 1,
-  "status": "described"
+  "status": "unclear"
  },
  "satat-gram-services": {
   "hash": "d535669c67b81c08",
