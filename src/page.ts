@@ -2239,8 +2239,9 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   padding: 0;
-  /* The site's wash: white at the top, warming to a pale yellow a screen down, then fading out. */
-  background: linear-gradient(180deg, transparent 0, transparent 14rem, var(--wash) 36rem, transparent 90rem) no-repeat, var(--paper);
+  /* The site's wash, as on rohitrao.in: white, warming to a pale yellow, back to white, and again,
+     all the way down the page. One band is 80rem tall and repeats. */
+  background: linear-gradient(180deg, transparent 0, var(--wash) 50%, transparent 100%) 0 0 / 100% 80rem repeat-y, var(--paper);
   color: var(--ink);
   font-family: var(--sans);
   font-size: var(--t-body);
@@ -2911,9 +2912,8 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .intro h1 { font-size: var(--t-hero); line-height: 1.08; letter-spacing: -0.04em; font-weight: 700; color: var(--ink); margin: 0 0 var(--s2); max-width: 32ch; text-wrap: balance; }
 .lede { font-size: var(--t-lede); color: var(--body-ink); margin: 0 0 var(--s2); max-width: 64ch; }
 .lede p { margin: 0 0 var(--s2); }
-/* The discovery hero: plain body text on plain paper (the page's yellow wash starts below it), one
-   subhead between the headline and the text, and the three steps in a row that stack on a phone. */
-.hero { background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); }
+/* The discovery hero: plain body text over the page's own gradient, one subhead between the
+   headline and the text, and the three steps in a row that stack on a phone. */
 .hero-sub { font-size: clamp(1.125rem, 2vw, 1.3125rem); line-height: 1.4; color: var(--ink); font-weight: 500; margin: 0 0 var(--s4); max-width: 42ch; text-wrap: pretty; }
 .hero .lede { font-size: var(--t-body); line-height: 1.7; max-width: 65ch; }
 .hero .lede p { margin: 0 0 var(--s3); }
