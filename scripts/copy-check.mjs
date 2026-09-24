@@ -18,6 +18,8 @@ const DATA = ['data/picks/robotics.json'];
 // Constants that hold CSS or client code rather than copy.
 const CODE_CONSTS = new Set(['STYLES', 'PICKS_STYLES', 'CAPABILITY_SCRIPT', 'STORE_SQL', 'SAID_STATE_SQL', 'SORTS', 'TRACE_SQL']);
 const SCRIPT_CONSTS = new Set(['MARKS_SCRIPT', 'LIST_SCRIPT', 'ASK_SCRIPT', 'DETAIL_SCRIPT']);
+// Copy the owner wrote with its dashes on purpose (the discovery hero), left out of the count.
+const EXEMPT_FUNCTIONS = new Set(['hero']);
 
 export const PATTERNS = [
 	['em dash', /—|&mdash;/g],
@@ -40,6 +42,7 @@ function literals(file) {
 	const source = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
 	const out = [];
 	const visit = (node, inScript) => {
+		if (ts.isFunctionDeclaration(node) && node.name && EXEMPT_FUNCTIONS.has(node.name.text)) return;
 		if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
 			if (CODE_CONSTS.has(node.name.text)) return;
 			if (SCRIPT_CONSTS.has(node.name.text)) inScript = true;

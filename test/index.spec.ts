@@ -1322,11 +1322,22 @@ describe('GET /upstream (the page)', () => {
 		const html = await res.text();
 		expect(html).toContain('<p class="eyebrow">Deep-tech sourcing for investors</p>');
 		// What the list is, and why it is ordered the other way round, before any number.
-		expect(html).toContain('<h1>Young Indian deep-tech companies, least-known first</h1>');
+		expect(html).toContain('<h1>Go upstream of the funding news.</h1>');
+		expect(html).toContain('<p class="hero-sub">Startups show up in public records before they show up in the news.</p>');
 		const lede = html.slice(html.indexOf('class="lede"'), html.indexOf('</div>', html.indexOf('class="lede"')));
-		expect(lede).toContain('Upstream shows the least-known companies first.');
+		// The source count is live, as a word, and the sub-sector count comes from the taxonomy.
+		expect(lede).toContain('Upstream reads eight of these sources every day, sorts each company into the government&#39;s 44 R&amp;D sub-sectors, and shows the least-known ones first.');
+		expect(lede).toContain('Most investors find early companies the same way &mdash; funding news, demo days, warm introductions &mdash; so by the time a startup shows up there, every fund has already seen it.');
+		expect(lede).toContain('<strong class="hero-why">Why &quot;Upstream&quot;?</strong>');
+		// Three steps, each linking where it says.
+		const steps = html.slice(html.indexOf('class="hero-steps"'), html.indexOf('</ol>', html.indexOf('class="hero-steps"')));
+		expect([...steps.matchAll(/<li>/g)]).toHaveLength(3);
+		expect(steps).toContain('<a href="#coverage">Pick a sector in the map below.</a>');
+		expect(steps).toContain('<a class="hero-shortlist" href="/upstream#list">');
 		// The honest limit, in the hero: an order is not a verdict.
-		expect(lede).toContain('It can&#39;t tell you which companies are good. That still takes a conversation with the founder.');
+		expect(html).toContain('<p class="hero-note">The order shows where fewer people have looked. Whether a company is any good, you&#39;ll only learn by talking to the founder.</p>');
+		expect(html).toContain('<title>Upstream: go upstream of the funding news</title>');
+		expect(html).toContain('<meta name="description" content="Indian deep-tech startups found in incubator, grant and startup-register records, least-known first.">');
 		// The status line under the hero is gone; source health is on the methodology page.
 		expect(html).not.toContain('class="coverage-line"');
 		expect(html).not.toContain('contributing, as of');
@@ -1842,7 +1853,7 @@ describe('people and projects are not companies', () => {
 		});
 
 		const html = await (await SELF.fetch(`${ORIGIN}/upstream?tier=all&age=all&kind=all&described=all`)).text();
-		expect(html).toContain('<h1>Young Indian deep-tech companies, least-known first</h1>');
+		expect(html).toContain('<h1>Go upstream of the funding news.</h1>');
 		const start = html.indexOf('id="c-aishwarya-dasare"');
 		expect(html.slice(start, html.indexOf('</li>', start))).toContain('<span class="badge">research project</span>');
 		// "Companies only" leaves it out, and keeps Planys.
