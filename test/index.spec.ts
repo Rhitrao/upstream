@@ -3269,7 +3269,7 @@ describe('no recommendation language', () => {
 			expect(flagged(prose(html)), path).toEqual([]);
 		}
 		// The limit is said where a reader decides, on the list and the methodology page.
-		expect(await (await SELF.fetch(`${ORIGIN}/upstream`)).text()).toContain('It can&#39;t tell you which companies are good.');
+		expect(await (await SELF.fetch(`${ORIGIN}/upstream`)).text()).toContain('Whether a company is any good, you&#39;ll only learn by talking to the founder.');
 		expect(await (await SELF.fetch(`${ORIGIN}/upstream/about`)).text()).toContain('The ranking hasn&#39;t been tested against outcomes.');
 	});
 

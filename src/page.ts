@@ -463,7 +463,7 @@ function hero(view: PageView): string {
     <ol class="hero-steps">
       <li><span class="hero-step-n" aria-hidden="true">1</span><span><a href="#coverage">Pick a sector in the map below.</a></span></li>
       <li><span class="hero-step-n" aria-hidden="true">2</span><span>Open a company to see what it builds and where each fact came from.</span></li>
-      <li><span class="hero-step-n" aria-hidden="true">3</span><span><a class="hero-shortlist" href="${esc(BASE_PATH)}#list">Shortlist the ones worth a call.</a></span></li>
+      <li><span class="hero-step-n" aria-hidden="true">3</span><span><a class="hero-shortlist" href="${esc(BASE_PATH)}#list">Shortlist the ones you want to call.</a></span></li>
     </ol>
     <p class="hero-note">The order shows where fewer people have looked. Whether a company is any good, you&#39;ll only learn by talking to the founder.</p>
   </section>
