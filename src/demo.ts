@@ -381,8 +381,9 @@ export function demoCompanies(): Company[] {
  * The same three-way split the SQL does, applied in TypeScript so the demo shows the
  * real page rather than a tidier one: ranked, older than the age gate, and undated.
  */
-export function splitDemo(companies: Company[], now: Date): { ranked: Company[]; undated: Company[]; buckets: Buckets } {
-	const cutoff = minOriginYear(now);
+export function splitDemo(companies: Company[], now: Date, gate = false): { ranked: Company[]; undated: Company[]; buckets: Buckets } {
+	// The five-year toggle, off unless asked for, as on the real list.
+	const cutoff = gate ? minOriginYear(now) : -Infinity;
 	const origin = (c: Company) => c.origin_year ?? c.founded_year;
 
 	const undated = companies.filter((c) => c.first_seen === null);

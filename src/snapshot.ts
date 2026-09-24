@@ -65,7 +65,7 @@ export const SNAPSHOT_TERMS: { term: string; value: (s: Snapshot) => string; mea
 		term: 'Records seen',
 		value: (s) => `${s.recordsSeen.toLocaleString('en-IN')}`,
 		means:
-			'Records read from those sources. Not companies: a record can be a research project or a name with nothing behind it. Treat this as an upper bound — duplicates are folded only where two names match once punctuation and legal suffixes are removed, or where a person read the pair and wrote it into ingest/aliases.json. Two sources spelling one company differently enough to defeat that test are still two records here.',
+			'Records read from those sources. Not companies: a record can be a research project or a name with nothing behind it. Treat this as an upper bound. Duplicates are folded only where two names match once punctuation and legal suffixes are removed, or where a person read the pair and wrote it into ingest/aliases.json. Two sources spelling one company differently enough to defeat that test are still two records here.',
 	},
 	{
 		term: 'Placed',
@@ -78,7 +78,7 @@ export const SNAPSHOT_TERMS: { term: string; value: (s: Snapshot) => string; mea
 		term: 'Dropped',
 		value: (s) => `${s.dropped.toLocaleString('en-IN')}`,
 		means:
-			'Records read but not placed, each kept in the gaps table with the reason it could not be placed. Dropped is not rejected: most were too thinly described to classify, not judged uninteresting.',
+			'Records read but not placed, each kept in the gaps table with the reason it could not be placed. Dropped does not mean rejected. Most were too thinly described to classify.',
 	},
 	{
 		term: 'Companies',
@@ -90,7 +90,7 @@ export const SNAPSHOT_TERMS: { term: string; value: (s: Snapshot) => string; mea
 		term: 'Described',
 		value: (s) => `${s.described}`,
 		means:
-			'Placed records carrying a published sentence saying what they do — 180 quoted from a website confirmed as theirs, 345 from the source that listed them. The remaining 228 have only a register or grant label.',
+			'Placed records carrying a published sentence saying what they do: 180 quoted from a website confirmed as theirs, 345 from the source that listed them. The remaining 228 have only a register or grant label.',
 	},
 ];
 

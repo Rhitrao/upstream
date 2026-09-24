@@ -19,6 +19,10 @@ import { SIGNAL_TYPES, TRACE_TYPES, TIERS, earliestEvent, minOriginYear, tierFor
 import {
 	queryBuckets,
 	queryCompanies,
+	queryOrder,
+	queryRows,
+	type OrderKey,
+	type Company,
 	queryCoverage,
 	queryDiscoveredSince,
 	queryOneTraceCount,
@@ -37,6 +41,7 @@ import {
 	queryGaps,
 	queryHasRanked,
 	querySourceHealth,
+	querySourceCounts,
 	queryWidgets,
 	DESCRIBED_STATES,
 	TRACE_BUCKETS,
@@ -53,6 +58,7 @@ import {
 	papersOf,
 	registerText,
 	labelSql,
+	labelKind,
 	BUILD_TAGS,
 	DOMAIN_TAGS,
 	tagsOf,
@@ -86,7 +92,7 @@ const BIND_CHUNK = 70;
  */
 const KNOWN_PARAMS = [
 	'age', 'alone', 'build', 'dates', 'demo', 'described', 'domain', 'dpiit', 'ids', 'kind', 'limit',
-	'noticed', 'programmes', 'q', 'sector', 'site', 'sort', 'source', 'state', 'status', 'subsector', 'tier',
+	'noticed', 'page', 'programmes', 'q', 'sector', 'site', 'sort', 'source', 'state', 'status', 'subsector', 'tier',
 	'traces', 'undated',
 ] as const;
 
@@ -167,10 +173,27 @@ function parseTierChoice(raw: string | null, fallback: TierChoice = 'ab'): TierC
 	return fallback;
 }
 
-/** The age gate is on unless asked otherwise, on the page and in the API alike. */
+/** The JSON API's age gate: on unless asked otherwise. A caller of the API has not asked for the page's list. */
 function parseAgeChoice(raw: string | null): AgeChoice {
 	return raw === 'all' ? 'all' : 'recent';
 }
+
+/**
+ * The page's age filter: off unless asked for. The page lists every record by default and
+ * "Started in the last 5 years" is a toggle (?age=recent). ?age=all, the old way to lift it, still works.
+ */
+function parsePageAge(raw: string | null): AgeChoice {
+	return raw === 'recent' ? 'recent' : 'all';
+}
+
+/** Which page of the list, from 1. Anything else is the first page. */
+function parsePage(raw: string | null): number {
+	const n = Number(raw);
+	return Number.isInteger(n) && n >= 1 && n <= 1000 ? n : 1;
+}
+
+/** Rows on one page of the list. */
+const PAGE_SIZE = 100;
 
 function parseLimit(raw: string | null): number | null {
 	if (raw === null || raw === '') return DEFAULT_LIMIT;
@@ -206,19 +229,17 @@ function parseDescribed(raw: string | null): DescribedState | null {
 }
 
 /**
- * The page's own reading of `described`: absent means the default half, the records a
- * sentence describes; 'all' lifts it. The JSON API keeps parseDescribed and no default,
- * because a caller asking for companies has not asked for this page's argument.
+ * The page's own reading of `described`: absent (or the old 'all') is every record; 'said' is the
+ * "Has a product description" toggle; the other states narrow further. The JSON API keeps
+ * parseDescribed and no default.
  */
 function parseDescribedChoice(raw: string | null): DescribedChoice | null {
-	if (raw === 'all') return null;
-	return raw && (DESCRIBED_CHOICES as readonly string[]).includes(raw) ? (raw as DescribedChoice) : 'said';
+	return raw && (DESCRIBED_CHOICES as readonly string[]).includes(raw) ? (raw as DescribedChoice) : null;
 }
 
-/** Companies by default; 'other' for research projects and unverified names; 'all' for both. */
+/** Every record by default; 'company' is the "Companies only" toggle; 'other' for research projects and unverified names. */
 function parseKind(raw: string | null): KindChoice | null {
-	if (raw === 'all') return null;
-	return raw === 'other' ? 'other' : 'company';
+	return raw === 'company' || raw === 'other' ? raw : null;
 }
 
 /** A shortlist's ids, as the shortlist export sends them: slugs only, at most 500. */
@@ -1233,7 +1254,7 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 	// 2026 the A+B default showed 5 of 395. The tier is still a filter, and a reason on the row.
 	const defaultTier: TierChoice = 'all';
 	const tier = parseTierChoice(url.searchParams.get('tier'), defaultTier);
-	const age = parseAgeChoice(url.searchParams.get('age'));
+	const age = parsePageAge(url.searchParams.get('age'));
 	const dates = parseDates(url.searchParams.get('dates'));
 
 	// A sub-sector outside the chosen sector can only come back empty, so the narrower choice
@@ -1263,8 +1284,8 @@ async function listView(url: URL, env: Env, now: Date, limit: number) {
 		noticedOnce: url.searchParams.get('noticed') === '1',
 		programmesAtLeast: ['2', '3'].includes(url.searchParams.get('programmes') ?? '') ? Number(url.searchParams.get('programmes')) : null,
 		alone: url.searchParams.get('alone') === '1',
-		// Struck off, dissolved or inactive in the government registry: out of the view unless asked for.
-		status: url.searchParams.get('status') === 'any' ? 'any' : 'active',
+		// Struck off, dissolved or inactive in the government registry: listed, with a badge, unless ?status=active.
+		status: url.searchParams.get('status') === 'active' ? 'active' : 'any',
 		tiers: TIER_SETS[tier],
 		dated: 'dated',
 		minOriginYear: age === 'all' ? null : minOriginYear(now),
@@ -1322,6 +1343,34 @@ async function nearestNames(env: Env, search: string): Promise<{ id: string; nam
 
 // --- GET /upstream ----------------------------------------------------------
 
+/** More than every record the database holds, so ordering a view never cuts it short. */
+const ORDER_ALL = 5000;
+
+/** Whose words say what a company builds, for a row that did not come from the database (the demo). */
+function saidStateOf(c: Company): OrderKey['said_state'] {
+	if (c.product && c.website_identity === 'verified') return 'own';
+	if (c.description && !labelKind(c.description)) return 'source';
+	return c.description ? 'label' : 'none';
+}
+
+/**
+ * The view as one numbered order. In the default order, records with a product description (from
+ * their own website or from a source) come first and records that are a name and a label follow;
+ * inside each group, fewest collected references first, and among equals a record a source dates
+ * comes before one no source dates, each in its SQL order (the newest source date first). Any
+ * other order keeps its SQL order, the dated records before the undated. The ranking itself
+ * (trace counts, tiers) is not touched: this only decides which of two already-ordered lists a row
+ * is drawn from next.
+ */
+function mergeOrder(dated: OrderKey[], undated: OrderKey[], sort: SortChoice): OrderKey[] {
+	const group = (k: OrderKey) => (k.said_state === 'own' || k.said_state === 'source' ? 0 : 1);
+	const all = [...dated.map((k, i) => ({ k, d: 0, i })), ...undated.map((k, i) => ({ k, d: 1, i }))];
+	all.sort((a, b) =>
+		sort === 'quietest' ? group(a.k) - group(b.k) || a.k.trace_count - b.k.trace_count || a.d - b.d || a.i - b.i : a.d - b.d || a.i - b.i,
+	);
+	return all.map((x) => x.k);
+}
+
 async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 	const now = new Date();
 	const view = await listView(url, env, now, DEFAULT_LIMIT);
@@ -1332,19 +1381,21 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 	// The methodology's aggregates (gaps, findings, register and website outcomes) are on /about.
 	const once = <T>(name: string, compute: () => Promise<T>) => memo(cache, name, compute);
 	const half = { described: ranked.described ?? null, kind: ranked.kind ?? null, dpiit: ranked.dpiit ?? null, tiers: ranked.tiers, dated: ranked.dated, age: ranked.minOriginYear, ids: ranked.ids ?? null };
-	const [coverage, companies, undated, buckets, sourceHealth, widgets, category] = await Promise.all([
+	const demoRows = demo ? splitDemo(demoCompanies(), now, age === 'recent') : null;
+	const keyOf = (c: Company): OrderKey => ({ id: c.id, said_state: saidStateOf(c), trace_count: c.trace_count, first_seen: c.first_seen });
+	const [coverage, datedKeys, undatedKeys, buckets, sourceHealth, widgets, category] = await Promise.all([
 		once('coverage', () => queryCoverage(env)),
 		dates === 'undated'
 			? Promise.resolve([])
-			: demo
-				? Promise.resolve(splitDemo(demoCompanies(), now).ranked)
-				: queryCompanies(env, ranked),
+			: demoRows
+				? Promise.resolve(demoRows.ranked.map(keyOf))
+				: queryOrder(env, { ...ranked, limit: ORDER_ALL }),
 		dates === 'dated'
 			? Promise.resolve([])
-			: demo
-				? Promise.resolve(splitDemo(demoCompanies(), now).undated)
-				: queryCompanies(env, unplaceable),
-		demo ? Promise.resolve(splitDemo(demoCompanies(), now).buckets) : queryBuckets(env, ranked),
+			: demoRows
+				? Promise.resolve(demoRows.undated.map(keyOf))
+				: queryOrder(env, { ...unplaceable, limit: ORDER_ALL }),
+		demoRows ? Promise.resolve(demoRows.buckets) : queryBuckets(env, ranked),
 		once('source-health', () => querySourceHealth(env)),
 		// The sample rows are not in the database, and widgets counting the database over
 		// them would describe a different page. The demo has none.
@@ -1354,6 +1405,19 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 			? Promise.resolve(null)
 			: once(`category:${JSON.stringify(half)}`, () => queryBuckets(env, { ...ranked, sector: null, subsector: null, search: null, source: null, site: null, state: null, traces: null, build: null, domain: null, programmesAtLeast: null, alone: false, noticedOnce: false, status: 'any' })),
 	]);
+	// One order over the whole view, then one page of it read in full.
+	const order = mergeOrder(datedKeys, undatedKeys, sort);
+	const pages = Math.max(1, Math.ceil(order.length / PAGE_SIZE));
+	const pageNo = Math.min(parsePage(url.searchParams.get('page')), pages);
+	const onPage = order.slice((pageNo - 1) * PAGE_SIZE, pageNo * PAGE_SIZE).map((k) => k.id);
+	const companies = demoRows
+		? (() => {
+				const byId = new Map([...demoRows.ranked, ...demoRows.undated].map((c) => [c.id, c]));
+				return onPage.map((id) => byId.get(id)!);
+			})()
+		: await queryRows(env, onPage);
+	const described = order.filter((k) => k.said_state === 'own' || k.said_state === 'source').length;
+
 	const ask = askMode(env);
 	// Only when the list came back empty: the same question over every record, so the empty
 	// state can offer the nearest thing that is not empty instead of reporting emptiness.
@@ -1370,7 +1434,12 @@ async function page(url: URL, env: Env, cache: EdgeCache): Promise<Response> {
 		suggestions,
 		coverage,
 		companies,
-		undated,
+		undated: [],
+		listed: order.length,
+		describedInView: described,
+		pageNo,
+		pages,
+		offset: (pageNo - 1) * PAGE_SIZE,
 		buckets,
 		tracked: coverage.total_companies,
 		sourceHealth,
@@ -1417,7 +1486,7 @@ async function aboutPage(url: URL, env: Env, cache: EdgeCache): Promise<Response
 	const now = new Date();
 	const weekAgo = isoDate(new Date(now.getTime() - 7 * 86_400_000));
 	const once = <T>(name: string, compute: () => Promise<T>) => memo(cache, name, compute);
-	const [coverage, gaps, discoveredThisWeek, register, products, sourceHealth, findings, enrichment] = await Promise.all([
+	const [coverage, gaps, discoveredThisWeek, register, products, sourceHealth, findings, enrichment, sourceCounts] = await Promise.all([
 		once('coverage', () => queryCoverage(env)),
 		once('gaps', () => queryGaps(env)),
 		once(`discovered:${weekAgo}`, () => queryDiscoveredSince(env, weekAgo)),
@@ -1426,9 +1495,11 @@ async function aboutPage(url: URL, env: Env, cache: EdgeCache): Promise<Response
 		once('source-health', () => querySourceHealth(env)),
 		once('findings', () => queryFindings(env)),
 		once(`enrichment:${minOriginYear(now)}`, () => queryEnrichmentSummary(env, minOriginYear(now))),
+		once('source-counts', () => querySourceCounts(env)),
 	]);
 	const html = renderAboutPage({
 		enrichment,
+		sourceCounts,
 		coverage,
 		gaps,
 		// The two tables are disjoint — a company is a row or a hole, never both —
@@ -1519,7 +1590,8 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 	const now = new Date();
 	// A file is for taking away, so it is capped higher than the page renders. That is
 	// the one way the two differ, and it differs by giving more rather than less.
-	const view = await listView(url, env, now, MAX_LIMIT);
+	// Every row the view matches, not a page of them: the file is for taking away.
+	const view = await listView(url, env, now, ORDER_ALL);
 
 	// The page is two lists — the ranking, and the companies no source will date — and
 	// "export this view" has to mean both of them when both are on screen, under the
@@ -1528,7 +1600,10 @@ async function exportCsv(url: URL, env: Env): Promise<Response> {
 		view.wantRanked ? queryCompanies(env, view.ranked) : Promise.resolve([]),
 		view.wantUndated ? queryCompanies(env, view.undated) : Promise.resolve([]),
 	]);
-	const companies = [...ranked, ...undatedRows];
+	// In the page's order, every page of it at once.
+	const byId = new Map([...ranked, ...undatedRows].map((c) => [c.id, c]));
+	const keyOf = (c: Company): OrderKey => ({ id: c.id, said_state: saidStateOf(c), trace_count: c.trace_count, first_seen: c.first_seen });
+	const companies = mergeOrder(ranked.map(keyOf), undatedRows.map(keyOf), view.ranked.sort).map((k) => byId.get(k.id)!);
 
 	const origin = `${url.origin}${BASE}`;
 	const rows = companies.map((c) =>

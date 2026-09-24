@@ -6,7 +6,8 @@
  * The only JavaScript on the page submits the filter form on change. Everything works
  * without it: the filters are a GET form and every coverage cell is a link.
  */
-import { SNAPSHOT, SNAPSHOT_TERMS } from './snapshot';
+import { SNAPSHOT } from './snapshot';
+import { OVERRIDES } from './overrides';
 import { SECTOR_GROUPS, SUBSECTOR_BY_ID, SUNRISE_SECTORS } from './taxonomy';
 import { daysSince, earliestEvent, MAX_AGE_YEARS, type Tier } from './rank';
 import {
@@ -27,7 +28,6 @@ import {
 	type DescribedState,
 	labelKind,
 	TRACE_BUCKETS,
-	DESCRIBED_STATES,
 	DPIIT_STATUS_PHRASES,
 	papersOf,
 	registerText,
@@ -60,10 +60,18 @@ export type AgeChoice = 'recent' | 'all';
 
 export interface PageView {
 	coverage: Coverage;
-	/** The ranked list: dated, and recent enough to clear the age gate. */
+	/** The rows on this page of the list, in the list's one order (see mergeOrder in src/index.ts). */
 	companies: Company[];
-	/** Companies no source will place in time. Listed below the ranking, never inside it. */
+	/** No longer drawn as a section of its own: undated rows are in `companies`, in order. Kept for the demo and old callers. */
 	undated: Company[];
+	/** How many rows the whole view holds, across every page. Defaults to the rows given. */
+	listed?: number;
+	/** Of `listed`, how many have a product description (their own website's or a source's). */
+	describedInView?: number;
+	/** Which page this is, from 1, of how many, and how many rows come before it. */
+	pageNo?: number;
+	pages?: number;
+	offset?: number;
 	buckets: Buckets;
 	/** The ones that reached a cell on the coverage map. */
 	tracked: number;
@@ -76,9 +84,9 @@ export interface PageView {
 	/** The state the list is filtered to, 'unknown', or null. */
 	state: string | null;
 	traces: TraceBucket | null;
-	/** 'said' by default: the list shows what a sentence describes. null is every record. */
+	/** null by default, every record; 'said' when "Has a product description" is on. */
 	described: DescribedChoice | null;
-	/** 'company' by default; 'other' for projects and unverified names; null for both. */
+	/** null by default, every record; 'company' when "Companies only" is on; 'other' for projects and unverified names. */
 	kind: KindChoice | null;
 	/** A register status the list is filtered to, or null. */
 	dpiit: string | null;
@@ -92,7 +100,7 @@ export interface PageView {
 	/** '2' or '3' when narrowed to companies in at least that many public programmes; alone '1' for no other trace. */
 	programmes?: string | null;
 	alone?: string | null;
-	/** 'active' (the default) leaves out companies the registry lists as struck off or closed; 'any' keeps them. */
+	/** 'any' (the default) lists companies the registry lists as struck off or closed, with a badge; 'active' leaves them out. */
 	status?: 'active' | 'any';
 	/** This site's origin, for the absolute links a copied brief carries. */
 	origin: string;
@@ -143,6 +151,8 @@ export interface AboutView {
 	discoveredThisWeek: number;
 	/** The registry and website enrichment: its method and counts, or null when none is loaded. */
 	enrichment?: EnrichmentSummary | null;
+	/** Records on the list per source, by source id. */
+	sourceCounts?: Record<string, number>;
 	now: Date;
 }
 
@@ -273,74 +283,6 @@ function sectorIcon(id: string): string {
 // --- pieces -----------------------------------------------------------------
 
 /**
- * The funnel, in the masthead, in the order it happens.
- *
- * "Companies tracked" used to head this on its own, and it counted only the ones
- * a classifier could fit into an RDI sub-sector — 702 of 1,545. Everywhere else
- * this page refuses to let anything disappear quietly: 843 off-map companies are
- * listed under the name of the hole they fell through, undated companies get
- * their own section, empty cells are left visibly empty. A headline number that
- * silently meant "the placed subset" was the one place that broke the rule.
- *
- * So both numbers, adjacent, and the drop between them legible without scrolling.
- * The drop is not an embarrassment to be smoothed over — it is the argument.
- */
-/**
- * What happened to the ones that did not make the map, split by whose fault it is.
- *
- * The first draft of this line said all 843 were "what the taxonomy had no room
- * for". 147 of them were nothing of the kind — they were companies whose only
- * published description was a name and a dropdown industry. Claiming those as a
- * finding about the RDI scheme overstates the critique and hides the admission.
- */
-/**
- * What the map does not show, said under the map instead of above the list.
- *
- * This used to head the page, where it explained the pipeline to someone who did not
- * yet know what the pipeline was for. The arithmetic still has to be stated somewhere
- * and stated in full — a headline number that quietly means "the subset that fitted"
- * is the one thing this page must never do — so it sits with the map it is about, and
- * still links down to the sections that hold the companies it is counting.
- */
-function funnelNote(view: AboutView): string {
-	const { gaps, found, tracked } = view;
-	if (gaps.total === 0) return '';
-	const parts: string[] = [];
-	if (gaps.taxonomy.total > 0) {
-		parts.push(`<a href="#off-map">${gaps.taxonomy.total}</a> were not mapped to any sub-sector under the current taxonomy and classifier`);
-	}
-	if (gaps.undescribed.total > 0) {
-		parts.push(`<a href="#undescribed">${gaps.undescribed.total}</a> we could not describe well enough to place`);
-	}
-	return `<p class="funnel-note">${found} companies have reached this pipeline and ${tracked} are on the RDI coverage map.
-    Of the ${gaps.total} that are not, ${parts.join(', and ')}.</p>`;
-}
-
-/**
- * How current each source is, one line, per source.
- *
- * A single "updated today" would let one healthy scraper vouch for four. DPIIT is the
- * largest source here and the reviewer found its site answering 403; if that happens
- * the page must say the DPIIT rows are as old as the last run that worked, not let the
- * other three sources' fresh dates stand in for it.
- */
-function freshness(view: AboutView): string {
-	if (view.sourceHealth.length === 0) return '';
-	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
-	const parts = view.sourceHealth.map((h) => {
-		const name = esc(SOURCE_LABELS[h.source] ?? h.source);
-		// The data's own date or none. The day a run succeeded is not it: the grants list
-		// was read from a file this morning and its newest award is from 2025, and falling
-		// back to the run date printed "Government grants 14 Sep 2026".
-		const asOf = h.data_as_of ? day(h.data_as_of) : 'date unknown';
-		if (h.last_status === 'ok') return `${name} ${asOf}`;
-		const what = h.last_status === 'failed' ? 'failed' : 'returned too little and was set aside';
-		return `${name} <strong>${what} on ${day(h.last_attempt)}</strong>${h.last_success ? `, showing ${asOf}` : ', nothing shown from it yet'}`;
-	});
-	return `<p class="freshness">Data as of: ${parts.join(' &middot; ')}.</p>`;
-}
-
-/**
  * The three breakdowns that sit beside the RDI map: technology type, application and source.
  *
  * Each row is a count of the records in view under every other filter (leaving out the
@@ -402,7 +344,7 @@ function panels(view: PageView): string {
 			'p-sources',
 			'Sources',
 			`Records in view come from <strong>${w.sources.filter((src) => src.n > 0).length}</strong> sources${
-				failing ? `; ${failing} did not answer on the last run, and their rows stand from the run before` : ''
+				failing ? `. ${failing} failed their last check, so their records are from the last check that worked` : ''
 			}. A company two sources list counts under both.`,
 		)}
     <ul class="brows">
@@ -452,122 +394,13 @@ function askBox(view: PageView): string {
     <label id="ask-h" for="ask-q">Ask the records</label>
     <div class="ask-bar">
       <input type="text" id="ask-q" name="question" maxlength="300" required autocomplete="off"
-        placeholder="e.g. Which Energy Storage companies have one public trace?">
+        placeholder="e.g. Which Energy Storage companies have one collected reference?">
       <button type="submit">Ask</button>
     </div>
-    <p class="ask-note">Answered from this list&rsquo;s records through a filtered query, never from a model&rsquo;s own
+    <p class="ask-note">Answered from this list&#39;s records through a filtered query, never from a model&#39;s own
       knowledge, and every answer shows what it rests on. Questions are logged; no address is stored.</p>
     <div class="ask-out" id="ask-out" aria-live="polite"></div>
   </form>
-</section>`;
-}
-
-/**
- * Placements of register companies by their DPIIT industry, from one classifier run.
- * Dated, and kept here once, because the run is not repeated nightly: the label rule
- * written the same day stopped label-only guesses, so these counts can only be read
- * off that run's log, not recounted from today's rows.
- */
-const CROSSWALK = { run: '14 September 2026', robotics: [79, 80], ai: [7, 83], vision: [3, 87] } as const;
-
-/**
- * Recognition across every register record read, which the database does not keep for
- * the records that never reached a row. Counted from the cached register pages.
- */
-const REGISTER_READ = { through: '14 September', profile: 345, read: 966 } as const;
-
-/** Where a finding sends a reader: every tier and age, so the rows behind the number are on screen. */
-function everyRow(params: Record<string, string | null>): string {
-	return `${BASE_PATH}${query({ tier: 'all', age: 'all', ...params })}#list`;
-}
-
-const PREFERRED_EMPTY = ['1.7', '1.15', '2.4'];
-
-function pct(n: number, of: number): number {
-	return of ? Math.round((n / of) * 100) : 0;
-}
-
-/** A gap group's name as a reader would write it: "enterprise ai" is "enterprise AI". */
-function holeName(missing: string): string {
-	return missing.replace(/\bai\b/g, 'AI').replace(/\biot\b/g, 'IoT').replace(/\bev\b/g, 'EV');
-}
-
-/**
- * What the records show about Indian deep-tech sourcing, with the number and the link
- * that proves each one. Written as findings about the sources, not caveats about this
- * page: that the register describes almost no one is true of the register, and it is
- * the reason a list like this one has to be built at all.
- *
- * Every number but the crosswalk is counted live from the same tables as the sections it
- * links to. A finding whose count has fallen to nothing is left out rather than printed
- * as "0 of 0".
- */
-function findingsSection(view: AboutView): string {
-	const f = view.findings;
-	if (!f) return '';
-	const items: string[] = [];
-
-	// The finding this project exists for: a quality signal read from public records alone.
-	if (f.programmes.twoPlus > 0) {
-		const programmeLink = `${BASE_PATH}${query({ programmes: '2', age: 'all' })}#list`;
-		const aloneLink = `${BASE_PATH}${query({ programmes: '2', alone: '1', age: 'all' })}#list`;
-		items.push(`<li class="finding-lead"><strong><a href="${esc(programmeLink)}">${f.programmes.twoPlus} companies</a> here have been selected into two or more public support programmes. <a href="${esc(aloneLink)}">${f.programmes.alone} of them</a> have no other public trace: no website of their own, and no press.</strong>
-      The programmes are incubation, DPIIT recognition, BIRAC, DST, MeitY, TDB and iDEX; ${f.programmes.three} companies are in three or more. They are counted, not ranked, and they are not all independent: an incubator often runs a scheme&rsquo;s selection. Counting only organisations that each published their own decision, ${f.programmes.orgs} companies have two or more.</li>`);
-	}
-
-	// What the scatter would have shown, said instead: its trace axis had one value for most rows.
-	if (f.noticed.companies > 0 && f.noticed.once > 0) {
-		const share = pct(f.noticed.once, f.noticed.companies);
-		items.push(`<li><strong>Most companies here have been noticed by exactly one outside source.</strong>
-      <a href="${esc(`${BASE_PATH}${query({ noticed: '1', age: 'all' })}#list`)}">${f.noticed.once} of the ${f.noticed.companies} (${share}%)</a> that say what they
-      build appear in one list other than their own website &mdash; usually the listing that brought them here.</li>`);
-	}
-
-	const silent = f.register.total - f.register.described;
-	if (f.register.total > 0) {
-		items.push(`<li><strong>The register that sees Indian startups first describes almost none of them.</strong> Of the
-      ${f.register.total} newest deep-tech entries we read from DPIIT&rsquo;s Startup India register,
-      <a href="#register">${silent} (${pct(silent, f.register.total)}%)</a> have no sentence anywhere public about what the
-      company builds &mdash; a name, a city and a dropdown industry is the whole record.</li>`);
-	}
-
-	const [rn, rd] = CROSSWALK.robotics;
-	items.push(`<li><strong>India&rsquo;s two official deep-tech vocabularies barely meet.</strong> Of the startups DPIIT files
-      under &ldquo;Robotics&rdquo;, <a href="#crosswalk">${rn} of ${rd} (${pct(rn, rd)}%)</a> found a matching RDI sub-sector
-      &mdash; but only ${CROSSWALK.ai[0]} of ${CROSSWALK.ai[1]} under &ldquo;AI&rdquo; (${pct(CROSSWALK.ai[0], CROSSWALK.ai[1])}%) and
-      ${CROSSWALK.vision[0]} of ${CROSSWALK.vision[1]} under &ldquo;Computer Vision&rdquo; (${pct(CROSSWALK.vision[0], CROSSWALK.vision[1])}%), as one classifier maps the labels.</li>`);
-
-	const emptyCells = view.coverage.sectors.flatMap((g) => g.subsectors).filter((c) => c.n === 0);
-	const named = [
-		...PREFERRED_EMPTY.map((id) => emptyCells.find((c) => c.subsector_id === id)).filter((c): c is (typeof emptyCells)[number] => Boolean(c)),
-		...emptyCells.filter((c) => !PREFERRED_EMPTY.includes(c.subsector_id)),
-	].slice(0, 3);
-	if (f.described.unmapped > 0) {
-		const holes = f.described.holes.map((h) => `&ldquo;${esc(holeName(h.missing))}&rdquo;`);
-		const lead = holes.length > 1 ? `${holes.slice(0, -1).join(', ')} and ${holes[holes.length - 1]} lead` : holes.length ? `${holes[0]} leads` : '';
-		const cells = named.map((c) => esc(c.subsector.toLowerCase()).replace(/ r&amp;d$/, ' R&amp;D'));
-		items.push(`<li><strong>Where startups do describe themselves, the RDI scheme often has no place for them.</strong>
-      <a href="#off-map">${f.described.unmapped} of ${f.described.total} described records (${pct(f.described.unmapped, f.described.total)}%)</a>
-      fit none of its ${view.coverage.subsector_count} sub-sectors${lead ? ` &mdash; ${lead} &mdash;` : ''}${
-				emptyCells.length
-					? ` while <a href="${esc(`${BASE_PATH}#coverage`)}">${emptyCells.length} sub-sectors</a>${cells.length ? `, including ${cells.length > 1 ? `${cells.slice(0, -1).join(', ')} and ${cells[cells.length - 1]}` : cells[0]},` : ''} have no company at all`
-					: ''
-			}.</li>`);
-	}
-
-	if (f.recognition.withStatus > 0) {
-		items.push(`<li><strong>Being on the register is not being recognised.</strong>
-      <a href="${esc(everyRow({ dpiit: 'profile', described: 'all', kind: 'all' }))}">${f.recognition.profile} of the ${f.recognition.withStatus} register entries on this list (${pct(f.recognition.profile, f.recognition.withStatus)}%)</a>
-      have a Startup India profile but no DPIIT recognition number &mdash; and ${REGISTER_READ.profile} of the ${REGISTER_READ.read}
-      entries read by ${REGISTER_READ.through} (${pct(REGISTER_READ.profile, REGISTER_READ.read)}%).</li>`);
-	}
-
-	return `
-<section class="findings" aria-labelledby="findings-h">
-  <h2 id="findings-h">What the records show</h2>
-  <ol class="finding-list">
-    ${items.join('\n    ')}
-  </ol>
 </section>`;
 }
 
@@ -610,35 +443,13 @@ function header(view: PageView): string {
 	return `
 <header class="intro">
   <p class="eyebrow">Deep-tech sourcing for investors</p>
-  <h1>Find Indian deep-tech companies worth your next research call.</h1>
-  <p class="lede">Upstream lists Indian deep-tech companies found in incubator, grant and startup-register records, and puts the least-documented first: one incubator listing and no website ranks above a known name with a press cycle. A list ranked by funding, press or pedigree shows every fund the same companies at the same moment; ranking by how little is public shows the ones those lists haven&rsquo;t reached, which is an argument about where to look, not a tested claim about which are good.</p>
-  ${coverageLine(view)}
+  <h1>Young Indian deep-tech companies, least-known first</h1>
+  <div class="lede">
+    <p>Upstream is a free list of young Indian deep-tech companies, gathered every day from public records: incubator portfolios at places like IIT Bombay and IIT Madras, government grant lists, and the government&#39;s startup register.</p>
+    <p>Most lists rank companies by funding or press coverage, so every investor ends up looking at the same names. Upstream shows the least-known companies first. A company with one incubator listing and no website comes before one that has been in the news. That tells you where to start looking. It can&#39;t tell you which companies are good. That still takes a conversation with the founder.</p>
+  </div>
   <p class="since" id="since" hidden></p>
 </header>`;
-}
-
-/**
- * How much is here and how current it is, in one line. Only the discovery sources are counted,
- * and a source whose last run failed is said to have failed rather than hidden behind the others'
- * fresh dates. Records, not companies: the total includes research projects and unverified names.
- */
-function coverageLine(view: PageView): string {
-	if (view.tracked === 0 || view.demo) return '';
-	const health = view.sourceHealth.filter((h) => (SOURCES as readonly string[]).includes(h.source));
-	const latest = health.map((h) => h.last_success ?? '').sort().pop();
-	const failing = health.filter((h) => h.last_status !== 'ok').length;
-	// "records from 8 public sources" asserts that all eight put records here, and on 17 September
-	// one of them (NM-ICPS) had contributed none. How many sources are read is a fact about the
-	// pipeline; how many earned a row is a different number, and it is on the methodology page
-	// rather than guessed at from the filtered counts this view happens to hold.
-	// The counts are the frozen set, with their date, so the number a reader quotes is the one the
-	// README and the methodology page quote; the live count moves every night. "Last checked"
-	// beside it is the live part, and says so by being a date.
-	const s = SNAPSHOT;
-	const parts = [`<strong>${s.placed}</strong> records &middot; ${s.sourcesConfigured} sources, ${s.sourcesContributing} contributing, as of ${esc(s.date)}`];
-	if (latest) parts.push(`sources last checked ${shortDate(latest.slice(0, 10))}${failing ? ` (${failing} failed ${failing === 1 ? 'its' : 'their'} last check)` : ''}`);
-	parts.push(`<a href="${esc(`${BASE_PATH}/about`)}">How the data is collected</a>`);
-	return `<p class="coverage-line">${parts.join(' &middot; ')}</p>`;
 }
 
 /** Sub-sectors offered as a first click, in order, where the records hold any. */
@@ -676,10 +487,9 @@ function coverageMap(view: PageView): string {
 	const inView = view.widgets?.subsectors ?? null;
 	const allCells = coverage.sectors.flatMap((g) => g.subsectors);
 	const empty = allCells.filter((c) => c.n === 0);
-	// One line: how many cells are empty, what an empty cell does and does not mean, and what a click does.
-	const claim = empty.length
-		? `<strong>${empty.length} of the ${coverage.subsector_count}</strong> sub-sectors are empty (dashed): a gap in what these sources reach, not proof nobody builds there. Click a cell to filter.`
-		: `All ${coverage.subsector_count} sub-sectors have at least one company. Click a cell to filter.`;
+	// What is there, counted: empty cells stay dashed on the map and are not dwelt on here.
+	const covered = allCells.length - empty.length;
+	const claim = `${covered} of the government&#39;s ${coverage.subsector_count} R&amp;D sub-sectors have at least one company here. Click any cell to see its companies.`;
 
 	const sectors = coverage.sectors
 		.map((group) => {
@@ -690,11 +500,11 @@ function coverageMap(view: PageView): string {
 					// Clicking the active cell clears the filter, so the map is a toggle.
 					const href = `${query(viewParams(view, { subsector: active ? null : cell.subsector_id, sector: null }))}#list`;
 					const classes = ['cell', cell.n === 0 ? 'empty' : n > 0 ? 'filled' : 'zero', active ? 'active' : ''].filter(Boolean).join(' ');
-					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} &mdash; ${esc(cell.subsector)}: ${n}${cell.n === 0 ? ', a coverage gap: none in any record' : ''}"${
+					return `<a class="${classes}" href="${esc(href)}" title="${esc(cell.subsector_id)} ${esc(cell.subsector)}: ${cell.n === 0 ? 'No company found in these sources yet.' : n}"${
 						active ? ' aria-current="true"' : ''
 					}>
         <span class="cell-head"><span class="cell-id">${esc(cell.subsector_id)}</span><span class="cell-n">${n}</span></span>
-        <span class="cell-name">${esc(cell.subsector)}</span>${cell.n === 0 ? '<span class="visually-hidden"> (coverage gap)</span>' : ''}
+        <span class="cell-name">${esc(cell.subsector)}</span>${cell.n === 0 ? '<span class="visually-hidden"> (no company found in these sources yet)</span>' : ''}
       </a>`;
 				})
 				.join('\n');
@@ -715,7 +525,7 @@ ${cells}
 	return `
 <section class="coverage" id="coverage" aria-labelledby="coverage-h">
   <div class="panel-head">
-    <h2 id="coverage-h">Explore by sector <span class="panel-kicker">RDI classification</span></h2>
+    <h2 id="coverage-h">Explore by sector <span class="panel-kicker">the government&#39;s R&amp;D sub-sectors</span></h2>
     <p class="panel-meta">${claim}</p>
   </div>
   <div class="sectors">
@@ -741,21 +551,21 @@ function viewParams(view: PageView, overrides: Record<string, string | null> = {
 		site: view.site,
 		state: view.state,
 		traces: view.traces,
-		// Written only when they leave the default, so the default view has one spelling.
-		described: view.described === 'said' ? null : (view.described ?? 'all'),
-		kind: view.kind === 'company' ? null : (view.kind ?? 'all'),
+		// Written only when they leave the default (every record), so the default view has one spelling.
+		described: view.described,
+		kind: view.kind,
 		dpiit: view.dpiit,
 		build: view.build,
 		domain: view.domain,
 		noticed: view.noticed ?? null,
 		programmes: view.programmes ?? null,
 		alone: view.alone ?? null,
-		status: view.status === 'any' ? 'any' : null,
+		status: view.status === 'active' ? 'active' : null,
 		ids: view.ids?.length ? view.ids.join(',') : null,
 		sort: view.sort === 'quietest' || view.sort === 'obscurity' ? null : view.sort,
 		dates: view.dates === 'both' ? null : view.dates,
 		tier: view.tier === view.defaultTier ? null : view.tier,
-		age: view.age === 'recent' ? null : view.age,
+		age: view.age === 'recent' ? 'recent' : null,
 		...overrides,
 	};
 }
@@ -767,13 +577,13 @@ const SOURCE_LABELS: Record<string, string> = {
 	// portfolio (its own title says so); the id stays, the name is corrected.
 	'rtbi-iitm': 'IIT Madras Incubation Cell',
 	'grants-csv': 'Government grants',
-	'dpiit-startup-india': 'DPIIT register',
+	'dpiit-startup-india': 'Government startup register (DPIIT)',
 	'venture-center': 'Venture Center',
-	'nmicps-tih': 'NM-ICPS innovation hubs',
+	'nmicps-tih': 'Government technology hubs (NM-ICPS)',
 	'fsid-iisc': 'FSID, IISc',
 	'tides-iitr': 'TIDES, IIT Roorkee',
 	'nsa-dpiit': 'National Startup Awards',
-	'birac-big': 'BIRAC BIG',
+	'birac-big': 'BIRAC biotech grants (BIG)',
 	'tdb-agreements': 'Technology Development Board',
 	'idex': 'iDEX',
 };
@@ -801,7 +611,6 @@ const SORT_NOTES: Record<SortChoice, string> = {
 const TIER_LABELS: Record<TierChoice, string> = { a: 'A only', ab: 'A + B', all: 'Any' };
 const DATES_LABELS: Record<PageView['dates'], string> = { both: 'Any', dated: 'With a source date', undated: 'No source date' };
 const SITE_LABELS: Record<SiteState, string> = { has: 'Has a website', none: 'No website listed' };
-const AGE_LABELS: Record<AgeChoice, string> = { recent: `Last ${MAX_AGE_YEARS} years`, all: 'Any' };
 const TRACE_LABELS: Record<TraceBucket, string> = { '1': 'One or none', '2': 'Two', '3+': 'Three or more' };
 const DESCRIBED_LABELS: Record<DescribedChoice, string> = {
 	said: 'Has a product description',
@@ -827,7 +636,7 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 	const shortlist = Boolean(view.ids?.length);
 	const named: Array<[string, string | null]> = [
 		['ids', shortlist ? `Your shortlist (${view.ids!.length})` : null],
-		['q', view.search ? `Search: “${view.search}”` : null],
+		['q', view.search ? `Search: "${view.search}"` : null],
 		['sector', view.sector ? `Sector: ${sector?.sector ?? view.sector}` : null],
 		['subsector', view.subsector ? `Sub-sector: ${sub?.subsector ?? view.subsector}` : null],
 		['tier', view.tier !== view.defaultTier ? `Rank tier: ${TIER_LABELS[view.tier]}` : null],
@@ -836,19 +645,16 @@ function activeFilters(view: PageView): Array<{ key: string; label: string; href
 		['site', view.site ? `Website: ${SITE_LABELS[view.site].toLowerCase()}` : null],
 		['state', view.state ? `Location: ${view.state === 'unknown' ? 'unknown' : view.state}` : null],
 		['traces', view.traces ? `Collected references: ${TRACE_LABELS[view.traces].toLowerCase()}` : null],
-		[
-			'described',
-			view.described === 'said' || (shortlist && !view.described) ? null : `Product description: ${view.described ? DESCRIBED_LABELS[view.described].toLowerCase() : 'any'}`,
-		],
-		['kind', view.kind === 'company' || (shortlist && !view.kind) ? null : `Showing: ${view.kind ? KIND_LABELS[view.kind].toLowerCase() : 'companies, projects and unverified names'}`],
+		['described', view.described === 'said' ? 'Has a product description' : view.described ? `Product description: ${DESCRIBED_LABELS[view.described].toLowerCase()}` : null],
+		['kind', view.kind === 'company' ? 'Companies only' : view.kind ? `Showing: ${KIND_LABELS[view.kind].toLowerCase()}` : null],
 		['dpiit', view.dpiit ? `DPIIT: ${DPIIT_STATUS_PHRASES[view.dpiit] ?? view.dpiit}` : null],
 		['programmes', view.programmes ? `Public programmes: ${view.programmes} or more` : null],
 		['alone', view.alone ? 'No website or press' : null],
-		['status', view.status === 'any' ? 'Status: any, struck off included' : null],
+		['status', view.status === 'active' ? 'Struck-off companies hidden' : null],
 		['noticed', view.noticed ? 'Referenced by: one outside source' : null],
 		['build', view.build ? `Technology type: ${view.build}` : null],
 		['domain', view.domain ? `Application: ${view.domain}` : null],
-		['age', view.age === 'recent' || shortlist ? null : 'Started: any year'],
+		['age', view.age === 'recent' ? `Started in the last ${MAX_AGE_YEARS} years` : null],
 	];
 	return named
 		.filter((entry): entry is [string, string] => entry[1] !== null)
@@ -881,97 +687,79 @@ function chips(view: PageView): string {
  * shows those records. Built from the same buckets as the list, so the parts add up: shown +
  * hidden by filters + held back by age or tier + outside this view = every record.
  */
-/** Under the count: how much of it the page lists, and the order it is in. */
+/** Under the count: which rows this page shows, and the order they are in. */
 function sortNote(view: PageView): string {
-	const { total, onPage } = listing(view);
-	const showing = onPage < total ? `Showing 1&ndash;${onPage} of ${total}; narrow the search or filters to see the rest. ` : '';
+	const { total, from, onPage } = listing(view);
+	const showing = onPage < total ? `Showing ${from} to ${from + onPage - 1} of ${total}. ` : '';
 	return `${showing}${SORT_NOTES[view.sort]}`;
+}
+
+/** Small counts as words, the way a sentence says them. */
+function numberWord(n: number): string {
+	return ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][n] ?? String(n);
 }
 
 function resultLine(view: PageView): string {
 	const b = view.buckets;
 	// The demo rows are not the database, so they account for themselves.
 	const universe = view.demo ? b.total : Math.max(view.category, b.total);
-	const outside = view.demo ? 0 : view.tracked - universe;
-	// The undated rows continue the same list, so they count in what it shows.
 	const { total: shown } = listing(view);
 	const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 	const noun = view.kind === 'company' ? plural(shown, 'company', 'companies') : plural(shown, 'record', 'records');
 	const parts: string[] = [];
 
-	// Struck off or closed in the registry is said on its own, not folded into "hidden by filters".
+	// What the filters leave out, each a link that takes its filters away.
 	const byFilters = universe - b.total - b.struck;
 	if (byFilters > 0) {
 		const keep = viewParams(view);
-		const cleared = `${BASE_PATH}${query({ sort: keep.sort, tier: keep.tier, age: keep.age, described: keep.described, kind: keep.kind, dpiit: keep.dpiit })}#list`;
-		parts.push(
-			`<a href="${esc(cleared)}" title="Records the search, sector, sub-sector, source, website or location filters leave out. Follow to remove those filters.">${byFilters} hidden by filters</a>`,
-		);
+		const cleared = `${BASE_PATH}${query({ sort: keep.sort, tier: keep.tier, age: keep.age, described: keep.described, kind: keep.kind, dpiit: keep.dpiit, status: keep.status })}#list`;
+		parts.push(`<a href="${esc(cleared)}" title="Records the search, sector, source, website or location filters leave out. Follow to remove those filters.">${byFilters} hidden by filters</a>`);
 	}
-
-	const held = view.dates === 'undated' ? 0 : b.older + b.tierHidden;
-	const minYearOf = (v: PageView) => v.now.getUTCFullYear() - MAX_AGE_YEARS;
-	if (held > 0) {
-		const why: string[] = [];
-		if (b.older > 0) why.push(`${b.older} started more than ${MAX_AGE_YEARS} years ago and ${plural(b.older, 'is', 'are')} held back by the age filter`);
-		if (b.tierHidden > 0) {
-			const outsideTier = view.tier === 'a' ? 'Tier B or C' : 'Tier C';
-			const showing = view.tier === 'a' ? 'Tier A' : 'Tier A and B';
-			why.push(`${b.tierHidden} ${plural(b.tierHidden, 'is', 'are')} ${outsideTier}, and the list is showing ${showing}`);
-		}
-		const everything = `${BASE_PATH}${query(viewParams(view, { tier: 'all', age: 'all', dates: null }))}#list`;
-		// Those a government registry date put outside the window are counted on their own, below.
-		const bySources = b.older - b.olderRegistry;
-		const heldHere = bySources + b.tierHidden;
-		const label = b.tierHidden === 0 ? `${bySources} started over ${MAX_AGE_YEARS} years ago` : bySources === 0 ? `${b.tierHidden} outside the tier shown` : `${heldHere} held back by age or tier`;
-		if (heldHere > 0) parts.push(`<a href="${esc(everything)}" title="${esc(why.join('; '))}. Follow to show them.">${label}</a>`);
+	const anyYear = `${BASE_PATH}${query(viewParams(view, { age: null }))}#list`;
+	// Those a government registry date put outside the window are counted on their own.
+	const bySources = b.older - b.olderRegistry;
+	if (view.dates !== 'undated' && bySources > 0) {
+		parts.push(`<a href="${esc(anyYear)}" title="Started more than ${MAX_AGE_YEARS} years ago, by the year a source gives. Follow to include them.">${bySources} started more than ${MAX_AGE_YEARS} years ago</a>`);
 	}
 	if (b.olderRegistry > 0) {
-		const anyYear = `${BASE_PATH}${query(viewParams(view, { age: 'all' }))}#list`;
-		parts.push(
-			`<a href="${esc(anyYear)}" title="Registered before ${minYearOf(view)} according to the government registry record Upstream looked up. Follow to include them.">${b.olderRegistry} started before ${minYearOf(view)}, by government registry date</a>`,
-		);
+		const minYear = view.now.getUTCFullYear() - MAX_AGE_YEARS;
+		parts.push(`<a href="${esc(anyYear)}" title="Registered before ${minYear} according to the government registry record Upstream looked up. Follow to include them.">${b.olderRegistry} started before ${minYear}, by government registry date</a>`);
+	}
+	if (b.tierHidden > 0) {
+		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { tier: null }))}#list`)}" title="In a tier the tier filter leaves out. Follow to include them.">${b.tierHidden} outside the tier shown</a>`);
 	}
 	if (b.struck > 0) {
-		const any = `${BASE_PATH}${query(viewParams(view, { status: 'any' }))}#list`;
-		parts.push(`<a href="${esc(any)}" title="Listed as struck off, dissolved or inactive in the government registry. Follow to include them.">${b.struck} closed or struck off in the registry</a>`);
+		const any = `${BASE_PATH}${query(viewParams(view, { status: null }))}#list`;
+		parts.push(`<a href="${esc(any)}" title="Listed as struck off, dissolved or inactive in the government registry. Follow to include them.">${b.struck} struck off or closed</a>`);
 	}
-
-	if (view.dates === 'dated' && b.undated > 0) {
-		parts.push(`<a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#undated`)}" title="Records no source dates. Follow to list them after the dated ones.">${b.undated} undated, hidden</a>`);
-	} else if (view.dates !== 'undated' && b.undated > 0) {
-		parts.push(`<a href="#undated" title="Records no source dates, so no tier can be claimed for them. Listed after the dated ones.">${b.undated} of them undated</a>`);
-	}
-
+	const outside = view.demo ? 0 : view.tracked - universe;
 	if (outside > 0) {
-		const everything = `${BASE_PATH}${query(viewParams(view, { described: 'all', kind: 'all', dpiit: null }))}#list`;
-		parts.push(
-			`<a href="${esc(everything)}" title="Records outside this view: by default, those with no product description, and research projects and unverified names. Follow to include them.">${outside} outside this view</a>`,
-		);
+		const everything = `${BASE_PATH}${query(viewParams(view, { described: null, kind: null, dpiit: null }))}#list`;
+		parts.push(`<a href="${esc(everything)}" title="Records the product description or companies-only toggles leave out. Follow to include them.">${outside} left out by the toggles</a>`);
 	}
 
-	const what = view.dates === 'undated' ? 'undated' : 'in the list';
-	// The rules the default view applies, said as the query applies them.
-	const rules: string[] = [];
-	if (view.described === 'said') rules.push('a product description, from the company&rsquo;s own website or from a source');
-	if (view.kind === 'company') rules.push('a company on record, not a research project or an unverified name');
-	if (view.age === 'recent' && view.dates !== 'undated') {
-		rules.push(`a founding or programme year in the last ${MAX_AGE_YEARS} years, or a date from a public register that cannot be checked against that rule`);
-	}
-	const unknownAge = view.buckets.unknownAge;
+	const described = view.describedInView ?? view.companies.filter((c) => buildsLine(c).described).length;
+	const nameOnly = shown - described;
+	const everyRecord = shown === view.tracked || view.demo;
+	const quietest = view.sort === 'quietest' || view.sort === 'obscurity';
+	const opening = everyRecord ? `Showing all ${shown} records.` : `Showing ${shown} of ${view.tracked} records.`;
+	const split = [
+		described > 0 ? `${described} ${plural(described, 'has', 'have')} a product description, from the company&#39;s own website or from the source that lists it.` : '',
+		nameOnly > 0 ? `${nameOnly} ${plural(nameOnly, 'is', 'are')} a name and a register entry only${quietest && described > 0 ? ', listed after the rest' : ''}.` : '',
+	].filter(Boolean);
 	return `<div class="result-head" id="result-line">
       <p class="result-line"><strong>${shown}</strong> ${noun} ${view.dates === 'undated' ? 'with no source date ' : ''}${plural(shown, 'matches', 'match')}<span class="marks-line" hidden></span></p>
       <details class="about-results" id="about-results">
         <summary>About these results</summary>
         <div class="about-results-body">
-          <p class="result-parts"><strong>${shown}</strong> ${what} of ${universe}${parts.length ? ` &middot; ${parts.join(' &middot; ')}` : ''}</p>
-          ${rules.length ? `<p>By default the list shows records with ${rules.join('; ')}.</p>` : ''}
-          ${b.undated > 0 && view.dates === 'both' && b.ranked > 0 ? `<p>Records with a source date come first, in this order; the ${b.undated} with no source date follow in the same order.</p>` : ''}
-          ${unknownAge > 0 ? `<p>${unknownAge} of these ${unknownAge === 1 ? 'is' : 'are'} dated by a public register rather than by a founding year &mdash; the DPIIT register dates its own record of a company, not when the company started. The ${MAX_AGE_YEARS}-year filter cannot be applied to ${unknownAge === 1 ? 'it' : 'them'}.</p>` : ''}
-          <p>The date on each row is the date a source gives for its own record &mdash; a listing, a register entry, a grant &mdash; not a founding date.</p>
-          <p>A collected reference is one public record of the company that Upstream reads: an incubator listing, a grant or award, a DPIIT register record, press, or a website that answered. It measures how much Upstream has collected, not the company&rsquo;s quality.</p>
-          <p>Counts cover the sources Upstream reads. A sector with no results means no record in current coverage, not that no such companies exist. <a href="${esc(`${BASE_PATH}/about`)}">How the data is collected</a></p>
-          <p class="device-note" id="device-note" hidden></p>
+          <p>${opening} ${split.join(' ')} Use the filters above to narrow to companies started in the last five years, or to hide research projects and unverified names.</p>
+          ${parts.length ? `<p class="result-parts">Not shown: ${parts.join(' &middot; ')}.</p>` : ''}
+          <p>${quietest ? 'Within each group, records are ordered by how little is public about them: the fewest collected references first.' : SORT_NOTES[view.sort]}</p>
+          <p>A collected reference is one public record of the company that Upstream reads: an incubator listing, a grant or award, a startup-register entry, press coverage, or the company&#39;s own website. More references means more is already public about the company. It says nothing about how good the company is.</p>
+          <p>The date on each row is the date the source gives for its own record, such as an incubator listing or a grant. Where we found the company&#39;s government registration date, the row shows that instead and says so.</p>
+          ${view.age === 'recent' && b.unknownAge > 0 ? `<p>${b.unknownAge} of these ${plural(b.unknownAge, 'is', 'are')} dated only by a public register, which gives the date of its own record and not when the company started. The five-year filter can&#39;t be applied to ${plural(b.unknownAge, 'it', 'them')}, so ${plural(b.unknownAge, 'it stays', 'they stay')} in.</p>` : ''}
+          <p>Upstream reads ${numberWord(SOURCES.length)} public sources. If a sector has few companies here, those sources may simply not reach it. <a href="${esc(`${BASE_PATH}/about`)}">How the data is collected &rarr;</a></p>
+          <p class="device-note" id="device-note">Your shortlist and &quot;seen&quot; marks are saved in this browser only.</p>
         </div>
       </details>
     </div>`;
@@ -1001,23 +789,32 @@ function controls(view: PageView): string {
 		.join('');
 	const buildOptions = [option('', 'Any', view.build ?? '')].concat(BUILD_TAGS.map((t) => option(t, cap(t), view.build ?? ''))).join('');
 	const domainOptions = [option('', 'Any', view.domain ?? '')].concat(DOMAIN_TAGS.map((t) => option(t, cap(t), view.domain ?? ''))).join('');
-	const ageOptions = (Object.keys(AGE_LABELS) as AgeChoice[]).map((v) => option(v, AGE_LABELS[v], age)).join('');
 
 	const sourceOptions = [option('', 'Any', source ?? '')].concat(SOURCES.map((id) => option(id, SOURCE_LABELS[id] ?? id, source ?? ''))).join('');
 	const siteOptions = [option('', 'Any', site ?? ''), option('has', SITE_LABELS.has, site ?? ''), option('none', SITE_LABELS.none, site ?? '')].join('');
-	const describedNow = view.described === 'said' ? '' : (view.described ?? 'all');
-	const describedOptions = [option('', DESCRIBED_LABELS.said, describedNow)]
-		.concat(DESCRIBED_STATES.map((v) => option(v, DESCRIBED_LABELS[v], describedNow)))
-		.concat([option('unsaid', DESCRIBED_LABELS.unsaid, describedNow), option('all', 'Any', describedNow)])
-		.join('');
 	const traceOptions = [option('', 'Any', view.traces ?? '')].concat(TRACE_BUCKETS.map((v) => option(v, TRACE_LABELS[v], view.traces ?? ''))).join('');
 	const datesOptions = (Object.keys(DATES_LABELS) as Array<PageView['dates']>).map((v) => option(v, DATES_LABELS[v], dates)).join('');
 	// Any first, like every other select; the tiers after it, narrowest last.
 	const tierOptions = (['all', 'ab', 'a'] as TierChoice[]).map((v) => option(v, TIER_LABELS[v], tier)).join('');
 
 	// The count on "More filters" is the filters inside it, and any of them keeps it open.
-	const statusOptions = [option('', 'Active or unknown', view.status === 'any' ? 'any' : ''), option('any', 'Any', view.status === 'any' ? 'any' : '')].join('');
-	const inside = new Set(['source', 'site', 'described', 'traces', 'dates', 'tier', 'status']);
+	const statusOptions = [option('', 'Any', view.status === 'active' ? 'active' : ''), option('active', 'Active or unknown', view.status === 'active' ? 'active' : '')].join('');
+	const inside = new Set(['source', 'site', 'traces', 'dates', 'tier', 'status']);
+
+	// The three toggles, all off by default: the list starts with every record. A narrower choice
+	// made by a link (?described=own, ?kind=other) is kept as a hidden field, and its toggle rests.
+	const toggle = (name: string, value: string, current: string | null, label: string) => {
+		const other = current !== null && current !== value;
+		return `<label class="toggle${other ? ' toggle-rest' : ''}"><input type="checkbox" name="${other ? '' : name}" value="${esc(value)}"${current === value ? ' checked' : ''}${other ? ' disabled' : ''}> ${label}</label>${
+			other ? `<input type="hidden" name="${name}" value="${esc(current!)}">` : ''
+		}`;
+	};
+	const toggles = `<fieldset class="toggles" id="toggles">
+    <legend class="visually-hidden">Narrow the list</legend>
+    ${toggle('age', 'recent', age === 'recent' ? 'recent' : null, `Started in the last ${MAX_AGE_YEARS} years`)}
+    ${toggle('kind', 'company', view.kind, 'Companies only <span class="toggle-note">(hide research projects and unverified names)</span>')}
+    ${toggle('described', 'said', view.described, 'Has a product description')}
+  </fieldset>`;
 	const count = activeFilters(view).filter((f) => inside.has(f.key)).length;
 
 	const field = (id: string, label: string, options: string, hint?: string) =>
@@ -1042,14 +839,13 @@ function controls(view: PageView): string {
     ${field('subsector', 'Sub-sector', subsectorOptions)}
     ${field('build', 'Technology type', buildOptions)}
     ${field('domain', 'Application', domainOptions, 'matched on words in the description')}
-    ${field('age', 'Started', ageOptions)}
   </div>
+  ${toggles}
   <details class="more-filters" id="more-filters"${count ? ' open' : ''}>
     <summary>More filters<span class="filter-count" id="filter-count">${count ? ` (${count})` : ''}</span></summary>
     <div class="filter-grid">
       ${field('source', 'Source', sourceOptions)}
       ${field('site', 'Website', siteOptions)}
-      ${field('described', 'Product description', describedOptions)}
       ${field('traces', 'Collected references', traceOptions)}
       ${field('dates', 'Source date', datesOptions)}
       ${field('tier', 'Rank tier', tierOptions, '<a href="' + esc(`${BASE_PATH}/about#method-h`) + '">How tiers are set</a>')}
@@ -1057,7 +853,6 @@ function controls(view: PageView): string {
     </div>
   </details>
   <input type="hidden" id="state" name="state" value="${esc(view.state ?? '')}">
-  <input type="hidden" name="kind" value="${esc(viewParams(view).kind ?? '')}">
   <input type="hidden" name="dpiit" value="${esc(view.dpiit ?? '')}">
   <input type="hidden" name="noticed" value="${esc(view.noticed ?? '')}">
   <input type="hidden" name="programmes" value="${esc(view.programmes ?? '')}">
@@ -1108,7 +903,7 @@ const TRACE_WORDS: [type: string, one: string, many: string][] = [
 	['incubator', 'an incubator listing', 'incubator listings'],
 	['grant', 'a grant', 'grants'],
 	['award', 'an award', 'awards'],
-	['dpiit', 'a DPIIT register record', 'DPIIT register records'],
+	['dpiit', 'a startup-register entry (DPIIT)', 'startup-register entries (DPIIT)'],
 	['press', 'a press mention', 'press mentions'],
 	['website', 'a live website', 'live websites'],
 ];
@@ -1132,14 +927,36 @@ export function traceShape(company: Pick<Company, 'signals'>): string {
 
 /** Said beside the name of anything that is not, on the record, a company. */
 const ENTITY_LABELS: Record<string, string> = {
-	'researcher-project': 'a researcher&rsquo;s project, not a company',
-	lab: 'a lab, not a company',
+	'researcher-project': 'a researcher&#39;s project with no company formed',
+	lab: 'a laboratory, with no company on record',
 	unverified: 'no company on record',
 };
 
-function entityTag(company: Company): string {
-	const label = company.entity_type ? ENTITY_LABELS[company.entity_type] : undefined;
-	return label ? ` <span class="entity-tag">${label}</span>` : '';
+/** The badge a row carries for what it is on record, where that is not a company. */
+const ENTITY_BADGES: Record<string, string> = { 'researcher-project': 'research project', lab: 'lab', unverified: 'unverified name' };
+
+/** The year a company started, as the "Started" filter reads it: the registry's year, else the sources' earliest. */
+function startedYear(company: Company): number | null {
+	if (company.enrich_registered_year) return company.enrich_registered_year;
+	const years = [company.origin_year, company.founded_year].filter((y): y is number => typeof y === 'number');
+	return years.length ? Math.min(...years) : null;
+}
+
+/**
+ * Small plain-words badges for what the toggles would hide: not a company, no product description,
+ * started more than five years ago, struck off in the registry. The list shows every record, so
+ * each row says for itself what a narrower list would have left out.
+ */
+function rowBadges(company: Company, now: Date, quoted: boolean): string {
+	const out: string[] = [];
+	const entity = company.entity_type ? ENTITY_BADGES[company.entity_type] : undefined;
+	if (entity) out.push(entity);
+	// A row showing the company's own quote is not "name only", whatever the sources gave.
+	if (!buildsLine(company).described && !quoted) out.push('name only');
+	const started = startedYear(company);
+	if (started !== null && started < now.getUTCFullYear() - MAX_AGE_YEARS) out.push(`started ${started}`);
+	if (company.enrich_status && (STRUCK_STATUSES as readonly string[]).includes(company.enrich_status)) out.push(STRUCK_WORDS[company.enrich_status] ?? 'struck off');
+	return out.map((b) => ` <span class="badge">${esc(b)}</span>`).join('');
 }
 
 /**
@@ -1153,13 +970,13 @@ function tagLine(company: Company): string {
 	if ((company.build_tags === null && company.domain_tags === null) || !(describedBySource(company) || (company.product && company.website_identity === 'verified'))) return '';
 	const link = (key: 'build' | 'domain', tag: string) => `<a href="${esc(`${BASE_PATH}${query({ [key]: tag })}`)}#list">${esc(tag)}</a>`;
 	if (!builds.length && !domains.length) {
-		return '<p class="provenance tags">By keyword: no tag. Nothing in its description matched the words the tags are read from.</p>';
+		return '<p class="provenance tags">Keywords: none. Nothing in its description matched the words the tags look for.</p>';
 	}
 	const parts = [
 		builds.length ? `builds ${builds.map((t) => link('build', t)).join(', ')}` : null,
 		domains.length ? `used in ${domains.map((t) => link('domain', t)).join(', ')}` : null,
 	].filter(Boolean);
-	return `<p class="provenance tags">By keyword: ${parts.join('; ')}. Matched from the words of its description, not checked.</p>`;
+	return `<p class="provenance tags">Keywords: ${parts.join('; ')}. These are matched on words in its description. Nobody has checked them.</p>`;
 }
 
 /**
@@ -1171,8 +988,8 @@ function whyOnList(company: Company): string {
 	const who = names.length ? `${names.slice(0, 2).join(' and ')}${names.length > 2 ? ` and ${names.length - 2} more` : ''} ${names.length === 1 ? 'lists' : 'list'} it` : 'a source lists it';
 	const n = company.trace_count;
 	const shape = traceShape(company);
-	const traces = n === 0 ? 'Upstream has collected no reference to it' : `Upstream has collected ${referenceCount(n)}${shape ? ` (${shape})` : ''}`;
-	return `It is here because ${who}, and ${traces}; the default order puts those with the fewest first.`;
+	const traces = n === 0 ? 'Upstream has collected no reference to it' : `Upstream has collected ${n === 1 ? '1 reference' : `${n} references`} to it${shape ? ` (${shape})` : ''}`;
+	return `It is here because ${who}. ${traces}, and the default order puts the records with the fewest first.`;
 }
 
 /** What a sub-sector placement rests on, in three words, for beside the placement. */
@@ -1191,13 +1008,13 @@ const LABEL_WORDS = {
 	register: {
 		tag: 'register label only',
 		one: "a register's dropdown label",
-		excerpt: 'A register&rsquo;s dropdown choices, not a description.',
+		excerpt: 'These are choices from the register&#39;s dropdown menus. They don&#39;t describe the company.',
 		placed: "a register's industry label, picked by the founder from a fixed list",
 	},
 	grant: {
 		tag: 'grant category only',
 		one: 'the category a grant list filed its award under',
-		excerpt: 'The category a grant list filed the award under, one of six, not a description.',
+		excerpt: 'This is the category the grant list filed the award under, one of six. It doesn&#39;t describe the company.',
 		placed: 'the category a grant list filed its award under, one of six',
 	},
 } as const;
@@ -1302,6 +1119,7 @@ function companyRow(company: Company, now: Date, origin: string, position: numbe
 		!found.described && company.enrich_quote && quoteSource
 			? { ...found, html: `<p class="builds quoted"><q data-source="company">${esc(company.enrich_quote)}</q> <a class="from-site" href="${esc(quoteSource)}" rel="noopener nofollow">(from their site)</a></p>` }
 			: found;
+	const quoted = builds !== found;
 	const dated = company.first_seen !== null;
 	const site = company.website_identity === 'discovered' ? null : safeUrl(company.website);
 	const siteState = site ? (company.website_identity === 'verified' ? 'verified' : 'unconfirmed') : company.website_checked ? 'none' : 'unknown';
@@ -1320,13 +1138,19 @@ function companyRow(company: Company, now: Date, origin: string, position: numbe
 
 	// What put it here, with a link to each source, and the date said as what it is.
 	const trail = traceTrail(company);
-	const when = eventPhrase(company);
+	// The government registry's date, where the enrichment found one, in place of the source's, and said to be the registry's.
+	const registered = company.enrich_registered_on
+		? `registered ${monthYear(company.enrich_registered_on)} (government registry)`
+		: company.enrich_registered_year
+			? `registered ${company.enrich_registered_year} (government registry)`
+			: null;
+	const when = registered ?? eventPhrase(company);
 	const evidence = [
 		`<span class="f-listed">${trail ? `Listed by ${trail}` : '<span class="none">No collected reference</span>'}</span>`,
 		builds.attrib ? `<span class="f-attrib">${builds.attrib}</span>` : '',
 		// Selected into two or more public programmes: counted, never ranked, named on its page.
 		company.programme_count >= 2 ? `<span class="f-prog" title="${esc(tagsOf(company.programmes).join(', '))}">${company.programme_count} public programmes</span>` : '',
-		`<span class="f-age${dated ? '' : ' undated'}">${esc(when ?? 'no source dates it')}</span>`,
+		`<span class="f-age${dated || registered ? '' : ' undated'}">${esc(when ?? 'no source dates it')}</span>`,
 	].filter(Boolean);
 
 	const state = [builds.described ? 'described' : 'undescribed', dated ? 'dated' : 'undated', `site-${siteState}`].join(' ');
@@ -1335,7 +1159,7 @@ function companyRow(company: Company, now: Date, origin: string, position: numbe
 	return `
   <li class="company ${state}" id="c-${esc(company.id)}" data-id="${esc(company.id)}" data-added="${esc((company.discovered ?? '').slice(0, 10))}">
     <div class="row-main">
-      <h3><span class="row-n" aria-hidden="true">${position}</span><a href="${esc(href)}">${esc(company.name)}</a>${entityTag(company)}</h3>
+      <h3><span class="row-n" aria-hidden="true">${position}</span><a href="${esc(href)}">${esc(company.name)}</a>${rowBadges(company, now, quoted)}</h3>
       ${builds.html}
       ${context.length ? `<p class="context-row">${context.join('')}</p>` : ''}
       <p class="trail evidence-row">${evidence.join('')}</p>
@@ -1403,22 +1227,31 @@ function traceName(signal: Signal, dpiitStatus: string | null): string | null {
 }
 
 /**
- * What the page lists, as one numbered order: the dated rows first, then the undated ones in
- * the same order. The count, the "showing" line and the row numbers are all read from this, so
- * they cannot disagree.
- *
- * Each half is fetched up to a limit. When the dated half is cut short, the undated rows would
- * not follow on from the last one shown, so they are not listed: the page shows 1 to N of the
- * whole and says how to reach the rest, rather than two runs with a hole between them.
+ * What the page lists, as one numbered order across every page: the count, the "showing" line,
+ * the row numbers and the pager are all read from this, so they cannot disagree.
  */
-function listing(view: PageView): { total: number; ranked: number; undated: number; onPage: number; undatedHeld: boolean } {
-	const b = view.buckets;
-	const total = view.dates === 'undated' ? b.undated : view.dates === 'dated' ? b.ranked : b.ranked + b.undated;
-	const ranked = view.dates === 'undated' ? 0 : view.companies.length;
-	const rankedCut = view.dates !== 'undated' && view.companies.length < b.ranked;
-	const undatedHeld = view.dates === 'both' && rankedCut && b.undated > 0;
-	const undated = view.dates === 'dated' || undatedHeld ? 0 : view.undated.length;
-	return { total, ranked, undated, onPage: ranked + undated, undatedHeld };
+function listing(view: PageView): { total: number; from: number; onPage: number; pageNo: number; pages: number } {
+	return {
+		total: view.listed ?? view.companies.length + view.undated.length,
+		from: (view.offset ?? 0) + 1,
+		onPage: view.companies.length,
+		pageNo: view.pageNo ?? 1,
+		pages: view.pages ?? 1,
+	};
+}
+
+/** Previous, the page numbers and next, as plain links that keep every filter. */
+function pager(view: PageView): string {
+	const { pageNo, pages, total, from, onPage } = listing(view);
+	if (pages <= 1) return '';
+	const href = (n: number) => `${BASE_PATH}${query({ ...viewParams(view), page: n > 1 ? String(n) : null })}#list`;
+	const link = (n: number, label: string, rel = '') =>
+		`<a class="pager-link${n === pageNo ? ' current' : ''}" href="${esc(href(n))}"${rel ? ` rel="${rel}"` : ''}${n === pageNo ? ' aria-current="page"' : ''}>${label}</a>`;
+	const numbers = Array.from({ length: pages }, (_, i) => link(i + 1, String(i + 1))).join(' ');
+	return `<nav class="pager" aria-label="Pages of results">
+    <p class="pager-where">Showing ${from} to ${from + onPage - 1} of ${total}</p>
+    <p class="pager-links">${pageNo > 1 ? link(pageNo - 1, '&larr; Previous', 'prev') : ''} ${numbers} ${pageNo < pages ? link(pageNo + 1, 'Next &rarr;', 'next') : ''}</p>
+  </nav>`;
 }
 
 /**
@@ -1431,9 +1264,9 @@ function backfillNote(view: PageView): string {
 	// explain until there is something to explain.
 	// Retired 15 Sep 2026: the list now opens on every tier by default, so there is no widening to explain.
 	if (!view.backfillOnly || view.tracked === 0 || view.defaultTier === 'all') return '';
-	return `<p class="note">Too few companies here qualify for Tier A or B today, so the list is showing every tier. Those tiers take a
-    company we watched arrive, recently, in a source we were already reading, with few public traces &mdash; and with
-    more than a register&rsquo;s dropdown label to say what it does. A new source&rsquo;s first read never qualifies.</p>`;
+	return `<p class="note">Too few companies qualify for Tier A or B today, so the list shows every tier. Those tiers need a
+    company a daily run found recently, in a source already being read, with few references and more than a register&#39;s
+    dropdown label to say what it does. A new source&#39;s first read never qualifies.</p>`;
 }
 
 /**
@@ -1447,20 +1280,20 @@ function emptyResult(view: PageView): string {
 		const group = view.coverage.sectors.find((g) => g.subsectors.includes(cell));
 		const near = (group?.subsectors ?? []).filter((c) => c.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
 		return `<div class="empty">
-    <p>No record anywhere is in ${esc(cell.subsector_id)} ${esc(cell.subsector)} yet &mdash; a gap in what the sources list, not in your filters.</p>
+    <p>No company found in these sources yet for ${esc(cell.subsector_id)} ${esc(cell.subsector)}. Your filters aren&#39;t the reason. Nearby sub-sectors that have companies:</p>
     ${near.length ? `<ul class="ways">${near.map((c) => `<li><a href="${esc(`${BASE_PATH}${query(viewParams(view, { subsector: c.subsector_id }))}#list`)}">${esc(c.subsector_id)} ${esc(c.subsector)} (${c.n})</a></li>`).join('')}</ul>` : ''}
   </div>`;
 	}
 	const asked = view.search
-		? `No company in this view has &ldquo;${esc(view.search)}&rdquo; in its name or in what it builds.`
-		: 'No company in this view matches every filter you have set.';
+		? `No record here has "${esc(view.search)}" in its name or in what it builds.`
+		: 'No record matches every filter you have set.';
 	const ways: string[] = [];
 	if (view.wider) {
-		const everywhere = `${BASE_PATH}${query(viewParams(view, { described: 'all', kind: 'all', tier: 'all', age: 'all', dates: null, dpiit: null }))}#list`;
-		ways.push(`<a href="${esc(everywhere)}">${view.wider} ${view.wider === 1 ? 'record matches' : 'records match'} outside this view &mdash; show ${view.wider === 1 ? 'it' : 'them'}</a>`);
+		const everywhere = `${BASE_PATH}${query(viewParams(view, { described: null, kind: null, tier: null, age: null, dates: null, dpiit: null, status: null }))}#list`;
+		ways.push(`<a href="${esc(everywhere)}">Show the ${view.wider} ${view.wider === 1 ? 'record that matches' : 'records that match'} once the toggles are off</a>`);
 	}
-	for (const s of view.suggestions ?? []) ways.push(`Did you mean <a href="${esc(`${BASE_PATH}${query(viewParams(view, { q: s.name, described: 'all', kind: 'all', tier: 'all', age: 'all' }))}#list`)}">${esc(s.name)}</a>?`);
-	for (const f of activeFilters(view)) ways.push(`<a href="${esc(f.href)}">Without &ldquo;${esc(f.label)}&rdquo;</a>`);
+	for (const s of view.suggestions ?? []) ways.push(`Did you mean <a href="${esc(`${BASE_PATH}${query(viewParams(view, { q: s.name, described: null, kind: null, tier: null, age: null, status: null }))}#list`)}">${esc(s.name)}</a>?`);
+	for (const f of activeFilters(view)) ways.push(`<a href="${esc(f.href)}">Remove the filter: ${esc(f.label)}</a>`);
 	return `<div class="empty">
     <p>${asked}</p>
     ${ways.length ? `<ul class="ways">${ways.map((w) => `<li>${w}</li>`).join('')}</ul>` : ''}
@@ -1474,14 +1307,13 @@ function list(view: PageView): string {
 		// "Nothing matches" only when nothing does. A search whose one hit is undated
 		// has a result, and saying otherwise above it is the page contradicting itself —
 		// as is an empty list that does not say where its matches went.
-		const undatedHere = view.dates !== 'dated' ? view.buckets.undated : 0;
 		const empty =
 			view.buckets.total > 0
-				? undatedHere > 0
-					? `<p class="empty">No dated match. <a href="#undated">${undatedHere} ${undatedHere === 1 ? 'match no source dates is' : 'matches no source dates are'} listed just below</a>.</p>`
+				? view.dates === 'dated' && view.buckets.undated > 0
+					? `<p class="empty">No match has a source date. <a href="${esc(`${BASE_PATH}${query(viewParams(view, { dates: null }))}#list`)}">${view.buckets.undated} ${view.buckets.undated === 1 ? 'match has' : 'matches have'} no source date. Show ${view.buckets.undated === 1 ? 'it' : 'them'}</a>.</p>`
 					: ''
 				: view.tracked === 0
-					? '<p class="empty">Nothing matches yet. The ingest has not put anything here.</p>'
+					? '<p class="empty">Nothing here yet. The daily collection hasn&#39;t added any records.</p>'
 					: emptyResult(view);
 		return `
 <section class="list" id="list" aria-labelledby="list-h">
@@ -1492,8 +1324,8 @@ function list(view: PageView): string {
 	}
 
 	const banner = demo
-		? `<p class="demo-banner"><strong>Sample data.</strong> These companies are invented, so the layout can be
-      checked before real data lands. The numbers above and the coverage map are the real, and currently empty, database.</p>`
+		? `<p class="demo-banner"><strong>Sample data.</strong> These companies are made up, so the layout can be
+      checked before real data arrives. The numbers above and the sector map come from the real database, which is empty.</p>`
 		: '';
 
 	return `
@@ -1501,367 +1333,19 @@ function list(view: PageView): string {
   <h2 id="list-h" class="visually-hidden">Results <span class="count">${listing(view).total}</span></h2>
   ${banner}
   ${backfillNote(view)}
-  <ol class="companies">
-${companies.map((company, i) => companyRow(company, now, view.origin, i + 1)).join('\n')}
+  <ol class="companies" start="${listing(view).from}">
+${companies.map((company, i) => companyRow(company, now, view.origin, listing(view).from + i)).join('\n')}
   </ol>
+  ${pager(view)}
 </section>`;
 }
 
 /**
- * Companies with no date from any source. They sit below the ranking rather than
- * inside it: a tier is a claim about time, and we have nothing to make one with.
- * Visible, counted, and not pretending to be recent.
+ * Undated rows used to be a section of their own under the list. They are in the one order now,
+ * after the dated rows with as few references, so the slot the list script swaps stays empty.
  */
-function undatedList(view: PageView): string {
-	const { undated, buckets, now } = view;
-	const n = buckets.undated;
-	const shown = listing(view);
-	if (shown.undatedHeld) {
-		// The dated half was cut short, so these would not follow on from the last row shown.
-		const only = `${BASE_PATH}${query(viewParams(view, { dates: 'undated' }))}#list`;
-		return `
-<section class="list undated-list" id="undated" aria-labelledby="undated-h">
-  <h2 id="undated-h">No source date <span class="count">${n}</span></h2>
-  <p class="note">These ${n} come after the ${buckets.ranked} dated records in the same order, past the ${shown.ranked} listed above.
-    <a href="${esc(only)}">List only the ${n} with no source date</a>, or narrow the search or filters.</p>
-</section>`;
-	}
-	if (undated.length === 0) return '';
-	// Numbered on from the dated rows: one list, in one order.
-	const from = shown.ranked + 1;
-	return `
-<section class="list undated-list" id="undated" aria-labelledby="undated-h">
-  <h2 id="undated-h">No source date <span class="count">${n}</span></h2>
-  <p class="note">The same order, continued. No source gives a date for anything about these records, so none is dated here.</p>
-  <ol class="companies" start="${from}">
-${undated.map((company, i) => companyRow(company, now, view.origin, from + i)).join('\n')}
-  </ol>
-</section>`;
-}
-
-/**
- * The companies we read, understood, and could not file.
- *
- * They are not a failure to report — they are the most specific thing this page
- * knows about the map it is drawn on. A coverage map that only showed what fit
- * would be measuring its own taxonomy rather than the country.
- */
-function gapList(groups: { missing: string; n: number; examples: string[] }[]): string {
-	return groups
-		.map(
-			(group) => `    <li>
-      <span class="gap-n">${group.n}</span>
-      <span class="gap-name">${esc(group.missing)}</span>
-      ${group.examples.length > 0 ? `<span class="gap-eg">${esc(group.examples.join(', '))}</span>` : ''}
-    </li>`,
-		)
-		.join('\n');
-}
-
-function offMap(view: AboutView): string {
-	const { gaps } = view;
-	if (gaps.total === 0) return '';
-
-	// Two sections, because they are two findings and only one of them is about
-	// the taxonomy. Lumped together, the larger — companies we could not describe
-	// — sat inside a heading that called it a hole in the RDI scheme. It is not.
-	// It is a fact about what our sources publish, and it reads as an admission
-	// rather than a critique, which is the honest way round.
-	const taxonomy =
-		gaps.taxonomy.total === 0
-			? ''
-			: `
-<section class="list off-map" id="off-map" aria-labelledby="off-map-h">
-  <h2 id="off-map-h">Unmapped under the current taxonomy and classifier <span class="count">${gaps.taxonomy.total}</span></h2>
-  <p class="note">The classifier put these in a sector and then found no sub-sector in it that covers what they
-    describe. Rather than stretch each one into the nearest cell &mdash; which would put a wrong tag on the map above
-    &mdash; they are kept here under the name of what it said was missing. That can mean the RDI taxonomy has no cell
-    for the work. It can also mean a company spans two cells and a classifier allowed one label could not choose, or
-    that the classifier was wrong. None of these has been reviewed by hand, so read the groups as places to look for
-    gaps in the taxonomy, not as proof of them.</p>
-  <ul class="gap-groups">
-${gapList(gaps.taxonomy.groups)}
-  </ul>
-</section>`;
-
-	const undescribed =
-		gaps.undescribed.total === 0
-			? ''
-			: `
-<section class="list off-map" id="undescribed" aria-labelledby="undescribed-h">
-  <h2 id="undescribed-h">Companies we could not describe well enough to place <span class="count">${gaps.undescribed.total}</span></h2>
-  <p class="note">Nothing here says anything about the taxonomy, and nothing is known to be wrong with these companies.
-    Most arrived from the DPIIT register, where the only published facts are a name and an industry picked from a
-    dropdown &mdash; not enough to say what the company does, and so not enough to place it. This is a limit of what
-    our sources publish, and counting it as a gap in the RDI scheme would be blaming the scheme for our own blind spot.</p>
-  <ul class="gap-groups">
-${gapList(gaps.undescribed.groups)}
-  </ul>
-</section>`;
-
-	return `${taxonomy}${undescribed}`;
-}
-
-/**
- * The register's companies, split by why each one did or did not place.
- *
- * This used to be one hand-written sentence — "sixty-one per cent of register
- * companies were placed in no sub-sector at all" — and it was true. It was also
- * two findings in one figure, pointing opposite ways: one says the RDI taxonomy
- * has no cell for what these companies build, the other says DPIIT published a
- * name and a dropdown label and we would not guess from that. Reported whole,
- * the second hides inside the first and reads as our shortcoming. It is not; it
- * is the more interesting half, and it is about the register.
- *
- * Counted rather than written down, so it cannot quietly stop being true — which
- * is exactly what the hand-written version did.
- */
-function registerSplit(view: AboutView): string {
-	const { register } = view;
-	if (register.total === 0) return '';
-
-	const unplaced = register.taxonomyGap + register.undescribed;
-	// Rounded once, here, so the prose cannot disagree with the numbers beside it.
-	const share = Math.round((register.undescribed / register.total) * 100);
-
-	const taxonomy =
-		register.taxonomyGap === 0
-			? ''
-			: `
-  <p><strong>${register.taxonomyGap}</strong> are unplaced because the classifier found
-    <a href="#off-map">no sub-sector under the current taxonomy</a> for what they build. Some of that will be the
-    scheme's boundary &mdash; a vocabulary written for five sunrise sectors &mdash; and some a classifier allowed one
-    label per company, or simply wrong. Nobody has reviewed them by hand to say which.</p>`;
-
-	const undescribed =
-		register.undescribed === 0
-			? ''
-			: `
-  <p><strong>${register.undescribed}</strong> are unplaced because
-    <a href="#undescribed">the register never said what they do</a>. The DPIIT register publishes a company name and
-    an industry the founder picked from a dropdown, and for these ${register.undescribed} that is the entire public
-    record. Enough to know they exist; nothing like enough to say what they build. They are left unplaced rather than
-    guessed at.</p>
-  <p>This is the more interesting half. Of the ${register.total} records we took from the register, ${share}&nbsp;per&nbsp;cent
-    are described too thinly for anyone to tell what they are &mdash; not too thinly for us in particular, too thinly
-    for anyone reading them. That is a finding about those records, and only those: they are the newest few pages of
-    each deep-tech industry filter, not a sample of the 473,000 companies the register holds, and nothing here says
-    how the rest are described.</p>`;
-
-	return `
-  <p id="register">Of the ${register.total} companies read from the register, ${register.placed} reached a sub-sector and
-    ${unplaced} did not. Reported whole, that second number says two different things at once, so it is split here.</p>${taxonomy}${undescribed}`;
-}
-
-/**
- * What came of reading company websites, including every way it did not work.
- *
- * The reason this is a paragraph and not a marker on every row: seventy rows each
- * saying "we could not read this one" is noise, and one sentence saying how many
- * publish an address that no longer answers is a finding. It is the same decision
- * the off-map companies got — group the absence, count it, name it.
- *
- * Every number is counted from the same database the rows come from. The temptation
- * here is to print only the successes; a column that appears on a fifth of the rows
- * and says nothing about the other four fifths is exactly the kind of quiet gap this
- * page exists to refuse.
- */
-function productNote(view: AboutView): string {
-	const p = view.products;
-	if (p.total === 0) return '';
-
-	const failures: string[] = [];
-	if (p.unreachable > 0) failures.push(`<strong>${p.unreachable}</strong> publish an address that no longer answers`);
-	if (p.refused > 0) failures.push(`<strong>${p.refused}</strong> refused an automated reader`);
-	if (p.thin > 0) failures.push(`<strong>${p.thin}</strong> served a page with no readable text on it`);
-	if (p.unclear > 0) failures.push(`<strong>${p.unclear}</strong> never said what they make`);
-	if (p.unverified > 0)
-		failures.push(`<strong>${p.unverified}</strong> answered but could not be confirmed as the company&rsquo;s own site, so were not read`);
-
-	const read = `Of the ${p.total} companies here, ${p.withSite} publish a website. Before reading one we check it is
-    theirs &mdash; that the company&rsquo;s own source record gives it, that no other record gives the same address, and
-    that their name is in the domain or on the page. A working address proves nothing about whose it is.${
-			p.notTheirs > 0 ? ` <strong>${p.notTheirs}</strong> addresses failed that and are not linked as anyone&rsquo;s website.` : ''
-		} <strong>${p.described}</strong> of them say plainly enough what they build for it to be worth quoting, and
-    that sentence sits on the row, attributed, in their words and not ours. It is what a company claims about itself,
-    which is not the same thing as a fact, and the link is there so you can disagree with it.`;
-
-	const rest = failures.length
-		? ` The rest did not work, and how they did not work is worth saying: ${failures.join(', ')}.
-    A startup on the DPIIT register whose domain has stopped resolving is a finding, not a missing cell.`
-		: '';
-
-	const none =
-		p.noSite > 0
-			? ` A further <strong>${p.noSite}</strong> have no website listed, where a source that publishes websites went
-			looking and came back with nothing. That is an absence in the record, not a sign of quality either way.`
-			: '';
-
-	const never = p.total - p.withSite - p.noSite;
-	const unlooked =
-		never > 0
-			? ` For the remaining ${never} no source has ever published a website field, so we do not know whether one
-    exists and the page does not guess.`
-			: '';
-
-	return `
-  <h3>What they build</h3>
-  <p>${read}${rest}${none}${unlooked}</p>`;
-}
-
-/**
- * Every source, configured or evidence-only, with its last check: which answered, which failed and
- * what the page is still showing from them. Configured and successful are different claims, and a
- * run that happened is not a source that answered.
- */
-function sourceStatus(view: AboutView): string {
-	const health = new Map(view.sourceHealth.map((h) => [h.source, h]));
-	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
-	const row = (id: string) => {
-		const h = health.get(id);
-		const name = esc(SOURCE_LABELS[id] ?? id);
-		if (!h) return `<tr><td>${name}</td><td>No run recorded yet</td><td class="mono">&mdash;</td></tr>`;
-		const status =
-			h.last_status === 'ok'
-				? `Answered on ${day(h.last_attempt)}`
-				: `<strong>${h.last_status === 'failed' ? 'Failed' : 'Returned too little and was set aside'} on ${day(h.last_attempt)}</strong>${h.last_success ? `; showing the run of ${day(h.last_success)}` : '; nothing shown from it yet'}`;
-		return `<tr><td>${name}</td><td>${status}</td><td class="mono">${h.data_as_of ? day(h.data_as_of) : 'unknown'}</td></tr>`;
-	};
-	const evidenceOnly = view.sourceHealth.map((h) => h.source).filter((id) => !(SOURCES as readonly string[]).includes(id));
-	return `<div class="table-scroll"><table class="evidence-table source-status">
-    <caption class="visually-hidden">Each source's last check</caption>
-    <thead><tr><th scope="col">Source</th><th scope="col">Last check</th><th scope="col">Newest data</th></tr></thead>
-    <tbody>${[...SOURCES, ...evidenceOnly].map(row).join('')}</tbody>
-  </table></div>
-  <p class="provenance">A check that answered means the source was read, not that a person verified each record.</p>
-  <p class="provenance">The NM-ICPS server answers in 0.2 seconds from a machine in India and times out from GitHub&rsquo;s
-    runners, where the daily check runs, every time. Our best guess, unconfirmed, is that it blocks traffic from outside
-    India or from cloud hosts.</p>`;
-}
-
-/**
- * The one dated figure set, rendered from src/snapshot.ts so this page and the README cannot drift
- * apart again. Live counts elsewhere on the site move every night; these do not, and they are the
- * ones any claim on the site is allowed to rest on.
- */
-function snapshotSection(): string {
-	const s = SNAPSHOT;
-	const rows = SNAPSHOT_TERMS.map(
-		(t) => `    <tr><th scope="row">${esc(t.term)}</th><td class="snap-n">${esc(t.value(s))}</td><td>${esc(t.means)}</td></tr>`,
-	).join('\n');
-	return `
-<section class="ref-section" id="snapshot" aria-labelledby="snapshot-h">
-  <h2 id="snapshot-h">The figures, as of ${esc(s.date)}</h2>
-  <p class="provenance">One dated set of counts, taken from the database as the ingest run of
-    ${esc(s.dataVersion)} left it. Every number below says what it counts, because several of them
-    could reasonably mean two different things. The list itself shows live counts, which move each
-    night; these do not, and they are the figures any argument here rests on.</p>
-  <table class="snapshot">
-    <thead><tr><th scope="col">Number</th><th scope="col">As of ${esc(s.date)}</th><th scope="col">What it counts</th></tr></thead>
-    <tbody>
-${rows}
-    </tbody>
-  </table>
-  <p class="provenance">Placed and dropped account for every record seen
-    (${s.placed} + ${s.dropped.toLocaleString('en-IN')} = ${s.recordsSeen.toLocaleString('en-IN')}), and companies for
-    every record placed (${s.companies} + ${s.notCompanies} = ${s.placed}). The ${s.placed} placed records are committed
-    to the repository as <code>${esc(s.exportFile)}</code>, so the evidence stays readable whether or not the live
-    pipeline is running.</p>
-</section>`;
-}
-
-function methodology(view: AboutView): string {
-	return `
-<section class="method" aria-labelledby="method-h">
-  <h2 id="method-h">Methodology</h2>
-
-  <h3>Where this comes from</h3>
-  <p>Public sources only, nothing behind a login. Upstream is configured to read ${SOURCES.length} sources that list
-    companies: ${SOURCES.map((id) => esc(SOURCE_LABELS[id] ?? id)).join(', ')}. Award and agreement lists add dated
-    evidence to companies already found and add no company of their own. Patent filings, new incorporations at the MCA,
-    LinkedIn and every other incubator are not read, so nothing they would show is here. Every row carries the evidence
-    that put it there.</p>
-  ${sourceStatus(view)}
-
-  ${productNote(view)}
-
-  <h3>How the tiers are decided</h3>
-  <p>There is no score. A number between 0 and 100 would pretend to a precision we do not have. Two facts decide the tier:
-  how recently we first saw the company, and how many collected references (public traces) it already has &mdash; today that means an
-    incubator listing, a grant award, a DPIIT register record and a website that answered when we fetched it. A domain that
-    no longer resolves is not a trace, and stops being one the night it stops answering. A press mention ought to count
-    as well; nothing collects it yet, so for now it does not, and the trace counts on this page are lower than they
-    would be.</p>
-  <ul class="rules">
-    <li><span class="tier ta">Tier A</span> Added to Upstream by a run under 90 days ago, with no source dating anything about it earlier than 90 days ago, and at most 2 traces. Recently on record, and carrying the fewest public traces of anything here.</li>
-    <li><span class="tier tb">Tier B</span> First seen under 180 days ago, at most 5 traces. Recently on record, with some public visibility already.</li>
-    <li><span class="tier tc">Tier C</span> Everything else. Longer on record, or more widely traced.</li>
-  </ul>
-  <p class="unvalidated"><strong>The tiers are unvalidated.</strong> They describe how recently a company reached a
-    public record and how little of it is published &mdash; nothing more. No one has tested whether a Tier A company is
-    a better research call than a Tier C one, because that would need outcomes this project does not have and cannot
-    currently collect: which calls were taken, which led anywhere, what happened next. The ordering is an argument about
-    where public information is thinnest, not a finding about where value is. Treat it as a way to see companies you
-    would otherwise not see, and not as a recommendation about which to call.</p>
-  <p>Neither A nor B is open to a company whose only description is a list's label &mdash; the DPIIT register's dropdown, or the category a BIRAC grant list filed its award under. That is enough to
-    list a company and to place it where the label names a sub-sector outright; it is not enough to call it a find.</p>
-  <p>This will sometimes put a company nobody has heard of above a famous one. That is the point, not a bug.</p>
-
-  <h3>What the dates mean</h3>
-  <p>Two different facts, kept apart on purpose. A company we found ourselves &mdash; it appeared in a run of a source
-    we were already watching &mdash; carries the date we found it, and only those rows can reach Tier A. A company that
-    arrived in the first sweep of a new source carries the incubation year its incubator published, because that sweep
-    is a backfill and nothing in it was ours to discover. The rest carry no date at all and are listed separately at the
-    foot of the page.</p>
-  <p>The list shows companies that started within the last ${MAX_AGE_YEARS} years. Older ones are still here, still
-    counted in the coverage map, and one link away &mdash; they are history rather than a find, and putting them in the
-    same list would be flattering the wrong thing.</p>
-
-  <h3 id="rdi-caveat">What the RDI taxonomy is, and is not</h3>
-  <p><strong>The RDI taxonomy is a government policy priority list, not evidence of market demand.</strong> It records
-    what one department decided to prioritise for research and development funding. It is used here for navigation
-    &mdash; a fixed, public, independently-authored set of cells to sort records into, so the shape of the map is not
-    one of my own choosing &mdash; and for nothing else. That a sub-sector appears on it says nothing about whether
-    customers want the thing, whether anyone will pay for it, or whether a market exists. Those are separate questions,
-    and this page does not answer any of them.</p>
-
-  <h3 id="crosswalk">One classifier run suggests the two official classifications may not line up</h3>
-  <p>DPIIT's recognition register files every startup under its own industry vocabulary &mdash; 56 industries, chosen
-    by the founder from a list when they applied. The RDI scheme has 44 sub-sectors, written by a different department
-    for a different purpose. Neither was drawn up with the other in mind.</p>
-  <p>Putting the same companies through both, on <strong>one run, with one model and one prompt</strong>, on
-    ${CROSSWALK.run}: where the two vocabularies happen to have a near-twin a company placed almost automatically
-    &mdash; DPIIT's &ldquo;Robotics&rdquo; against the scheme's &ldquo;Intelligent Systems &amp; Robotics&rdquo; placed
-    ${CROSSWALK.robotics[0]} of ${CROSSWALK.robotics[1]}. Where they have none, almost nothing placed:
-    ${CROSSWALK.vision[0]} of ${CROSSWALK.vision[1]} for &ldquo;Computer Vision&rdquo;, ${CROSSWALK.ai[0]} of
-    ${CROSSWALK.ai[1]} for &ldquo;AI&rdquo;.</p>
-  <p class="unvalidated"><strong>This is n=1 and should be read that way.</strong> It is one classifier's behaviour on
-    one-line labels on a single day &mdash; not re-run, not tried against a second model or prompt, and not checked by
-    hand against a reviewed crosswalk. The gap it points at may be real, or may be an artefact of how one prompt read
-    short strings. It is a reason to look, and worth rechecking before anyone leans on it. It is not a fault in either
-    vocabulary.</p>
-  <p>Those few placements were also where the classifier guessed: five &ldquo;AI / NLP&rdquo; records had gone into AI in
-    Healthcare. So a register label now keeps a company on the map only where the label names the sub-sector outright
-    &mdash; &ldquo;Space Technology&rdquo;, &ldquo;Robotics&rdquo;, &ldquo;Electronics&rdquo; &mdash; and a company whose
-    label names none is counted with the ones we could not describe well enough to place.</p>
-  <p>It does mean a row placed this way rests on the register's label rather than on anything published about what the
-    company does, and should be read as exactly that much. Each company's own page says which of the two it was, in the
-    classifier's own words. It also means the fuller cells of the RDI coverage map are partly a map of where the two
-    vocabularies agree.</p>
-${registerSplit(view)}
-
-  <h3>What this misses</h3>
-  <p>A fair amount, and it is worth being blunt about it.</p>
-  <p><strong>This tool cannot identify or verify stealth companies at all.</strong> It reads no LinkedIn, by choice:
-    every claim here has to link to a page anyone can open. But that choice should not be read as a finding about
-    stealth companies in either direction. A company that has left no public record does not appear here, and nothing
-    on this page indicates whether such companies are few or many, or what they are working on. Their absence from the
-    list is a property of the list, not of the market.</p>
-  <p>The list also leans toward institutions that publish their portfolios, which means well-documented incubators are
-    over-represented and quieter regional ones are under-represented. An empty cell in the RDI coverage map can mean
-    nobody is building there or that these sources do not reach that work, and this tool cannot currently tell you
-    which. Classification into RDI sub-sectors is automated and will sometimes be wrong.</p>
-</section>`;
+function undatedList(_view: PageView): string {
+	return '';
 }
 
 // --- one company ------------------------------------------------------------
@@ -1882,19 +1366,19 @@ export function unknowns(company: Company): string[] {
 	const described = productKnown || describedBySource(company);
 
 	if (company.entity_type === 'unverified') out.push('Whether a company exists behind this name: nothing on record shows one');
-	if (company.entity_type === 'researcher-project') out.push('Whether a company has been formed: the record is a researcher’s project');
-	if (!described) out.push(`What it builds: no source describes it, and ${labelWords(company).one} is not a description`);
+	if (company.entity_type === 'researcher-project') out.push("Whether a company has been formed: the record is a researcher's project");
+	if (!described) out.push(`What it builds: no source describes it. There is only ${labelWords(company).one}`);
 	else if (!productKnown) out.push('What it says about itself: no homepage of theirs has been read');
 	if (sub && !company.project_type) out.push(`What kind of product it is, within ${sub.subsector_id} ${sub.subsector}`);
 	if (!ageKnown(company)) out.push('When it was founded: no source gives a founding or incubation year');
 	if (!company.signals.some((s) => isDated(s.date)) && company.first_seen_basis !== 'cohort') {
-		out.push('When any source first recorded it: no source dates anything about it');
+		out.push('When a source first recorded it: no source gives a date');
 	}
 	if (!company.city && !company.state) out.push('Where it is based');
-	if (site && company.website_identity === 'discovered') out.push(`Its website: ${host} was given for it, and is not treated as theirs`);
-	else if (site && company.website_identity !== 'verified') out.push(`Whether ${host} is its website: not confirmed as theirs`);
+	if (site && company.website_identity === 'discovered') out.push(`Its website: a source gave ${host}, and nothing ties that address to the company`);
+	else if (site && company.website_identity !== 'verified') out.push(`Whether ${host} is its website: not confirmed`);
 	else if (!site && !company.website_checked) out.push('Whether it has a website: no source that publishes websites lists it');
-	if (!company.cin) out.push('Its company registration: no CIN on record, so no MCA filing is joined');
+	if (!company.cin) out.push('Its company registration: no company identification number (CIN) on record, so no government registry filing is linked');
 	if (!company.founders) out.push('Founders: no source this page reads names them');
 	out.push('Funding and revenue: Upstream collects neither');
 	return out;
@@ -1925,9 +1409,9 @@ function whoLines(company: Company): { label: string; text: string; note: string
 	if (company.founders) out.push({ label: 'Founders', text: company.founders, note: `as ${sourceName(company.founders_source)} lists them` });
 	if (company.dpiit_status) {
 		out.push({
-			label: 'DPIIT',
+			label: 'Startup register (DPIIT)',
 			text: `${DPIIT_STATUS_PHRASES[company.dpiit_status] ?? company.dpiit_status}${company.dpiit_stage ? `; stage on its profile: ${company.dpiit_stage}` : ''}`,
-			note: company.dpiit_status === 'profile' ? 'anyone can make a Startup India profile; recognition is DPIIT assessing it and issuing a number' : 'as the register’s record says',
+			note: company.dpiit_status === 'profile' ? 'anyone can make a Startup India profile; recognition means DPIIT has assessed the company and issued a number' : "as the register's record says",
 		});
 	}
 	const verified = company.website_identity === 'verified';
@@ -1938,7 +1422,7 @@ function whoLines(company: Company): { label: string; text: string; note: string
 		out.push({
 			label: 'Domain registered',
 			text: shortDate(company.domain_registered),
-			note: 'from the domain registry (RDAP); the domain’s age, not the company’s — a domain can be bought years earlier, or second-hand',
+			note: "from the domain registry (RDAP). This is the domain's age. A domain can be bought years before a company starts, or second-hand",
 		});
 	}
 	const site = verified ? safeUrl(company.website) : null;
@@ -1946,7 +1430,7 @@ function whoLines(company: Company): { label: string; text: string; note: string
 		out.push({
 			label: 'First archived',
 			text: shortDate(company.web_first_capture),
-			note: 'the Wayback Machine’s oldest copy of their homepage: when the public web first noticed the page, not when the company began',
+			note: "the Wayback Machine's oldest copy of their homepage: when the public web first noticed the page. The company may be older",
 			href: `https://web.archive.org/web/*/${new URL(site).hostname}`,
 		});
 	}
@@ -1955,21 +1439,21 @@ function whoLines(company: Company): { label: string; text: string; note: string
 		out.push({
 			label: 'Public programmes',
 			text: named.join(' · '),
-			note: `${named.length} ${named.length === 1 ? 'programme' : 'programmes'} that selected them, counted and not ranked; an incubator often runs a scheme's selection, so they are not all independent`,
+			note: `${named.length} ${named.length === 1 ? 'programme' : 'programmes'} that selected them. They are counted and don't affect the order. An incubator often runs a scheme's selection, so they are not all independent`,
 		});
 	}
 	// Signs of activity, read off their own site and the web archive. Facts about the site, not
 	// the company: a careers page is not headcount, and a still homepage is not a still company.
 	const signals = verified ? siteSignalsOf(company.site_signals) : null;
 	if (signals) {
-		if (signals.parked) out.push({ label: 'Homepage', text: 'reads as parked, for sale or not built yet', note: 'what the page says about itself; the company may simply be elsewhere' });
+		if (signals.parked) out.push({ label: 'Homepage', text: 'reads as parked, for sale or not built yet', note: 'what the page says about itself; the company may be somewhere else online' });
 		if (signals.careers_hosted && signals.careers) out.push({ label: 'Careers', text: `on ${signals.careers_hosted}`, note: 'linked from their homepage; roles there were not counted', href: signals.careers });
 		else if (signals.careers) {
 			const roles = signals.roles ?? 0;
 			out.push({
 				label: 'Careers',
 				text: roles > 0 ? `${roles} ${roles === 1 ? 'role' : 'roles'} listed` : signals.says_no_openings ? 'page says no openings' : 'page, no roles named',
-				note: 'role titles counted on their careers page; roughly, and not headcount',
+				note: 'role titles counted on their careers page, roughly. This is not headcount',
 				href: signals.careers,
 			});
 		}
@@ -1980,7 +1464,7 @@ function whoLines(company: Company): { label: string; text: string; note: string
 			out.push({
 				label: 'Site changes',
 				text: v === 0 ? 'no archived copy in two years' : v === 1 ? 'one version in two years' : `${v} versions in two years${signals.last_change ? `, latest ${shortDate(signals.last_change)}` : ''}`,
-				note: 'distinct copies of their homepage the Wayback Machine kept; how often the site changes, not the company',
+				note: 'distinct copies of their homepage the Wayback Machine kept. It shows how often the site changes',
 			});
 		}
 	}
@@ -2016,7 +1500,7 @@ function papersBlock(company: Company): string {
       <h3 class="mini">Research papers</h3>
       <p class="provenance">${papers.count} ${papers.count === 1 ? 'work lists' : 'works list'} this company as an author affiliation, in OpenAlex${
 				query ? ` (<a href="${esc(query)}" rel="noopener nofollow">see them</a>)` : ''
-			}. Not counted as a public trace.</p>
+			}. Papers don&#39;t count as collected references.</p>
       <ul class="paper-list">${papers.works
 				.map((w) => {
 					const href = safeUrl(w.url);
@@ -2031,7 +1515,7 @@ function siteLine(company: Company): string | null {
 	const site = safeUrl(company.website);
 	if (!site) return null;
 	if (company.website_identity === 'verified') return `${site} (checked as theirs: ${company.website_identity_note ?? 'name matched'})`;
-	if (company.website_identity === 'discovered') return `${site} was given for it and is NOT treated as theirs (${company.website_identity_note ?? 'nothing ties it to them'})`;
+	if (company.website_identity === 'discovered') return `${site} was given for it, and nothing ties it to them, so it is not used (${company.website_identity_note ?? 'no link found'})`;
 	return `${site} (not confirmed as theirs${company.website_identity_note ? `: ${company.website_identity_note}` : ''})`;
 }
 
@@ -2040,12 +1524,12 @@ function whyHere(company: Company): string {
 	const shape = traceShape(company);
 	const traces = `${referenceCount(company.trace_count)}${shape ? ` (${shape})` : ''}`;
 	let reason: string;
-	if (company.tier === 'A') reason = 'found by a run under 90 days ago, with at most two public traces and nothing older on record';
-	else if (company.tier === 'B') reason = 'on record under 180 days, with at most five public traces';
-	else if (company.first_seen === null) reason = 'no source dates it, so it cannot be called an early find';
-	else if (company.classify_basis === 'register-label') reason = `only ${labelWords(company).one} says what it does, so it is listed, not promoted`;
-	else if (company.first_seen_basis === 'cohort') reason = 'dated from a year its source published, not found by a run of ours';
-	else reason = 'on record for more than 180 days, or with more than five public traces';
+	if (company.tier === 'A') reason = 'a daily run found it under 90 days ago, with at most two references and nothing older on record';
+	else if (company.tier === 'B') reason = 'on record under 180 days, with at most five references';
+	else if (company.first_seen === null) reason = 'no source dates it, so it cannot count as an early find';
+	else if (company.classify_basis === 'register-label') reason = `only ${labelWords(company).one} says what it does, so it stays in Tier C`;
+	else if (company.first_seen_basis === 'cohort') reason = 'its date is a year its source published, from the first read of that source';
+	else reason = 'on record for more than 180 days, or with more than five references';
 	return `${traces}, which is what the default order sorts by. Tier ${company.tier}: ${reason}.`;
 }
 
@@ -2057,13 +1541,13 @@ function evidenceLimits(company: Company): string[] {
 	const out: string[] = [];
 	const site = safeUrl(company.website);
 	const productKnown = Boolean(company.product && company.website_identity === 'verified');
-	if (productKnown) out.push('What it builds is quoted from its own homepage; the name on the site was checked, the claims on it were not');
-	else if (describedBySource(company)) out.push('What it builds is a source’s description of it, not checked against the company');
+	if (productKnown) out.push('What it builds is quoted from its own homepage. The name on the site was checked. The claims on it were not');
+	else if (describedBySource(company)) out.push("What it builds is a source's description of it. Nobody has checked it with the company");
 	else out.push(`Nothing published says what it builds; only ${labelWords(company).one} exists`);
 	if (company.classify_basis === 'register-label') out.push(`Its sub-sector rests on ${labelWords(company).one} alone, which supports nothing narrower`);
 	if (site && company.website_identity !== 'verified') out.push('Its website is not confirmed as theirs, so nothing on it is used');
 	if (company.entity_type && company.entity_type !== 'company') out.push(`Not shown to be a company: ${company.entity_note ?? 'nothing on record shows one'}`);
-	if (company.dpiit_status === 'profile' || company.dpiit_status === 'pending') out.push('On Startup India with a profile DPIIT has not recognised');
+	if (company.dpiit_status === 'profile' || company.dpiit_status === 'pending') out.push('Has a Startup India profile that DPIIT has not recognised');
 	if (company.dpiit_status === 'expired' || company.dpiit_status === 'cancelled') out.push(`Its DPIIT recognition is ${company.dpiit_status}`);
 	if (!company.signals.some((s) => isDated(s.date))) out.push('No source gives a date for anything it lists');
 	out.push('The placement is automated and nobody has reviewed it');
@@ -2074,13 +1558,13 @@ function evidenceLimits(company: Company): string[] {
 function nextStep(company: Company): string {
 	const verified = company.website_identity === 'verified';
 	const page = verified ? safeUrl(company.contact_page) : null;
-	if (verified && company.contact_email) return `Write to ${company.contact_email} (on their own domain, from their homepage)${page ? `, or use ${page}` : ''}. A public route, not an introduction.`;
-	if (page) return `Their contact page: ${page}. A public route, not an introduction.`;
+	if (verified && company.contact_email) return `Write to ${company.contact_email} (on their own domain, from their homepage)${page ? `, or use ${page}` : ''}. This is a public address, so you would be writing cold.`;
+	if (page) return `Their contact page: ${page}. This is a public route, so you would be writing cold.`;
 	const site = verified ? safeUrl(company.website) : null;
 	if (site) return `Their website, ${site}, which gives no contact route on its homepage.`;
 	const listing = company.signals.find((s) => (s.type === 'incubator' || s.type === 'grant') && safeUrl(s.url));
 	if (listing) return `Ask ${SOURCE_LABELS[listing.source ?? ''] ?? 'the source'}, whose page lists them: ${safeUrl(listing.url)}.`;
-	return 'No public contact route is on record; start from the evidence above.';
+	return 'No public contact route is on record. Start from the evidence above.';
 }
 
 /**
@@ -2097,7 +1581,7 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date, chec
 	const lines: string[] = [`# ${company.name}`, ''];
 
 	if (company.entity_type && company.entity_type !== 'company') {
-		lines.push(`_${(ENTITY_LABELS[company.entity_type] ?? '').replace(/&rsquo;/g, '’')}${company.entity_note ? `: ${company.entity_note}` : ''}._`, '');
+		lines.push(`_${(ENTITY_LABELS[company.entity_type] ?? '').replace(/&#39;/g, '’')}${company.entity_note ? `: ${company.entity_note}` : ''}._`, '');
 	}
 
 	if (company.product && site) {
@@ -2127,13 +1611,13 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date, chec
 	);
 	for (const signal of company.signals) {
 		const where = SOURCE_LABELS[signal.source ?? ''] ?? signal.type;
-		lines.push(`- ${signal.label} — ${where}, ${signal.date ?? undatedWord(signal.label)}: ${safeUrl(signal.url) ?? 'no link published'}`);
+		lines.push(`- ${signal.label} (${where}, ${signal.date ?? undatedWord(signal.label)}): ${safeUrl(signal.url) ?? 'no link published'}`);
 	}
 	const siteSaid = siteLine(company);
 	if (siteSaid) lines.push(`- Website: ${siteSaid}`);
 	const papers = papersOf(company.papers);
 	if (papers && papers.count > 0) {
-		lines.push(`- Papers: ${papers.count} ${papers.count === 1 ? 'work lists' : 'works list'} it as an author affiliation (OpenAlex, not counted as a trace): ${papers.query_url}`);
+		lines.push(`- Papers: ${papers.count} ${papers.count === 1 ? 'work lists' : 'works list'} it as an author affiliation (OpenAlex; papers don't count as references): ${papers.query_url}`);
 		for (const work of papers.works) lines.push(`  - ${work.title}${work.year ? ` (${work.year})` : ''}: ${work.url}`);
 	}
 
@@ -2142,12 +1626,12 @@ export function briefMarkdown(company: Company, pageUrl: string, now: Date, chec
 	lines.push('', '## Placement');
 	if (sub) {
 		lines.push(
-			`- RDI ${sub.subsector_id} ${sub.subsector}, placed ${
+			`- Government R&D (RDI) sub-sector ${sub.subsector_id} ${sub.subsector}, placed ${
 				company.classify_basis === 'register-label' ? `from ${labelWords(company).one} only, which supports nothing narrower` : 'from its description'
 			}${company.project_type ? `; project type: ${company.project_type}` : ''}`,
 		);
 	} else {
-		lines.push('- Not placed in any RDI sub-sector');
+		lines.push('- Not placed in any government R&D (RDI) sub-sector');
 	}
 	lines.push(
 		`- Tier ${company.tier}`,
@@ -2204,7 +1688,7 @@ function enrichLink(url: string | null, words: (host: string) => string): string
 function enrichmentBlock(company: Company, e: Enrichment): string {
 	const items: string[] = [];
 	const missing = (what: string, reason: string | null, ambiguous = false) =>
-		`<p class="enrich-missing">${esc(what)}: ${ambiguous ? 'two possible matches, not shown' : 'not found'}${reason ? ` (${esc(reason)})` : ''}</p>`;
+		`<p class="enrich-missing">${esc(what)}: ${ambiguous ? 'two records could match, so neither is shown' : 'not found'}${reason ? ` (${esc(reason)})` : ''}</p>`;
 
 	// The registry record.
 	const regLink = enrichLink(e.reg_source, (h) => `government registry record (via ${h})`);
@@ -2213,7 +1697,7 @@ function enrichmentBlock(company: Company, e: Enrichment): string {
 		const when = e.incorporated_on ? ` on ${esc(shortDate(e.incorporated_on))}` : e.incorporated_year ? ` in ${esc(e.incorporated_year)} (year from the registration number)` : '';
 		const parts = [e.reg_status ? esc(e.reg_status) : '', e.reg_state ? esc(e.reg_state) : ''].filter(Boolean);
 		items.push(`<p class="enrich-reg">${llp ? 'Registered as an LLP:' : 'Registered as'} <strong>${esc(e.legal_name ?? company.name)}</strong>${when}${parts.length ? ` &middot; ${parts.join(' &middot; ')}` : ''}
-      <span class="enrich-meta">${regLink} <span class="enrich-id">${llp ? 'LLP number' : 'CIN'} ${esc(e.cin)}</span></span></p>`);
+      <span class="enrich-meta">${regLink} <span class="enrich-id">${llp ? 'LLP number' : 'Company identification number (CIN)'} ${esc(e.cin)}</span></span></p>`);
 		if (e.reg_status && (STRUCK_STATUSES as readonly string[]).includes(e.reg_status)) {
 			items.push(`<p class="enrich-struck">The government registry lists this company as ${esc(STRUCK_WORDS[e.reg_status] ?? e.reg_status.toLowerCase())}.</p>`);
 		}
@@ -2241,7 +1725,7 @@ function enrichmentBlock(company: Company, e: Enrichment): string {
 		items.push(`<figure class="enrich-quote">
       <figcaption>What they say they build</figcaption>
       <blockquote data-source="company">${esc(e.product_quote)}</blockquote>
-      <p class="enrich-meta">&mdash; ${productSource}</p>
+      <p class="enrich-meta">Quoted ${productSource}</p>
     </figure>`);
 	} else {
 		items.push(missing('What they say they build', e.product_reason));
@@ -2267,16 +1751,16 @@ function enrichmentBlock(company: Company, e: Enrichment): string {
 /** Why this company is in the tier it is in, in the words of the rule that decided. */
 function whyTier(company: Company): string {
 	if (company.first_seen === null) {
-		return `No source will say when this company became visible, so it cannot be called an early find
-      however new it looks. A row with no date is Tier C by the rule, not by judgement.`;
+		return `No source says when this company first appeared, so it can't count as an early find, however new
+      it looks. The rule puts every record with no date in Tier C.`;
 	}
 	if (company.classify_basis === 'register-label') {
 		return `The only thing any source says about what this company does is ${labelWords(company).one}. That is
-      enough to list it, not to call it an early find, so it is Tier C until a source describes what it builds.`;
+      enough to list it. It stays in Tier C until a source describes what it builds.`;
 	}
 	if (company.first_seen_basis === 'cohort') {
-		return `The date here was read off a published cohort or award year during a backfill. That is the
-      incubator's news rather than ours, and only a company we watched arrive can reach Tier A.`;
+		return `The date here is a cohort or award year the source published, read the first time Upstream read that
+      source. Only a company a later daily run found can reach Tier A.`;
 	}
 	const traces = company.trace_count;
 	const event = earliestEvent(
@@ -2284,12 +1768,11 @@ function whyTier(company: Company): string {
 		company.origin_year,
 	);
 	const old = event !== null && daysSince(event, new Date()) >= 90;
-	return `Found in a run of a source that was already running, with ${traces === 1 ? '1 public trace' : `${traces} public traces`}
-    at the time. Tier A is a discovery under 90 days old with at most 2 traces, where no source dates anything about the
-    company earlier than that; Tier B under 180 days with at most 5.${
+	return `A daily run found it in a source that was already being read, with ${traces === 1 ? '1 reference' : `${traces} references`}
+    at the time. Tier A is a find under 90 days old with at most 2 references, where no source dates anything about the
+    company earlier than that. Tier B is under 180 days old with at most 5.${
 			old
-				? ` A source dates this company to ${esc(shortDate(event))}, so however recently we found it, it was not
-    new when we did.`
+				? ` A source dates this company to ${esc(shortDate(event))}, so it was already on record before Upstream found it.`
 				: ''
 		}`;
 }
@@ -2302,9 +1785,8 @@ function productDetail(company: Company): string {
 	// Whose address it is comes before anything read from it, because it decides
 	// whether anything was read at all.
 	if (site && company.website_identity === 'discovered') {
-		return `<p class="provenance identity">A source gives${link} for this company, and it is not treated as
-        theirs: ${esc(company.website_identity_note ?? 'nothing ties the address to them')}. Nothing on it is shown
-        here.</p>`;
+		return `<p class="provenance identity">A source gives${link} for this company, but nothing ties the address to
+        them (${esc(company.website_identity_note ?? 'no link found')}), so nothing on it is shown here.</p>`;
 	}
 	const identity =
 		site && company.website_identity
@@ -2320,14 +1802,14 @@ function productStatusDetail(company: Company, link: string, site: string | null
 		case 'described':
 			if (!company.product || company.website_identity !== 'verified') break;
 			return `<p class="builds">${esc(company.product)} <span class="says">in their own words</span></p>
-        <p class="provenance">Read from${link || ' their homepage'}, whose name was checked and whose content was not.
-        It is what the company says about itself.</p>`;
+        <p class="provenance">Read from${link || ' their homepage'}. The name on the page was checked. What it says
+        was not: it is the company's description of itself.</p>`;
 		case 'source-described':
-			return `<p class="provenance">${link || 'Their site'} is theirs, and was not read: their incubator&rsquo;s
-        listing already says what they build, below, in a sentence written about them rather than by them.</p>`;
+			return `<p class="provenance">${link || 'Their site'} is theirs and was not read. Their incubator&#39;s
+        listing already says what they build, in a sentence written about them by someone else.</p>`;
 		case 'unverified':
 			return `<p class="provenance">${link || 'Their site'} answered, but nothing on it confirmed the address is
-        theirs, so it was not read. A sentence from someone else's homepage is worse than none.</p>`;
+        theirs, so it was not read. Quoting someone else's homepage would be worse than quoting nothing.</p>`;
 		case 'unreachable':
 			return `<p class="provenance">They publish${link}, and it does not answer. A listed startup whose
         own domain has stopped resolving is worth knowing about.</p>`;
@@ -2345,7 +1827,7 @@ function productStatusDetail(company: Company, link: string, site: string | null
 	// the trap: a company with a website we simply have not read yet is not a company
 	// without a website, and saying so would invent a finding out of a queue.
 	if (site) {
-		return `<p class="provenance">They publish${link}. Nobody has read it yet &mdash; the nightly run works
+		return `<p class="provenance">They publish${link}. Nobody has read it yet. The daily run works
           through new companies a few at a time.</p>`;
 	}
 	return company.website_checked
@@ -2381,7 +1863,7 @@ export function renderCompanyPage(view: CompanyView): string {
 		? `<p class="builds builds-lead">${esc(company.product)} <span class="says">in their own words</span></p>${sourceWords}`
 		: sourceWords ||
 			(company.description
-				? `<p class="unknown-value">No source says what it builds.</p><p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt} Nothing here says what the company makes.</p>`
+				? `<p class="unknown-value">No source says what it builds.</p><p class="desc">${esc(registerText(company.description, company.dpiit_status))}</p><p class="provenance">${labelWords(company).excerpt}</p>`
 				: '<p class="unknown-value">No source says what it builds.</p>');
 	const evidenceRows = company.signals
 		.map((signal) => {
@@ -2406,24 +1888,24 @@ export function renderCompanyPage(view: CompanyView): string {
       <thead><tr><th scope="col">Claim</th><th scope="col">Source</th><th scope="col">Date</th><th scope="col">Link</th></tr></thead>
       <tbody>${evidenceRows}</tbody>
     </table></div>`
-		: '<p class="provenance">No signals recorded, which should not be possible &mdash; every company here arrived with at least one.</p>';
+		: '<p class="provenance">No evidence recorded. That should not happen: every company here arrived with at least one source record.</p>';
 
 	const event = sourceEvent(company);
 	const dates: Array<[string, string, string]> = [
 		[
 			'Source event',
 			event ? `${event.label} ${event.date}` : 'none',
-			event ? 'The oldest dated thing any source says about the company. Their timeline, not ours.' : 'No source dates anything about this company.',
+			event ? 'The oldest date any source gives for something about the company.' : 'No source gives a date for anything about this company.',
 		],
-		['Added to Upstream', company.discovered.slice(0, 10), 'The day the row was written. Never a claim about the company.'],
-		['Last checked', company.updated_at.slice(0, 10), 'The last run that read a source listing this company and wrote the row again.'],
+		['Added to Upstream', company.discovered.slice(0, 10), 'The day Upstream first wrote this record. It says nothing about the company.'],
+		['Last checked', company.updated_at.slice(0, 10), 'The last daily run that read a source listing this company.'],
 	];
 
 	// Two kinds of gap, kept apart: what the sources checked do not say, and what Upstream does not collect at all.
 	const notCollected = (u: string) => /^(Funding and revenue|Its company registration)/.test(u);
 	const unknownItem = (u: string) => {
 		const [head, ...rest] = u.split(': ');
-		return `<li><strong>${esc(head)}</strong>${rest.length ? ` &mdash; ${esc(rest.join(': '))}` : ''}</li>`;
+		return `<li><strong>${esc(head)}</strong>${rest.length ? `: ${esc(rest.join(': '))}` : ''}</li>`;
 	};
 	const allUnknowns = unknowns(company);
 	const notFound = allUnknowns.filter((u) => !notCollected(u));
@@ -2440,7 +1922,7 @@ export function renderCompanyPage(view: CompanyView): string {
 		safeUrl(company.website) && company.website_identity !== 'verified' && !enrichedSite
 			? `<p class="caution"><strong>Website not confirmed.</strong> ${
 					company.website_identity === 'discovered'
-						? `${esc(new URL(safeUrl(company.website)!).hostname)} was given for this company and is not treated as theirs: ${esc(company.website_identity_note ?? 'nothing ties the address to them')}.`
+						? `A source gave ${esc(new URL(safeUrl(company.website)!).hostname)} for this company, but nothing ties the address to them (${esc(company.website_identity_note ?? 'no link found')}).`
 						: `${esc(new URL(safeUrl(company.website)!).hostname)} is listed for it, but nothing confirmed the address is theirs${company.website_identity_note ? `: ${esc(company.website_identity_note)}` : ''}. Nothing on it is used here.`
 				}</p>`
 			: '';
@@ -2448,7 +1930,7 @@ export function renderCompanyPage(view: CompanyView): string {
 		company.entity_type && company.entity_type !== 'company' ? `<p class="caution"><strong>${ENTITY_LABELS[company.entity_type] ?? ''}.</strong> ${esc(company.entity_note ?? '')}</p>` : '';
 
 	const facts = [
-		sub ? `<a class="fact-sub" href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}#list`)}" title="RDI sub-sector, placed automatically">${esc(sub.subsector)}</a>` : '',
+		sub ? `<a class="fact-sub" href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}#list`)}" title="Government R&amp;D (RDI) sub-sector, placed automatically">${esc(sub.subsector)}</a>` : '',
 		located ? `<span>${esc(located)}</span>` : '<span class="unknown-inline">location unknown</span>',
 		site && company.website_identity === 'verified' ? `<a class="fact-site" href="${esc(site)}" rel="noopener nofollow">${esc(new URL(site).hostname)}</a>` : '',
 		view.incorporated
@@ -2463,7 +1945,7 @@ export function renderCompanyPage(view: CompanyView): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(company.name)} &mdash; Upstream</title>
+<title>${esc(company.name)} | Upstream</title>
 <meta name="description" content="${esc(company.product ?? registerText(company.description, company.dpiit_status) ?? company.name)}">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
@@ -2471,7 +1953,7 @@ export function renderCompanyPage(view: CompanyView): string {
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Upstream">
-<meta property="og:title" content="${esc(company.name)} — Upstream">
+<meta property="og:title" content="${esc(company.name)} | Upstream">
 <meta property="og:description" content="${esc(company.product ?? registerText(company.description, company.dpiit_status) ?? company.name)}">
 <meta property="og:url" content="${esc(pageUrl)}">
 <meta property="og:image" content="${esc(`${new URL(pageUrl).origin}${BASE_PATH}/og.png`)}">
@@ -2489,7 +1971,7 @@ ${nav('company')}
   <p class="crumb"><a class="back" href="${esc(`${BASE_PATH}#c-${company.id}`)}">&larr; All companies</a></p>
 
   <header class="company-head">
-    <p class="about-upstream">A company record on <a href="${esc(BASE_PATH)}">Upstream</a>, assembled from public sources.</p>
+    <p class="about-upstream">A company record on <a href="${esc(BASE_PATH)}">Upstream</a>, put together from public sources.</p>
     <h1>${esc(company.name)}</h1>
     ${entityWarning}
     <div class="lead-builds">
@@ -2504,7 +1986,7 @@ ${nav('company')}
       <button type="button" class="action copy-brief" hidden>Copy brief</button>
       <button type="button" class="action action-quiet mark" data-mark="pass" aria-pressed="false" hidden>Pass</button>
     </div>
-    <p class="device-note" id="device-note" hidden>Saved in this browser only &mdash; not synced, and not visible to anyone else, including whoever runs this site.</p>
+    <p class="device-note" id="device-note" hidden>Saved in this browser only. It is not synced, and nobody else can see it, including whoever runs this site.</p>
   </header>
 
   <section aria-labelledby="evidence-h">
@@ -2518,7 +2000,7 @@ ${nav('company')}
     </dl>
     ${
 			company.source_year
-				? `<p class="provenance">The source listing prints ${esc(company.source_year)} beside the name, with no word on what it counts &mdash; founding, incubation or admission. Nothing here dates or ranks the company by it.</p>`
+				? `<p class="provenance">The source listing prints ${esc(company.source_year)} beside the name and doesn&#39;t say what it counts (founding, incubation or admission). Nothing here dates or ranks the company by it.</p>`
 				: ''
 		}
     <details class="reading"><summary>How the website was read</summary>${productDetail(company)}</details>
@@ -2541,10 +2023,10 @@ ${nav('company')}
   <section aria-labelledby="classified-h">
     <h2 id="classified-h">How it was classified and ranked</h2>
     <details class="method-fold">
-      <summary>Where in the RDI scheme</summary>
+      <summary>Where it sits in the government&#39;s R&amp;D sub-sectors (the RDI scheme)</summary>
       ${
 				sub
-					? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} &mdash; ${esc(sub.subsector)}</a></p>
+					? `<p class="rdi-full"><a href="${esc(`${BASE_PATH}${query({ subsector: sub.subsector_id })}`)}">${esc(sub.subsector_id)} ${esc(sub.subsector)}</a></p>
       <p class="provenance basis">${
 					company.classify_basis === 'register-label'
 						? `<span class="basis-tag weak">${labelWords(company).tag}</span> The only thing placing it here is ${labelWords(company).placed}. That supports this sub-sector and nothing narrower.`
@@ -2554,7 +2036,7 @@ ${nav('company')}
 					company.project_type
 						? esc(company.project_type)
 						: company.classify_basis === 'register-label'
-							? 'unknown &mdash; nothing published about the company says what kind of product it is'
+							? 'unknown. Nothing published about the company says what kind of product it is'
 							: 'none matched'
 				}</p>
       ${
@@ -2562,10 +2044,10 @@ ${nav('company')}
 					// the label in a full sentence ("a robotics company developing robotic
 					// platforms") is not a second source agreeing with the first.
 					company.classify_note
-						? `<details class="reasoning"><summary>How the classifier decided &mdash; its reasoning, not evidence</summary>
+						? `<details class="reasoning"><summary>How the classifier decided (its reasoning, which is not evidence)</summary>
         <blockquote class="note-verbatim">${esc(company.classify_note)}</blockquote>${
 								company.entity_type && company.entity_type !== 'company' && /\bcompany\b/i.test(company.classify_note)
-									? '<p class="provenance">It says &ldquo;company&rdquo;. Nothing on record shows one exists.</p>'
+									? '<p class="provenance">It says "company". Nothing on record shows one exists.</p>'
 									: ''
 							}</details>`
 						: ''
@@ -2576,11 +2058,11 @@ ${nav('company')}
     </details>
     <details class="method-fold">
       <summary>Where it ranks</summary>
-      <p class="rank-line">${company.tier === 'A' ? 'Recently on record, fewest traces (Tier A)' : company.tier === 'B' ? 'Recently on record, some traces (Tier B)' : 'Longer on record, or more widely traced (Tier C)'}</p>
+      <p class="rank-line">${company.tier === 'A' ? 'Recently on record, fewest references (Tier A)' : company.tier === 'B' ? 'Recently on record, some references (Tier B)' : 'Longer on record, or more references (Tier C)'}</p>
       <p class="provenance">${esc(whyOnList(company))}</p>
       <p class="provenance">${whyTier(company)}</p>
-      <p class="provenance">A tier says how recently this company reached a public record and how little of it is
-        published. It is not a rating, and nothing has tested whether one tier is a better research call than another.</p>
+      <p class="provenance">A tier says how recently this company reached a public record and how little about it is
+        published. It is not a rating. Nobody has tested whether one tier makes a better research call than another.</p>
     </details>
   </section>
 </div>
@@ -2596,7 +2078,7 @@ ${nav('company')}
  */
 export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name'>[]): string {
 	const words = slug.replace(/[-_]+/g, ' ').trim();
-	const search = `${BASE_PATH}${query({ q: words, described: 'all', kind: 'all', tier: 'all', age: 'all' })}#list`;
+	const search = `${BASE_PATH}${query({ q: words })}#list`;
 	const list = nearest.length
 		? `<h2>Names close to it</h2>
   <ul class="nearest">${nearest.map((c) => `<li><a href="${esc(`${BASE_PATH}/c/${c.id}`)}">${esc(c.name)}</a></li>`).join('')}</ul>`
@@ -2606,7 +2088,7 @@ export function renderNotFound(slug: string, nearest: Pick<Company, 'id' | 'name
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>No company at this address &mdash; Upstream</title>
+<title>No company at this address | Upstream</title>
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
@@ -2619,12 +2101,12 @@ ${nav('company')}
 <p class="crumb"><a class="back" href="${esc(BASE_PATH)}">&larr; All companies</a></p>
   <header class="masthead">
     <h1>No company at this address</h1>
-    <p class="lede">Nothing on Upstream is filed under &ldquo;${esc(slug)}&rdquo;. A link stops working here for two ordinary
+    <p class="lede">Nothing on Upstream is filed under "${esc(slug)}". A link stops working here for two ordinary
       reasons: a company listed twice under two spellings is folded into one row and keeps the other address, or a source
       stopped listing it.</p>
   </header>
   ${list}
-  <p><a href="${esc(search)}">Search every record for &ldquo;${esc(words)}&rdquo;</a> &middot; <a href="${esc(BASE_PATH)}">Back to the list</a></p>
+  <p><a href="${esc(search)}">Search every record for "${esc(words)}"</a> &middot; <a href="${esc(BASE_PATH)}">Back to the list</a></p>
 </div>
 </body>
 </html>`;
@@ -2880,7 +2362,7 @@ section > h2, .section-h {
   details { display: block; }
   details > summary { list-style: none; }
   a { text-decoration: none; }
-  .row-main h3 a::after { content: ' — ' attr(href); font-weight: 400; font-size: var(--t-micro); color: var(--muted); }
+  .row-main h3 a::after { content: ' (' attr(href) ')'; font-weight: 400; font-size: var(--t-micro); color: var(--muted); }
 }
 /* Figures that sit in columns or beside each other keep one width, so counts line up. */
 .cell-n, .brow-n, .result-line strong, .count, .trace-n, .finding-list strong, .panel-meta strong { font-variant-numeric: tabular-nums; }
@@ -3192,6 +2674,17 @@ a.chip:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
 .freshness { font-size: var(--t-xs); color: var(--muted); margin: var(--s2) 0 0; }
 .freshness strong { color: var(--ink); }
 .entity-tag { color: var(--muted); font-size: 0.8em; font-weight: normal; white-space: nowrap; }
+.badge { display: inline-block; margin-left: 0.4em; padding: 0 0.45em; border: 1px solid var(--rule-strong); border-radius: 999px; color: var(--muted); font-size: 0.72em; font-weight: 500; line-height: 1.6; white-space: nowrap; vertical-align: 0.12em; }
+.toggles { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin: var(--s3) 0 0; padding: 0; border: 0; }
+.toggle { display: block; font-size: var(--t-sm); cursor: pointer; }
+.toggle input { accent-color: var(--ink); margin: 0 0.45em 0 0; vertical-align: -0.1em; }
+.toggle-note { color: var(--muted); }
+.toggle-rest { color: var(--muted); cursor: default; }
+.pager { margin: var(--s5) 0 0; font-size: var(--t-sm); }
+.pager-where { color: var(--muted); margin: 0 0 var(--s2); }
+.pager-links { display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0; }
+.pager-link { padding: 0.15em 0.55em; border: 1px solid var(--rule); border-radius: 6px; text-decoration: none; }
+.pager-link.current { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .basis-tag { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
 /* A warning, not a find, so it does not get the yellow: that means "nobody has noticed
    this company yet", and a register label is a fact about the evidence instead. */
@@ -3398,6 +2891,7 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .intro { margin: 0 0 var(--s2); padding: 0 0 var(--s3); border-bottom: 2px solid var(--ink); }
 .intro h1 { font-size: var(--t-hero); line-height: 1.08; letter-spacing: -0.04em; font-weight: 700; color: var(--ink); margin: 0 0 var(--s2); max-width: 32ch; text-wrap: balance; }
 .lede { font-size: var(--t-lede); color: var(--body-ink); margin: 0 0 var(--s2); max-width: 64ch; }
+.lede p { margin: 0 0 var(--s2); }
 /* The three things the page lets you do, highlighted the way the site highlights its own. */
 .hl { color: var(--ink); box-shadow: inset 0 -0.36em 0 var(--hl); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .coverage-line { font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); margin: 0; max-width: none; }
@@ -3426,6 +2920,13 @@ html, body { overflow-x: clip; }
 .about-results > summary::-webkit-details-marker { display: none; }
 .about-results-body { padding: var(--s2) 0 var(--s1) var(--s4); border-left: 3px solid var(--mark); font-size: var(--t-xs); color: var(--body-ink); }
 .about-results-body p { margin: 0 0 var(--s2); }
+/* Open, the notes take the whole row and the sort moves under them, so they read at a normal measure. */
+.results-bar:has(.about-results[open]) { flex-wrap: wrap; }
+.result-head:has(.about-results[open]) { flex-basis: 100%; }
+.about-results[open] { flex-basis: 100%; }
+.about-results-body { max-width: 68ch; }
+.checks { max-width: 68ch; padding-left: 1.2em; }
+.checks li { margin: 0 0 var(--s2); }
 .bar-links { align-items: center; padding-top: var(--s1); }
 .export { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; }
 .toast { position: fixed; left: 0; right: 0; bottom: calc(var(--s4) + env(safe-area-inset-bottom, 0px)); width: min(40rem, calc(100vw - 2rem)); z-index: 20; margin: 0 auto; padding: var(--s2) var(--s3); border: 1px solid var(--rule); border-left: 4px solid var(--mark); border-radius: var(--radius); background: var(--raise); box-shadow: var(--shadow); font-size: var(--t-sm); }
@@ -3472,7 +2973,7 @@ html, body { overflow-x: clip; }
 .method-fold > summary, .reading > summary, .brief-fold > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--s2); font-weight: 600; color: var(--ink); list-style: none; }
 .method-fold > summary::-webkit-details-marker, .reading > summary::-webkit-details-marker, .brief-fold > summary::-webkit-details-marker { display: none; }
 .method-fold > summary::before, .reading > summary::before, .brief-fold > summary::before, .about-results > summary::before { content: '+'; display: inline-block; width: 1em; text-align: center; font-family: var(--mono); color: var(--ink); }
-.method-fold[open] > summary::before, .reading[open] > summary::before, .brief-fold[open] > summary::before, .about-results[open] > summary::before { content: '–'; }
+.method-fold[open] > summary::before, .reading[open] > summary::before, .brief-fold[open] > summary::before, .about-results[open] > summary::before { content: '−'; }
 .method-fold[open] { padding-bottom: var(--s3); }
 .detail .mini { margin-top: var(--s4); }
 .toc { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); font-size: var(--t-xs); margin-top: var(--s3); }
@@ -3650,7 +3151,7 @@ export const MARKS_SCRIPT = `
   }
   var base = ${JSON.stringify(BASE_PATH)};
   // The whole shortlist, wherever its companies sit in the list: a view of exactly those ids, over every record.
-  function shortlistUrl(ids) { return base + '?described=all&kind=all&age=all&ids=' + encodeURIComponent(ids.slice(0, 500).join(',')) + '#list'; }
+  function shortlistUrl(ids) { return base + '?ids=' + encodeURIComponent(ids.slice(0, 500).join(',')) + '#list'; }
   function paintNav() {
     var item = document.querySelector('.nav-shortlist-item');
     if (!item) return;
@@ -3671,7 +3172,7 @@ export const MARKS_SCRIPT = `
     var box = document.getElementById('shortlist-empty');
     if (!box) return;
     box.hidden = false;
-    box.innerHTML = 'Your shortlist is empty. Choose <strong>Shortlist</strong> on any company to keep it here &mdash; saved in this browser only. <button type="button" class="linkish" data-act="close-empty">Close</button>';
+    box.innerHTML = 'Your shortlist is empty. Choose <strong>Shortlist</strong> on any company to keep it here. It is saved in this browser only. <button type="button" class="linkish" data-act="close-empty">Close</button>';
   });
   document.addEventListener('click', function (event) {
     var b = event.target.closest ? event.target.closest('[data-act="close-empty"]') : null;
@@ -3859,7 +3360,7 @@ export const LIST_SCRIPT = `
         ? (size
             ? '<strong>' + Object.keys(m.shortlist).length + '</strong> shortlisted, <strong>' + Object.keys(m.seen).length + '</strong> seen, <strong>' + Object.keys(m.pass).length + '</strong> passed. '
             : '')
-          + 'Shortlist and seen marks are saved in this browser only &mdash; not synced, and not visible to anyone else.'
+          + 'Your shortlist and &quot;seen&quot; marks are saved in this browser only. They are not synced, and nobody else can see them.'
           + (size ? ' <button type="button" class="linkish" data-act="clear-marks">Clear all ' + size + '</button>' : '')
         : 'This browser is not letting the page store anything, so shortlist, seen and pass are off.';
     }
@@ -3906,6 +3407,7 @@ export const LIST_SCRIPT = `
     var params = new URLSearchParams();
     Array.prototype.forEach.call(form.elements, function (el) {
       if (!el.name || el.disabled || el.type === 'submit') return;
+      if (el.type === 'checkbox' && !el.checked) return;
       if (el.value) params.append(el.name, el.value);
     });
     load(form.getAttribute('action').split('#')[0] + (params.toString() ? '?' + params.toString() : ''), opts);
@@ -3936,6 +3438,7 @@ export const LIST_SCRIPT = `
         Array.prototype.forEach.call(form.elements, function (mine2) {
           if (!mine2.name) return;
           var theirs = doc.querySelector('[name="' + mine2.name + '"][id="' + mine2.id + '"]') || doc.querySelector('#controls [name="' + mine2.name + '"]');
+          if (mine2.type === 'checkbox') { var box = doc.querySelector('#controls input[type=checkbox][value="' + mine2.value + '"]'); if (box) mine2.checked = box.checked; return; }
           if (theirs && !(mine2 === document.activeElement && mine2.id === 'q')) mine2.value = theirs.value;
         });
         // A secondary filter in use keeps "More filters" open; the reader can still open it themselves.
@@ -3986,7 +3489,7 @@ export const LIST_SCRIPT = `
   // Back and Forward step through the filters the reader chose.
   window.addEventListener('popstate', function () { load(location.pathname + location.search, { history: 'none' }); });
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('#breakdown a.cell, #breakdown a.sector-link, #breakdown a.brow, #quick a') : null;
+    var link = event.target.closest ? event.target.closest('#breakdown a.cell, #breakdown a.sector-link, #breakdown a.brow, #quick a, #list a.pager-link') : null;
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     load(link.getAttribute('href'), { history: 'push', reveal: true });
@@ -4181,7 +3684,7 @@ export const DETAIL_SCRIPT = `
       var state = marks.toggle(kind, id);
       paint();
       if (!note) return;
-      var saved = ' Saved in this browser only &mdash; not synced, and not visible to anyone else.';
+      var saved = ' Saved in this browser only. It is not synced, and nobody else can see it.';
       if (state === null) note.innerHTML = '<strong>Could not save.</strong> This browser did not keep the change.';
       else if (kind === 'shortlist' && state) {
         var ids = Object.keys(marks.read().shortlist);
@@ -4199,53 +3702,91 @@ export const DETAIL_SCRIPT = `
 /** Anchors that lived in the reference half of the list page and now live on /about. */
 const MOVED_ANCHORS = ['reference', 'reference-h', 'findings-h', 'off-map', 'off-map-h', 'undescribed', 'undescribed-h', 'register', 'crosswalk', 'method-h'];
 
-/**
- * How the list is built and what it leaves out, on a page of its own: for the reader judging the
- * system rather than using it. It used to ride, collapsed, under every list page (about 50 KB and
- * four aggregate queries a render) for the few readers who opened it.
- */
-/**
- * The one-off registry and website lookup, on the methodology page: how it was gathered, in its
- * own words, and what it found, counted from the table rather than written down.
- */
-function enrichmentSection(view: AboutView): string {
-	const e = view.enrichment;
-	if (!e) return '';
-	const minYear = view.now.getUTCFullYear() - MAX_AGE_YEARS;
-	const rows: [string, number][] = [
-		['Records enriched', e.enriched],
-		['Matched to a registry record', e.matched],
-		['Ambiguous or not found in the registry', e.unmatched],
-		[`Started before ${minYear}, the five-year window, by registry date`, e.beforeWindow],
-		['Struck off or closed in the registry', e.struck],
-		['Websites added where Upstream had none confirmed', e.websitesAdded],
-		['Product quotes added, in the company&rsquo;s own words', e.quotes],
-	];
-	return `
-<section class="ref-section" id="enrichment" aria-labelledby="enrichment-h">
-  <h2 id="enrichment-h">Registry and website enrichment</h2>
-  <p class="provenance">${esc(e.method)}</p>
-  <table class="snapshot enrichment-counts">
-    <tbody>
-      ${rows.map(([label, n]) => `<tr><th scope="row">${label}</th><td class="snap-n">${n}</td></tr>`).join('\n      ')}
-    </tbody>
-  </table>
-  <p>Enrichment does not change the ranking: a registry lookup is something Upstream did, not a public trace of the company.</p>
-</section>`;
+/** What each source gives the list, in a reader's words. */
+const SOURCE_GIVES: Record<string, string> = {
+	'sine-iitb': 'company name, founders, one-line description, website, incubation year',
+	'rtbi-iitm': 'company name, one-line description, website',
+	'grants-csv': 'company name, the grant and its year, from lists typed up by hand from the published PDFs',
+	'dpiit-startup-india': 'company name, city, the industry picked from a dropdown, the stage, whether it is recognised',
+	'venture-center': 'company name, one-line description, founders',
+	'nmicps-tih': 'startup name, founders, product brief, incubation date, the hub that funded it',
+	'fsid-iisc': 'company name, description, sector, website',
+	'tides-iitr': 'company name, description, whether it is still incubated or has graduated',
+	'nsa-dpiit': 'award and year, for companies already on the list',
+	'birac-big': 'grant and year, for companies already on the list',
+	'tdb-agreements': 'funding agreement and year, for companies already on the list',
+	idex: 'defence innovation award, for companies already on the list',
+};
+
+/** Why a source is failing, where we know. */
+const KNOWN_FAILURES: Record<string, string> = {
+	'nmicps-tih':
+		'The NM-ICPS portal answers from a machine in India and times out from the cloud servers the daily run uses. Our unconfirmed guess is that it blocks cloud servers.',
+};
+
+/** Where the repository and its files live, for links a reader can open. */
+const REPO = 'https://github.com/Rhitrao/upstream';
+/** A public contact address for the "Who built it" section. Empty until one is chosen; the section then points to the repository's issues. */
+const CONTACT_EMAIL = '';
+
+/** What came of reading company websites, every way it went, counted. */
+function websiteOutcomes(p: ProductOutcomes): string {
+	if (p.total === 0) return '';
+	const failed = [
+		p.unreachable ? `<strong>${p.unreachable}</strong> publish an address that no longer answers` : '',
+		p.refused ? `<strong>${p.refused}</strong> refused an automated reader` : '',
+		p.thin ? `<strong>${p.thin}</strong> served a page with no readable text` : '',
+		p.unclear ? `<strong>${p.unclear}</strong> never said what they make` : '',
+		p.unverified ? `<strong>${p.unverified}</strong> could not be confirmed as the company&#39;s own site, so were not read` : '',
+	].filter(Boolean);
+	const list = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}` : xs[0]);
+	return `Of the ${p.total} companies here, ${p.withSite} publish a website, and <strong>${p.described}</strong> of them say plainly enough what they build to be quoted.${
+		failed.length ? ` Of the rest, ${list(failed)}.` : ''
+	}${p.noSite ? ` <strong>${p.noSite}</strong> have no website listed, where a source that publishes websites looked for one.` : ''}`;
+}
+
+function sourceTable(view: AboutView): string {
+	const health = new Map(view.sourceHealth.map((h) => [h.source, h]));
+	const counts = view.sourceCounts ?? {};
+	const day = (iso: string | null) => (iso ? shortDate(iso.slice(0, 10)) : 'never');
+	const extra = [...new Set([...view.sourceHealth.map((h) => h.source), ...Object.keys(counts)])].filter((id) => !(SOURCES as readonly string[]).includes(id));
+	const row = (id: string) => {
+		const h = health.get(id);
+		const known = KNOWN_FAILURES[id];
+		const status = !h
+			? 'no check recorded yet'
+			: h.last_status === 'ok'
+				? 'working'
+				: `<strong>failed last check</strong>${known ? `<br><span class="provenance">${esc(known)}</span>` : h.last_success ? `<br><span class="provenance">Showing its records from the last check that worked, on ${day(h.last_success)}.</span>` : ''}`;
+		return `<tr><td>${esc(SOURCE_LABELS[id] ?? id)}</td><td>${esc(SOURCE_GIVES[id] ?? 'dated evidence for companies already on the list')}</td><td class="mono">${counts[id] ?? 0}</td><td class="mono">${h ? `${day(h.last_attempt)}<br><span class="provenance">newest data: ${h.data_as_of ? day(h.data_as_of) : 'date unknown'}</span>` : 'never'}</td><td>${status}</td></tr>`;
+	};
+	return `<div class="table-scroll"><table class="evidence-table source-status">
+    <caption class="visually-hidden">Each source, what it gives, how many records, and its last check</caption>
+    <thead><tr><th scope="col">Source</th><th scope="col">What it gives us</th><th scope="col">Records</th><th scope="col">Last checked</th><th scope="col">Status</th></tr></thead>
+    <tbody>${[...SOURCES, ...extra].map(row).join('')}</tbody>
+  </table></div>`;
 }
 
 export function renderAboutPage(view: AboutView): string {
-	const fresh =
-		view.discoveredThisWeek > 0
-			? `<p class="note">${view.discoveredThisWeek} ${view.discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in a source we were already watching. A new source&rsquo;s first read is not counted here.</p>`
-			: '';
+	const counts = view.sourceCounts ?? {};
+	const contributing = SOURCES.filter((id) => (counts[id] ?? 0) > 0).length;
+	const failing = SOURCES.filter((id) => view.sourceHealth.some((h) => h.source === id && h.last_status !== 'ok')).length;
+	const share = (n: number, of: number) => (of ? Math.round((n / of) * 100) : 0);
+	const found = view.found;
+	const e = view.enrichment;
+	const overrides = Object.keys(OVERRIDES).length;
+	const s = SNAPSHOT;
+	const snapshotUrl = `${REPO}/blob/main/${s.exportFile}`;
+	const contact = CONTACT_EMAIL
+		? `Write to <a href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a>.`
+		: `For questions or corrections, <a href="${esc(`${REPO}/issues`)}">open an issue on the repository</a>.`;
 	return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coverage &amp; methodology &mdash; Upstream</title>
-<meta name="description" content="Which sources Upstream reads, when each was last checked, what the records show, and how the list is ordered and limited.">
+<title>Coverage and methodology | Upstream</title>
+<meta name="description" content="Where Upstream's records come from, how a company gets on the list, how the list is ordered, what is checked and what Upstream can't see.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="${esc(`${BASE_PATH}/about`)}">
@@ -4259,33 +3800,76 @@ export function renderAboutPage(view: AboutView): string {
 ${nav('about')}
 <div class="wrap about">
 <header class="intro">
-  <p class="eyebrow">Coverage &amp; methodology</p>
-  <h1>How the data is collected</h1>
-  <p class="lede">Which public sources Upstream reads, when each was last checked, what the records show, and the rules that
-    order and limit the list. <a href="${esc(BASE_PATH)}">Back to Discover</a></p>
+  <p class="eyebrow">Coverage and methodology</p>
+  <h1>How Upstream works</h1>
   <nav class="toc" aria-label="On this page">
-    <a href="#snapshot-h">The figures</a> <a href="#sources-h">Sources</a> <a href="#findings-h">What the records show</a> <a href="#funnel-h">Records reaching the list</a> <a href="#outside-map">Outside the map</a> <a href="#enrichment-h">Registry enrichment</a> <a href="#method-h">Ranking and limits</a>
+    <a href="#what-h">What it is</a> <a href="#sources-h">Sources</a> <a href="#list-h">Getting on the list</a> <a href="#method-h">Order</a> <a href="#checks-h">What we check</a> <a href="#off-map">What we can&#39;t see</a> <a href="#snapshot">Updates and snapshot</a> <a href="#built-h">Who built it</a>
   </nav>
 </header>
-${snapshotSection()}
+
+<section class="ref-section" aria-labelledby="what-h">
+  <h2 id="what-h">What Upstream is</h2>
+  <p>Upstream lists young Indian deep-tech companies found in public records, and it is free to use. It puts the companies with the least written about them first, to help you decide where to start looking. It can&#39;t tell you whether a company is any good.</p>
+</section>
+
 <section class="ref-section" id="reference" aria-labelledby="sources-h">
-  <h2 id="sources-h">Sources and freshness</h2>
-  ${sourceStatus(view)}
-  ${freshness(view)}
+  <h2 id="sources-h">Where the data comes from</h2>
+  <p>Upstream reads ${SOURCES.length} sources that list companies. ${contributing} of them ${contributing === 1 ? 'has' : 'have'} put at least one record on the list${failing ? `, and ${failing} failed ${failing === 1 ? 'its' : 'their'} last check` : ''}. A few award and grant lists add dated evidence to companies that are already here and never add a company of their own. Everything is public, and nothing is read from behind a login.</p>
+  ${sourceTable(view)}
+  <p class="provenance">The Records column counts each company once per source, so a company two sources list is counted in both rows. A check that worked means the source was read. It doesn&#39;t mean a person checked each record.</p>
 </section>
-<section class="ref-section" aria-labelledby="findings-h">
-  ${findingsSection(view) || '<h2 id="findings-h">What the records show</h2><p class="provenance">Nothing to report on this data.</p>'}
+
+<section class="ref-section" aria-labelledby="list-h">
+  <h2 id="list-h">How a company gets on the list</h2>
+  <p>Each source is read every day. Records from different sources are matched when their names agree once punctuation and legal suffixes (such as "Private Limited") are removed, or when a person has paired them by hand. Two spellings of one company that fail that test stay as two records.</p>
+  <p>A classifier then places each record in one of the ${view.coverage.subsector_count} sub-sectors of the government&#39;s research and development funding scheme (the RDI scheme). When the evidence is thin, it is allowed to say it doesn&#39;t know instead of guessing. Of the ${found} records read so far, it placed ${view.tracked} (${share(view.tracked, found)}%).${
+		view.gaps.total
+			? ` Of the rest, ${view.gaps.undescribed.total} ${view.gaps.undescribed.total === 1 ? 'was' : 'were'} described too thinly to place, and ${view.gaps.taxonomy.total} ${view.gaps.taxonomy.total === 1 ? 'describes' : 'describe'} work the scheme has no sub-sector for.`
+			: ''
+	} The placements are automatic, nobody has reviewed them, and some will be wrong.</p>
+  <p>The RDI list is the government&#39;s set of research priorities. It is used here to sort records into fixed, public headings. It says nothing about whether anyone will buy what a company makes.</p>
 </section>
-<section class="ref-section" aria-labelledby="funnel-h">
-  <h2 id="funnel-h">How many records reach the list</h2>
-  ${fresh}${funnelNote(view) || '<p class="provenance">Every record held is on the map.</p>'}
+
+<section class="ref-section" aria-labelledby="method-h">
+  <h2 id="method-h">How the list is ordered</h2>
+  <p>The least-documented companies come first. Each record is ordered by its collected references: public records of the company that Upstream reads, such as an incubator listing, a grant or award, a startup-register entry, press coverage or the company&#39;s own website. Fewest references first.</p>
+  <p>The reason is that incubator and grant records sometimes list a company before it is easy to find anywhere else. Lists ranked by funding or press show every investor the same names. This order shows the ones those lists haven&#39;t reached.</p>
+  <p class="unvalidated"><strong>The ranking hasn&#39;t been tested against outcomes.</strong> It says where public information is thinnest. Nobody has checked whether the companies near the top turn out to be better research calls, and this page doesn&#39;t claim they are. <a href="${esc(`${REPO}/blob/main/docs/decisions/001-rank-by-obscurity.md`)}">The decision record for this order</a></p>
+  <p>Each record also has a tier, which you can filter on. Tier A is a company a daily run found under 90 days ago, with no source dating anything about it earlier and at most 2 references. Tier B is one first seen under 180 days ago with at most 5 references. Tier C is everything else. A record whose only description is a register or grant label can&#39;t be Tier A or B. There is no score.</p>
+  <p>"Started in the last ${MAX_AGE_YEARS} years" uses the government registration year where we found one, and otherwise the earliest founding or incubation year a source gives. A record with neither is kept in.</p>
 </section>
-<div class="ref-section" id="outside-map">
-  <h2 id="off-map-h-all" class="section-h">Records outside the map</h2>
-  ${offMap(view) || '<p class="provenance">None: every record reached an RDI sub-sector.</p>'}
-</div>
-${enrichmentSection(view)}
-${methodology(view)}
+
+<section class="ref-section" id="enrichment" aria-labelledby="checks-h">
+  <h2 id="checks-h">What we check</h2>
+  <ul class="checks">
+    <li>A website is only used if the page names the company, its founder or its incubator. An address that fails is shown as not confirmed and nothing on it is used.${view.products.notTheirs ? ` ${view.products.notTheirs} addresses have failed so far.` : ''} ${websiteOutcomes(view.products)}</li>
+    <li>Registration dates come from the government company registry (the Ministry of Corporate Affairs), read from public registry sites and matched on the company&#39;s name and state.${e ? ` Of ${e.enriched} records looked up, ${e.matched} matched a registry record; ${e.unmatched} were ambiguous or not found. ${e.beforeWindow} started before ${view.now.getUTCFullYear() - MAX_AGE_YEARS} by registry date, and ${e.struck} are listed as struck off or closed.` : ''}</li>
+    <li>Company quotes are the company&#39;s own words, taken from its website, and are shown as quotes.${e ? ` There are ${e.quotes} so far.` : ''} They are what the company says about itself. Nobody has checked the claims in them.</li>
+    <li>A person checked ${overrides} ${overrides === 1 ? 'company' : 'companies'} by hand (the ones on the robotics picks page)${e ? ` and ${e.checkedByPerson} registry and website ${e.checkedByPerson === 1 ? 'record' : 'records'}` : ''}. Everything else was checked automatically, and each company page says which.</li>
+  </ul>
+  <p class="provenance">None of these checks changes the order: a registry lookup is Upstream&#39;s own work and doesn&#39;t count as a public record of the company.</p>
+</section>
+
+<section class="ref-section" id="off-map" aria-labelledby="off-map-h">
+  <h2 id="off-map-h">What Upstream can&#39;t see</h2>
+  <ul class="checks">
+    <li>Companies that no incubator, grant list or register has recorded. Their absence here says nothing about how many there are.</li>
+    <li>Sectors the government&#39;s R&amp;D list has no heading for, such as water infrastructure and geospatial.${view.gaps.taxonomy.total ? ` ${view.gaps.taxonomy.total} ${view.gaps.taxonomy.total === 1 ? 'record falls here and is' : 'records fall here and are'} not on the list.` : ''}</li>
+    <li>Anything behind a login, including LinkedIn.</li>
+  </ul>
+  <p>Incubators that publish their portfolios are over-represented, and quieter regional ones are under-represented. A sector with few companies here may be one these sources don&#39;t reach.</p>
+</section>
+
+<section class="ref-section" id="snapshot" aria-labelledby="snapshot-h">
+  <h2 id="snapshot-h">How often it updates, and the dated snapshot</h2>
+  <p>Every source is read once a day, and the list changes after each run. A source that fails keeps the records from its last check that worked.${view.discoveredThisWeek ? ` ${view.discoveredThisWeek} ${view.discoveredThisWeek === 1 ? 'company' : 'companies'} turned up in the last seven days in sources already being read.` : ''}</p>
+  <p>The counts from ${esc(s.date)} are kept fixed: ${s.placed} records placed, ${s.companies} of them companies, ${s.described} with a product description. The README quotes these, so they need a date that doesn&#39;t move. The CSV keeps every record and its evidence readable even if the live site is down. <a href="${esc(snapshotUrl)}">Download the ${esc(shortDate('2026-09-17'))} snapshot (CSV)</a></p>
+</section>
+
+<section class="ref-section" aria-labelledby="built-h">
+  <h2 id="built-h">Who built it and how</h2>
+  <p>Rohit Rao built Upstream in about two weeks with Claude Code. It runs on Cloudflare, and the daily collection runs on GitHub Actions. The code is public at <a href="${esc(REPO)}">github.com/Rhitrao/upstream</a>. ${contact}</p>
+</section>
 </div>
 <script>${MARKS_SCRIPT}</script>
 </body>
@@ -4298,16 +3882,16 @@ export function renderPage(view: PageView): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upstream &mdash; find Indian deep-tech companies to research</title>
-<meta name="description" content="Upstream lists Indian deep-tech companies found in incubator, grant and startup-register records, and puts the least-documented first: one incubator listing and no website ranks above a known name with a press cycle.">
+<title>Upstream: young Indian deep-tech companies, least-known first</title>
+<meta name="description" content="A free list of young Indian deep-tech companies from incubator portfolios, government grant lists and the government&#39;s startup register, with the least-known first.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Upstream">
-<meta property="og:title" content="Upstream — find Indian deep-tech companies worth your next research call">
-<meta property="og:description" content="Upstream lists Indian deep-tech companies found in incubator, grant and startup-register records, and puts the least-documented first: one incubator listing and no website ranks above a known name with a press cycle.">
+<meta property="og:title" content="Upstream: young Indian deep-tech companies, least-known first">
+<meta property="og:description" content="A free list of young Indian deep-tech companies from incubator portfolios, government grant lists and the government&#39;s startup register, with the least-known first.">
 <meta property="og:url" content="${esc(`${view.origin}${BASE_PATH}`)}">
 <meta property="og:image" content="${esc(`${view.origin}${BASE_PATH}/og.png`)}">
 <meta property="og:image:width" content="1200">
@@ -4320,7 +3904,7 @@ ${view.ids || Object.values(viewParams(view)).some(Boolean) ? '<meta name="robot
 
      The same list is reachable by several orderings of the same parameters, and by
      parameters sitting at their defaults. This is the one spelling of it. -->
-<link rel="canonical" href="${esc(`${BASE_PATH}${query(viewParams(view))}`)}">
+<link rel="canonical" href="${esc(`${BASE_PATH}${query({ ...viewParams(view), page: (view.pageNo ?? 1) > 1 ? String(view.pageNo) : null })}`)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=optional">
@@ -4340,7 +3924,7 @@ ${controls(view)}
 ${list(view)}
 <div id="undated-slot">${undatedList(view)}</div>
 </main>
-<footer class="page-foot"><a href="${esc(`${BASE_PATH}/about`)}">Coverage &amp; methodology</a> &middot; public records only &middot; shortlist and marks are saved in this browser</footer>
+<footer class="page-foot"><a href="${esc(`${BASE_PATH}/about`)}">Coverage and methodology</a> &middot; public records only &middot; your shortlist and marks stay in this browser</footer>
 </div>
 <script>${MARKS_SCRIPT}</script>
 <script>${LIST_SCRIPT}</script>
