@@ -91,7 +91,7 @@ export interface EdgeCache {
  * Bumped when the page's layout changes, so a cached page from before the change is never
  * served after it, even for a request the new build's id somehow misses.
  */
-export const LAYOUT_VERSION = 'layout-2026-09-24a';
+export const LAYOUT_VERSION = 'layout-2026-09-24b';
 
 export async function edgeCache(env: Env, ctx: ExecutionContext, origin: string): Promise<EdgeCache> {
 	if (env.EDGE_CACHE === 'off' || typeof caches === 'undefined') return { enabled: false, key: '', origin, ctx };

@@ -440,14 +440,33 @@ function header(view: PageView): string {
   <p class="since" id="since" hidden></p>
 </header>`;
 	}
+	return hero(view);
+}
+
+/**
+ * The discovery page's hero, as the owner wrote it. Its em dashes are deliberate, so
+ * scripts/copy-check.mjs leaves this function out of its dash count. The source count is live.
+ */
+function hero(view: PageView): string {
 	return `
-<header class="intro">
+<header class="intro hero">
   <p class="eyebrow">Deep-tech sourcing for investors</p>
-  <h1>Young Indian deep-tech companies, least-known first</h1>
+  <h1>Go upstream of the funding news.</h1>
+  <p class="hero-sub">Startups show up in public records before they show up in the news.</p>
   <div class="lede">
-    <p>Upstream is a free list of young Indian deep-tech companies, gathered every day from public records: incubator portfolios at places like IIT Bombay and IIT Madras, government grant lists, and the government&#39;s startup register.</p>
-    <p>Most lists rank companies by funding or press coverage, so every investor ends up looking at the same names. Upstream shows the least-known companies first. A company with one incubator listing and no website comes before one that has been in the news. That tells you where to start looking. It can&#39;t tell you which companies are good. That still takes a conversation with the founder.</p>
+    <p>Most investors find early companies the same way &mdash; funding news, demo days, warm introductions &mdash; so by the time a startup shows up there, every fund has already seen it.</p>
+    <p>Upstream looks earlier. Before a company raises money or makes the news, it leaves traces in public records: an incubator lists it, a government grant names it, it registers as a startup. Upstream reads ${numberWord(SOURCES.length)} of these sources every day, sorts each company into the government&#39;s ${view.coverage.subsector_count} R&amp;D sub-sectors, and shows the least-known ones first.</p>
+    <p><strong class="hero-why">Why &quot;Upstream&quot;?</strong> A startup&#39;s story usually reaches investors downstream, in funding announcements and press. Upstream is where that story starts &mdash; in records that few investors ever read.</p>
   </div>
+  <section class="hero-how" aria-labelledby="how-h">
+    <h2 id="how-h" class="hero-how-h">How to use it</h2>
+    <ol class="hero-steps">
+      <li><span class="hero-step-n" aria-hidden="true">1</span><span><a href="#coverage">Pick a sector in the map below.</a></span></li>
+      <li><span class="hero-step-n" aria-hidden="true">2</span><span>Open a company to see what it builds and where each fact came from.</span></li>
+      <li><span class="hero-step-n" aria-hidden="true">3</span><span><a class="hero-shortlist" href="${esc(BASE_PATH)}#list">Shortlist the ones you want to call.</a></span></li>
+    </ol>
+    <p class="hero-note">The order shows where fewer people have looked. Whether a company is any good, you&#39;ll only learn by talking to the founder.</p>
+  </section>
   <p class="since" id="since" hidden></p>
 </header>`;
 }
@@ -2892,6 +2911,22 @@ textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .intro h1 { font-size: var(--t-hero); line-height: 1.08; letter-spacing: -0.04em; font-weight: 700; color: var(--ink); margin: 0 0 var(--s2); max-width: 32ch; text-wrap: balance; }
 .lede { font-size: var(--t-lede); color: var(--body-ink); margin: 0 0 var(--s2); max-width: 64ch; }
 .lede p { margin: 0 0 var(--s2); }
+/* The discovery hero: plain body text on plain paper (the page's yellow wash starts below it), one
+   subhead between the headline and the text, and the three steps in a row that stack on a phone. */
+.hero { background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); }
+.hero-sub { font-size: clamp(1.125rem, 2vw, 1.3125rem); line-height: 1.4; color: var(--ink); font-weight: 500; margin: 0 0 var(--s4); max-width: 42ch; text-wrap: pretty; }
+.hero .lede { font-size: var(--t-body); line-height: 1.7; max-width: 65ch; }
+.hero .lede p { margin: 0 0 var(--s3); }
+.hero .lede a { font-family: inherit; box-shadow: none; text-decoration: underline; text-underline-offset: 0.18em; }
+.hero-why { color: var(--ink); font-weight: 600; }
+.hero-how { margin: var(--s4) 0 0; }
+.hero-how-h { font-size: var(--t-sm); font-weight: 600; margin: 0 0 var(--s2); letter-spacing: 0; }
+.hero-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3) var(--s4); }
+.hero-steps li { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--t-sm); line-height: 1.5; color: var(--body-ink); min-width: 0; }
+.hero-step-n { flex: none; display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border: 1px solid var(--rule-strong); border-radius: 999px; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink); transform: translateY(-0.05em); }
+.hero-steps a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.18em; }
+.hero-note { font-size: var(--t-xs); color: var(--muted); margin: var(--s3) 0 0; max-width: 65ch; }
+@media (max-width: 40rem) { .hero-steps { grid-template-columns: 1fr; } }
 /* The three things the page lets you do, highlighted the way the site highlights its own. */
 .hl { color: var(--ink); box-shadow: inset 0 -0.36em 0 var(--hl); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .coverage-line { font-family: var(--mono); font-size: var(--t-xs); color: var(--muted); margin: 0; max-width: none; }
@@ -3162,12 +3197,14 @@ export const MARKS_SCRIPT = `
     var count = item.querySelector('.nav-count');
     if (count) count.textContent = String(ids.length);
     link.setAttribute('href', ids.length ? shortlistUrl(ids) : base + '#list');
+    var heroLink = document.querySelector('a.hero-shortlist');
+    if (heroLink && ids.length) heroLink.setAttribute('href', shortlistUrl(ids));
     link.setAttribute('aria-label', 'Shortlist, ' + ids.length + (ids.length === 1 ? ' company' : ' companies') + ' saved in this browser');
     if (/[?&]ids=/.test(location.search)) link.setAttribute('aria-current', 'page');
   }
   document.addEventListener('click', function (event) {
-    var link = event.target.closest ? event.target.closest('a.nav-shortlist') : null;
-    if (!link || Object.keys(read().shortlist).length) return;
+    var link = event.target.closest ? event.target.closest('a.nav-shortlist, a.hero-shortlist') : null;
+    if (!link || !store || Object.keys(read().shortlist).length) return;
     event.preventDefault();
     var box = document.getElementById('shortlist-empty');
     if (!box) return;
@@ -3882,16 +3919,16 @@ export function renderPage(view: PageView): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upstream: young Indian deep-tech companies, least-known first</title>
-<meta name="description" content="A free list of young Indian deep-tech companies from incubator portfolios, government grant lists and the government&#39;s startup register, with the least-known first.">
+<title>Upstream: go upstream of the funding news</title>
+<meta name="description" content="Indian deep-tech startups found in incubator, grant and startup-register records, least-known first.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Upstream">
-<meta property="og:title" content="Upstream: young Indian deep-tech companies, least-known first">
-<meta property="og:description" content="A free list of young Indian deep-tech companies from incubator portfolios, government grant lists and the government&#39;s startup register, with the least-known first.">
+<meta property="og:title" content="Upstream: go upstream of the funding news">
+<meta property="og:description" content="Indian deep-tech startups found in incubator, grant and startup-register records, least-known first.">
 <meta property="og:url" content="${esc(`${view.origin}${BASE_PATH}`)}">
 <meta property="og:image" content="${esc(`${view.origin}${BASE_PATH}/og.png`)}">
 <meta property="og:image:width" content="1200">
