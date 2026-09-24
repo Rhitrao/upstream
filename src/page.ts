@@ -2239,8 +2239,9 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   padding: 0;
-  /* The site's wash: white at the top, warming to a pale yellow a screen down, then fading out. */
-  background: linear-gradient(180deg, transparent 0, transparent 14rem, var(--wash) 36rem, transparent 90rem) no-repeat, var(--paper);
+  /* The site's wash, as on rohitrao.in: white, warming to a pale yellow, back to white, and again,
+     all the way down the page. One band is 80rem tall and repeats. */
+  background: linear-gradient(180deg, transparent 0, var(--wash) 50%, transparent 100%) 0 0 / 100% 80rem repeat-y, var(--paper);
   color: var(--ink);
   font-family: var(--sans);
   font-size: var(--t-body);
