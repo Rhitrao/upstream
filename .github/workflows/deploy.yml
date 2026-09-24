@@ -86,14 +86,16 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deploy
 
-      # The pages that must answer after a deploy: the portfolio, the list, a filtered list, the
-      # picks view, three company pages and another route on the same domain. Redirects are followed: /parts answers 301 to
-      # its canonical address, and what matters is that the page at the end of it answers.
+      # The pages that must answer after a deploy: the portfolio, the list, the list with the
+      # "Started in the last 5 years" toggle on (?age=recent), a filtered list, a later page of the
+      # list, the picks view, three company pages, the methodology page and another route on the
+      # same domain. Redirects are followed: /parts answers 301 to its canonical address, and what
+      # matters is that the page at the end of it answers.
       - name: Check the live pages answer
         run: |
           set -euo pipefail
           sleep 10
-          for url in "https://rohitrao.in/" "https://rohitrao.in/upstream" "https://rohitrao.in/upstream?subsector=2.7" "https://rohitrao.in/upstream/picks/robotics" "https://rohitrao.in/upstream/c/vctr-labs" "https://rohitrao.in/upstream/c/umarobotics-technology" "https://rohitrao.in/upstream/c/solinas-integrity" "https://rohitrao.in/parts"; do
+          for url in "https://rohitrao.in/" "https://rohitrao.in/upstream" "https://rohitrao.in/upstream?age=recent" "https://rohitrao.in/upstream?subsector=2.7" "https://rohitrao.in/upstream?page=2" "https://rohitrao.in/upstream/picks/robotics" "https://rohitrao.in/upstream/about" "https://rohitrao.in/upstream/c/vctr-labs" "https://rohitrao.in/upstream/c/umarobotics-technology" "https://rohitrao.in/upstream/c/solinas-integrity" "https://rohitrao.in/parts"; do
             code=$(curl -sL -o /dev/null -w '%{http_code}' --max-time 30 "$url")
             echo "$code $url"
             [ "$code" = "200" ]

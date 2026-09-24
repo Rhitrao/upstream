@@ -110,7 +110,7 @@ export function renderPicksPage(picks: Picks): string {
 			const read = `
     <div class="pick-read" aria-label="My read">
       <p class="pick-read-note">My read, not a finding of Upstream</p>
-      <h3>Why I&rsquo;d look</h3>
+      <h3>Why I&#39;d look</h3>
       <p>${g(pick.why)}</p>
       <h3>Risk</h3>
       <p>${g(pick.risk)}</p>
@@ -152,7 +152,7 @@ export function renderPicksPage(picks: Picks): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>${esc(picks.title)} &mdash; Upstream</title>
+<title>${esc(picks.title)} | Upstream</title>
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/upstream/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">

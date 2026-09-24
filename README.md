@@ -19,16 +19,17 @@ nothing about the founder's degree or the investor. It will sometimes put a comp
 heard of above a famous one. That is the point.
 ([001](docs/decisions/001-rank-by-obscurity.md))
 
-The page counts substance, not coverage. It opens on the records a published sentence describes and
-counts the rest — register labels, research projects, unverified names — beside that number rather
-than inside it. Under the headline, findings about Indian deep-tech sourcing, each number a link to
-the rows that prove it. Every row carries a brief to copy: what it builds, why it is here, the open
-questions, the evidence, its limits and a next step.
+The page lists every record it holds. Records a published sentence describes come first, and the
+register labels follow; research projects, unverified names, companies started more than five years
+ago and companies the registry lists as struck off each carry a badge saying so. Three toggles narrow
+the list to companies started in the last five years, to companies only, or to records with a product
+description. Every row carries a brief to copy: what it builds, why it is here, the open questions,
+the evidence, its limits and a next step.
 
 ## The figures, as of 17 September 2026
 
 One dated set of counts, taken from the database as the ingest run of `2026-09-17T08:58:42Z` left
-it. The same table is on the [methodology page](https://rohitrao.in/upstream/about#snapshot), from
+it. The [methodology page](https://rohitrao.in/upstream/about#snapshot) quotes the same figures from
 the same source file (`src/snapshot.ts`), so the two cannot drift apart. The live site shows counts
 that move every night; these do not, and every argument below rests on these.
 

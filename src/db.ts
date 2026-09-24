@@ -97,6 +97,12 @@ export interface Company {
 	/** The company's own product sentence from the enrichment (company_enrichment), and where it was read. List rows only. */
 	enrich_quote?: string | null;
 	enrich_quote_source?: string | null;
+	/** From the same enrichment: the government registry's incorporation date or year, and its status. List rows only. */
+	enrich_registered_on?: string | null;
+	enrich_registered_year?: number | null;
+	enrich_status?: string | null;
+	/** Generated column (migration 0028): whose words say what it builds. */
+	said_state?: DescribedState;
 	signals: Signal[];
 }
 
@@ -608,16 +614,38 @@ function whereSql(clauses: string[]): string {
  * inside a tier. Undated rows sort last within their tier, which is where SQLite puts
  * a NULL under DESC anyway and where they belong.
  */
-export async function queryCompanies(env: Env, filters: Filters): Promise<Company[]> {
-	const { clauses, binds } = conditions(filters);
-	const sql = `
-SELECT c.*,
+/** A list row's columns: the company, its signals, and what the list shows from the enrichment, in one lookup. */
+const ROW_SELECT = `SELECT c.*,
   (SELECT json_group_array(json_object(
       'type', s.type, 'label', s.label, 'url', s.url, 'date', s.date))
    FROM signals s WHERE s.company_id = c.id) AS signals,
-  (SELECT ce.product_quote FROM company_enrichment ce WHERE ce.id = c.id) AS enrich_quote,
-  (SELECT ce.product_source FROM company_enrichment ce WHERE ce.id = c.id) AS enrich_quote_source
-FROM companies c
+  (SELECT json_object('quote', ce.product_quote, 'source', ce.product_source, 'on', ce.incorporated_on, 'year', ce.incorporated_year, 'status', ce.reg_status)
+   FROM company_enrichment ce WHERE ce.id = c.id) AS enrich
+FROM companies c`;
+
+function rowOf(row: Record<string, unknown>): Company {
+	let e: { quote?: string | null; source?: string | null; on?: string | null; year?: number | null; status?: string | null } = {};
+	try {
+		e = typeof row.enrich === 'string' ? JSON.parse(row.enrich) : {};
+	} catch {
+		e = {};
+	}
+	const { enrich: _enrich, ...rest } = row;
+	return {
+		...rest,
+		signals: parseSignals(row.signals),
+		enrich_quote: e.quote ?? null,
+		enrich_quote_source: e.source ?? null,
+		enrich_registered_on: e.on ?? null,
+		enrich_registered_year: e.year ?? null,
+		enrich_status: e.status ?? null,
+	} as unknown as Company;
+}
+
+export async function queryCompanies(env: Env, filters: Filters): Promise<Company[]> {
+	const { clauses, binds } = conditions(filters);
+	const sql = `
+${ROW_SELECT}
 ${whereSql(clauses)}
 ORDER BY ${SORTS[filters.sort] ?? SORTS.obscurity}
 LIMIT ?`;
@@ -626,7 +654,43 @@ LIMIT ?`;
 		.bind(...binds, filters.limit)
 		.all<Record<string, unknown>>();
 
-	return results.map((row) => ({ ...row, signals: parseSignals(row.signals) }) as unknown as Company);
+	return results.map(rowOf);
+}
+
+/** What the list's order is decided on, for every row a view matches: no signals, no enrichment. */
+export interface OrderKey {
+	id: string;
+	said_state: DescribedState;
+	trace_count: number;
+	first_seen: string | null;
+}
+
+/**
+ * The ids a view matches, in its SQL order, with the few columns the page orders and counts by.
+ * Cheap on purpose: the page orders every match and then reads full rows for one page of them
+ * (queryRows), so the signals and the enrichment are read for the rows drawn and no others.
+ */
+export async function queryOrder(env: Env, filters: Filters): Promise<OrderKey[]> {
+	const { clauses, binds } = conditions(filters);
+	const { results } = await env.DB.prepare(
+		`SELECT c.id, c.said_state, c.trace_count, c.first_seen FROM companies c
+${whereSql(clauses)}
+ORDER BY ${SORTS[filters.sort] ?? SORTS.obscurity}
+LIMIT ?`,
+	)
+		.bind(...binds, filters.limit)
+		.all<OrderKey>();
+	return results;
+}
+
+/** Full list rows for these ids, in the order given. One bound parameter, however many ids. */
+export async function queryRows(env: Env, ids: string[]): Promise<Company[]> {
+	if (!ids.length) return [];
+	const { results } = await env.DB.prepare(`${ROW_SELECT}\nWHERE c.id IN (SELECT value FROM json_each(?))`)
+		.bind(JSON.stringify(ids))
+		.all<Record<string, unknown>>();
+	const byId = new Map(results.map((r) => [String(r.id), rowOf(r)]));
+	return ids.map((id) => byId.get(id)).filter((c): c is Company => Boolean(c));
 }
 
 /**
@@ -1080,6 +1144,12 @@ export interface SourceHealth {
 	data_as_of: string | null;
 }
 
+/** How many records on the list each source has a signal for. A record two sources list counts under both. */
+export async function querySourceCounts(env: Env): Promise<Record<string, number>> {
+	const { results } = await env.DB.prepare('SELECT s.source, COUNT(DISTINCT s.company_id) AS n FROM signals s GROUP BY s.source').all<{ source: string; n: number }>();
+	return Object.fromEntries(results.map((r) => [r.source, Number(r.n)]));
+}
+
 export async function querySourceHealth(env: Env): Promise<SourceHealth[]> {
 	const { results } = await env.DB.prepare(
 		`SELECT r.source,
@@ -1495,6 +1565,8 @@ export interface EnrichmentSummary {
 	struck: number;
 	websitesAdded: number;
 	quotes: number;
+	/** Rows a person checked by hand, as against gathered automatically. */
+	checkedByPerson: number;
 }
 
 export async function queryEnrichmentSummary(env: Env, minYear: number): Promise<EnrichmentSummary | null> {
@@ -1508,7 +1580,8 @@ export async function queryEnrichmentSummary(env: Env, minYear: number): Promise
 			   SUM(e.incorporated_year IS NOT NULL AND e.incorporated_year < ?) AS before_window,
 			   SUM(e.reg_status IN (${STRUCK_STATUSES.map((st) => `'${st}'`).join(', ')})) AS struck,
 			   SUM(e.site_url IS NOT NULL AND NOT (COALESCE(c.website_identity, '') = 'verified' AND COALESCE(c.website, '') <> '')) AS websites_added,
-			   SUM(e.product_quote IS NOT NULL) AS quotes
+			   SUM(e.product_quote IS NOT NULL) AS quotes,
+			   SUM(COALESCE(e.checked_by_person, 0) <> 0) AS checked_by_person
 			 FROM company_enrichment e JOIN companies c ON c.id = e.id`,
 		)
 			.bind(minYear)
@@ -1524,6 +1597,7 @@ export async function queryEnrichmentSummary(env: Env, minYear: number): Promise
 			struck: n('struck'),
 			websitesAdded: n('websites_added'),
 			quotes: n('quotes'),
+			checkedByPerson: n('checked_by_person'),
 		};
 	} catch {
 		return null;
