@@ -4555,8 +4555,8 @@
   "subsector_id": "2.5"
  },
  "bng-spray-solutions": {
-  "classified_at": "2026-09-22T09:03:13+00:00",
-  "hash": "a797338e26e84b0e",
+  "classified_at": "2026-09-25T08:43:11+00:00",
+  "hash": "094862d4b5d5577b",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Bng Spray Solutions Pvt Ltd",
@@ -20390,8 +20390,8 @@
   "subsector_id": null
  },
  "rapture-innovation-labs": {
-  "classified_at": "2026-09-22T09:03:13+00:00",
-  "hash": "ddb966ea462061eb",
+  "classified_at": "2026-09-25T08:43:11+00:00",
+  "hash": "47c592c9dfc0f1f7",
   "missing": null,
   "model": "claude-haiku-4-5",
   "name": "Rapture Innovation Labs Pvt Ltd",

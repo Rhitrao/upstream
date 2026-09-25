@@ -1247,5 +1247,98 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-24T08:30:58+00:00",
   "outcome": "timeout"
+ },
+ "nayaminnovations.com": {
+  "checked": "2026-09-25T08:50:47+00:00",
+  "last_change": "2026-05-13",
+  "outcome": "captured",
+  "since": "2024-09-25",
+  "versions": 9
+ },
+ "ncflabs.com": {
+  "checked": "2026-09-25T08:51:03+00:00",
+  "last_change": "2025-04-06",
+  "outcome": "captured",
+  "since": "2024-09-25",
+  "versions": 2
+ },
+ "neroex.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:51:20+00:00",
+  "outcome": "error"
+ },
+ "neuphony.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:51:37+00:00",
+  "outcome": "error"
+ },
+ "neuro-stellar.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:51:54+00:00",
+  "outcome": "error"
+ },
+ "newspace.co.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:52:11+00:00",
+  "outcome": "error"
+ },
+ "nobleexchangesolutions.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:52:28+00:00",
+  "outcome": "error"
+ },
+ "novacret.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:52:45+00:00",
+  "outcome": "error"
+ },
+ "numelo-tech.com": {
+  "checked": "2026-09-25T08:53:08+00:00",
+  "last_change": "2025-04-08",
+  "outcome": "captured",
+  "since": "2024-09-25",
+  "versions": 1
+ },
+ "offgridenergylabs.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:53:25+00:00",
+  "outcome": "error"
+ },
+ "okoicaresolutions.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:53:42+00:00",
+  "outcome": "error"
+ },
+ "omnibrx.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:53:59+00:00",
+  "outcome": "error"
+ },
+ "openmedlabs.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:54:16+00:00",
+  "outcome": "error"
+ },
+ "optifysolutions.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:54:32+00:00",
+  "outcome": "error"
+ },
+ "orthocrafts.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-25T08:54:49+00:00",
+  "outcome": "error"
+ },
+ "ossusbio.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-25T08:55:31+00:00",
+  "outcome": "timeout"
+ },
+ "osticpharma.com": {
+  "checked": "2026-09-25T08:55:36+00:00",
+  "last_change": "2026-06-06",
+  "outcome": "captured",
+  "since": "2024-09-25",
+  "versions": 10
  }
 }

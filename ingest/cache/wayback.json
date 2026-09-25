@@ -1018,5 +1018,95 @@
   "checked": "2026-09-24T08:25:50+00:00",
   "first_capture": "2023-12-18",
   "outcome": "captured"
+ },
+ "languify.in": {
+  "checked": "2026-09-25T08:45:16+00:00",
+  "first_capture": "2021-01-31",
+  "outcome": "captured"
+ },
+ "lifeandlimb.ai": {
+  "checked": "2026-09-25T08:45:28+00:00",
+  "first_capture": "2021-05-08",
+  "outcome": "captured"
+ },
+ "lifeseedrepro.com": {
+  "checked": "2026-09-25T08:46:00+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "lifesparktech.com": {
+  "checked": "2026-09-25T08:46:11+00:00",
+  "first_capture": "2021-04-03",
+  "outcome": "captured"
+ },
+ "log9materials.com": {
+  "checked": "2026-09-25T08:46:20+00:00",
+  "first_capture": "2015-06-17",
+  "outcome": "captured"
+ },
+ "logicboots.com": {
+  "checked": "2026-09-25T08:46:39+00:00",
+  "first_capture": "2021-10-16",
+  "outcome": "captured"
+ },
+ "logy.ai": {
+  "checked": "2026-09-25T08:46:56+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "magheals.com": {
+  "checked": "2026-09-25T08:47:12+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "magnimous.com": {
+  "checked": "2026-09-25T08:47:30+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "manastik.com": {
+  "checked": "2026-09-25T08:47:47+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "matolutions.com": {
+  "checked": "2026-09-25T08:48:04+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "matterak.com": {
+  "checked": "2026-09-25T08:48:21+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "matterwave.in": {
+  "checked": "2026-09-25T08:48:37+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "mavsai.com": {
+  "checked": "2026-09-25T08:48:54+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "med-inno-tec.com": {
+  "checked": "2026-09-25T08:49:11+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "medblue.in": {
+  "checked": "2026-09-25T08:49:28+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "medevplus.com": {
+  "checked": "2026-09-25T08:50:00+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "medprimetech.com": {
+  "checked": "2026-09-25T08:50:31+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
  }
 }

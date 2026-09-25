@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "6f74d0d4b299f855",
+  "hash": "f393c96248f34589",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and FitMust, AI-powered motion sensor and handheld dynamometer devices for physiotherapy clinics to assess knee function and muscle strength.",
+  "product": "Fitknees and FitMust, AI-powered medical devices for physiotherapy clinics that assess knee function and muscle strength through motion sensors and handheld dynamometers.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1036,9 +1036,9 @@
   "status": "described"
  },
  "ostic-pharma": {
-  "hash": "10c5221ac6c791f5",
+  "hash": "c2099d9db7bdbfcb",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered rapid diagnostic test kits and molecular diagnostics for infectious diseases like TB, malaria, and dengue for healthcare providers and patients.",
+  "product": "Rapid diagnostic test kits and molecular diagnostics for infectious diseases like TB, malaria, and dengue, using AI and CRISPR technology.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1190,9 +1190,9 @@
   "status": "unclear"
  },
  "roha-precision-systems-development": {
-  "hash": "d955af4a023b4145",
+  "hash": "13e392f0c53ccd9d",
   "model": "claude-haiku-4-5",
-  "product": "Portable diagnostic instruments for detecting gastrointestinal parasites in cattle for farmers in India.",
+  "product": "Portable diagnostic instruments for detecting gastrointestinal parasites in cattle, for dairy farmers in India.",
   "prompt_version": 1,
   "status": "described"
  },
