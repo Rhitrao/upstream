@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "f393c96248f34589",
+  "hash": "13a6396bd650c4f8",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and FitMust, AI-powered medical devices for physiotherapy clinics that assess knee function and muscle strength through motion sensors and handheld dynamometers.",
+  "product": "Fitknees, an AI-enabled motion sensor system for knee function assessment, and FitMust, a NABL-certified handheld dynamometer for muscle strength testing, both for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -378,9 +378,9 @@
   "status": "described"
  },
  "dfine-bio-innovations": {
-  "hash": "d9db47ac3177f444",
+  "hash": "0cc646a6000c122e",
   "model": "claude-haiku-4-5",
-  "product": "Zeta-1, a coagulation analyzer for laboratory diagnostics, and consumables like cuvettes and buffer bottles for labs.",
+  "product": "Zeta-1, a coagulation analyzer for laboratories, along with diagnostic consumables like cuvettes and buffer bottles.",
   "prompt_version": 1,
   "status": "described"
  },
