@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "13a6396bd650c4f8",
+  "hash": "0eebcb529d44baea",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees, an AI-enabled motion sensor system for knee function assessment, and FitMust, a NABL-certified handheld dynamometer for muscle strength testing, both for physiotherapy clinics.",
+  "product": "Fitknees is an AI-enabled motion sensor system that assesses knee function for physiotherapy clinics, and FitMust is a handheld dynamometer that measures muscle strength for physiotherapists.",
   "prompt_version": 1,
   "status": "described"
  },
