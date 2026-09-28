@@ -1488,5 +1488,84 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-27T09:17:10+00:00",
   "outcome": "timeout"
+ },
+ "quixotixbioprinting.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:40:23+00:00",
+  "outcome": "timeout"
+ },
+ "ragavera.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:40:54+00:00",
+  "outcome": "timeout"
+ },
+ "raveneyegeo.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:41:26+00:00",
+  "outcome": "timeout"
+ },
+ "raycura.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:41:57+00:00",
+  "outcome": "timeout"
+ },
+ "rebhu.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:42:29+00:00",
+  "outcome": "timeout"
+ },
+ "rechargion.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-28T09:42:36+00:00",
+  "outcome": "unavailable"
+ },
+ "rejuvome.com": {
+  "checked": "2026-09-28T09:42:44+00:00",
+  "last_change": "2024-12-22",
+  "outcome": "captured",
+  "since": "2024-09-28",
+  "versions": 1
+ },
+ "relsym.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:43:16+00:00",
+  "outcome": "timeout"
+ },
+ "renkube.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-28T09:43:23+00:00",
+  "outcome": "unavailable"
+ },
+ "renumedtech.com": {
+  "checked": "2026-09-28T09:43:45+00:00",
+  "last_change": "2026-06-09",
+  "outcome": "captured",
+  "since": "2024-09-28",
+  "versions": 7
+ },
+ "revy.co.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:44:17+00:00",
+  "outcome": "timeout"
+ },
+ "ripplehealthcare.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-28T09:44:24+00:00",
+  "outcome": "unavailable"
+ },
+ "robobionics.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-28T09:44:30+00:00",
+  "outcome": "unavailable"
+ },
+ "robolife.co.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-28T09:44:37+00:00",
+  "outcome": "unavailable"
+ },
+ "roha-precision.org": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-28T09:45:08+00:00",
+  "outcome": "timeout"
  }
 }
