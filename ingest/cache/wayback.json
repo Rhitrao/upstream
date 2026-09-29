@@ -1293,5 +1293,85 @@
   "checked": "2026-09-28T09:39:51+00:00",
   "first_capture": null,
   "outcome": "timeout"
+ },
+ "perovskiteinnovation.com": {
+  "checked": "2026-09-29T09:39:09+00:00",
+  "first_capture": "2022-11-27",
+  "outcome": "captured"
+ },
+ "pewala.com": {
+  "checked": "2026-09-29T09:39:28+00:00",
+  "first_capture": "2021-12-20",
+  "outcome": "captured"
+ },
+ "photomtechnologies.com": {
+  "checked": "2026-09-29T09:39:35+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "planystech.com": {
+  "checked": "2026-09-29T09:39:42+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "polyorbit.org": {
+  "checked": "2026-09-29T09:40:10+00:00",
+  "first_capture": "2024-01-30",
+  "outcome": "captured"
+ },
+ "powailabs.com": {
+  "checked": "2026-09-29T09:40:16+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "powerzest.in": {
+  "checked": "2026-09-29T09:40:48+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "pragmatech.co.in": {
+  "checked": "2026-09-29T09:41:04+00:00",
+  "first_capture": "2021-03-22",
+  "outcome": "captured"
+ },
+ "pranaxt.com": {
+  "checked": "2026-09-29T09:41:36+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "pratititech.com": {
+  "checked": "2026-09-29T09:41:53+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "prayasta.com": {
+  "checked": "2026-09-29T09:42:12+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "proeon.co": {
+  "checked": "2026-09-29T09:42:29+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "profprenuer.com": {
+  "checked": "2026-09-29T09:42:47+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "projectx.cloud": {
+  "checked": "2026-09-29T09:43:04+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "proleri.com": {
+  "checked": "2026-09-29T09:43:35+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "promecens.com": {
+  "checked": "2026-09-29T09:44:07+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
  }
 }

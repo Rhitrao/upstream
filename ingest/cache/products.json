@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "1ec81327bd9fa41e",
+  "hash": "5f1aef47abac49dd",
   "model": "claude-haiku-4-5",
-  "product": "FitKnees is an AI-enabled motion sensor system that assesses knee function for physiotherapy clinics, and FitMust is a NABL-certified handheld dynamometer that measures muscle strength for physiotherapists.",
+  "product": "Fitknees and Fitmust, AI-powered wearable devices that assess knee function and measure muscle strength for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -357,11 +357,11 @@
   "status": "described"
  },
  "delta-botanicals-and-research": {
-  "hash": "879ac096520cffa4",
+  "hash": "3965afe23bb45583",
   "model": "claude-haiku-4-5",
-  "product": null,
+  "product": "Consulting and research services for cannabis and hemp companies navigating Indian regulations, developing medical formulations, and creating Ayurvedic cannabis products.",
   "prompt_version": 1,
-  "status": "unclear"
+  "status": "described"
  },
  "denovo-bioinnovations": {
   "hash": "f9ec33d7da030cb2",

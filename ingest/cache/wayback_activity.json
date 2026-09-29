@@ -1567,5 +1567,101 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-28T09:45:08+00:00",
   "outcome": "timeout"
+ },
+ "sal-bio.science": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-29T09:44:38+00:00",
+  "outcome": "timeout"
+ },
+ "saraaga.in": {
+  "checked": "2026-09-29T09:44:50+00:00",
+  "last_change": "2024-12-18",
+  "outcome": "captured",
+  "since": "2024-09-29",
+  "versions": 1
+ },
+ "satatgram.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:45:15+00:00",
+  "outcome": "error"
+ },
+ "scilogic.tech": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:45:32+00:00",
+  "outcome": "error"
+ },
+ "sedemac.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:45:49+00:00",
+  "outcome": "error"
+ },
+ "senseqube.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:46:06+00:00",
+  "outcome": "error"
+ },
+ "sensivisionhealth.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:46:23+00:00",
+  "outcome": "error"
+ },
+ "serigenmed.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:46:41+00:00",
+  "outcome": "error"
+ },
+ "shantani.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:46:58+00:00",
+  "outcome": "error"
+ },
+ "siamaf.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:47:15+00:00",
+  "outcome": "error"
+ },
+ "sickle.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:47:32+00:00",
+  "outcome": "error"
+ },
+ "sicuremi.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:47:49+00:00",
+  "outcome": "error"
+ },
+ "skillangels.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:48:06+00:00",
+  "outcome": "error"
+ },
+ "skincurate.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-29T09:48:23+00:00",
+  "outcome": "error"
+ },
+ "skiom.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-29T09:48:30+00:00",
+  "outcome": "unavailable"
+ },
+ "skylarkdrones.com": {
+  "checked": "2026-09-29T09:48:42+00:00",
+  "last_change": "2026-06-18",
+  "outcome": "captured",
+  "since": "2024-09-29",
+  "versions": 21
+ },
+ "soilsens.com": {
+  "checked": "2026-09-29T09:48:54+00:00",
+  "last_change": "2026-04-13",
+  "outcome": "captured",
+  "since": "2024-09-29",
+  "versions": 10
+ },
+ "solinas.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-29T09:49:25+00:00",
+  "outcome": "timeout"
  }
 }
