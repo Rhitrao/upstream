@@ -1652,6 +1652,11 @@
   "since": "2024-09-29",
   "versions": 21
  },
+ "sminnovations.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:16:35+00:00",
+  "outcome": "error"
+ },
  "soilsens.com": {
   "checked": "2026-09-29T09:48:54+00:00",
   "last_change": "2026-04-13",
@@ -1663,5 +1668,88 @@
   "last_failure": "timeout",
   "last_failure_at": "2026-09-29T09:49:25+00:00",
   "outcome": "timeout"
+ },
+ "soulsense.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:16:52+00:00",
+  "outcome": "error"
+ },
+ "spacefields.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:17:09+00:00",
+  "outcome": "error"
+ },
+ "sparshmindinnovations.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:17:26+00:00",
+  "outcome": "error"
+ },
+ "spotsense.in": {
+  "checked": "2026-09-30T10:18:01+00:00",
+  "last_change": "2026-06-17",
+  "outcome": "captured",
+  "since": "2024-09-30",
+  "versions": 15
+ },
+ "sprih.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-30T10:18:08+00:00",
+  "outcome": "unavailable"
+ },
+ "stellapps.com": {
+  "checked": "2026-09-30T10:18:25+00:00",
+  "last_change": "2026-07-25",
+  "outcome": "captured",
+  "since": "2024-09-30",
+  "versions": 35
+ },
+ "supergoodnano.com": {
+  "checked": "2026-09-30T10:18:38+00:00",
+  "last_change": "2026-06-18",
+  "outcome": "captured",
+  "since": "2024-09-30",
+  "versions": 6
+ },
+ "superquantum.tech": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-09-30T10:18:45+00:00",
+  "outcome": "unavailable"
+ },
+ "suryudey.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-30T10:19:17+00:00",
+  "outcome": "timeout"
+ },
+ "sustainol.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-09-30T10:19:48+00:00",
+  "outcome": "timeout"
+ },
+ "sustivon.com": {
+  "checked": "2026-09-30T10:20:10+00:00",
+  "last_change": "2026-06-15",
+  "outcome": "captured",
+  "since": "2024-09-30",
+  "versions": 5
+ },
+ "switchon.io": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:20:28+00:00",
+  "outcome": "error"
+ },
+ "synersense.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:20:45+00:00",
+  "outcome": "error"
+ },
+ "synthera.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:21:02+00:00",
+  "outcome": "error"
+ },
+ "tactopus.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-09-30T10:21:19+00:00",
+  "outcome": "error"
  }
 }

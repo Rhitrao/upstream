@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "5f1aef47abac49dd",
+  "hash": "045e96017f7a9596",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and Fitmust, AI-powered wearable devices that assess knee function and measure muscle strength for physiotherapy clinics.",
+  "product": "Fitknees and FitMust are AI-powered wearable devices for physiotherapy clinics that assess knee function and muscle strength through motion sensors and handheld dynamometers.",
   "prompt_version": 1,
   "status": "described"
  },
