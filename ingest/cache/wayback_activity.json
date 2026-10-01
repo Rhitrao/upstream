@@ -1595,6 +1595,13 @@
   "last_failure_at": "2026-09-29T09:45:49+00:00",
   "outcome": "error"
  },
+ "senseitout.com": {
+  "checked": "2026-10-01T10:03:07+00:00",
+  "last_change": null,
+  "outcome": "captured",
+  "since": "2024-10-01",
+  "versions": 0
+ },
  "senseqube.com": {
   "last_failure": "error",
   "last_failure_at": "2026-09-29T09:46:06+00:00",
@@ -1751,5 +1758,87 @@
   "last_failure": "error",
   "last_failure_at": "2026-09-30T10:21:19+00:00",
   "outcome": "error"
+ },
+ "taypro.in": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-10-01T10:03:16+00:00",
+  "outcome": "unavailable"
+ },
+ "techinvention.biz": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:03:33+00:00",
+  "outcome": "error"
+ },
+ "tenxertech.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:03:51+00:00",
+  "outcome": "error"
+ },
+ "terrastack.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:04:08+00:00",
+  "outcome": "error"
+ },
+ "tgpbio.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:04:25+00:00",
+  "outcome": "error"
+ },
+ "thehyperonic.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:04:42+00:00",
+  "outcome": "error"
+ },
+ "theranautilus.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:04:59+00:00",
+  "outcome": "error"
+ },
+ "thrustworksdynetics.in": {
+  "checked": "2026-10-01T10:05:26+00:00",
+  "last_change": "2025-09-30",
+  "outcome": "captured",
+  "since": "2024-10-01",
+  "versions": 7
+ },
+ "tnsqai.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:05:43+00:00",
+  "outcome": "error"
+ },
+ "tracexero.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:06:00+00:00",
+  "outcome": "error"
+ },
+ "transleadmedtech.com": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:06:17+00:00",
+  "outcome": "error"
+ },
+ "transpact.in": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:06:34+00:00",
+  "outcome": "error"
+ },
+ "trestlelabs.com": {
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-10-01T10:06:45+00:00",
+  "outcome": "unavailable"
+ },
+ "tri-nano.co": {
+  "last_failure": "error",
+  "last_failure_at": "2026-10-01T10:07:02+00:00",
+  "outcome": "error"
+ },
+ "tsallaaerospace.com": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-01T10:07:34+00:00",
+  "outcome": "timeout"
+ },
+ "umagine.co.in": {
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-01T10:08:06+00:00",
+  "outcome": "timeout"
  }
 }

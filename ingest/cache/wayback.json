@@ -1458,5 +1458,90 @@
   "checked": "2026-09-30T10:16:18+00:00",
   "first_capture": null,
   "outcome": "error"
+ },
+ "ripplehealthcare.in": {
+  "checked": "2026-10-01T09:57:48+00:00",
+  "first_capture": "2023-01-29",
+  "outcome": "captured"
+ },
+ "robobionics.in": {
+  "checked": "2026-10-01T09:58:01+00:00",
+  "first_capture": "2017-03-18",
+  "outcome": "captured"
+ },
+ "robolife.co.in": {
+  "checked": "2026-10-01T09:58:33+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "roha-precision.org": {
+  "checked": "2026-10-01T09:58:40+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "sal-bio.science": {
+  "checked": "2026-10-01T09:59:03+00:00",
+  "first_capture": "2021-12-23",
+  "outcome": "captured"
+ },
+ "saraaga.in": {
+  "checked": "2026-10-01T09:59:20+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "satatgram.com": {
+  "checked": "2026-10-01T09:59:37+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "scilogic.tech": {
+  "checked": "2026-10-01T10:00:03+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "sedemac.com": {
+  "checked": "2026-10-01T10:00:28+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "senseitout.com": {
+  "checked": "2026-10-01T10:00:45+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "senseqube.com": {
+  "checked": "2026-10-01T10:01:03+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "sensivisionhealth.com": {
+  "checked": "2026-10-01T10:01:20+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "serigenmed.com": {
+  "checked": "2026-10-01T10:01:37+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "shantani.com": {
+  "checked": "2026-10-01T10:01:54+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "siamaf.com": {
+  "checked": "2026-10-01T10:02:26+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "sickle.in": {
+  "checked": "2026-10-01T10:02:32+00:00",
+  "first_capture": null,
+  "outcome": "unavailable"
+ },
+ "sicuremi.com": {
+  "checked": "2026-10-01T10:02:55+00:00",
+  "first_capture": "2018-04-05",
+  "outcome": "captured"
  }
 }

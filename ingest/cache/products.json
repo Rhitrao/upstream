@@ -21,9 +21,9 @@
   "status": "described"
  },
  "acceleron-labs": {
-  "hash": "ff3e439b9ace8dd9",
+  "hash": "c02631998ab959a1",
   "model": "claude-haiku-4-5",
-  "product": "Hyperconverged appliances and data storage systems for enterprise customers, including the MDC minidata center with integrated storage, server and network performance capabilities.",
+  "product": "Hyperconverged infrastructure appliances and data storage systems for businesses in India.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "045e96017f7a9596",
+  "hash": "1b9a4c57dc58e038",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and FitMust are AI-powered wearable devices for physiotherapy clinics that assess knee function and muscle strength through motion sensors and handheld dynamometers.",
+  "product": "Fitknees and Fitmust are AI-powered wearable devices that assess knee function and measure muscle strength for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -357,9 +357,9 @@
   "status": "described"
  },
  "delta-botanicals-and-research": {
-  "hash": "3965afe23bb45583",
+  "hash": "dc8600cd8fbff518",
   "model": "claude-haiku-4-5",
-  "product": "Consulting and research services for cannabis and hemp companies navigating Indian regulations, developing medical formulations, and creating Ayurvedic cannabis products.",
+  "product": "Consulting and R&D services for cannabis and hemp companies on governance, product development, clinical trials, and regulatory compliance in India.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -525,9 +525,9 @@
   "status": "described"
  },
  "euphotic-labs": {
-  "hash": "db4a556c696b1e9f",
+  "hash": "940c379e43101dea",
   "model": "claude-haiku-4-5",
-  "product": "Nosh is an AI-powered robotic chef that automatically cooks fresh meals from a library of 500+ recipes for home users.",
+  "product": "Nosh is an AI-powered robot that automatically cooks fresh meals from a library of 650+ recipes for home users.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -987,9 +987,9 @@
   "status": "described"
  },
  "neomavericks-ai": {
-  "hash": "7667726ef81fac10",
+  "hash": "688f69fa160a326f",
   "model": "claude-haiku-4-5",
-  "product": "A runtime security layer that sanitizes prompts by replacing sensitive data with synthetic alternatives before they reach AI models, for enterprises to use AI tools and agents without leaking business data.",
+  "product": "A runtime security layer that sanitizes prompts with synthetic data replacement to protect sensitive information while preserving context for AI models used by employees and applications.",
   "prompt_version": 1,
   "status": "described"
  },
