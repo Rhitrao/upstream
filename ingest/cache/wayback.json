@@ -1543,5 +1543,80 @@
   "checked": "2026-10-01T10:02:55+00:00",
   "first_capture": "2018-04-05",
   "outcome": "captured"
+ },
+ "skillangels.com": {
+  "checked": "2026-10-02T09:34:01+00:00",
+  "first_capture": "2013-04-02",
+  "outcome": "captured"
+ },
+ "skincurate.com": {
+  "checked": "2026-10-02T09:34:07+00:00",
+  "first_capture": "2014-03-26",
+  "outcome": "captured"
+ },
+ "skiom.in": {
+  "checked": "2026-10-02T09:34:39+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "skylarkdrones.com": {
+  "checked": "2026-10-02T09:35:11+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "sminnovations.in": {
+  "checked": "2026-10-02T09:35:42+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
+ },
+ "soilsens.com": {
+  "checked": "2026-10-02T09:35:59+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "solinas.in": {
+  "checked": "2026-10-02T09:36:16+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "soulsense.in": {
+  "checked": "2026-10-02T09:36:35+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "spacefields.in": {
+  "checked": "2026-10-02T09:36:52+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "sparshmindinnovations.com": {
+  "checked": "2026-10-02T09:37:09+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "spotsense.in": {
+  "checked": "2026-10-02T09:37:26+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "sprih.com": {
+  "checked": "2026-10-02T09:37:43+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "stellapps.com": {
+  "checked": "2026-10-02T09:38:00+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "supergoodnano.com": {
+  "checked": "2026-10-02T09:38:25+00:00",
+  "first_capture": "2023-12-29",
+  "outcome": "captured"
+ },
+ "superquantum.tech": {
+  "checked": "2026-10-02T09:38:57+00:00",
+  "first_capture": null,
+  "outcome": "timeout"
  }
 }
