@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "55551bb8163ef7b0",
+  "hash": "d0538704f81f4253",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered knee assessment devices and muscle strength testing dynamometers for physiotherapy clinics.",
+  "product": "Fitknees and Fitmust are AI-powered wearable devices for physiotherapy clinics that assess knee function and muscle strength through motion sensors and handheld dynamometers.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -640,6 +640,13 @@
   "hash": "b0dcccc8a694ab50",
   "model": "claude-haiku-4-5",
   "product": "Green Trek recycles steel waste into pure molten metal with 99%+ iron content for manufacturers of crusher parts, grinding media, furnace liners, and industrial components.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "greenjams-buildtech": {
+  "hash": "50ca284c1efd8cdf",
+  "model": "claude-haiku-4-5",
+  "product": "Agrocrete carbon-negative construction blocks and cement-free building materials for construction projects.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1165,6 +1172,13 @@
   "hash": "92e6540f71035ddb",
   "model": "claude-haiku-4-5",
   "product": "Czochralski crystal growth systems and high-purity single crystals including silicon, germanium, nd:yag, and lithium niobate for semiconductor, defence, and photonics applications.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "raycura-medical-technologies": {
+  "hash": "c03468bd7c0482e2",
+  "model": "claude-haiku-4-5",
+  "product": "Raycura builds medical technology for gait analysis, rehabilitation, and limb lengthening: BeyondGait for objective gait assessment, Rewire for guided movement rehabilitation, and the Limb Lengthening Nail for controlled bone distraction.",
   "prompt_version": 1,
   "status": "described"
  },
