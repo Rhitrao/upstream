@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "d0538704f81f4253",
+  "hash": "2cbaa602fa51319f",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and Fitmust are AI-powered wearable devices for physiotherapy clinics that assess knee function and muscle strength through motion sensors and handheld dynamometers.",
+  "product": "AI-powered knee assessment devices (Fitknees) and handheld dynamometers (FitMust) for physiotherapy clinics to measure muscle strength and track knee function.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -966,9 +966,9 @@
   "status": "described"
  },
  "nanotherapx-innovations": {
-  "hash": "99dda40abd6eafd7",
+  "hash": "8f3fafdbf0783ddd",
   "model": "claude-haiku-4-5",
-  "product": "Plant-based nanotech formulations for chronic skin conditions like psoriasis, delivered through lipid nanoparticles for targeted anti-inflammatory and antioxidant treatment.",
+  "product": "Plant-based nanoparticle therapies for chronic skin conditions like psoriasis, delivered through hydrogels, shampoos, soaps, and sprays for people with skin inflammation.",
   "prompt_version": 1,
   "status": "described"
  },

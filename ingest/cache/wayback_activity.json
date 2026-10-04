@@ -7,9 +7,11 @@
   "versions": 51
  },
  "aagamiseq.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-03T09:07:16+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-04T09:40:34+00:00",
+  "last_change": "2025-02-28",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 2
  },
  "aagyavision.com": {
   "checked": "2026-09-15T04:22:50+00:00",
@@ -19,9 +21,11 @@
   "versions": 16
  },
  "abighart.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-03T09:07:47+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:40:57+00:00",
+  "last_change": "2025-01-22",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 2
  },
  "abx3pv.com": {
   "checked": "2026-09-15T04:23:50+00:00",
@@ -31,39 +35,51 @@
   "versions": 6
  },
  "acceleronlabs.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-03T09:08:19+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:41:04+00:00",
+  "last_change": "2024-10-15",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 1
  },
  "accensible.com": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-03T09:08:50+00:00",
+  "last_failure_at": "2026-10-04T09:41:36+00:00",
   "outcome": "timeout"
  },
  "actorius.co": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-03T09:09:07+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:41:46+00:00",
+  "last_change": "2024-12-15",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 1
  },
  "acuradyne.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-03T09:09:33+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:42:00+00:00",
+  "last_change": "2025-07-10",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 2
  },
  "addautotech.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-03T09:09:50+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:42:09+00:00",
+  "last_change": "2025-07-10",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 10
  },
  "adiuvodiagnostics.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-03T09:10:06+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:42:16+00:00",
+  "last_change": "2026-06-12",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 17
  },
  "aerodeltech.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-03T09:10:23+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-04T09:42:28+00:00",
+  "last_change": "2026-03-23",
+  "outcome": "captured",
+  "since": "2024-10-04",
+  "versions": 22
  },
  "agnikul.in": {
   "checked": "2026-09-15T04:27:47+00:00",
@@ -88,12 +104,12 @@
  },
  "agrikhet.in": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-03T09:10:58+00:00",
+  "last_failure_at": "2026-10-04T09:42:59+00:00",
   "outcome": "unavailable"
  },
  "ahammune.com": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-03T09:11:30+00:00",
+  "last_failure_at": "2026-10-04T09:43:31+00:00",
   "outcome": "timeout"
  },
  "aibono.com": {
@@ -105,17 +121,17 @@
  },
  "aisense.co.in": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-03T09:12:01+00:00",
+  "last_failure_at": "2026-10-04T09:44:03+00:00",
   "outcome": "unavailable"
  },
  "albatross-energetics.in": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:30:23+00:00",
+  "last_failure_at": "2026-10-04T09:44:34+00:00",
   "outcome": "timeout"
  },
  "algobotix.com": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:30:55+00:00",
+  "last_failure_at": "2026-10-04T09:45:24+00:00",
   "outcome": "timeout"
  },
  "algosurg.com": {
