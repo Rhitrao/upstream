@@ -1,23 +1,23 @@
 {
  "a3rmt.com": {
-  "checked": "2026-09-15T01:15:16+00:00",
+  "checked": "2026-10-05T10:24:02+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "aagamiseq.com": {
+  "checked": "2026-10-05T10:24:33+00:00",
   "first_capture": null,
   "outcome": "timeout"
  },
- "aagamiseq.com": {
-  "checked": "2026-09-15T01:45:14+00:00",
-  "first_capture": null,
-  "outcome": "unavailable"
- },
  "aagyavision.com": {
-  "checked": "2026-09-15T01:45:21+00:00",
-  "first_capture": null,
-  "outcome": "unavailable"
+  "checked": "2026-10-05T10:24:51+00:00",
+  "first_capture": "2023-02-20",
+  "outcome": "captured"
  },
  "abighart.com": {
-  "checked": "2026-09-15T01:45:28+00:00",
+  "checked": "2026-10-05T10:25:08+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "error"
  },
  "abx3pv.com": {
   "checked": "2026-09-15T01:45:51+00:00",
@@ -1763,5 +1763,75 @@
   "checked": "2026-10-04T09:40:23+00:00",
   "first_capture": null,
   "outcome": "timeout"
+ },
+ "vidcare.in": {
+  "checked": "2026-10-05T10:20:03+00:00",
+  "first_capture": "2017-10-04",
+  "outcome": "captured"
+ },
+ "vigorushealth.com": {
+  "checked": "2026-10-05T10:20:23+00:00",
+  "first_capture": "2023-01-22",
+  "outcome": "captured"
+ },
+ "viridianingnipropulsion.com": {
+  "checked": "2026-10-05T10:20:46+00:00",
+  "first_capture": "2024-04-26",
+  "outcome": "captured"
+ },
+ "visionearthcare.com": {
+  "checked": "2026-10-05T10:21:13+00:00",
+  "first_capture": "2010-02-23",
+  "outcome": "captured"
+ },
+ "voltreztech.com": {
+  "checked": "2026-10-05T10:21:33+00:00",
+  "first_capture": "2023-08-11",
+  "outcome": "captured"
+ },
+ "vytalapp.com": {
+  "checked": "2026-10-05T10:21:40+00:00",
+  "first_capture": "2016-09-20",
+  "outcome": "captured"
+ },
+ "weathercastsolutions.com": {
+  "checked": "2026-10-05T10:21:47+00:00",
+  "first_capture": "2023-05-10",
+  "outcome": "captured"
+ },
+ "webaroo.com": {
+  "checked": "2026-10-05T10:21:55+00:00",
+  "first_capture": "2001-02-17",
+  "outcome": "captured"
+ },
+ "whiterabbit.ai": {
+  "checked": "2026-10-05T10:22:08+00:00",
+  "first_capture": "2017-10-11",
+  "outcome": "captured"
+ },
+ "wingrowagritech.com": {
+  "checked": "2026-10-05T10:22:28+00:00",
+  "first_capture": "2021-03-08",
+  "outcome": "captured"
+ },
+ "wonderlendhubs.com": {
+  "checked": "2026-10-05T10:22:45+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "zenteiq.ai": {
+  "checked": "2026-10-05T10:23:11+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "zerocircle.in": {
+  "checked": "2026-10-05T10:23:28+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "ziaventures.in": {
+  "checked": "2026-10-05T10:23:45+00:00",
+  "first_capture": null,
+  "outcome": "error"
  }
 }

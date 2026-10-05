@@ -21,7 +21,7 @@
   "status": "described"
  },
  "acceleron-labs": {
-  "hash": "c02631998ab959a1",
+  "hash": "efefd5019d6dfe80",
   "model": "claude-haiku-4-5",
   "product": "Hyperconverged infrastructure appliances and data storage systems for businesses in India.",
   "prompt_version": 1,
@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "2cbaa602fa51319f",
+  "hash": "f3d2ccc44f67f74e",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered knee assessment devices (Fitknees) and handheld dynamometers (FitMust) for physiotherapy clinics to measure muscle strength and track knee function.",
+  "product": "AI-powered physiotherapy assessment devices including Fitknees for knee function analysis and Fitmust for objective muscle strength testing, for physiotherapy clinics and sports rehabilitation professionals.",
   "prompt_version": 1,
   "status": "described"
  },
