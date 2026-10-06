@@ -43,7 +43,7 @@
  },
  "accensible.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:25:26+00:00",
+  "last_failure_at": "2026-10-06T10:02:27+00:00",
   "outcome": "timeout"
  },
  "actorius.co": {
@@ -103,14 +103,16 @@
   "versions": 15
  },
  "agrikhet.in": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:25:43+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-06T10:02:58+00:00",
   "outcome": "unavailable"
  },
  "ahammune.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-05T10:26:14+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-06T10:03:18+00:00",
+  "last_change": "2026-07-07",
+  "outcome": "captured",
+  "since": "2024-10-06",
+  "versions": 14
  },
  "aibono.com": {
   "checked": "2026-09-15T04:29:44+00:00",
@@ -141,33 +143,35 @@
   "versions": 23
  },
  "algosurg.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-05T10:27:12+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-06T10:03:46+00:00",
+  "last_change": "2025-01-05",
+  "outcome": "captured",
+  "since": "2024-10-06",
+  "versions": 1
  },
  "amaterasu.in": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:27:29+00:00",
+  "last_failure_at": "2026-10-06T10:04:03+00:00",
   "outcome": "timeout"
  },
  "ambiator.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:27:46+00:00",
+  "last_failure_at": "2026-10-06T10:04:20+00:00",
   "outcome": "timeout"
  },
  "amelioratebiotech.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:28:03+00:00",
+  "last_failure_at": "2026-10-06T10:04:38+00:00",
   "outcome": "timeout"
  },
  "ameyaunisys.in": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:28:20+00:00",
+  "last_failure_at": "2026-10-06T10:04:55+00:00",
   "outcome": "unavailable"
  },
  "ammsemi.ai": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:28:37+00:00",
+  "last_failure_at": "2026-10-06T10:05:14+00:00",
   "outcome": "timeout"
  },
  "ammsemi.in": {
@@ -177,17 +181,17 @@
  },
  "amylo.in": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:28:54+00:00",
+  "last_failure_at": "2026-10-06T10:05:31+00:00",
   "outcome": "unavailable"
  },
  "amyscan.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-05T10:29:26+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-06T10:05:48+00:00",
   "outcome": "timeout"
  },
  "anaghapures.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:29:43+00:00",
+  "last_failure_at": "2026-10-06T10:06:05+00:00",
   "outcome": "timeout"
  },
  "anatomech.co": {
@@ -198,28 +202,32 @@
   "versions": 12
  },
  "angirusind.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-05T10:30:22+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-06T10:06:18+00:00",
+  "last_change": "2026-01-11",
+  "outcome": "captured",
+  "since": "2024-10-06",
+  "versions": 9
  },
  "annoviant.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:36:13+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-06T10:06:24+00:00",
+  "last_change": "2026-06-11",
+  "outcome": "captured",
+  "since": "2024-10-06",
+  "versions": 31
  },
  "apratima.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:36:45+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-06T10:06:41+00:00",
   "outcome": "timeout"
  },
  "arishti.in": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:37:16+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-06T10:06:58+00:00",
   "outcome": "timeout"
  },
  "arkashine-innovations.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:37:48+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-06T10:07:15+00:00",
   "outcome": "timeout"
  },
  "arkleenergy.com": {

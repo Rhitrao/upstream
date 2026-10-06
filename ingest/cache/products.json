@@ -147,9 +147,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "f3d2ccc44f67f74e",
+  "hash": "0b148233e6aa2626",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered physiotherapy assessment devices including Fitknees for knee function analysis and Fitmust for objective muscle strength testing, for physiotherapy clinics and sports rehabilitation professionals.",
+  "product": "Fitknees and Fitmust, AI-powered wearable devices that assess knee function and measure muscle strength for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1204,9 +1204,9 @@
   "status": "unclear"
  },
  "roha-precision-systems-development": {
-  "hash": "13e392f0c53ccd9d",
+  "hash": "37c9e027a3aefd3a",
   "model": "claude-haiku-4-5",
-  "product": "Portable diagnostic instruments for detecting gastrointestinal parasites in cattle, for dairy farmers in India.",
+  "product": "Gow-Kit, a portable instrument that detects gastrointestinal parasites in cattle within 10 minutes for dairy farmers in India.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1281,9 +1281,9 @@
   "status": "described"
  },
  "solinas-integrity": {
-  "hash": "d0c5c22715b884bb",
+  "hash": "e230c855f048d363",
   "model": "claude-haiku-4-5",
-  "product": "Robots that inspect, clean, and digitize water pipelines, sewers, septic tanks, stormwater drains, and manholes for water utilities and municipalities.",
+  "product": "Robots and digital software that inspect, clean, and map water pipelines, sewers, stormwater drains, septic tanks, and manholes for water utilities and municipalities.",
   "prompt_version": 1,
   "status": "described"
  },
