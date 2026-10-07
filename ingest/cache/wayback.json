@@ -5,9 +5,9 @@
   "outcome": "captured"
  },
  "aagamiseq.com": {
-  "checked": "2026-10-06T09:57:30+00:00",
+  "checked": "2026-10-07T10:04:17+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "unavailable"
  },
  "aagyavision.com": {
   "checked": "2026-10-05T10:24:51+00:00",
@@ -15,9 +15,9 @@
   "outcome": "captured"
  },
  "abighart.com": {
-  "checked": "2026-10-06T09:58:02+00:00",
+  "checked": "2026-10-07T10:04:23+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "unavailable"
  },
  "abx3pv.com": {
   "checked": "2026-09-15T01:45:51+00:00",
@@ -35,52 +35,52 @@
   "outcome": "captured"
  },
  "actorius.co": {
-  "checked": "2026-10-06T09:58:47+00:00",
+  "checked": "2026-10-07T10:04:55+00:00",
   "first_capture": null,
   "outcome": "timeout"
  },
  "acuradyne.com": {
-  "checked": "2026-10-06T09:59:04+00:00",
-  "first_capture": null,
-  "outcome": "error"
+  "checked": "2026-10-07T10:05:04+00:00",
+  "first_capture": "2017-05-18",
+  "outcome": "captured"
  },
  "addautotech.com": {
-  "checked": "2026-10-06T09:59:21+00:00",
+  "checked": "2026-10-07T10:05:21+00:00",
   "first_capture": null,
   "outcome": "error"
  },
  "adiuvodiagnostics.com": {
-  "checked": "2026-10-06T09:59:38+00:00",
+  "checked": "2026-10-07T10:05:38+00:00",
   "first_capture": null,
   "outcome": "error"
  },
  "aerodeltech.com": {
-  "checked": "2026-10-06T09:59:55+00:00",
+  "checked": "2026-10-07T10:05:54+00:00",
   "first_capture": null,
   "outcome": "error"
  },
  "agnikul.in": {
-  "checked": "2026-10-06T10:00:12+00:00",
+  "checked": "2026-10-07T10:06:12+00:00",
   "first_capture": null,
   "outcome": "error"
  },
  "agnitsemi.com": {
-  "checked": "2026-10-06T10:00:29+00:00",
+  "checked": "2026-10-07T10:06:29+00:00",
   "first_capture": null,
   "outcome": "error"
  },
  "agrijoy.in": {
-  "checked": "2026-10-06T10:00:46+00:00",
+  "checked": "2026-10-07T10:06:46+00:00",
   "first_capture": null,
   "outcome": "error"
  },
  "agrikhet.in": {
-  "checked": "2026-10-06T10:01:28+00:00",
+  "checked": "2026-10-07T10:06:54+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "unavailable"
  },
  "ahammune.com": {
-  "checked": "2026-10-06T10:01:45+00:00",
+  "checked": "2026-10-07T10:07:11+00:00",
   "first_capture": null,
   "outcome": "error"
  },
@@ -90,27 +90,32 @@
   "outcome": "captured"
  },
  "aisense.co.in": {
-  "checked": "2026-09-15T01:19:16+00:00",
+  "checked": "2026-10-07T10:07:28+00:00",
+  "first_capture": null,
+  "outcome": "error"
+ },
+ "aisteth.com": {
+  "checked": "2026-10-07T10:04:10+00:00",
   "first_capture": null,
   "outcome": "timeout"
  },
  "albatross-energetics.in": {
-  "checked": "2026-09-15T01:19:47+00:00",
+  "checked": "2026-10-07T10:07:45+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "algobotix.com": {
-  "checked": "2026-09-15T01:46:31+00:00",
+  "checked": "2026-10-07T10:08:02+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "error"
  },
  "algosurg.com": {
-  "checked": "2026-09-15T01:53:56+00:00",
+  "checked": "2026-10-07T10:08:19+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "error"
  },
  "amaterasu.in": {
-  "checked": "2026-09-15T01:54:28+00:00",
+  "checked": "2026-10-07T10:08:55+00:00",
   "first_capture": null,
   "outcome": "timeout"
  },

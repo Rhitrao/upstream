@@ -76,6 +76,13 @@
   "prompt_version": 1,
   "status": "described"
  },
+ "ai-health-highway-india": {
+  "hash": "001abd36e840e52d",
+  "model": "claude-haiku-4-5",
+  "product": "A smart stethoscope that records heart and lung sounds and displays them as spectrograms and waveforms on a smartphone, with machine learning to detect anomalies, for doctors and patients.",
+  "prompt_version": 1,
+  "status": "described"
+ },
  "aibono-smart-farming": {
   "hash": "9876339ffef1cdc1",
   "model": "claude-haiku-4-5",
@@ -98,9 +105,9 @@
   "status": "described"
  },
  "algosurg-inc": {
-  "hash": "479fbf1cddf36c20",
+  "hash": "04657fa2d333b99f",
   "model": "claude-haiku-4-5",
-  "product": "AlgoSurg makes cloud-based AI software that automates surgical planning from medical images for implant manufacturers, robotic surgery systems, and 3D printing companies.",
+  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for orthopedic and other procedures, licensed to medical device companies for integration into their robots and navigation systems.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -147,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "0b148233e6aa2626",
+  "hash": "f18a81b91f1b60d4",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and Fitmust, AI-powered wearable devices that assess knee function and measure muscle strength for physiotherapy clinics.",
+  "product": "Fitknees and FitMust, AI-powered devices for physiotherapy clinics that assess knee function and measure muscle strength.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -308,9 +315,9 @@
   "status": "described"
  },
  "carimo-technologies": {
-  "hash": "2e39914ca4142dfc",
+  "hash": "cc95dc75f70a6698",
   "model": "claude-haiku-4-5",
-  "product": "AI software including agentic RAG systems, video analytics, and predictive maintenance for industrial automation, plus machine learning and DC motor kits for education.",
+  "product": "Machine learning and control systems kits for students and institutions, including a DC motor kit with sensors paired with no-code software, and an AI suite for industrial automation and engineering education.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -413,9 +420,9 @@
   "status": "described"
  },
  "drona-aviation": {
-  "hash": "ed900f9a5e5efcd7",
+  "hash": "e962653248247e0e",
   "model": "claude-haiku-4-5",
-  "product": "Educational drone kits called Pluto that students build, fly, and program using block coding or Python, along with STEM curriculum and classroom activities.",
+  "product": "Programmable educational nano drones and DIY drone kits with coding curriculum for students to build, fly, and learn programming.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -742,9 +749,9 @@
   "status": "described"
  },
  "indrones-solutions": {
-  "hash": "5589f16539263294",
+  "hash": "1aaebbe54b2ca135",
   "model": "claude-haiku-4-5",
-  "product": "Drones and drone-based software solutions including orthophoto maps, 3D models, dimensional surveys, and multispectral imagery analysis for industries across India.",
+  "product": "Enterprise drone solutions with indigenous hardware and software platforms that provide geospatial intelligence for survey, mapping, inspection, monitoring, and security across oil and gas, mining, power, and infrastructure sectors.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -812,9 +819,9 @@
   "status": "unclear"
  },
  "irov-eyerov-technologies": {
-  "hash": "d733aaac4a66481d",
+  "hash": "5059a5cd151eb293",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered autonomous underwater ROVs named TUNA, SAGARA, and iBOAT ALPHA for marine inspections and surveys, plus EVAP, a data visualization and analytics platform for ROV-collected data.",
+  "product": "AI-powered autonomous underwater ROVs and surface drones for marine inspections and surveys, plus a data visualization and analytics platform for ROV-collected data.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1092,9 +1099,9 @@
   "status": "described"
  },
  "powai-labs-technologies": {
-  "hash": "1aa745602579984a",
+  "hash": "42682cdbfd8fc644",
   "model": "claude-haiku-4-5",
-  "product": "Semiconductor IP including a configurable processor core (AJIT), an AI accelerator (APARAJIT), and a navigation processor (NavIC) for organizations developing intelligent system-on-chip platforms.",
+  "product": "Semiconductor IP cores including processor cores and AI accelerators for system-on-chip development.",
   "prompt_version": 1,
   "status": "described"
  },

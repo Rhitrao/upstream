@@ -533,6 +533,42 @@
   "text_chars": 2039,
   "website": "https://www.ahammune.com/"
  },
+ "ai-health-highway-india": {
+  "careers": {
+   "roles": 0,
+   "says_none": false,
+   "titles": [],
+   "url": "https://aisteth.com/careers"
+  },
+  "checked": "2026-10-07T10:09:01+00:00",
+  "contact_email": null,
+  "contact_page": null,
+  "pages": {
+   "careers": {
+    "meta": "AiSteth is a next-gen smart stethoscope that helps you see the sound - on your smartphone - & detect anomalies with Ai/ML integration.",
+    "outcome": "ok",
+    "title": "AISTETH - SMART STETHOSCOPE | See the sound",
+    "url": "https://aisteth.com/careers"
+   },
+   "products": {
+    "meta": "AiSteth is a next-gen smart stethoscope that helps you see the sound - on your smartphone - & detect anomalies with Ai/ML integration.",
+    "outcome": "ok",
+    "title": "AISTETH - SMART STETHOSCOPE | See the sound",
+    "url": "https://aisteth.com/product"
+   },
+   "technology": {
+    "meta": "AiSteth is a next-gen smart stethoscope that helps you see the sound - on your smartphone - & detect anomalies with Ai/ML integration.",
+    "outcome": "ok",
+    "title": "AISTETH - SMART STETHOSCOPE | See the sound",
+    "url": "https://aisteth.com/clinical-research"
+   }
+  },
+  "parked": false,
+  "repo": null,
+  "team": null,
+  "text_chars": 1916,
+  "website": "https://aisteth.com/"
+ },
  "ai-sense": {
   "careers": null,
   "checked": "2026-09-15T04:19:48+00:00",
