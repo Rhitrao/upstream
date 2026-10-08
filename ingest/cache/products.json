@@ -7,9 +7,9 @@
   "status": "described"
  },
  "abee-research-labs": {
-  "hash": "c64bff6fecd46696",
+  "hash": "d5fe8ded9fbf0736",
   "model": "claude-haiku-4-5",
-  "product": "DeepInspect, an AI-powered visual defect detection system for manufacturers that inspects parts at high speed to identify surface and assembly defects.",
+  "product": "DeepInspect, an AI-powered visual defect detection system for manufacturers that inspects products at high speed with 99.5%+ accuracy.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -105,9 +105,9 @@
   "status": "described"
  },
  "algosurg-inc": {
-  "hash": "04657fa2d333b99f",
+  "hash": "41d01748a63accf7",
   "model": "claude-haiku-4-5",
-  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for orthopedic and other procedures, licensed to medical device companies for integration into their robots and navigation systems.",
+  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for orthopedic procedures, licensed to medical device companies for integration into their robots and navigation systems.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -154,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "f18a81b91f1b60d4",
+  "hash": "aaf476d31087eee6",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and FitMust, AI-powered devices for physiotherapy clinics that assess knee function and measure muscle strength.",
+  "product": "AI-powered knee assessment devices and muscle strength testing tools for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -334,6 +334,13 @@
   "product": "Thermochemical conversion systems that transform biomass, plastics, waste, and sludge into carbon products, fuels, and energy through pyrolysis, carbonization, torrefaction, and related processes.",
   "prompt_version": 1,
   "status": "described"
+ },
+ "collcraft-technologies": {
+  "hash": "ee8947cf922721ad",
+  "model": "claude-haiku-4-5",
+  "product": null,
+  "prompt_version": 1,
+  "status": "unclear"
  },
  "cre-aid-labs": {
   "hash": "a1961c94beeff4de",

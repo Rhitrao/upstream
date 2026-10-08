@@ -42,9 +42,11 @@
   "versions": 1
  },
  "accensible.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-10-07T10:09:19+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-08T10:21:52+00:00",
+  "last_change": "2025-07-10",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 3
  },
  "actorius.co": {
   "checked": "2026-10-04T09:41:46+00:00",
@@ -103,9 +105,11 @@
   "versions": 15
  },
  "agrikhet.in": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:09:36+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-08T10:22:08+00:00",
+  "last_change": "2025-04-03",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 1
  },
  "ahammune.com": {
   "checked": "2026-10-06T10:03:18+00:00",
@@ -129,9 +133,11 @@
   "versions": 14
  },
  "aisteth.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-10-07T10:09:06+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-08T10:22:17+00:00",
+  "last_change": "2026-03-31",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 28
  },
  "albatross-energetics.in": {
   "checked": "2026-10-05T10:26:23+00:00",
@@ -155,29 +161,39 @@
   "versions": 1
  },
  "amaterasu.in": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:09:53+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-08T10:22:28+00:00",
+  "last_change": "2026-06-06",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 21
  },
  "ambiator.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:10:10+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-08T10:22:40+00:00",
+  "last_change": "2026-05-25",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 46
  },
  "amelioratebiotech.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:10:27+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-08T10:23:03+00:00",
+  "last_change": "2025-09-27",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 3
  },
  "ameyaunisys.in": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:10:44+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-08T10:23:19+00:00",
+  "last_change": "2025-08-04",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 3
  },
  "ammsemi.ai": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:11:01+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-08T10:23:38+00:00",
+  "last_change": null,
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 0
  },
  "ammsemi.in": {
   "last_failure": "unavailable",
@@ -185,13 +201,15 @@
   "outcome": "unavailable"
  },
  "amylo.in": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-07T10:11:33+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-08T10:24:03+00:00",
+  "last_change": "2025-07-15",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 2
  },
  "amyscan.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:11:50+00:00",
+  "last_failure_at": "2026-10-08T10:24:20+00:00",
   "outcome": "timeout"
  },
  "anaghapures.com": {
@@ -224,27 +242,27 @@
  },
  "apratima.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:12:30+00:00",
+  "last_failure_at": "2026-10-08T10:24:45+00:00",
   "outcome": "timeout"
  },
  "arishti.in": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:12:47+00:00",
+  "last_failure_at": "2026-10-08T10:25:02+00:00",
   "outcome": "timeout"
  },
  "arkashine-innovations.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:13:04+00:00",
+  "last_failure_at": "2026-10-08T10:25:20+00:00",
   "outcome": "timeout"
  },
  "arkleenergy.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-07T10:13:21+00:00",
+  "last_failure_at": "2026-10-08T10:25:37+00:00",
   "outcome": "timeout"
  },
  "artpvindia.com": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-07T10:13:56+00:00",
+  "last_failure_at": "2026-10-08T10:26:11+00:00",
   "outcome": "timeout"
  },
  "arunodayinnovations.com": {
@@ -255,14 +273,18 @@
   "versions": 1
  },
  "ashvaweartech.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:39:06+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-08T10:26:24+00:00",
+  "last_change": "2026-06-06",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 42
  },
  "astrome.co": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:39:14+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-08T10:26:32+00:00",
+  "last_change": "2026-07-25",
+  "outcome": "captured",
+  "since": "2024-10-08",
+  "versions": 49
  },
  "astrophelaerospace.in": {
   "last_failure": "unavailable",
