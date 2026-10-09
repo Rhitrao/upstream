@@ -208,9 +208,11 @@
   "versions": 2
  },
  "amyscan.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-08T10:24:20+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-09T10:23:05+00:00",
+  "last_change": "2025-06-17",
+  "outcome": "captured",
+  "since": "2024-10-09",
+  "versions": 7
  },
  "anaghapures.com": {
   "checked": "2026-10-07T10:12:13+00:00",
@@ -241,28 +243,30 @@
   "versions": 31
  },
  "apratima.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-08T10:24:45+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-09T10:23:36+00:00",
   "outcome": "timeout"
  },
  "arishti.in": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-08T10:25:02+00:00",
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-10-09T10:23:43+00:00",
   "outcome": "timeout"
  },
  "arkashine-innovations.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-08T10:25:20+00:00",
+  "last_failure": "unavailable",
+  "last_failure_at": "2026-10-09T10:23:50+00:00",
   "outcome": "timeout"
  },
  "arkleenergy.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-08T10:25:37+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-09T10:24:15+00:00",
+  "last_change": "2026-06-18",
+  "outcome": "captured",
+  "since": "2024-10-09",
+  "versions": 3
  },
  "artpvindia.com": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-08T10:26:11+00:00",
+  "last_failure_at": "2026-10-09T10:24:47+00:00",
   "outcome": "timeout"
  },
  "arunodayinnovations.com": {
@@ -287,33 +291,33 @@
   "versions": 49
  },
  "astrophelaerospace.in": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:39:21+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-09T10:25:18+00:00",
   "outcome": "unavailable"
  },
  "atmosflight.com": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:39:53+00:00",
+  "last_failure_at": "2026-10-09T10:25:50+00:00",
   "outcome": "timeout"
  },
  "atreyainnovations.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:40:00+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-09T10:26:21+00:00",
   "outcome": "unavailable"
  },
  "augle.ai": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:40:07+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-09T10:26:53+00:00",
   "outcome": "unavailable"
  },
  "avkalanlabs.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:40:15+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-09T10:27:25+00:00",
   "outcome": "unavailable"
  },
  "ayatidevices.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:40:22+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-09T10:27:56+00:00",
   "outcome": "unavailable"
  },
  "ayudevices.com": {

@@ -105,9 +105,9 @@
   "status": "described"
  },
  "algosurg-inc": {
-  "hash": "41d01748a63accf7",
+  "hash": "9d29b56d79b011b8",
   "model": "claude-haiku-4-5",
-  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for orthopedic procedures, licensed to medical device companies for integration into their robots and navigation systems.",
+  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for medical device companies' robots and navigation systems.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -154,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "aaf476d31087eee6",
+  "hash": "d80b7613475ecc5f",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered knee assessment devices and muscle strength testing tools for physiotherapy clinics.",
+  "product": "Fitknees and Fitmust, AI-powered wearable devices for assessing knee function and muscle strength that generate detailed reports for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1295,9 +1295,9 @@
   "status": "described"
  },
  "solinas-integrity": {
-  "hash": "e230c855f048d363",
+  "hash": "2d97ef6cdd7ca697",
   "model": "claude-haiku-4-5",
-  "product": "Robots and digital software that inspect, clean, and map water pipelines, sewers, stormwater drains, septic tanks, and manholes for water utilities and municipalities.",
+  "product": "Robots that inspect, clean, and digitize water pipelines, sewers, septic tanks, stormwater drains, and manholes for water utilities and sanitation organizations.",
   "prompt_version": 1,
   "status": "described"
  },
