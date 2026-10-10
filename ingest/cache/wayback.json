@@ -105,39 +105,39 @@
   "outcome": "captured"
  },
  "algobotix.com": {
-  "checked": "2026-10-09T10:18:10+00:00",
-  "first_capture": null,
-  "outcome": "unavailable"
+  "checked": "2026-10-10T09:38:50+00:00",
+  "first_capture": "2013-06-17",
+  "outcome": "captured"
  },
  "algosurg.com": {
-  "checked": "2026-10-09T10:18:17+00:00",
+  "checked": "2026-10-10T09:39:22+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "timeout"
  },
  "amaterasu.in": {
-  "checked": "2026-10-09T10:18:24+00:00",
+  "checked": "2026-10-10T09:39:54+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "timeout"
  },
  "ambiator.com": {
-  "checked": "2026-10-09T10:18:55+00:00",
+  "checked": "2026-10-10T09:40:12+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "amelioratebiotech.com": {
-  "checked": "2026-10-09T10:19:02+00:00",
+  "checked": "2026-10-10T09:40:29+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "error"
  },
  "ameyaunisys.in": {
-  "checked": "2026-10-09T10:19:09+00:00",
+  "checked": "2026-10-10T09:40:46+00:00",
   "first_capture": null,
-  "outcome": "unavailable"
+  "outcome": "error"
  },
  "ammsemi.ai": {
-  "checked": "2026-10-09T10:19:40+00:00",
+  "checked": "2026-10-10T09:41:03+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "ammsemi.in": {
   "checked": "2026-09-21T08:55:42+00:00",
@@ -150,42 +150,42 @@
   "outcome": "captured"
  },
  "amyscan.com": {
-  "checked": "2026-10-09T10:20:12+00:00",
+  "checked": "2026-10-10T09:41:20+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "anaghapures.com": {
-  "checked": "2026-10-09T10:20:44+00:00",
+  "checked": "2026-10-10T09:41:37+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "anatomech.co": {
-  "checked": "2026-10-09T10:21:15+00:00",
+  "checked": "2026-10-10T09:41:54+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "angirusind.com": {
-  "checked": "2026-10-09T10:21:47+00:00",
+  "checked": "2026-10-10T09:42:11+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "annoviant.com": {
-  "checked": "2026-10-09T10:22:18+00:00",
+  "checked": "2026-10-10T09:42:28+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "apratima.com": {
-  "checked": "2026-10-09T10:22:50+00:00",
+  "checked": "2026-10-10T09:42:45+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "arishti.in": {
-  "checked": "2026-09-15T01:57:45+00:00",
+  "checked": "2026-10-10T09:43:02+00:00",
   "first_capture": null,
-  "outcome": "timeout"
+  "outcome": "error"
  },
  "arkashine-innovations.com": {
-  "checked": "2026-09-15T01:58:17+00:00",
+  "checked": "2026-10-10T09:43:44+00:00",
   "first_capture": null,
   "outcome": "timeout"
  },

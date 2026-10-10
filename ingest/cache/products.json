@@ -105,9 +105,9 @@
   "status": "described"
  },
  "algosurg-inc": {
-  "hash": "9d29b56d79b011b8",
+  "hash": "0faa6e742a191fdb",
   "model": "claude-haiku-4-5",
-  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for medical device companies' robots and navigation systems.",
+  "product": "Surgical AI software that converts patient CT and MRI scans into surgeon-approved, robot-ready surgical plans for medical device companies to embed in their robotic surgery systems and navigation platforms.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -154,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "d80b7613475ecc5f",
+  "hash": "0f63516837c9243b",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees and Fitmust, AI-powered wearable devices for assessing knee function and muscle strength that generate detailed reports for physiotherapy clinics.",
+  "product": "AI-powered motion sensor system and handheld dynamometer for physiotherapy clinics to assess knee function and muscle strength.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -826,9 +826,9 @@
   "status": "unclear"
  },
  "irov-eyerov-technologies": {
-  "hash": "5059a5cd151eb293",
+  "hash": "89ef2f5880d1f67f",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered autonomous underwater ROVs and surface drones for marine inspections and surveys, plus a data visualization and analytics platform for ROV-collected data.",
+  "product": "AI-powered underwater ROVs and a visualization analytics platform for marine inspections and surveys.",
   "prompt_version": 1,
   "status": "described"
  },
