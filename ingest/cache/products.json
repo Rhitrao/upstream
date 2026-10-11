@@ -154,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "0f63516837c9243b",
+  "hash": "0edd9a9d3394e7e0",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered motion sensor system and handheld dynamometer for physiotherapy clinics to assess knee function and muscle strength.",
+  "product": "Fitknees, an AI-enabled motion sensor system that assesses knee function, and FitMust, a handheld dynamometer for muscle strength testing, both for physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1011,6 +1011,13 @@
   "hash": "688f69fa160a326f",
   "model": "claude-haiku-4-5",
   "product": "A runtime security layer that sanitizes prompts with synthetic data replacement to protect sensitive information while preserving context for AI models used by employees and applications.",
+  "prompt_version": 1,
+  "status": "described"
+ },
+ "neroex-innovations": {
+  "hash": "6521b75f63bb8c5f",
+  "model": "claude-haiku-4-5",
+  "product": "A free link page for Indian creators that displays their work portfolio, follower count, and service rates in one shareable URL.",
   "prompt_version": 1,
   "status": "described"
  },

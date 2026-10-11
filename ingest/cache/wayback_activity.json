@@ -243,9 +243,11 @@
   "versions": 31
  },
  "apratima.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-10T09:44:16+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-11T09:56:34+00:00",
+  "last_change": "2026-04-15",
+  "outcome": "captured",
+  "since": "2024-10-11",
+  "versions": 9
  },
  "arishti.in": {
   "checked": "2026-10-10T09:44:27+00:00",
@@ -269,9 +271,11 @@
   "versions": 3
  },
  "artpvindia.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-10T09:45:08+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-11T09:56:53+00:00",
+  "last_change": "2025-10-16",
+  "outcome": "captured",
+  "since": "2024-10-11",
+  "versions": 7
  },
  "arunodayinnovations.com": {
   "checked": "2026-10-07T10:14:16+00:00",
@@ -295,48 +299,48 @@
   "versions": 49
  },
  "astrophelaerospace.in": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:45:27+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T09:57:25+00:00",
   "outcome": "unavailable"
  },
  "atmosflight.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:45:44+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T09:57:56+00:00",
   "outcome": "timeout"
  },
  "atreyainnovations.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:46:02+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T09:58:28+00:00",
   "outcome": "unavailable"
  },
  "augle.ai": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:46:19+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T09:58:59+00:00",
   "outcome": "unavailable"
  },
  "avkalanlabs.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:46:36+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T09:59:31+00:00",
   "outcome": "unavailable"
  },
  "ayatidevices.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:46:53+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T10:00:13+00:00",
   "outcome": "unavailable"
  },
  "ayudevices.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:47:10+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T10:00:44+00:00",
   "outcome": "unavailable"
  },
  "baas.co.in": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-10T09:47:42+00:00",
+  "last_failure_at": "2026-10-11T10:01:16+00:00",
   "outcome": "timeout"
  },
  "banofileather.com": {
-  "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:47:59+00:00",
+  "last_failure": "timeout",
+  "last_failure_at": "2026-10-11T10:01:48+00:00",
   "outcome": "timeout"
  },
  "baudresources.com": {
