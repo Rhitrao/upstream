@@ -300,72 +300,76 @@
  },
  "astrophelaerospace.in": {
   "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T09:57:25+00:00",
+  "last_failure_at": "2026-10-12T10:36:32+00:00",
   "outcome": "unavailable"
  },
  "atmosflight.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T09:57:56+00:00",
-  "outcome": "timeout"
+  "checked": "2026-10-12T10:36:39+00:00",
+  "last_change": "2026-05-15",
+  "outcome": "captured",
+  "since": "2024-10-12",
+  "versions": 4
  },
  "atreyainnovations.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T09:58:28+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-12T10:36:51+00:00",
+  "last_change": "2026-02-08",
+  "outcome": "captured",
+  "since": "2024-10-12",
+  "versions": 16
  },
  "augle.ai": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T09:58:59+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:37:17+00:00",
   "outcome": "unavailable"
  },
  "avkalanlabs.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T09:59:31+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:37:33+00:00",
   "outcome": "unavailable"
  },
  "ayatidevices.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T10:00:13+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:37:50+00:00",
   "outcome": "unavailable"
  },
  "ayudevices.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T10:00:44+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:38:07+00:00",
   "outcome": "unavailable"
  },
  "baas.co.in": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T10:01:16+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:38:24+00:00",
   "outcome": "timeout"
  },
  "banofileather.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-11T10:01:48+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:38:41+00:00",
   "outcome": "timeout"
  },
  "baudresources.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-10-10T09:48:31+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:38:58+00:00",
   "outcome": "timeout"
  },
  "bellatrixaerospace.com": {
   "last_failure": "error",
-  "last_failure_at": "2026-10-10T09:48:48+00:00",
+  "last_failure_at": "2026-10-12T10:39:15+00:00",
   "outcome": "timeout"
  },
  "bhoomicam.com": {
-  "last_failure": "timeout",
-  "last_failure_at": "2026-09-15T04:43:07+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:39:32+00:00",
   "outcome": "timeout"
  },
  "binford.io": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:43:33+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:39:49+00:00",
   "outcome": "unavailable"
  },
  "biodimension.in": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:43:59+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:40:05+00:00",
   "outcome": "unavailable"
  },
  "biomarkiq.com": {
@@ -376,24 +380,28 @@
   "versions": 4
  },
  "bioprimeagri.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:44:37+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:40:22+00:00",
   "outcome": "unavailable"
  },
  "bitmapper.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:44:44+00:00",
+  "last_failure": "error",
+  "last_failure_at": "2026-10-12T10:40:39+00:00",
   "outcome": "unavailable"
  },
  "bleetech.in": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:44:51+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-12T10:40:59+00:00",
+  "last_change": "2026-07-12",
+  "outcome": "captured",
+  "since": "2024-10-12",
+  "versions": 18
  },
  "blurgs.com": {
-  "last_failure": "unavailable",
-  "last_failure_at": "2026-09-15T04:44:59+00:00",
-  "outcome": "unavailable"
+  "checked": "2026-10-12T10:41:09+00:00",
+  "last_change": null,
+  "outcome": "captured",
+  "since": "2024-10-12",
+  "versions": 0
  },
  "bodhiverse.co.in": {
   "last_failure": "unavailable",

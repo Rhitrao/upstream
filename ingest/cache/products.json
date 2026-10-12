@@ -154,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "0edd9a9d3394e7e0",
+  "hash": "e1011044121544ed",
   "model": "claude-haiku-4-5",
-  "product": "Fitknees, an AI-enabled motion sensor system that assesses knee function, and FitMust, a handheld dynamometer for muscle strength testing, both for physiotherapy clinics.",
+  "product": "AI-powered knee assessment devices and handheld dynamometers for muscle strength testing used by physiotherapy clinics.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -504,9 +504,9 @@
   "status": "described"
  },
  "emertech-innovations": {
-  "hash": "a8cab0df172a0fbc",
+  "hash": "ee2d10a43e96d94f",
   "model": "claude-haiku-4-5",
-  "product": "Blockchain-backed supply chain traceability and compliance systems that track products, certifications, and regulatory requirements for enterprises across industries like agriculture, leather, dairy, and manufacturing.",
+  "product": "Blockchain-backed supply chain traceability systems that track products from origin to customer for enterprises needing regulatory compliance and transparency.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1015,9 +1015,9 @@
   "status": "described"
  },
  "neroex-innovations": {
-  "hash": "6521b75f63bb8c5f",
+  "hash": "24fe64d669af562a",
   "model": "claude-haiku-4-5",
-  "product": "A free link page for Indian creators that displays their work portfolio, follower count, and service rates in one shareable URL.",
+  "product": "A free portfolio link for Indian creators to showcase their work, follower counts, and rates in one shareable URL.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1113,9 +1113,9 @@
   "status": "described"
  },
  "powai-labs-technologies": {
-  "hash": "42682cdbfd8fc644",
+  "hash": "b1995836ff64a492",
   "model": "claude-haiku-4-5",
-  "product": "Semiconductor IP cores including processor cores and AI accelerators for system-on-chip development.",
+  "product": "Semiconductor IP cores including a configurable processor core (AJIT) and AI accelerator IP (APARAJIT) for organizations developing next-generation computing platforms and intelligent system-on-chip devices.",
   "prompt_version": 1,
   "status": "described"
  },
