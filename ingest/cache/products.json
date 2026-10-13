@@ -154,9 +154,9 @@
   "status": "described"
  },
  "ashva-wearable-technologies": {
-  "hash": "e1011044121544ed",
+  "hash": "651ca69e039d1f91",
   "model": "claude-haiku-4-5",
-  "product": "AI-powered knee assessment devices and handheld dynamometers for muscle strength testing used by physiotherapy clinics.",
+  "product": "Fitknees and Fitmust are AI-powered devices for physiotherapy clinics that assess knee function and measure muscle strength respectively.",
   "prompt_version": 1,
   "status": "described"
  },
@@ -1449,9 +1449,9 @@
   "status": "described"
  },
  "trinano-technologies": {
-  "hash": "ed4c9a8e310f2432",
+  "hash": "ce5e2b678d0bfe1c",
   "model": "claude-haiku-4-5",
-  "product": "Nano coatings applied to solar panels for residential, commercial, and utility-scale installations that increase energy output and reduce maintenance.",
+  "product": "Nano coatings applied to solar panels that increase energy output and reduce maintenance for residential, commercial, and utility-scale solar installations.",
   "prompt_version": 1,
   "status": "described"
  },
